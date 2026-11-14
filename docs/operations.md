@@ -43,11 +43,12 @@ Only one continuous instance of a given worker is needed per logical database.
 An advisory lock is still required because deployments and schedulers can
 overlap during restarts.
 
-There are two supported scheduling models:
+There are two scheduling models, subject to each worker's lifecycle contract:
 
 1. Invoke the one-shot command from a deployment scheduler, Kubernetes CronJob,
    systemd timer, or equivalent. This is preferred when a scheduler is
-   available.
+   available, except for session/search-cache cleanup, whose production contract
+   uses the independently supervised `--watch` service with optional standbys.
 2. Run `--watch` as one dedicated supervised process when an external scheduler
    is not available.
 
@@ -63,7 +64,7 @@ and a link to its specialized normative documentation.
 | Cleanup responsibility | Owning module/service | Status | Execution model | Specialized documentation |
 | --- | --- | --- | --- | --- |
 | Segmented content, upload session, draft, and superseded-content cleanup | `backend.services.api.content_cleanup` | Implemented | Scheduled one shot or one supervised `--watch` process | [Segmented-content cleanup](#5-segmented-content-cleanup), [content-storage guide](content-storage.md), [storage specification](../specs/segmented-postgresql-content-storage.md#11-cleanup-and-recovery) |
-| Expired and retained revoked login-session cleanup | `backend.services.api.session_cleanup` | Implemented | Scheduled one shot or one supervised `--watch` process | [Login-session cleanup](#6-login-session-cleanup), [authentication guide](authentication.md), [session-lifecycle specification](../specs/authentication-and-login-session-lifecycle.md#8-retention-and-cleanup) |
+| Expired/retained revoked login sessions and expired shared search lists | `backend.services.api.session_cleanup` | Implemented | One independently supervised active `--watch` process per database, optional standbys, two independent schedules; one-shot/dry-run for maintenance | [Session/cache cleanup](#6-login-session-cleanup), [authentication guide](authentication.md), [session-lifecycle specification](../specs/authentication-and-login-session-lifecycle.md#8-retention-and-cleanup) |
 | Full-text indexing attempt/job history, abandoned result staging, and retained text-indexer credential cleanup | `backend.services.api.text_indexing_maintenance` | Implemented | Scheduled one shot or one supervised `--watch` process | [Full-text indexing cleanup](#7-full-text-indexing-history-and-staging-cleanup), [full-text-search specification](../specs/full-text-search.md#66-content_indexing_attempts) |
 | Per-job text-indexer temporary-file cleanup | `backend.services.text_indexer` | Implemented | Immediate `finally` cleanup plus bounded startup recovery sweep; not a database scheduler | [Full-text indexing cleanup](#7-full-text-indexing-history-and-staging-cleanup), [security and robustness requirements](../specs/full-text-search.md#14-security-and-robustness) |
 
@@ -80,7 +81,7 @@ cleanup merely because dependent rows cascade.
 | `./run-local-stack.sh` | Implemented; local development only | Foreground without arguments; explicit `up`, `down`, `status`, `restart` | Manage local services and workers; append logs under `.runtime/local-stack/`; production uses separate supervisors | [Local lifecycle](local-tooling.md#local-stack-lifecycle) |
 | `./run-maildev.py` | Implemented; local development only | Explicit `up`, `down`, `status`, `restart` | Manage loopback MailDev with implicit TLS and MCP; no database access | [Local MailDev](#15-local-development-maildev) |
 | `backend.services.api.content_cleanup` | Implemented | One shot | Remove abandoned uploads, expired drafts, and unreferenced content sets | [Section 5](#5-segmented-content-cleanup) |
-| `backend.services.api.session_cleanup` | Implemented | One shot | Audit and remove expired or long-revoked login sessions | [Section 6](#6-login-session-cleanup) |
+| `backend.services.api.session_cleanup` | Implemented | One shot; production service uses `--watch` | Audit/remove retained login sessions and remove expired shared search lists on separate schedules | [Section 6](#6-login-session-cleanup) |
 | `backend.services.api.text_indexing_maintenance cleanup` | Implemented | One shot or supervised `--watch` | Remove expired terminal indexing history/jobs, abandoned result staging, and retained revoked/expired text-indexer credentials | [Section 7](#7-full-text-indexing-history-and-staging-cleanup) |
 | `backend.services.api.manage_auth` | Implemented | One shot | Bootstrap authentication and perform deliberate credential recovery | [Section 8](#8-authentication-bootstrap-and-credential-recovery) |
 | Database migration commands | Implemented | One shot | Upgrade the schema exactly once per database | [Section 9](#9-database-migrations) |
@@ -91,6 +92,7 @@ cleanup merely because dependent rows cascade.
 | `backend.services.api.disposition.communications` | Implemented | One shot or supervised `--watch` | Process queued document email and disposition reminders | [Disposition workers](#142-worker-startup-and-verification) |
 | `backend.services.api.disposition.destruction_worker` | Implemented | One shot or supervised `--watch` | Resume durable authorized digital work and certificate-only completion | [Disposition workers](#142-worker-startup-and-verification), [recovery](#143-recovery-and-rollback) |
 | `tools/rehearse_disposition_rollout.py` | Implemented | Disposable rehearsal | Create fresh/two upgrade test databases, rehearse setup, and drop all created databases | [Phase 24 verification](disposition-phase-24.md) |
+| `tools/linux_search_cleanup/verify.py` | Implemented | One shot inside a disposable Linux VM | Verify independent systemd cleanup, leadership, takeover and API isolation with two API workers; requires an explicitly marked disposable host and matching test-database settings | [Deployment procedure](deployment.md#separate-systemd-services), [verification](verification/search-cache-cleanup-2026-11-13.md) |
 | Pre-production database reset | Planned | One shot, destructive | Recreate a not-yet-operational environment after setup or smoke testing | [Section 11](#11-pre-production-database-reset) |
 
 ## 5. Segmented-content cleanup
@@ -132,12 +134,44 @@ domain event when committed work occurs. See
 
 `run-local-stack.sh` starts this worker automatically with `--watch`, inherits
 the selected database and uses database retention, batch-size and interval
-defaults. The launcher supervises it and stops it on exit. Do not also run a
-manual copy or scheduled session-cleanup job against that database. Production
-uses the packaged `erms-session-cleanup.service` or its scheduled alternative.
+defaults. The launcher supervises its separate process and stops it on exit,
+in tandem with the complete local stack. Production enables the packaged
+`erms-session-cleanup.service` at system boot independently of API lifecycle.
+It shares the API Python environment and `/etc/erms/api.env`, but never runs in
+an API worker. One active process per database is elected in PostgreSQL; optional
+copies on other hosts are standbys. A local stack targeting the same database
+participates in that election. See [deployment](deployment.md#separate-systemd-services).
 
 This worker treats `login_sessions` as transient operational security data
 while preserving `event_history` as the durable authentication audit trail.
+
+The worker also removes expired shared search result lists in bounded batches.
+Apply migrations through `110_search_cache_cleanup_settings` before upgrading
+the API and this worker. The shared unlogged PostgreSQL table stores ranked IDs and scores
+for the authenticated user, login session and browser tab. Lists expire after
+`GLOBAL_SEARCH_CACHE_IDLE_MINUTES` of inactivity (default 15), or earlier if
+the login expires. Revoking a login makes its lists unavailable. Changing
+the search result limit or cache timeout invalidates lists created under
+the previous values.
+Deleting the login cascades to its lists. PostgreSQL may clear the unlogged
+cache during recovery. If a list is unavailable and the login is still valid,
+the search screen silently resubmits the original query and requests the
+same page from the rebuilt list. It shows the last available page if the
+results shrank. See [the cache and paging contract](../specs/full-text-search.md#103-global-search-endpoint).
+
+The shared table permits any API worker to serve a continuation; WebUI sticky
+sessions do not establish API-worker affinity. In-memory caching is possible
+but would need bounded memory, eviction and coordination across API workers.
+The local measured cache read is about 2 ms; page permission/evidence work is
+separate. Expiry is enforced by the read query immediately, independently of
+when cleanup physically deletes the row. `ON DELETE CASCADE` removes a deleted
+login's cached lists in the same database transaction.
+
+Authentication keeps the login row locked while checking/updating expiry, using
+`FOR NO KEY UPDATE` so cache foreign-key references do not block it unnecessarily.
+Its complete synchronous transaction runs in a worker thread, keeping legitimate
+lock waits off the API event loop. See the
+[page-batching and lock verification](verification/search-page-batching-2026-11-13.md).
 
 An eligible revoked session is one whose `revoked_at` is older than the
 configured retention period. An eligible unrevoked expired session is one whose
@@ -162,16 +196,62 @@ python -m backend.services.api.session_cleanup \
 | Setting | Initial default | Meaning |
 | --- | --- | --- |
 | `AUTH_SESSION_RETENTION_DAYS` | `90` | Retention after revocation or effective expiry |
-| `AUTH_SESSION_CLEANUP_INTERVAL_SECONDS` | `3600` | Delay between continuous worker passes |
-| `AUTH_SESSION_CLEANUP_BATCH_SIZE` | `500` | Default maximum rows processed per pass |
+| `AUTH_SESSION_CLEANUP_INTERVAL_SECONDS` | `3600` | Delay after a completed login-history pass |
+| `AUTH_SESSION_CLEANUP_BATCH_SIZE` | `500` | Maximum login-history rows processed per pass |
+| `GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS` | `60` | Delay after a completed search-cache pass |
+| `GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE` | `5000` | Maximum expired cached lists deleted per pass; each list is one tab/login, not one hit |
 
-The implementation must use a session-cleanup-specific advisory-lock key. It
-must not share the segmented-content cleanup lock because the jobs operate on
-independent data and may run concurrently.
+All five are database-backed Application Settings, not environment settings.
+The new cache controls appear under **Search and indexing**; both are positive
+integers. Defaults allow up to 5,000 expired lists per minute, less the time spent
+running the pass. This is a starting maintenance budget, not a measured capacity
+guarantee. Watch `job=search_cache selected=... removed=... lock_skipped=...` in
+the worker log. Repeated full batches indicate a possible backlog: measure the
+expired-row backlog and batch duration before reducing the interval or increasing
+the batch. A single transaction never exceeds the configured batch, and there
+is no unbounded drain loop.
 
-The preferred production deployment is an external scheduler running the
-one-shot command. `--watch` exists for simple deployments and must run as its
-own supervised service, never inside FastAPI.
+Both jobs run when a process acquires leadership, then follow independent completion-based timers.
+The active worker checks settings at most 30 seconds apart while idle; setting changes need
+no restart and a running batch finishes under its captured policy. Cache
+cleanup commits before audited login cleanup starts. Cache SQL uses the expiry
+index, a statement-stable cutoff, and `FOR UPDATE SKIP LOCKED` to avoid waiting
+on active tab writes; it never reads or processes the saved JSON hits. Changes
+to cleanup settings neither change expiry nor invalidate valid cached lists.
+
+The one-shot CLI runs one bounded pass of both jobs only when no other leader exists. Existing `--batch-size`,
+`--interval-seconds` and `--retention-days` overrides apply only to login history.
+`--dry-run` deletes nothing and writes no audit events for either job. SIGTERM
+and SIGINT wake an idle worker immediately; an in-flight bounded transaction
+may finish before exit. Forced termination rolls back uncommitted work. Failures
+exit nonzero and the packaged service restarts them after five seconds.
+
+Login cleanup uses advisory key `2026091801`; cache cleanup uses `2026091802`.
+Neither shares the segmented-content lock. Each lock lasts only its own
+transaction and suppresses overlapping passes of that job.
+
+Session advisory key `2026091803` additionally elects one active owner of both
+jobs across all hosts using this database. It remains held across commits and
+idle waits. A standby reports `role=standby reason=leader_present`, executes no
+jobs, and retries every five seconds. Promotion reports `role=leader backend_pid=...`.
+The same dedicated connection performs all job SQL: a lost connection cannot
+leave an old owner deleting through a separate connection. Errors exit nonzero
+for systemd restart; there is no transparent reconnection preserving leadership.
+PostgreSQL releases ownership on disconnect; takeover needs server-side failure
+detection plus up to five seconds of polling. Each leader/standby holds one
+connection, idle outside short transactions. Use a direct PostgreSQL endpoint
+or session pooling; transaction pooling is incompatible with session locks.
+One-shot and dry-run commands report standby and exit zero without work when a
+leader exists. Stop all watch copies before intentional one-shot maintenance.
+
+Production enables this independent service at boot and restarts it on failure;
+API lifecycle changes do not affect it. Optional standbys provide takeover;
+one active process is sufficient when automatic host failover is unnecessary.
+Do not add a scheduled copy alongside it. Stop/upgrade all old cleanup copies
+before deploying this version: older code knows only the per-job locks and
+cannot participate in leadership. No schema migration or new environment
+setting is needed for this coordination change. Local launcher start/stop
+ownership remains unchanged.
 
 The normative lifecycle, audit, retention, and cleanup requirements are in
 [Authentication and Login-Session Lifecycle](../specs/authentication-and-login-session-lifecycle.md).
@@ -1107,3 +1187,24 @@ and restart API/WebUI. Fresh databases use `schema.sql` alone. The migration
 changes validation and attribution for future decisions without updating or
 deleting existing notes, reasons, decisions or events. Legacy API field names
 remain supported; no new environment settings or privileges are required.
+
+## Search candidate indexes (109)
+
+Migration `109_search_candidate_indexes.sql` adds the filename-expression GIN
+index and partial indexes for uncommon search configurations. Apply it during
+an upgrade maintenance window: transactional index creation can block writes
+to the indexed tables. It preserves data, permissions and ranking. Fresh
+databases receive the indexes from the canonical schema. No environment or
+Application Settings changes are required.
+
+Complete large offline loads or initial search-index backfills with normal
+`VACUUM (ANALYZE)` maintenance on the affected tables, outside a transaction,
+and keep autovacuum healthy. Newly loaded rows can otherwise make the first
+search perform substantial visibility-hint/WAL work. Do not put vacuuming in
+the search request path or disable checksums/WAL to improve timings. The
+benchmark documents its post-load maintenance and separately reports the
+unmaintained first-scan cost.
+
+After changes to search SQL or indexes, run the disposable
+[search correctness and performance gate](search-performance.md). Its output
+cap does not excuse expensive repeated authorization or scoring work.

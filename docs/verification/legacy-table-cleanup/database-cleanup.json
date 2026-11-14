@@ -1,0 +1,46 @@
+{
+  "runs": {
+    "chrome-aggregations": {
+      "database": "erms_webui_test_26e396d0bd8a45d5bda39cb1705a7633",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:58603",
+      "ui_url": "http://127.0.0.1:58604",
+      "fixture": "fixed-v1",
+      "test_exit_code": 0,
+      "browser": "chrome"
+    },
+    "edge-aggregations": {
+      "database": "erms_webui_test_042710b8b460484f8242ca091b063e43",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:59269",
+      "ui_url": "http://127.0.0.1:59270",
+      "fixture": "fixed-v1",
+      "test_exit_code": 0,
+      "browser": "edge"
+    },
+    "chrome-classification": {
+      "database": "erms_webui_test_75a09f61028e434fa062f73585806f61",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:59432",
+      "ui_url": "http://127.0.0.1:59433",
+      "fixture": "fixed-v1",
+      "test_exit_code": 0,
+      "browser": "chrome"
+    },
+    "edge-classification": {
+      "database": "erms_webui_test_71e4daa5c34c471db4b2062cf07b1d44",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:58597",
+      "ui_url": "http://127.0.0.1:58598",
+      "fixture": "fixed-v1",
+      "test_exit_code": 0,
+      "browser": "edge"
+    }
+  },
+  "remaining_databases": [],
+  "audit": "Independent read-only PostgreSQL catalogue query"
+}

@@ -1,0 +1,156 @@
+[
+  {
+    "browser": "chrome",
+    "settings_counts_match": true,
+    "counts": [
+      {
+        "method": "GET",
+        "path": "/api/v1/application-settings",
+        "status": 200,
+        "before": 48,
+        "after": 48
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/application-settings",
+        "status": 503,
+        "before": 2,
+        "after": 2
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/application-settings/test-send",
+        "status": 200,
+        "before": 2,
+        "after": 2
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/application-settings/test-send",
+        "status": 503,
+        "before": 2,
+        "after": 2
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/application-settings",
+        "status": 200,
+        "before": 14,
+        "after": 14
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/application-settings",
+        "status": 409,
+        "before": 2,
+        "after": 2
+      }
+    ],
+    "navigation_timings_note": "Per-check durations include automation waits and varying machine load; not a controlled latency benchmark",
+    "repeated_navigation_before": [
+      {
+        "name": "repeated navigation uses one Settings read per visit",
+        "language": "en",
+        "status": "pass",
+        "milliseconds": 2773.64
+      },
+      {
+        "name": "repeated navigation uses one Settings read per visit",
+        "language": "ar",
+        "status": "pass",
+        "milliseconds": 2887.61
+      }
+    ],
+    "repeated_navigation_after": [
+      {
+        "name": "repeated navigation uses one Settings read per visit",
+        "language": "en",
+        "status": "pass",
+        "milliseconds": 3848.24
+      },
+      {
+        "name": "repeated navigation uses one Settings read per visit",
+        "language": "ar",
+        "status": "pass",
+        "milliseconds": 6045.46
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "settings_counts_match": true,
+    "counts": [
+      {
+        "method": "GET",
+        "path": "/api/v1/application-settings",
+        "status": 200,
+        "before": 48,
+        "after": 48
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/application-settings",
+        "status": 503,
+        "before": 2,
+        "after": 2
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/application-settings/test-send",
+        "status": 200,
+        "before": 2,
+        "after": 2
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/application-settings/test-send",
+        "status": 503,
+        "before": 2,
+        "after": 2
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/application-settings",
+        "status": 200,
+        "before": 14,
+        "after": 14
+      },
+      {
+        "method": "PUT",
+        "path": "/api/v1/application-settings",
+        "status": 409,
+        "before": 2,
+        "after": 2
+      }
+    ],
+    "navigation_timings_note": "Per-check durations include automation waits and varying machine load; not a controlled latency benchmark",
+    "repeated_navigation_before": [
+      {
+        "name": "repeated navigation uses one Settings read per visit",
+        "language": "en",
+        "status": "pass",
+        "milliseconds": 2615.99
+      },
+      {
+        "name": "repeated navigation uses one Settings read per visit",
+        "language": "ar",
+        "status": "pass",
+        "milliseconds": 2775.93
+      }
+    ],
+    "repeated_navigation_after": [
+      {
+        "name": "repeated navigation uses one Settings read per visit",
+        "language": "en",
+        "status": "pass",
+        "milliseconds": 2561.61
+      },
+      {
+        "name": "repeated navigation uses one Settings read per visit",
+        "language": "ar",
+        "status": "pass",
+        "milliseconds": 2149.11
+      }
+    ]
+  }
+]

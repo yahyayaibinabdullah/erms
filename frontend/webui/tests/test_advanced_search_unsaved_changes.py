@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-SOURCE = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+SOURCE = ast.parse((Path(__file__).parents[1] / 'advanced_search.py').read_text())
 
 
 def callbacks(*names, **scope):
@@ -31,7 +31,7 @@ def callbacks(*names, **scope):
 @pytest.mark.asyncio
 @pytest.mark.parametrize('saved', [None, {'id': 7}])
 async def test_unchanged_new_target_is_silent_but_loaded_saved_target_confirms(saved):
-    workspace = dict(resource='records', saved=saved, root={'children': [{}]}, baseline='original')
+    workspace = dict(resource='records', saved=saved, root={'children': [{}]}, baseline='original', execution_revision=0)
     confirm = AsyncMock(return_value=True)
     scope = callbacks('new_condition', 'change_target', Any=object, workspace=workspace,
                       target=SimpleNamespace(value='aggregations'), is_dirty=lambda: False,
@@ -55,7 +55,7 @@ async def test_unchanged_new_target_is_silent_but_loaded_saved_target_confirms(s
 @pytest.mark.asyncio
 @pytest.mark.parametrize('cancel', [True, False])
 async def test_dirty_target_switch_confirms_once_and_cancel_preserves_workspace(cancel):
-    workspace = dict(resource='records', root={'value': 'edited'})
+    workspace = dict(resource='records', root={'value': 'edited'}, execution_revision=0)
     original = copy.deepcopy(workspace)
     target = SimpleNamespace(value='aggregations', update=Mock())
     confirm = AsyncMock(return_value=not cancel)
@@ -107,8 +107,9 @@ def test_page_size_does_not_dirty_saved_definition_and_reverted_edits_are_clean(
 @pytest.mark.parametrize('resource', ['record', 'aggregation'])
 def test_loading_saved_search_clears_previous_execution_and_sets_clean_baseline(resource):
     workspace = dict(last_result={'items': [{'id': 99}]}, searched=True, total=1,
+                     execution={'request': {'limit': 25}}, execution_revision=0,
                      return_anchor='old-result', expanded_results=[99],
-                     record_component_details={99: []}, record_capabilities={99: {}})
+                     record_capabilities={99: {}})
     saved = dict(id=7, name='Saved fixture', definition=dict(resource_type=resource,
                  request=dict(where={'field': 'title', 'operator': 'contains_ci', 'value': 'budget'})))
     controls = {name: SimpleNamespace(value=None) for name in
@@ -126,9 +127,10 @@ def test_loading_saved_search_clears_previous_execution_and_sets_clean_baseline(
     assert workspace['loading'] is False
     assert workspace['resource'] == resource + 's'
     assert workspace['last_result'] is None and workspace['searched'] is False
+    assert workspace['execution'] is None
     assert workspace['offset'] == workspace['total'] == 0
     assert workspace['expanded_results'] == []
-    assert workspace['record_component_details'] == workspace['record_capabilities'] == {}
+    assert workspace['record_capabilities'] == {}
     assert 'return_anchor' not in workspace
     assert status.text == ''
 
@@ -173,7 +175,7 @@ async def test_clean_navigation_guard_does_not_construct_any_dialog():
 
 @pytest.mark.asyncio
 async def test_target_only_setup_then_open_saved_search_is_clean_but_later_edits_warn():
-    workspace = dict(resource='records', saved=None, root={'value': ''})
+    workspace = dict(resource='records', saved=None, root={'value': ''}, execution_revision=0)
     def payload():
         return {'definition': {'request': {'where': copy.deepcopy(workspace['root'])},
                                'resource_type': workspace['resource']}}
@@ -205,12 +207,13 @@ async def test_loaded_saved_target_change_cancels_safely_or_starts_detached_new_
     workspace = dict(resource=resource, saved={'id':7},
                      root={'type':'group','operator':'and','children':[{'value':'saved criterion'}]},
                      last_result={'items':[{'id':3}]}, searched=True,
+                     execution={'request': {'limit': 25}}, execution_revision=0,
                      search_name='Original saved name', search_category='Original category',
                      search_description='Original description', audience_mode='roles_and_units',
                      role_ids=[11], org_unit_ids=[22], return_anchor='old-result',
-                     expanded_results=[3], record_component_details={3: []},
+                     expanded_results=[3],
                      record_capabilities={3: {}}, sort_field='title', sort_direction='desc',
-                     max_results=500, limit=100)
+                     limit=100)
     def payload():
         return {'definition': {'request': {'where': copy.deepcopy(workspace['root'])},
                                'resource_type': workspace['resource']}}
@@ -237,9 +240,9 @@ async def test_loaded_saved_target_change_cancels_safely_or_starts_detached_new_
         assert workspace['audience_mode'] == 'private'
         assert workspace['role_ids'] == workspace['org_unit_ids'] == []
         assert workspace['sort_field'] == 'id' and workspace['sort_direction'] == 'asc'
-        assert workspace['max_results'] == 1000 and workspace['limit'] == 25
+        assert 'max_results' not in workspace and workspace['limit'] == 25
         assert workspace['expanded_results'] == []
-        assert workspace['record_component_details'] == workspace['record_capabilities'] == {}
+        assert workspace['record_capabilities'] == {}
         assert 'return_anchor' not in workspace
         assert scope.search_name.value == scope.search_description.value == ''
         assert scope.search_category.value is None

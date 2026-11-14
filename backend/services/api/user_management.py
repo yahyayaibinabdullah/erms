@@ -2,11 +2,13 @@ import hashlib
 import json
 import os
 import secrets
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from psycopg import Connection, sql
 
+from .operation_policy import operation_policy
 from .crud import create_row, delete_row, get_or_404, list_rows, update_row
 from .concurrency import expected_version
 from .application_settings import cache as settings_cache
@@ -340,12 +342,12 @@ def _assert_snapshot_continuity(connection: Connection, snapshot: tuple[int, int
     assert_continuity(connection, snapshot[0], snapshot[1])
 
 
-def _history(connection: Connection, entity_type: str, entity_id: int):
+def _history(connection: Connection, entity_type: str, entity_id: int, *, limit: int = 500, offset: int = 0):
     return list_rows(
         connection,
         "event_history",
-        limit=500,
-        offset=0,
+        limit=limit,
+        offset=offset,
         filters={"entity_type": entity_type, "entity_id": entity_id},
         order_by=("occurred_at", "id"),
         descending=True,
@@ -353,6 +355,7 @@ def _history(connection: Connection, entity_type: str, entity_id: int):
 
 
 @router.get("/profiles/reference", response_model=list[ProfileReferenceRead], tags=["profiles"])
+@operation_policy("authenticated_only")
 def list_profile_references(
     request: Request,
     response: Response,
@@ -383,6 +386,7 @@ def create_org_unit(payload: OrgUnitCreate, connection: Connection = Depends(get
 
 
 @router.get("/org-units", response_model=list[OrgUnitRead], tags=["org units"])
+@operation_policy("authenticated_only")
 def list_org_units(
     request: Request,
     response: Response,
@@ -404,6 +408,7 @@ def list_org_units(
 
 
 @router.post("/org-units/search", response_model=None, tags=["org units"])
+@operation_policy("authenticated_only")
 def search_org_units(
     request: Request, payload: SearchRequest,
     connection: Connection = Depends(get_connection, scope="function"),
@@ -420,6 +425,7 @@ def search_org_units(
 
 
 @router.get("/org-units/{org_unit_id}", response_model=OrgUnitRead, tags=["org units"])
+@operation_policy("authenticated_only")
 def get_org_unit(org_unit_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
     return localize_rows([get_or_404(connection, "org_units", org_unit_id)], preferred_language(connection, request), "name")[0]
 
@@ -472,8 +478,11 @@ def activate_org_unit(org_unit_id: int, version: int = Depends(expected_version)
     tags=["event history"],
     dependencies=[Depends(require_audit_view)],
 )
-def get_org_unit_history(org_unit_id: int, connection: Connection = Depends(get_connection, scope="function")):
-    return _history(connection, "org_unit", org_unit_id)
+def get_org_unit_history(
+    org_unit_id: int, limit: int = Query(500, ge=1, le=500), offset: int = Query(0, ge=0),
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    return _history(connection, "org_unit", org_unit_id, limit=limit, offset=offset)
 
 
 @router.get(
@@ -652,6 +661,7 @@ def create_user(payload: UserCreate, connection: Connection = Depends(get_connec
 
 
 @router.get("/users", response_model=list[UserRead], tags=["users"])
+@operation_policy("authenticated_only")
 def list_users(
     request: Request,
     user_status: str | None = Query(default=None, alias="status"),
@@ -670,6 +680,7 @@ def list_users(
 
 
 @router.post("/users/search", response_model=None, tags=["users"])
+@operation_policy("authenticated_only")
 def search_users(
     request: Request, payload: SearchRequest,
     connection: Connection = Depends(get_connection, scope="function"),
@@ -685,6 +696,7 @@ def search_users(
 
 
 @router.get("/users/{user_id}", response_model=UserRead, tags=["users"])
+@operation_policy("authenticated_only")
 def get_user(user_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
     return localize_rows([get_or_404(connection, "users", user_id)], preferred_language(connection, request), "name")[0]
 
@@ -842,8 +854,11 @@ def unsuspend_user(request: Request, user_id: int, version: int = Depends(expect
     tags=["event history"],
     dependencies=[Depends(require_audit_view)],
 )
-def get_user_history(user_id: int, connection: Connection = Depends(get_connection, scope="function")):
-    return _history(connection, "user", user_id)
+def get_user_history(
+    user_id: int, limit: int = Query(500, ge=1, le=500), offset: int = Query(0, ge=0),
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    return _history(connection, "user", user_id, limit=limit, offset=offset)
 
 
 @router.post("/roles", response_model=RoleRead, status_code=201, tags=["roles"], dependencies=[Depends(require_organization_admin)])
@@ -852,6 +867,7 @@ def create_role(payload: RoleCreate, connection: Connection = Depends(get_connec
 
 
 @router.get("/roles", response_model=list[RoleRead], tags=["roles"])
+@operation_policy("authenticated_only")
 def list_roles(
     request: Request,
     response: Response,
@@ -882,6 +898,7 @@ def list_roles(
 
 
 @router.post("/roles/search", response_model=None, tags=["roles"])
+@operation_policy("authenticated_only")
 def search_roles(
     request: Request, payload: SearchRequest, include_system: bool = False,
     connection: Connection = Depends(get_connection, scope="function"),
@@ -898,6 +915,7 @@ def search_roles(
 
 
 @router.get("/roles/{role_id}", response_model=RoleRead, tags=["roles"])
+@operation_policy("authenticated_only")
 def get_role(role_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
     return localize_rows([get_or_404(connection, "roles", role_id)], preferred_language(connection, request), "name")[0]
 
@@ -1005,8 +1023,11 @@ def activate_role(role_id: int, version: int = Depends(expected_version), connec
     tags=["event history"],
     dependencies=[Depends(require_audit_view)],
 )
-def get_role_history(role_id: int, connection: Connection = Depends(get_connection, scope="function")):
-    return _history(connection, "role", role_id)
+def get_role_history(
+    role_id: int, limit: int = Query(500, ge=1, le=500), offset: int = Query(0, ge=0),
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    return _history(connection, "role", role_id, limit=limit, offset=offset)
 
 
 @router.post(
@@ -1128,6 +1149,34 @@ def get_assignment_history(
     return _history(connection, "user_role_assignment", assignment_id)
 
 
+AssignmentSort = Literal["counterpart", "counterpart_status", "valid_from", "valid_until"]
+
+
+def _membership_validity_filter(valid_from: date | None, valid_until: date | None):
+    """Match inclusive calendar-date overlap with the UTC dates returned by the API."""
+    clause = ""
+    parameters = ()
+    if valid_from is not None:
+        clause += " AND (assignment.valid_until IS NULL OR assignment.valid_until >= (%s::timestamp AT TIME ZONE 'UTC'))"
+        parameters += (valid_from,)
+    if valid_until is not None:
+        clause += " AND assignment.valid_from < ((%s::date + 1)::timestamp AT TIME ZONE 'UTC')"
+        parameters += (valid_until,)
+    return clause, parameters
+
+
+def _membership_order(sort: AssignmentSort | None, descending: bool, name: str, status_column: str) -> str:
+    if sort is None:
+        return f"lower({name}), assignment.id"
+    column = {
+        "counterpart": f"lower({name})",
+        "counterpart_status": status_column,
+        "valid_from": "assignment.valid_from",
+        "valid_until": "assignment.valid_until",
+    }[sort]
+    return f"{column} {'DESC' if descending else 'ASC'}, assignment.id"
+
+
 @router.get(
     "/users/{user_id}/roles",
     tags=["user role assignments"],
@@ -1136,6 +1185,14 @@ def get_assignment_history(
 def get_user_roles(
     user_id: int, request: Request, q: str = Query("", max_length=120),
     limit: int = Query(25, ge=1, le=50), offset: int = Query(0, ge=0),
+    display_q: str = "",
+    role_status: Literal["active", "inactive"] | None = None,
+    validity: Literal["current", "future", "expired"] | None = None,
+    membership_q: str = "",
+    valid_from: date | None = None,
+    valid_until: date | None = None,
+    sort: AssignmentSort | None = None,
+    descending: bool = False,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     get_or_404(connection, "users", user_id)
@@ -1145,6 +1202,28 @@ def get_user_roles(
     where = """WHERE assignment.user_id=%s
       AND (%s='' OR role.code ILIKE '%%'||%s||'%%' OR role.name ILIKE '%%'||%s||'%%'
            OR COALESCE(role.translations->%s->>'name','') ILIKE '%%'||%s||'%%')"""
+    if display_q.strip():
+        where += """ AND strpos(lower(concat_ws(' — ', NULLIF(role.code,''),
+                         COALESCE(NULLIF(role.translations->%s->>'name',''),role.name))), lower(%s)) > 0"""
+        params += (language, display_q.strip())
+    if role_status is not None:
+        where += " AND role.status = %s"
+        params += (role_status,)
+    if validity is not None:
+        where += """ AND CASE WHEN assignment.valid_from > CURRENT_TIMESTAMP THEN 'future'
+                         WHEN assignment.valid_until <= CURRENT_TIMESTAMP THEN 'expired'
+                         ELSE 'current' END = %s"""
+        params += (validity,)
+    localized_name = "COALESCE(NULLIF(role.translations->%s->>'name',''),role.name)"
+    if membership_q.strip():
+        where += f" AND strpos(lower(concat_ws(' ', role.code, {localized_name})), lower(%s)) > 0"
+        params += (language, membership_q.strip())
+    validity_clause, validity_params = _membership_validity_filter(valid_from, valid_until)
+    where += validity_clause
+    params += validity_params
+    order_name = f"concat_ws(' — ', role.code, {localized_name})" if sort == "counterpart" else localized_name
+    order = _membership_order(sort, descending, order_name, "role.status")
+    order_params = (language,) if sort in (None, "counterpart") else ()
     total = connection.execute(
         f"SELECT count(*) AS value FROM user_role_assignments assignment JOIN roles role ON role.id=assignment.role_id {where}", params,
     ).fetchone()["value"]
@@ -1153,8 +1232,8 @@ def get_user_roles(
                     role.description AS counterpart_description, role.status AS counterpart_status,
                     role.translations AS counterpart_translations
                FROM user_role_assignments assignment JOIN roles role ON role.id=assignment.role_id {where}
-              ORDER BY lower(COALESCE(NULLIF(role.translations->%s->>'name',''),role.name)),assignment.id
-              LIMIT %s OFFSET %s""", (*params, language, limit, offset),
+              ORDER BY {order}
+              LIMIT %s OFFSET %s""", (*params, *order_params, limit, offset),
     ).fetchall())
     for row in rows:
         localized = localize_rows([{
@@ -1177,6 +1256,12 @@ def get_user_roles(
 def get_role_users(
     role_id: int, request: Request, q: str = Query("", max_length=120),
     limit: int = Query(25, ge=1, le=50), offset: int = Query(0, ge=0),
+    membership_q: str = "",
+    user_status: Literal["active", "inactive", "suspended"] | None = None,
+    valid_from: date | None = None,
+    valid_until: date | None = None,
+    sort: AssignmentSort | None = None,
+    descending: bool = False,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     get_or_404(connection, "roles", role_id)
@@ -1187,6 +1272,18 @@ def get_role_users(
       AND (%s='' OR user_row.name ILIKE '%%'||%s||'%%' OR user_row.email ILIKE '%%'||%s||'%%'
            OR user_row.external_id ILIKE '%%'||%s||'%%'
            OR COALESCE(user_row.translations->%s->>'name','') ILIKE '%%'||%s||'%%')"""
+    localized_name = "COALESCE(NULLIF(user_row.translations->%s->>'name',''),user_row.name)"
+    if membership_q.strip():
+        where += f" AND strpos(lower(concat_ws(' ', {localized_name}, user_row.email)), lower(%s)) > 0"
+        params += (language, membership_q.strip())
+    if user_status is not None:
+        where += " AND user_row.status = %s"
+        params += (user_status,)
+    validity_clause, validity_params = _membership_validity_filter(valid_from, valid_until)
+    where += validity_clause
+    params += validity_params
+    order = _membership_order(sort, descending, localized_name, "user_row.status")
+    order_params = (language,) if sort in (None, "counterpart") else ()
     total = connection.execute(
         f"SELECT count(*) AS value FROM user_role_assignments assignment JOIN users user_row ON user_row.id=assignment.user_id {where}", params,
     ).fetchone()["value"]
@@ -1195,8 +1292,8 @@ def get_role_users(
                     user_row.external_id AS counterpart_external_id, user_row.account_type AS counterpart_account_type,
                     user_row.status AS counterpart_status, user_row.translations AS counterpart_translations
                FROM user_role_assignments assignment JOIN users user_row ON user_row.id=assignment.user_id {where}
-              ORDER BY lower(COALESCE(NULLIF(user_row.translations->%s->>'name',''),user_row.name)),assignment.id
-              LIMIT %s OFFSET %s""", (*params, language, limit, offset),
+              ORDER BY {order}
+              LIMIT %s OFFSET %s""", (*params, *order_params, limit, offset),
     ).fetchall())
     for row in rows:
         localized = localize_rows([{

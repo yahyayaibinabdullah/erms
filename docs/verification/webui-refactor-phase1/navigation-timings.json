@@ -1,0 +1,81 @@
+{
+  "method": "Wall time around browser click and target content visibility; includes automation overhead; dashboard can show cached data before its refresh completes. Descriptive baseline, not latency thresholds.",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "samples": [
+    {
+      "language": "en",
+      "screen": "dashboard-return",
+      "run": 1,
+      "ready_ms": 300
+    },
+    {
+      "language": "en",
+      "screen": "settings-entry",
+      "run": 1,
+      "ready_ms": 295
+    },
+    {
+      "language": "en",
+      "screen": "dashboard-return",
+      "run": 2,
+      "ready_ms": 284
+    },
+    {
+      "language": "en",
+      "screen": "settings-entry",
+      "run": 2,
+      "ready_ms": 283
+    },
+    {
+      "language": "en",
+      "screen": "dashboard-return",
+      "run": 3,
+      "ready_ms": 284
+    },
+    {
+      "language": "en",
+      "screen": "settings-entry",
+      "run": 3,
+      "ready_ms": 284
+    },
+    {
+      "language": "ar",
+      "screen": "settings-entry",
+      "run": 1,
+      "ready_ms": 280
+    },
+    {
+      "language": "ar",
+      "screen": "dashboard-return",
+      "run": 1,
+      "ready_ms": 286
+    },
+    {
+      "language": "ar",
+      "screen": "settings-entry",
+      "run": 2,
+      "ready_ms": 280
+    },
+    {
+      "language": "ar",
+      "screen": "dashboard-return",
+      "run": 2,
+      "ready_ms": 287
+    },
+    {
+      "language": "ar",
+      "screen": "settings-entry",
+      "run": 3,
+      "ready_ms": 281
+    },
+    {
+      "language": "ar",
+      "screen": "dashboard-return",
+      "run": 3,
+      "ready_ms": 286
+    }
+  ]
+}

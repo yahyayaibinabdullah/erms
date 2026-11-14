@@ -1,0 +1,23 @@
+{
+  "chrome": {
+    "accepted": true,
+    "pairs": 14,
+    "exact": 13,
+    "minor_raster_variation": {
+      "scene": "records-staged-ar.png",
+      "pixels": 8,
+      "maximum_channel_difference": 3,
+      "cause_observed": "Rounded lower corners of the title input border; same geometry, text, controls and focus."
+    }
+  },
+  "edge": {
+    "accepted": true,
+    "pairs": 14,
+    "exact": 14
+  },
+  "comparison": "Exclude existing animated header at y<72 except full-screen staged preview, compared in full. No page CSS or contents masked.",
+  "initial_observations": [
+    "Initial Edge original run showed English record subtitle in Arabic; repeated original and extracted journeys agree in Arabic.",
+    "Initial Chrome extracted run emitted one old selected-label lookup and its selected-ID resolution; unchanged-source rerun agrees with original counters. Security selector and its display-echo handling are unchanged."
+  ]
+}

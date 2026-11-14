@@ -1,9 +1,8 @@
 # API policy inventory
 
-`security/operation-policy-registry.json` is the generated inventory of the
-ERMS authorization boundary. It contains FastAPI operations and their intended
-global privilege or resource permission. It is defence-in-depth: the API and
-database remain responsible for enforcing every decision.
+`security/operation-policy-registry.json` is generated from the registered
+FastAPI HTTP routes. It shows the intended access rule for each operation.
+The API and database enforce those rules when they handle a request.
 
 ## What belongs in the registry
 
@@ -16,26 +15,35 @@ The registry deliberately excludes buttons, links, menus, screens, and mobile
 widgets. Client code is not an authorization boundary, and line- or widget-based
 entries create noisy diffs without proving that access is protected.
 
-The generator has no default classification for a new API route. Generation
-fails until the operation is deliberately classified as public, authenticated,
-globally privileged, resource scoped, or another approved policy class. This
-turns the inventory into a useful review gate instead of silently assigning a
-weak fallback.
+## Declare policies beside the route
 
-## Review rule
+- When one `require_global_privilege(...)` dependency is the complete route
+  policy, the inventory reads the privilege directly from that dependency.
+  Named dependencies created by the same factory work the same way.
+- Put `@operation_policy(...)` directly above the handler when the policy
+  involves a resource, a workflow relationship, a conditional rule, or another
+  access class. For example, Disposition progress is
+  `@operation_policy("relationship_scoped")` because the handler checks access
+  to that job's workspace.
+- Keep the authorization check in the dependency, handler or database command.
+  Test protected routes with authorized and unauthorized callers. For scoped
+  access, include a signed-in caller outside the authorized scope.
 
-Explicit security review is required when an API operation is added, removed,
-or reclassified, or when its privilege or permission changes. Regeneration is
-mechanical and is not itself review:
+The inventory check fails for HTTP routes without a declaration or an
+unambiguous global privilege dependency. It also covers HTTP methods hidden
+from OpenAPI. A resource or workflow rule still needs its own declaration
+when the route also has a global dependency.
+
+## Generate and review the registry
 
 ```bash
 PYTHONPATH=. backend/services/api/.venv/bin/python tools/generate_policy_inventory.py
 ```
 
-The reviewer must inspect the resulting API-policy diff and the corresponding
-runtime authorization dependency or resource authorization call. Ordinary
-client layout, wording, and control changes do not require this registry to be
-regenerated.
+Change policies at the route and regenerate the JSON. The inventory test
+compares the checked-in snapshot with the generated output. Summarize the
+affected routes, who can use them, and the allow and deny tests when handing
+off an authorization change.
 
 ## Multiple clients
 

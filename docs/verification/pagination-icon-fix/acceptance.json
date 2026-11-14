@@ -1,0 +1,436 @@
+{
+  "status": "Pagination icon defect locally verified",
+  "date": "2026-11-12",
+  "branch": "refactor-API-python-file",
+  "head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "git_mutations": false,
+  "tests": {
+    "unit": 50,
+    "interaction": 51
+  },
+  "browsers": {
+    "chrome": {
+      "version": "157.0.8103.51",
+      "checks": 15,
+      "screenshots": 28,
+      "pagination": [
+        {
+          "language": "en",
+          "consumer": "security_levels",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "profiles",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "users",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "roles",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "org_units",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "login_sessions",
+          "offsets": [
+            0,
+            20,
+            40,
+            20,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "credentials",
+          "offsets": [
+            0,
+            5,
+            10,
+            5,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "rtl_direction": true
+        },
+        {
+          "language": "ar",
+          "consumer": "security_levels",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "profiles",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "users",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "roles",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "org_units",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "login_sessions",
+          "offsets": [
+            0,
+            20,
+            40,
+            20,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "credentials",
+          "offsets": [
+            0,
+            5,
+            10,
+            5,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "rtl_direction": true
+        }
+      ],
+      "source_files_matched": 187,
+      "unexpected_errors": 0
+    },
+    "edge": {
+      "version": "157.0.4341.46",
+      "checks": 15,
+      "screenshots": 28,
+      "pagination": [
+        {
+          "language": "en",
+          "consumer": "security_levels",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "profiles",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "users",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "roles",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "org_units",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "login_sessions",
+          "offsets": [
+            0,
+            20,
+            40,
+            20,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "en",
+          "consumer": "credentials",
+          "offsets": [
+            0,
+            5,
+            10,
+            5,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "rtl_direction": true
+        },
+        {
+          "language": "ar",
+          "consumer": "security_levels",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "profiles",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "users",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "roles",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "org_units",
+          "offsets": [
+            0,
+            25,
+            50,
+            25,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "login_sessions",
+          "offsets": [
+            0,
+            20,
+            40,
+            20,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "empty_boundary": true
+        },
+        {
+          "language": "ar",
+          "consumer": "credentials",
+          "offsets": [
+            0,
+            5,
+            10,
+            5,
+            0
+          ],
+          "icons_valid": true,
+          "keyboard": true,
+          "rtl_direction": true
+        }
+      ],
+      "source_files_matched": 187,
+      "unexpected_errors": 0
+    }
+  },
+  "disposable_databases_removed": 7,
+  "catalogues_unchanged": true,
+  "excluded_attempts": {
+    "before": "Initial Arabic label locators used the wrong client context",
+    "interaction-fixture-attempt": "Arabic locators corrected; credential mock response made offset-aware",
+    "chrome-version-attempt": "Installed Chrome patch version changed; metadata verified, cached driver retained",
+    "native-readiness-attempts": "Wait for loaded cards before typing into a newly entered collection; initial empty controls are replaced",
+    "native-fixture-attempts": "Synthetic roles lacked required organization units; fixture corrected, schema unchanged"
+  },
+  "test_source_sha256": {
+    "frontend/webui/interaction/tests/test_pagination_icons.py": "9aa051cb2dce7fd88755c5ec4f76ca992a4b25cb480bc2632c3b41efb395fc96",
+    "tools/webui_browser_pagination.py": "6bd80d61f6c7d01ea88fd502e4dd6be75d1e2c9159306d3c7ff3799728b64eaf"
+  }
+}

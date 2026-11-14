@@ -1,0 +1,11 @@
+{
+  "scope": "full",
+  "browser": "chrome",
+  "baseline": "docs/verification/webui-refactor-phase7/full-chrome-resumed",
+  "screenshots": 27,
+  "exact_below_animated_header": 25,
+  "reviewed_differences": {
+    "unsaved-confirmation-en.png": "Only the saved-search updated time; visually inspected before/after crop.",
+    "unsaved-confirmation-ar.png": "Only the saved-search updated time; visually inspected before/after crop."
+  }
+}

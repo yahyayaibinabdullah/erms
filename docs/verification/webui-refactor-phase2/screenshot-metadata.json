@@ -1,0 +1,93 @@
+{
+  "note": "Native Chrome, Edge and Firefox frames include personal browser chrome; retained only under gitignored .runtime/webui-refactor-phase2/native-screenshots. Not fixed-viewport pixel goldens. Safari and embedded captures contain only the disposable app and neutral chrome.",
+  "images": [
+    {
+      "file": "chrome-settings-en.jpg",
+      "width_pixels": 3420,
+      "height_pixels": 1976,
+      "sha256": "06761863e8e8c63361d873537ec1f89d857093b0d549e45cb3b4a9c7e254ece1",
+      "scope": "native window observation",
+      "format": "JPEG"
+    },
+    {
+      "file": "chrome-settings-restored-en.jpg",
+      "width_pixels": 3420,
+      "height_pixels": 1976,
+      "sha256": "2eef272f05c71e76bf83c6cf0bc0b2069a4ac326616a97d2f319563a2cd4acc5",
+      "scope": "native window observation",
+      "format": "JPEG"
+    },
+    {
+      "file": "edge-settings-ar.jpg",
+      "width_pixels": 2880,
+      "height_pixels": 1650,
+      "sha256": "fdf8487cb8f03f1e9b8485b1f0fb7d3fb9898be8f7459c7d602b2dc7feab41a2",
+      "scope": "native window observation",
+      "format": "JPEG"
+    },
+    {
+      "file": "edge-settings-en.jpg",
+      "width_pixels": 2880,
+      "height_pixels": 1650,
+      "sha256": "0d5abd56a803cc10f3a4c0e0827db70df650f298208776c475022bee2f3dfc18",
+      "scope": "native window observation",
+      "format": "JPEG"
+    },
+    {
+      "file": "embedded-settings-saved-ar.jpg",
+      "width_pixels": 1265,
+      "height_pixels": 712,
+      "sha256": "234459a040d96679f199a404c84f20f763f1b3a9c7f06c04fa8cc03839730191",
+      "scope": "embedded browser viewport",
+      "format": "JPEG"
+    },
+    {
+      "file": "firefox-settings-ar.jpg",
+      "width_pixels": 2560,
+      "height_pixels": 1826,
+      "sha256": "b3f48342bef87360a28524c1b46ce6fd090c9c9682a48caa325aac899d2a43f1",
+      "scope": "native window observation",
+      "format": "JPEG"
+    },
+    {
+      "file": "firefox-settings-en.jpg",
+      "width_pixels": 2560,
+      "height_pixels": 1826,
+      "sha256": "a4135cf16782d032bb97a709f7697a24312d8b85cdfc4523e09eac078785f10e",
+      "scope": "native window observation",
+      "format": "JPEG"
+    },
+    {
+      "file": "safari-settings-ar.jpg",
+      "width_pixels": 2880,
+      "height_pixels": 1990,
+      "sha256": "46ea5a9315725368bc8dd939772a3a3d4118ad5c7e4573cec6b3732961ffa60f",
+      "scope": "native window observation",
+      "format": "JPEG"
+    },
+    {
+      "file": "safari-settings-en.jpg",
+      "width_pixels": 2880,
+      "height_pixels": 1990,
+      "sha256": "93608ec946cf4e0f8431d6f826076b5ea2a23ff85fdfcb39733584e97f9b329f",
+      "scope": "native window observation",
+      "format": "JPEG"
+    },
+    {
+      "file": "aggregation-restored-en.jpg",
+      "width_pixels": 1265,
+      "height_pixels": 712,
+      "format": "JPEG",
+      "sha256": "2b66d78fb4bcf12210364fd5c2871726ae621fc27f5962ecd79ac5f187cd363d",
+      "scope": "embedded browser after aggregation reload; separately approved B1 correction"
+    },
+    {
+      "file": "aggregation-restored-ar.jpg",
+      "width_pixels": 1265,
+      "height_pixels": 712,
+      "format": "JPEG",
+      "sha256": "f06740efe757dcef10be300c9109eb087b3f93dfaf01a02196b4791927074cc5",
+      "scope": "embedded browser after aggregation reload; separately approved B1 correction"
+    }
+  ]
+}

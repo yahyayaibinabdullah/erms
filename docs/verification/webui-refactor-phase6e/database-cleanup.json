@@ -1,0 +1,99 @@
+{
+  "created_runs": 15,
+  "unique_names": true,
+  "all_runner_cleanup_confirmed": true,
+  "independent_catalogue_audit": true,
+  "remaining_databases": [],
+  "runs": [
+    {
+      "run": "after-assembled",
+      "database": "erms_webui_test_e0bd49ee56d74b7c859b8b8f13df6c34",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "after-chrome",
+      "database": "erms_webui_test_a79725c8b76c4759b9f7e6a09d88d9bb",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "after-edge",
+      "database": "erms_webui_test_fa255c975ad24c2880441ec23b289c7a",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-assembled",
+      "database": "erms_webui_test_350d6f376c9a46abbbdeb993fa6e75b7",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-assembled-fixed",
+      "database": "erms_webui_test_a3dacff4fb944af7b13c703519918602",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-assembled-full",
+      "database": "erms_webui_test_fda9f987bcd542de9e9cfc7226ce34d7",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-assembled-security",
+      "database": "erms_webui_test_cab0f5b8edf849ae821f787fde944695",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome",
+      "database": "erms_webui_test_cc477b827ac14e1a8a30271a59ea354f",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-final",
+      "database": "erms_webui_test_10abb4a14a0744369ad8be82cdfd95b1",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-chrome-fixed",
+      "database": "erms_webui_test_fdab6512f7824aec8f345714847d6bdf",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-scrolled",
+      "database": "erms_webui_test_7e7f2a1d17f3439fb7b8a06e6381f012",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-edge",
+      "database": "erms_webui_test_f0a5273bd00d44f994bd4a70955b43b9",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-edge-final",
+      "database": "erms_webui_test_8ef6b69f1d3f44d68469997381ebfcd9",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-edge-fixed",
+      "database": "erms_webui_test_0a9b5a7e45e642b0b4b70808454e1e7f",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-security-final",
+      "database": "erms_webui_test_27d31479ebf04a0ba3b2242e64056d75",
+      "database_dropped": true,
+      "test_exit_code": 0
+    }
+  ]
+}

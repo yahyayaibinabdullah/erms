@@ -23,6 +23,22 @@ REQUEST_PRESENTATION_SETTINGS={
     'DISPOSITION_ORGANIZATION_NAME', 'DISPOSITION_RECORDS_UNIT_EMAIL',
     'DISPOSITION_RECORDS_UNIT_PHONE', 'DISPOSITION_REQUEST_LANGUAGE',
 }
+SEARCH_POLICY_CONSUMERS={
+    'SEARCH_RESULT_LIMIT': [
+        {'path':'backend/services/api/search.py','scope':'Caps the ranked Global Search list.'},
+        {'path':'backend/services/api/main.py','scope':'Caps unsaved Advanced Search.'},
+        {'path':'backend/services/api/saved_searches.py','scope':'Caps saved search execution and supplies the effective limit.'},
+    ],
+    'GLOBAL_SEARCH_CACHE_IDLE_MINUTES': [
+        {'path':'backend/services/api/search.py','scope':'Sets the idle expiry of a Global Search result list.'},
+    ],
+    'GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS': [
+        {'path':'backend/services/api/session_cleanup.py','scope':'Schedules search-cache cleanup independently of login-session retention cleanup.'},
+    ],
+    'GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE': [
+        {'path':'backend/services/api/session_cleanup.py','scope':'Bounds expired search-list rows deleted in one cleanup transaction.'},
+    ],
+}
 
 
 def service_for(key, authority):
@@ -53,6 +69,13 @@ def inventory():
             'contract':'specs/administration-settings.md#disposition-request-presentation-amendment--27-october-2026',
             'default_or_requirement':setting.default,'category':setting.category,
             'consumers':[],'templates':[],
+        }
+    for key, consumers in SEARCH_POLICY_CONSUMERS.items():
+        setting=REGISTRY[key]
+        contracts[key]={'current_consumers':consumers,'runtime_status':'database_only_search_consumer'}
+        result[key]={
+            'setting':key,'authority':'database','contract':'specs/application-configuration.md section 5.5',
+            'default_or_requirement':setting.default,'category':setting.category,'consumers':[],'templates':[],
         }
     registered={key for key,item in result.items() if item['authority']=='database'}
     if registered!=set(REGISTRY):

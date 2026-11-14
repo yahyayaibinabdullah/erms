@@ -1,5 +1,4 @@
 """Settings events use the real shared timeline/detail/navigation callbacks."""
-import ast
 import asyncio
 import copy
 import inspect
@@ -13,31 +12,32 @@ import pytest
 from nicegui import ui
 from nicegui.testing import User
 from frontend.webui.api_client import ApiError
+from frontend.webui.audit_workspace import build_audit_workspace
+from frontend.webui.navigation_controller import NavigationController
 from frontend.webui.audit_labels import audit_entity_type_label
 from frontend.webui.capabilities import can_navigate
+from frontend.webui import application_settings_controller as settings_feature
 from frontend.webui.event_labels import event_label, EVENT_MESSAGE_KEYS
 from frontend.webui.i18n_catalogue import render_message, render_message_plain, set_active_messages, strip_diagnostic_metadata
 
 pytest_plugins=['nicegui.testing.user_plugin']
 pytestmark=pytest.mark.asyncio
 ROOT=Path(__file__).parents[4]
-TREE=ast.parse((ROOT/'frontend/webui/app.py').read_text())
-NAMES={'event_reference_value','event_value','event_entity_identity','event_actor_identity','can_open_event_entity','navigate_to_event_entity','show_event_detail','render_event_timeline','guarded_page_navigation'}
-FUNCTIONS=[n for n in ast.walk(TREE) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name in NAMES]
 AR={r['message_key']:r['translated_text'] for r in json.loads((ROOT/'frontend/webui/i18n/messages.ar.generated.json').read_text())['items']}
 OPERATIONS=['APPLICATION_SETTING_CHANGED','APPLICATION_SETTING_SEEDED','APPLICATION_SETTINGS_MIGRATION_COMPLETED']
 
 
 @pytest.mark.parametrize('language',['en','ar'])
 @pytest.mark.parametrize('authorized,can_leave',[(True,True),(True,False),(False,True)])
-async def test_old_settings_events_have_shared_labels_and_guarded_open_links(user:User,language,authorized,can_leave):
+async def test_old_settings_events_have_shared_labels_and_guarded_open_links(user:User,monkeypatch,language,authorized,can_leave):
     opened=[];holder={}
     api=SimpleNamespace(get=AsyncMock(),cancel_pending_reads=Mock())
     rows=[dict(id=i,entity_type='application_setting',entity_id=38,operation=operation,
                metadata={'setting_key':'DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID'},
                actor_name='Fixture Administrator',actor_email='fixture@test.invalid',source='web_ui',occurred_at='2026-10-14T16:00:00Z') for i,operation in enumerate(OPERATIONS,1)]
     original=copy.deepcopy(rows)
-    async def select_application_settings(**kwargs):opened.append(kwargs['initial_setting_key'])
+    async def render_settings(**kwargs):opened.append(kwargs['initial_setting_key'])
+    monkeypatch.setattr(settings_feature,'settings_page',render_settings)
     async def discard_guard(_):return can_leave
     @ui.page('/settings-audit-test')
     def page():
@@ -48,8 +48,33 @@ async def test_old_settings_events_have_shared_labels_and_guarded_open_links(use
                    state={'discard_navigation_guard':discard_guard},can_navigate=can_navigate,
                    render_message=render_message,render_message_plain=render_message_plain,event_label=event_label,
                    audit_entity_type_label=audit_entity_type_label,error_message=str,format_timestamp=lambda v:v,
-                   select_application_settings=select_application_settings,table_container=host)
-        exec(compile(ast.Module(body=FUNCTIONS,type_ignores=[]),'app.py','exec'),scope)
+                   table_container=host)
+        navigation = NavigationController(
+            stored=[], write_trail=Mock(), prepare=Mock(), snapshot=Mock(), label_key=Mock(),
+            get_guard=lambda: scope['state'].get('discard_navigation_guard'),
+            clear_guard=lambda: scope['state'].pop('discard_navigation_guard', None),
+            cancel_reads=api.cancel_pending_reads, restore=Mock(), dashboard=Mock(),
+            render=Mock(), notify=ui.notify, on_error=str,
+        )
+        scope['guarded_page_navigation'] = navigation.guarded_page_navigation
+        scope['application_settings_controller']=settings_feature.ApplicationSettingsController(
+            api=api,container=host,principal=lambda:scope['auth_state']['principal'],
+            selected=lambda:True,enter=lambda:None,persist_category=lambda:None,
+            guard=lambda callback:scope['guarded_page_navigation'](callback),
+            bind_relationship=lambda *a,**kw:None,direction=lambda:'rtl' if language=='ar' else 'ltr',
+            on_error=str,
+        )
+        workspace=build_audit_workspace(
+            api=api,table_container=host,principal=lambda:scope['auth_state']['principal'],
+            selected=lambda:True,enter=Mock(),error_message=str,format_timestamp=lambda v:v,
+            set_connection_status=Mock(),
+            can_open_settings=scope['application_settings_controller'].can_open,
+            open_settings=scope['application_settings_controller'].open_from_event,
+            open_destination=AsyncMock(),
+        )
+        scope.update(render_event_timeline=workspace.render_event_timeline,
+                     show_event_detail=workspace.show_event_detail,
+                     navigate_to_event_entity=workspace.navigate_to_event_entity)
         holder.update(scope=scope,host=host)
         scope['render_event_timeline'](rows,host)
     await user.open('/settings-audit-test')

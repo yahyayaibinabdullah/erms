@@ -5,6 +5,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from psycopg import Connection
 
+from .operation_policy import operation_policy
 from .audit_context import decode_change_reason
 from .concurrency import expected_version
 from .crud import create_row, delete_row, get_or_404, list_rows, update_row
@@ -156,6 +157,7 @@ def create_security_level(payload: SecurityLevelCreate, connection: Connection =
 
 
 @router.get("/security-levels", response_model=list[SecurityLevelRead])
+@operation_policy("authenticated_only")
 def list_security_levels(
     request: Request,
     response: Response,
@@ -176,6 +178,7 @@ def list_security_levels(
 
 
 @router.get("/security-levels/page")
+@operation_policy("authenticated_only")
 def page_security_levels(
     request: Request, q: str | None = None,
     assignable: bool = False,
@@ -239,6 +242,7 @@ def page_security_levels(
 
 
 @router.get("/security-levels/{level_id}", response_model=SecurityLevelRead)
+@operation_policy("authenticated_only")
 def get_security_level(level_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
     return localize_rows([get_or_404(connection, "security_levels", level_id)], preferred_language(connection, request), "name")[0]
 
@@ -250,11 +254,12 @@ def get_security_level(level_id: int, request: Request, connection: Connection =
     dependencies=[Depends(require_audit_view)],
 )
 def get_security_level_history(
-    level_id: int, connection: Connection=Depends(get_connection, scope="function"),
+    level_id: int, limit: int = Query(500, ge=1, le=500), offset: int = Query(0, ge=0),
+    connection: Connection=Depends(get_connection, scope="function"),
 ):
     get_or_404(connection, "security_levels", level_id)
     return list_rows(
-        connection, "event_history", limit=500, offset=0,
+        connection, "event_history", limit=limit, offset=offset,
         filters={"entity_type": "security_level", "entity_id": level_id},
         order_by=("occurred_at", "id"), descending=True,
     )
@@ -291,6 +296,7 @@ def delete_security_level(
 
 
 @router.post("/security-level-changes/preview", response_model=SecurityLevelChangePreviewRead)
+@operation_policy("resource_scoped")
 def preview_security_level_change(
     payload: SecurityLevelChangePreviewRequest,
     connection: Connection = Depends(get_connection, scope="function"),
@@ -318,6 +324,7 @@ def preview_security_level_change(
 
 
 @router.post("/security-level-changes/apply")
+@operation_policy("resource_scoped")
 def apply_security_level_change(
     payload: SecurityLevelChangeApplyRequest,
     request: Request,

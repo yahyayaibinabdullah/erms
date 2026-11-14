@@ -1,0 +1,226 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "messaging",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8999.57
+    },
+    {
+      "name": "mailbox compose, native focus, draft save and existing URL/history",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 14250.74
+    },
+    {
+      "name": "message monitor and notification administration remain reachable",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9762.7
+    },
+    {
+      "name": "mailbox compose, native focus, draft save and existing URL/history",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 14874.78
+    },
+    {
+      "name": "message monitor and notification administration remain reachable",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 10393.95
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "messaging-inbox-en.png",
+      "sha256": "bda3c68636eee749610f1ad212ba05a83022aa563c1f58271785c56e8f6aa718",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "messaging-compose-en.png",
+      "sha256": "9cb1b952bb0551059b52a7dbb8e5ace397d102bbe2e60ccdd5cd2a48b712bea2",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "messaging-draft-content-en.png",
+      "sha256": "83cd94791adfcbe6a98122b16d23bc34c84bbecba81e9032983b692b796c0f16",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "messaging-monitor-en.png",
+      "sha256": "1a652d68a7bbd7709b023463530fe1e36997e311207c3aaebff426e0187635a3",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "messaging-notifications-en.png",
+      "sha256": "95e0c82006169cfa8cb3b488d207e4f2a0cd428472e11c0e1a9b97c4e0d6d9be",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "messaging-inbox-ar.png",
+      "sha256": "8aa90b182183af5dd2e99a72756a33166b5d114173c6521c5621a3b6bd0476a1",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "messaging-compose-ar.png",
+      "sha256": "2a049b12385bf223d829d418e69264ee909f4b35d0c97d1449df40a4865e2b5f",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "messaging-draft-content-ar.png",
+      "sha256": "4c56a2050fc5908d12c852bab6f5781580c2bc6d71d391f2f7d5de902e3015c1",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "messaging-monitor-ar.png",
+      "sha256": "386aeebb458ae6e0701e46bb626659bbac940bce1d988d6bf943a89533c5714e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "messaging-notifications-ar.png",
+      "sha256": "079df81afc8ee5d615a7e21b0f5332f3cae81158d7296a0c6cb5e37f72b350ee",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": true,
+  "focus": [
+    {
+      "language": "en",
+      "tag": "input",
+      "role": "combobox",
+      "label": "To"
+    },
+    {
+      "language": "ar",
+      "tag": "input",
+      "role": "combobox",
+      "label": "إلى"
+    }
+  ],
+  "browser_errors": []
+}

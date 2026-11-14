@@ -1,0 +1,224 @@
+{
+  "status": "Favourite identity labels and persistent View all fixed and locally verified",
+  "date": "2026-11-12",
+  "branch": "refactor-API-python-file",
+  "head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "git_mutations": false,
+  "tests": {
+    "unit": 28,
+    "interaction": 36
+  },
+  "browsers": {
+    "chrome": {
+      "version": "157.0.8103.40",
+      "checks": 9,
+      "screenshots": 16,
+      "favourite_removal": [
+        {
+          "language": "en",
+          "surface": "dashboard",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": false
+        },
+        {
+          "language": "en",
+          "surface": "dashboard",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": false
+        },
+        {
+          "language": "en",
+          "surface": "dialog",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": true
+        },
+        {
+          "language": "en",
+          "surface": "dialog",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": true
+        },
+        {
+          "language": "ar",
+          "surface": "dashboard",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": false
+        },
+        {
+          "language": "ar",
+          "surface": "dashboard",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": false
+        },
+        {
+          "language": "ar",
+          "surface": "dialog",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": true
+        },
+        {
+          "language": "ar",
+          "surface": "dialog",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": true
+        }
+      ],
+      "successful_deletes": 12,
+      "ui_deletes": 10,
+      "fixture_api_deletes": 2,
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    },
+    "edge": {
+      "version": "157.0.4341.46",
+      "checks": 9,
+      "screenshots": 16,
+      "favourite_removal": [
+        {
+          "language": "en",
+          "surface": "dashboard",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": false
+        },
+        {
+          "language": "en",
+          "surface": "dashboard",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": false
+        },
+        {
+          "language": "en",
+          "surface": "dialog",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": true
+        },
+        {
+          "language": "en",
+          "surface": "dialog",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": true
+        },
+        {
+          "language": "ar",
+          "surface": "dashboard",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": false
+        },
+        {
+          "language": "ar",
+          "surface": "dashboard",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": false
+        },
+        {
+          "language": "ar",
+          "surface": "dialog",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": true
+        },
+        {
+          "language": "ar",
+          "surface": "dialog",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true,
+          "correct_identity": true,
+          "dialog_stayed_open": true
+        }
+      ],
+      "successful_deletes": 12,
+      "ui_deletes": 10,
+      "fixture_api_deletes": 2,
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    }
+  },
+  "disposable_databases_removed": 4,
+  "catalogues_unchanged": true,
+  "excluded_attempts": {
+    "before": "20 expected failures: incorrect record identity or deleted dialog",
+    "interaction-edit-attempt": "Initial label edit matched an unrelated occurrence; restored it and corrected favourite renderer",
+    "native-interrupted": "Stopped both initial browser runs after focused tests identified incorrect edit location; databases cleaned up"
+  },
+  "test_source_sha256": {
+    "frontend/webui/interaction/tests/test_dashboard_favourites.py": "7324b0dbd6aeaa45e7e0aad08551b180c3bd5fb3f875b961418d71ef0896a72d",
+    "tools/webui_browser_dashboard.py": "c7da38d82922717e64308dcbe8ce6e869bd70ef0051ed9718c0a72675f8c8f0f"
+  }
+}

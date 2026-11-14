@@ -1,0 +1,109 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "relationships",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9040.21
+    },
+    {
+      "name": "relationship catalogue entry, repeated visits, URL and restoration",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4281.79
+    },
+    {
+      "name": "relationship kind tabs, server pagination, sorting and empty search",
+      "language": "en",
+      "status": "fail",
+      "error": "Message: \n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_relationships.py\", line 60, in check_relationships\n    page.fill(t('search'), ''); row('fixture_27')\n                                ^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_relationships.py\", line 16, in row\n    def row(code): return page.wait.until(lambda _: next((r for r in rows() if code in r.text), False))\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/support/wait.py\", line 121, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: \n\n",
+      "recent_native_clicks": [
+        {
+          "id": "c185",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c184",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "",
+          "tag": "DIV"
+        },
+        {
+          "id": "",
+          "tag": "TH"
+        },
+        {
+          "id": "c175",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c175",
+          "tag": "INPUT"
+        }
+      ],
+      "milliseconds": 29082.35
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "relationships-table-en.png",
+      "sha256": "e7b0bc357d0e6cb7241849f0b72d365fb7e43c55b0d24a9bf8b45b3e040bcf65",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-empty-en.png",
+      "sha256": "ef447215d72dda867da9859b947fdf15cd7bdaf83bbeb75ccceff053bb168265",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-3.png",
+      "sha256": "dd758112545664ccc1148acdaf52229af5e911dad55e5931d0d16e59f8f00630",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "browser_errors": []
+}

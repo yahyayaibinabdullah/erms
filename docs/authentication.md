@@ -298,3 +298,11 @@ policy. Cleanup defaults come from the same validated registry. One-shot command
 load a fresh snapshot; watch commands re-evaluate cached policy before each pass.
 Explicit CLI arguments remain overrides and never update settings. See the
 [upgrade procedure](application-settings-upgrade.md).
+
+The standalone session-cleanup worker also removes expired Global Search lists.
+That job uses its own database-backed interval (60 seconds) and batch size
+(5,000 lists), independently of login-history retention and its hourly/500-row
+cleanup. The production systemd worker starts at boot independently of the API;
+one database session lock elects an active owner across all deployed copies.
+Other copies wait as standbys. It never runs inside a FastAPI worker; the local
+stack launcher starts/stops its own separate process with the stack. See [the lifecycle and settings](operations.md#6-login-session-cleanup).

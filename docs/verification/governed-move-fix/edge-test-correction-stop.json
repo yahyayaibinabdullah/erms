@@ -1,0 +1,9 @@
+{
+  "stopped_runner": [
+    [
+      16522,
+      "backend/services/api/.venv/bin/python .runtime/governed-move-fix/run-browser.py --browser edge --browser-scope governed-moves --output .runtime/governed-move-fix/edge"
+    ]
+  ],
+  "reason": "Correct the test expectation to the specified 404 non-disclosure response; application unchanged."
+}

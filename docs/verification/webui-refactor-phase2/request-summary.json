@@ -1,0 +1,20 @@
+{
+  "scope": "Server/API timings from the NiceGUI simulator, including startup and login. Not browser-render timings.",
+  "observations": [
+    {
+      "test": "frontend/webui/assembled/tests/test_application.py::test_main_destination_through_real_drawer[application-settings]",
+      "settings_get_count": 1,
+      "settings_get_ms": [
+        76.03
+      ]
+    },
+    {
+      "test": "frontend/webui/assembled/tests/test_application.py::test_settings_category_survives_navigation_and_breadcrumb_return",
+      "settings_get_count": 2,
+      "settings_get_ms": [
+        206.94,
+        33.06
+      ]
+    }
+  ]
+}

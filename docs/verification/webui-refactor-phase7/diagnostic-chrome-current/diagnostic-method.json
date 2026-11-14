@@ -1,0 +1,6 @@
+{
+  "variant": "current",
+  "source_commit": "123ad8b",
+  "instrumentation": "100ms read-only API/UI process stacks, GC durations over 20ms, WebDriver commands over 50ms; no frame locals or command parameters.",
+  "acceptance_use": "Diagnostic runs are supplementary; do not silently replace the original paired measurements."
+}

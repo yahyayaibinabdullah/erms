@@ -1,0 +1,42 @@
+{
+  "approved_relative_percent": 20,
+  "approved_absolute_ms": 100,
+  "operator": "and",
+  "independent_pairs": [
+    [
+      1,
+      2
+    ],
+    [
+      4,
+      3
+    ]
+  ],
+  "order": [
+    "original",
+    "current",
+    "current",
+    "original"
+  ],
+  "original_ui_commit": "8106e1e",
+  "current_base_commit": "9fdf51279e1db78597118c2df05b3467c8b7190e",
+  "current_variant": "Local uncommitted Phase 8 cleanup, identified by source-audit.json and each run source-environment.json",
+  "per_browser": {
+    "cold_samples_per_process": 2,
+    "warmups_per_language_excluded": 1,
+    "measured_cycles_per_language": 12,
+    "workflows": 9
+  },
+  "browsers": [
+    "chrome",
+    "edge"
+  ],
+  "investigate_smaller_repeatable_slowdowns": true,
+  "gate": "Block the same workflow median or p90 when both thresholds are met in both independent pairs.",
+  "limitations": [
+    "Synthetic local fixtures",
+    "20 ms readiness polling and WebDriver overhead apply to both variants",
+    "One cold sample per metric/process",
+    "Does not certify server process boot, production scale or unmeasured paths"
+  ]
+}

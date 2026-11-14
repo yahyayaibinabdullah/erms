@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response,
 from psycopg import Connection
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from .operation_policy import operation_policy
 from .audit_context import decode_change_reason
 from .concurrency import expected_version
 from .database import get_connection, get_consistent_connection
@@ -330,6 +331,7 @@ def _serialize_holds(connection: Connection, rows: list[dict], language_tag: str
 
 
 @router.get("/holds", response_model=HoldPage)
+@operation_policy("relationship_scoped")
 def list_holds(
     request: Request,
     q: str | None = None, state_filter: Literal["scheduled", "active", "expired"] | None = Query(None, alias="state"),
@@ -396,6 +398,7 @@ def create_hold(payload: HoldCreate, request: Request, connection: Connection = 
 
 
 @router.get("/holds/people", response_model=list[UserReference])
+@operation_policy("relationship_scoped")
 def list_hold_people(request: Request, connection: Connection = Depends(get_connection, scope="function")):
     rows = list(connection.execute(
         f"""SELECT DISTINCT person.id,person.name,person.email,person.status,person.translations
@@ -409,6 +412,7 @@ def list_hold_people(request: Request, connection: Connection = Depends(get_conn
 
 
 @router.get("/holds/{hold_id}", response_model=HoldResponse)
+@operation_policy("relationship_scoped")
 def get_hold(hold_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
     row = _hold(connection, hold_id)
     row["server_time"] = connection.execute("SELECT CURRENT_TIMESTAMP value").fetchone()["value"]
@@ -450,6 +454,7 @@ def delete_hold(hold_id: int, request: Request, version: int = Depends(expected_
 
 
 @router.get("/holds/{hold_id}/contributors")
+@operation_policy("relationship_scoped")
 def list_contributors(hold_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
     _hold(connection, hold_id)
     rows = list(connection.execute("SELECT user_account.id,user_account.name,user_account.email,user_account.status,user_account.translations FROM hold_contributors c JOIN users user_account ON user_account.id=c.user_id WHERE c.hold_id=%s ORDER BY user_account.name,user_account.id", (hold_id,)).fetchall())
@@ -499,6 +504,7 @@ def _require_hold_manager(connection: Connection, hold_id: int) -> None:
 
 
 @router.get("/holds/{hold_id}/held-item-candidates", response_model=CandidatePage)
+@operation_policy("relationship_scoped")
 def list_hold_held_item_candidates(
     hold_id: int, q: str | None = None,
     resource_type: Literal["aggregation", "record"] | None = None,
@@ -536,6 +542,7 @@ def list_hold_held_item_candidates(
 
 
 @router.get("/holds/{hold_id}/held-items", response_model=HoldHeldItemPage)
+@operation_policy("relationship_scoped")
 def list_hold_held_items(
     hold_id: int, request: Request, q: str | None = None,
     resource_type: Literal["aggregation","record"] | None = None,
@@ -593,12 +600,14 @@ def _add_held_item(connection: Connection, hold_id: int, resource_type: str, res
 
 
 @router.post("/holds/{hold_id}/held-items", status_code=201)
+@operation_policy("relationship_scoped")
 def add_hold_held_item(hold_id:int,payload:HoldHeldItemCreate,request:Request,connection:Connection=Depends(get_connection,scope="function")):
     _require_hold_manager(connection, hold_id)
     return _add_held_item(connection,hold_id,payload.resource_type,payload.resource_id,request)
 
 
 @router.post("/holds/{hold_id}/held-items/bulk", status_code=201)
+@operation_policy("relationship_scoped")
 def add_hold_held_items_bulk(
     hold_id: int, payload: HoldHeldItemsBulkCreate, request: Request,
     connection: Connection = Depends(get_connection, scope="function"),
@@ -627,6 +636,7 @@ def add_hold_held_items_bulk(
 
 
 @router.delete("/holds/{hold_id}/held-items/{resource_type}/{resource_id}",status_code=204)
+@operation_policy("relationship_scoped")
 def remove_hold_held_item(hold_id:int,resource_type:Literal["aggregation","record"],resource_id:int,request:Request,version:int=Depends(expected_version),connection:Connection=Depends(get_connection,scope="function")):
     _hold(connection,hold_id); _require_hold_manager(connection, hold_id); _reason(request); _resource_visible(connection,resource_type,resource_id)
     table="hold_aggregation_assignments" if resource_type=="aggregation" else "hold_record_assignments"; column=f"{resource_type}_id"
@@ -638,6 +648,7 @@ def remove_hold_held_item(hold_id:int,resource_type:Literal["aggregation","recor
 
 
 @router.post("/holds/{hold_id}/held-items/bulk-remove")
+@operation_policy("relationship_scoped")
 def remove_hold_held_items_bulk(
     hold_id: int, payload: HoldHeldItemsBulkRemove, request: Request,
     connection: Connection = Depends(get_connection, scope="function"),
@@ -677,15 +688,19 @@ def _effective_holds(connection:Connection,resource_type:str,resource_id:int):
 
 
 @router.get("/aggregations/{resource_id}/effective-holds", response_model=list[EffectiveHoldResponse])
+@operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def aggregation_effective_holds(resource_id:int,connection:Connection=Depends(get_connection,scope="function")): return _effective_holds(connection,"aggregation",resource_id)
 @router.get("/records/{resource_id}/effective-holds", response_model=list[EffectiveHoldResponse])
+@operation_policy("resource_scoped", "record.view", "record.view")
 def record_effective_holds(resource_id:int,connection:Connection=Depends(get_connection,scope="function")): return _effective_holds(connection,"record",resource_id)
 
 
 def _resource_add(resource_type:str,resource_id:int,payload:ResourceHoldCreate,request:Request,connection:Connection): return _add_held_item(connection,payload.hold_id,resource_type,resource_id,request)
 @router.post("/aggregations/{resource_id}/holds",status_code=201)
+@operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def add_aggregation_hold(resource_id:int,payload:ResourceHoldCreate,request:Request,connection:Connection=Depends(get_connection,scope="function")): return _resource_add("aggregation",resource_id,payload,request,connection)
 @router.post("/records/{resource_id}/holds",status_code=201)
+@operation_policy("resource_scoped", "record.view", "record.view")
 def add_record_hold(resource_id:int,payload:ResourceHoldCreate,request:Request,connection:Connection=Depends(get_connection,scope="function")): return _resource_add("record",resource_id,payload,request,connection)
 
 
@@ -708,19 +723,32 @@ def _remove_direct(connection:Connection,resource_type:str,resource_id:int,reque
 
 
 @router.delete("/aggregations/{resource_id}/holds/{hold_id}")
+@operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def remove_aggregation_hold(resource_id:int,hold_id:int,request:Request,connection:Connection=Depends(get_connection,scope="function")): return _remove_direct(connection,"aggregation",resource_id,request,hold_id)
 @router.delete("/records/{resource_id}/holds/{hold_id}")
+@operation_policy("resource_scoped", "record.view", "record.view")
 def remove_record_hold(resource_id:int,hold_id:int,request:Request,connection:Connection=Depends(get_connection,scope="function")): return _remove_direct(connection,"record",resource_id,request,hold_id)
 @router.delete("/aggregations/{resource_id}/holds")
+@operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def remove_all_aggregation_holds(resource_id:int,request:Request,connection:Connection=Depends(get_connection,scope="function")): return _remove_direct(connection,"aggregation",resource_id,request,None)
 @router.delete("/records/{resource_id}/holds")
+@operation_policy("resource_scoped", "record.view", "record.view")
 def remove_all_record_holds(resource_id:int,request:Request,connection:Connection=Depends(get_connection,scope="function")): return _remove_direct(connection,"record",resource_id,request,None)
 
 
 @router.get("/holds/{hold_id}/history")
-def hold_history(hold_id:int,limit:int=Query(100,ge=1,le=500),connection:Connection=Depends(get_connection,scope="function")):
+@operation_policy("relationship_scoped")
+def hold_history(
+    hold_id: int, limit: int = Query(100, ge=1, le=500), offset: int = Query(0, ge=0),
+    connection: Connection = Depends(get_connection, scope="function"),
+):
     _hold(connection,hold_id)
-    return list(connection.execute("SELECT *,occurred_at AS event_timestamp FROM event_history WHERE (entity_type='hold' AND entity_id=%s) OR metadata->>'hold_id'=%s ORDER BY occurred_at DESC,id DESC LIMIT %s",(hold_id,str(hold_id),limit)).fetchall())
+    return list(connection.execute(
+        """SELECT *,occurred_at AS event_timestamp FROM event_history
+            WHERE (entity_type='hold' AND entity_id=%s) OR metadata->>'hold_id'=%s
+            ORDER BY occurred_at DESC,id DESC LIMIT %s OFFSET %s""",
+        (hold_id, str(hold_id), limit, offset),
+    ).fetchall())
 
 
 def _user_id(connection):

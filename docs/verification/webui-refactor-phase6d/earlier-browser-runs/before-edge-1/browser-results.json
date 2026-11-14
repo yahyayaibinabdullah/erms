@@ -1,0 +1,69 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.42",
+  "scope": "classification",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10203.25
+    },
+    {
+      "name": "classification entry, retained preferences, URL and bounded hierarchy",
+      "language": "en",
+      "status": "fail",
+      "error": "Message: \n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_classification.py\", line 29, in check_classification\n    page.wait.until(lambda _:len(page.visible('.classification-tree-row'))==1)\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/support/wait.py\", line 121, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: \n\n",
+      "recent_native_clicks": [
+        {
+          "id": "c157",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c158",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c161",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c98",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c62",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c780",
+          "tag": "INPUT"
+        }
+      ],
+      "milliseconds": 23382.75
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "failure-2.png",
+      "sha256": "3a01b7b091fa4f67b42bddc66d702455c654bbddbd0317ef10d6b66317c4a4eb",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "browser_errors": []
+}

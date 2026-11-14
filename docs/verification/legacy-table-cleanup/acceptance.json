@@ -1,0 +1,52 @@
+{
+  "status": "Confirmed unreachable aggregation actions removed; classification fallback preserved",
+  "branch": "refactor-API-python-file",
+  "head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "local_uncommitted": true,
+  "tests": {
+    "unit-final": 74,
+    "interaction-final": 33,
+    "before-dispatch": 8
+  },
+  "browsers": {
+    "chrome-aggregations": {
+      "version": "157.0.8103.51",
+      "checks": 9,
+      "screenshots": 30,
+      "browser_errors": [],
+      "unsuccessful_requests": 0,
+      "tested_source_hashes_match": 187,
+      "database_dropped": true
+    },
+    "edge-classification": {
+      "version": "157.0.4341.46",
+      "checks": 11,
+      "screenshots": 24,
+      "browser_errors": [],
+      "unsuccessful_requests": 0,
+      "tested_source_hashes_match": 187,
+      "database_dropped": true
+    },
+    "edge-aggregations": {
+      "version": "157.0.4341.46",
+      "checks": 9,
+      "screenshots": 30,
+      "browser_errors": [],
+      "unsuccessful_requests": 0,
+      "tested_source_hashes_match": 187,
+      "database_dropped": true
+    },
+    "chrome-classification": {
+      "version": "157.0.8103.51",
+      "checks": 11,
+      "screenshots": 24,
+      "browser_errors": [],
+      "unsuccessful_requests": 0,
+      "tested_source_hashes_match": 187,
+      "database_dropped": true
+    }
+  },
+  "remaining_defect": "Classification-scheme generic refresh references card_host and unavailable renderer; persisted navigation prevents deletion as proven unused",
+  "catalogue_keys_changed": 0,
+  "verification_scope": "Focused local checks; no CI, Firefox, Safari or timing benchmark"
+}

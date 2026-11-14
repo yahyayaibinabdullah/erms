@@ -1,0 +1,18 @@
+{
+  "moved_functions_reconstructed": [
+    "select_messages",
+    "open_live_delivery",
+    "show_message_notification",
+    "stop_message_stream",
+    "refresh_message_unread",
+    "start_message_stream"
+  ],
+  "other_functions_reconstructed": 67,
+  "existing_runtime_changes": [
+    "frontend/webui/app.py"
+  ],
+  "state_owners": [
+    "messaging_state"
+  ],
+  "catalogue_bytes_unchanged": true
+}

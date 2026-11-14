@@ -1,0 +1,33 @@
+{
+  "status": "Classification-scheme saved-navigation refresh fixed and locally verified",
+  "branch": "refactor-API-python-file",
+  "head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "local_uncommitted": true,
+  "tests": {
+    "unit": 74,
+    "interaction": 41
+  },
+  "browsers": {
+    "chrome": {
+      "version": "157.0.8103.51",
+      "checks": 7,
+      "screenshots": 10,
+      "errors": [],
+      "unsuccessful_requests": 0,
+      "source_hashes_match": 188,
+      "database_dropped": true
+    },
+    "edge": {
+      "version": "157.0.4341.46",
+      "checks": 7,
+      "screenshots": 10,
+      "errors": [],
+      "unsuccessful_requests": 0,
+      "source_hashes_match": 188,
+      "database_dropped": true
+    }
+  },
+  "catalogue_keys_changed": 0,
+  "saved_navigation_preserved": true,
+  "scope": "Focused local checks; no CI or timing benchmark"
+}

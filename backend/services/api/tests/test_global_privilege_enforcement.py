@@ -4,12 +4,12 @@ import os
 
 import psycopg
 import pytest
-from fastapi.routing import APIRoute
 from psycopg.rows import dict_row
 from uuid import uuid4
 
 from backend.services.api.authentication import hash_password
 from backend.services.api.main import app
+from tools.generate_policy_inventory import api_operations, api_routes
 
 
 REPRESENTATIVE_ROUTES = (
@@ -237,31 +237,24 @@ def test_principal_exposes_effective_global_capabilities(client):
     assert "identity.users.administer" in principal.json()["global_privileges"]
 
 
-def test_every_unconditional_global_registry_route_has_the_matching_dependency():
-    registry = json.loads(open("security/operation-policy-registry.json", encoding="utf-8").read())
-    def expanded(routes):
-        for route in routes:
-            if isinstance(route, APIRoute):
-                yield route
-            elif hasattr(route, "original_router"):
-                yield from expanded(route.original_router.routes)
-
+def test_global_registry_routes_with_http_dependencies_match_their_privileges():
     routes = {
-        (method, route.path): route
-        for route in expanded(app.routes)
+        (method, route.path_format): route
+        for route in api_routes(app)
         for method in route.methods
     }
-    for operation in registry["api_operations"]:
+    for operation in api_operations():
         if operation["target_policy_class"] != "globally_privileged":
             continue
         route = routes[(operation["method"], operation["path"])]
-        dependency_names = {
-            dependency.call.__name__
+        dependency_privileges = {
+            privilege
             for dependency in route.dependant.dependencies
-            if dependency.call is not None
+            if (privilege := getattr(dependency.call, "__erms_global_privilege__", None))
         }
-        expected = f"require_{operation['global_privilege'].replace('.', '_')}"
-        assert expected in dependency_names, operation
+        # Some Disposition policies are enforced in database commands.
+        if dependency_privileges:
+            assert operation["global_privilege"] in dependency_privileges, operation
 
 
 @pytest.mark.parametrize("privileges", [

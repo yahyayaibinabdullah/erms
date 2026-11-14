@@ -1,0 +1,4204 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.42",
+  "scope": "application",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9239.28
+    },
+    {
+      "name": "all application destinations in forward order",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 103268.49
+    },
+    {
+      "name": "all application destinations in reverse order",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 28904.72
+    },
+    {
+      "name": "all application destinations in forward order",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 100445.83
+    },
+    {
+      "name": "all application destinations in reverse order",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 32186.43
+    },
+    {
+      "name": "all destination requests succeeded",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 0.87
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "application-dashboard-en.png",
+      "sha256": "70a5a3bb8e4f27a5675a4314dfa8d774fc5860d241a3e90c842fdebc2e23629e",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-advanced-search-en.png",
+      "sha256": "8167aad9e5143d0435aa98a7a1e9fb7cbe51856999bbe0928b9be0b46b8d3419",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-aggregations-en.png",
+      "sha256": "1d1ff63b55586c2e47e2672a6f9ff73e20b389d2afd89556ac27676411c1fc8a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-records-en.png",
+      "sha256": "0dede9525b7d9b747c73a4586cd7dc606b3c3d261126941cdfd8463b5e2b2c40",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-classification-workspace-en.png",
+      "sha256": "6d91fe990d5c7385b1b085078fa733c9ba3e0853753e1b16c5cd429bcf636947",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-relationship-types-en.png",
+      "sha256": "6c0e08d31ab07cea6fced4bff99bbeb5cf3ae44b5a5da5f6b4a5ba39a9dd8f43",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-disposition-tasks-en.png",
+      "sha256": "ee6e80c55bf31319f02984f7d6bcbbd884efb887af1c3caee4f2773954a4bbfc",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-disposition-eligibility-en.png",
+      "sha256": "9add67cda8717b5e8bf9f8410742ed51aabc1b96bfb3b881a48ef1e40e168410",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-disposition-jobs-en.png",
+      "sha256": "edc14540d5c4d5e2ab5381f1bb663ff95c6f3254ded846c6082e08a5cccce825",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-disposition-templates-en.png",
+      "sha256": "6df653579dd4e57009f52aef20c69523187073ee2e29f4591f4aa46a7ff23b71",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-inbox-en.png",
+      "sha256": "21c4ff24952d3f9f4c5450b3a39aef495bee739ae47319bb237e3489fed10112",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-outbox-en.png",
+      "sha256": "9afe7df20241f9d07174d068c3d8f3641c4e1af0d008f49fded6fcbac0eae0e0",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-drafts-en.png",
+      "sha256": "b1e1b96e581dd433bc1017a2fcba565452ac3e8808aea1577826062211e96ead",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-monitor-en.png",
+      "sha256": "248366f17149cb25c9c432be2d4bcfe10cdda83629aede8e15f37d6d221c52b5",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-notifications-en.png",
+      "sha256": "dc7daea319ec95fc6b525de4758eb44083b63899e9df79f0752a96b309ffb6e1",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-organization-browser-en.png",
+      "sha256": "a25402478b5b1d54a38ac395ce3c3440d776e3b888d8ea20996ccdbe8afe63e9",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-org-units-en.png",
+      "sha256": "3ac9ba52f1418e34dd52a441dc16f95c96205d148fb806aea6c410b0b33d65d7",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-roles-en.png",
+      "sha256": "565da9c3cdef37c488dfdcc426846ccae1b2c00a29ce2a8d9db085ce1c3f5d75",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-users-en.png",
+      "sha256": "456fea8cc59662892b316fe71e4357bf68be08d3bd0d057003fc0dd09be9a06f",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-text-indexers-en.png",
+      "sha256": "a79c41b76be218c483a2e37b79da8d56746396fef7241e1dd7ea3d18d874c906",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-application-settings-en.png",
+      "sha256": "ad76eb8276b29eeaef14a1856f348c5f47b3c50070ef27b2528ebb8acbcb9cec",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-audit-trail-en.png",
+      "sha256": "2ff98d2999548f26086163f2a8098d46c9f941c0d81b16051440c301a1b96dc0",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-login-sessions-en.png",
+      "sha256": "701d28bd310fc4d91cf0327f35f7430a327a4e8f8a5f122ff3bed1bfaf890038",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-security-operations-en.png",
+      "sha256": "a6a750c9fa418a9b4e725bc3231bae00a1ace870278808312241d2fcf09fc47c",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-saved-search-administration-en.png",
+      "sha256": "650bf666e8df16a11f7a424467ff6ec85507a972de8e4fbf152cec4fde6636f6",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-security-levels-en.png",
+      "sha256": "bb77e3e3ecb4bc6d62ae477632edf20c0706b5a638b1e4637392a07a71d97d1c",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-profiles-en.png",
+      "sha256": "fffd16593b9b03e2709504239661fd394d5f452541021f750c3d6b712fd5d915",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-governance-custody-en.png",
+      "sha256": "f71987b85fd8aac5c135b2fb94c7a584797e75df3a6a03b6f744653d8255e8cf",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-holds-en.png",
+      "sha256": "4aefe56ec3c70a8efc19a68b8b5d3071b496de80bce82bd91751a2766de83561",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-translations-en.png",
+      "sha256": "3cdf54c8ebda9a5ff31da585dca84ee88c104084508c97dea7ae4a88420fb76d",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-dashboard-ar.png",
+      "sha256": "161b77cbce60d40a0e4462efef9fdc885c17a460f60d8ebbfe7a39d754a8d706",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-advanced-search-ar.png",
+      "sha256": "c57283e5499631e24975b02dbb07bfc072ff010002b14cd41e09668300c0ae38",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-aggregations-ar.png",
+      "sha256": "191f06ed8340a9c7ed72232cdb7152180bd3298eb32188fa4a98acef1a2d5e1e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-records-ar.png",
+      "sha256": "716cf517fb14e2ca71a544c5af52d1a1dc4de5de7f9bc6dbdcc153ce9eaec67e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-classification-workspace-ar.png",
+      "sha256": "8d4aeed136a610ad810c097c723c39b7bdcc63c74a0d9bf8d607556a5c9b6edb",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-relationship-types-ar.png",
+      "sha256": "8e7fff7642e99e501578eba19ec5235914c792b9ec55083511554c88819d9ed4",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-disposition-tasks-ar.png",
+      "sha256": "04689019606173693cb44bbf7148c2ebc76aaf916e67ec70df38e2b4dee0280d",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-disposition-eligibility-ar.png",
+      "sha256": "97438a64e3c81f90f9463bff3a3341cffe07d4bcd1cfedf136651ff67664bd47",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-disposition-jobs-ar.png",
+      "sha256": "d88cf577c42cf23ab74d5a4fc761f4f57c52738a1882cce1735b8363c0adc3cf",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-disposition-templates-ar.png",
+      "sha256": "483531ff872d1b46f1035b4097c8fb73cbfdfd7b92346f4bb10d65785e93b663",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-inbox-ar.png",
+      "sha256": "fdbd3aa5039e05936ec1e4ca5b828408f08f9d6627925e5ec4aa4d559e890736",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-outbox-ar.png",
+      "sha256": "36a426d0b46fff23c45b33a488ba06e61c1639c01b2cfc7defe0e2c96ca88161",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-drafts-ar.png",
+      "sha256": "d6868447e7ba1850accf6a29fc4ffb210d612a844467d8b638edefa74be97a73",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-monitor-ar.png",
+      "sha256": "dff7d66fc0342451c598104f31a82eef31f308f846a6c7329017dd057f60d19c",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-messages-notifications-ar.png",
+      "sha256": "cd371be858003a94ffe299c65e1213cd2a5593afcabdbc8444c72a8268269bf4",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-organization-browser-ar.png",
+      "sha256": "c5ea3df1174b201fd0e49951a9f5df6d8272b20673caab6ff53cd8fd06869d34",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-org-units-ar.png",
+      "sha256": "d56c44b4f7bd57aafb26fa3b16936f349ca749b449a1b58af2c217896966e4c9",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-roles-ar.png",
+      "sha256": "87cf427a4f7810f4764aff76f6d84c30e3e825a4bd2d7f8b93f1ecb302d49f44",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-users-ar.png",
+      "sha256": "55ce87f8f7fc5888fa495f30ee9b3c6a2792449b733088cd5d41cfe4dd1e58b4",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-text-indexers-ar.png",
+      "sha256": "5aa79a869a87d9be5ed92faf9671d331b064c7c57ef89c24089d908f9631fb46",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-application-settings-ar.png",
+      "sha256": "29fd4c82b65593641756450bf17dcc9e1c344a1efccb6f0ad5a8853d02dff47f",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-audit-trail-ar.png",
+      "sha256": "7fc928ea1d489dcb29d9ea134dec007932e17769fb881a045ce052831ad504fe",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-login-sessions-ar.png",
+      "sha256": "e9c2bfbf6944808b3ff3cf42ecaaeacc0b428afcc4156595a68cbd6601b2047e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-security-operations-ar.png",
+      "sha256": "e66c5e987b68cc769c644f9ebc256b3bff467203532c4df26adf9b89c0bacf59",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-saved-search-administration-ar.png",
+      "sha256": "d4bfde49fb48e18863202cba39abc946d18b9c1052362de94d0417100f581638",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-security-levels-ar.png",
+      "sha256": "69383745d91364b05884bc137cba0dd01e967fee23ef7c1427dfef6d35bb3dc6",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-profiles-ar.png",
+      "sha256": "3c37f14d8b97c795a2e7dee7aefa7d7bde85bbc4c0465514d95793549425a873",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-governance-custody-ar.png",
+      "sha256": "7432e7656d22bbe4a2cd436cddf7eaabcfd9ecc2d8a0ae7ac1783c9f9354de9d",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-holds-ar.png",
+      "sha256": "1b1951e854d8ff2fa42a4e32103a24072e8dda54fdbabd53031fe7d86419997c",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "application-translations-ar.png",
+      "sha256": "97139d47fbcef33e073ff70ab23e358eb8c325e829897aa4abec0feac7d6156c",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": true,
+  "destinations": [
+    {
+      "destination": "dashboard",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "dashboard\nDashboard",
+      "milliseconds": 1055.96,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/dashboard/summary",
+          "query": "recent_limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 159.8
+        }
+      ]
+    },
+    {
+      "destination": "advanced-search",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "manage_search\nAdvanced Search",
+      "milliseconds": 926.51,
+      "requests": []
+    },
+    {
+      "destination": "aggregations",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "folder\nAggregations",
+      "milliseconds": 934.94,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/favourites",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.19
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/me/recent-activity",
+          "query": "limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 23.35
+        }
+      ]
+    },
+    {
+      "destination": "records",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "description\nRecords",
+      "milliseconds": 892.03,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/favourites",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 18.83
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/me/recent-activity",
+          "query": "limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.51
+        }
+      ]
+    },
+    {
+      "destination": "classification-workspace",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "account_tree\nClassification schemes",
+      "milliseconds": 902.24,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/classification-schemes",
+          "query": "limit=26&sort=code&direction=asc&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 14.37
+        }
+      ]
+    },
+    {
+      "destination": "relationship-types",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Relationship Types",
+      "milliseconds": 1630.28,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/relationships/types/aggregation",
+          "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 19.6
+        }
+      ]
+    },
+    {
+      "destination": "disposition-tasks",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "My tasks",
+      "milliseconds": 886.47,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/tasks",
+          "query": "limit=25&offset=0&sort=received&descending=false&query=",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 61.59
+        }
+      ]
+    },
+    {
+      "destination": "disposition-eligibility",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Disposition eligibility",
+      "milliseconds": 898.99,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/context",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 31.54
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/eligibility",
+          "query": "limit=25&offset=0&sort=due&descending=false&group_owner=false&active_job=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 27.78
+        }
+      ]
+    },
+    {
+      "destination": "disposition-jobs",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Disposition jobs",
+      "milliseconds": 1393.12,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/jobs",
+          "query": "limit=25&offset=0&query=&lifecycle=active&owner=&assignee=&unassigned=false&sort=id&descending=true",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.37
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/context",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 25.96
+        }
+      ]
+    },
+    {
+      "destination": "disposition-templates",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Document templates",
+      "milliseconds": 981.21,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/templates",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 15.06
+        }
+      ]
+    },
+    {
+      "destination": "messages-inbox",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Inbox",
+      "milliseconds": 956.57,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/inbox",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 46.44
+        }
+      ]
+    },
+    {
+      "destination": "messages-outbox",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Outbox",
+      "milliseconds": 1061.61,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/outbox",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 31.62
+        }
+      ]
+    },
+    {
+      "destination": "messages-drafts",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Drafts",
+      "milliseconds": 894.21,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/drafts",
+          "query": "limit=25&deleted=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 24.59
+        }
+      ]
+    },
+    {
+      "destination": "messages-monitor",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Messages Monitor",
+      "milliseconds": 894.44,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor/gateways",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 21.25
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor/producers",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.19
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 37.29
+        }
+      ]
+    },
+    {
+      "destination": "messages-notifications",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Notification Administration",
+      "milliseconds": 1196.81,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/notification-administration/producers",
+          "query": "q=&after=&limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 15.11
+        }
+      ]
+    },
+    {
+      "destination": "organization-browser",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "lan\nBrowse organization structure",
+      "milliseconds": 945.79,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/browse/organization/roots",
+          "query": "limit=26&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 30.57
+        }
+      ]
+    },
+    {
+      "destination": "org-units",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "corporate_fare\nOrganization units",
+      "milliseconds": 907.97,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/org-units/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 9.47
+        }
+      ]
+    },
+    {
+      "destination": "roles",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "badge\nRoles",
+      "milliseconds": 1158.2,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/roles/search",
+          "query": "include_system=true",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 88.43
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/org-units/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 42.96
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 42.42
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/5",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 35.11
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/4",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 54.82
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 22.63
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/4",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 12.93
+        }
+      ]
+    },
+    {
+      "destination": "users",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "group\nUsers",
+      "milliseconds": 927.56,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/users/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.96
+        }
+      ]
+    },
+    {
+      "destination": "text-indexers",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "manage_search\nText Indexers",
+      "milliseconds": 951.75,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers/diagnostics",
+          "query": "limit=10&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 31.06
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 28.29
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers/health",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 47.77
+        }
+      ]
+    },
+    {
+      "destination": "application-settings",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "settings\nSettings",
+      "milliseconds": 1216.85,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/application-settings",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 63.11
+        }
+      ]
+    },
+    {
+      "destination": "audit-trail",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "manage_history\nAudit trail",
+      "milliseconds": 1047.7,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/event-history/filter-options",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 74.99
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/event-history/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 71.62
+        }
+      ]
+    },
+    {
+      "destination": "login-sessions",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "devices\nLogin sessions",
+      "milliseconds": 946.38,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/sessions/page",
+          "query": "limit=20&offset=0&query=&session_status=all&sort_by=date_created&descending=true&date_field=date_created",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 23.63
+        }
+      ]
+    },
+    {
+      "destination": "security-operations",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "monitor_heart\nSecurity operations",
+      "milliseconds": 1140.63,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/security-operations/summary",
+          "query": "hours=24",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 40.75
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-operations/reconciliation",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.18
+        }
+      ]
+    },
+    {
+      "destination": "saved-search-administration",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Administer Saved Searches",
+      "milliseconds": 931.03,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/saved-searches/administration",
+          "query": "limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 31.0
+        }
+      ]
+    },
+    {
+      "destination": "security-levels",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Security levels",
+      "milliseconds": 970.66,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/page",
+          "query": "sort=level_number&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 17.37
+        }
+      ]
+    },
+    {
+      "destination": "profiles",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Profiles",
+      "milliseconds": 939.07,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/page",
+          "query": "sort=name&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 35.87
+        }
+      ]
+    },
+    {
+      "destination": "governance-custody",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "shield_person\nGovernance custody",
+      "milliseconds": 1120.53,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/authorization/governance-custody",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.32
+        }
+      ]
+    },
+    {
+      "destination": "holds",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Holds",
+      "milliseconds": 910.12,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/holds/people",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 29.86
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/holds",
+          "query": "sort=code&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 19.84
+        }
+      ]
+    },
+    {
+      "destination": "translations",
+      "language": "en",
+      "cycle": "forward",
+      "heading": "Translations",
+      "milliseconds": 1450.27,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/languages",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.62
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/messages",
+          "query": "language_tag=ar&key=&source_text=&translated_text=&semantic_meaning=&status=all&origin=all&review_state=all&limit=10&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 442.36
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/generation-report/ar",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 32.56
+        }
+      ]
+    },
+    {
+      "destination": "translations",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Translations",
+      "milliseconds": 1027.05,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/languages",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 9.55
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/messages",
+          "query": "language_tag=ar&key=&source_text=&translated_text=&semantic_meaning=&status=all&origin=all&review_state=all&limit=10&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 42.59
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/generation-report/ar",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 20.04
+        }
+      ]
+    },
+    {
+      "destination": "holds",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Holds",
+      "milliseconds": 915.75,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/holds/people",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 14.77
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/holds",
+          "query": "sort=code&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 19.82
+        }
+      ]
+    },
+    {
+      "destination": "governance-custody",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "shield_person\nGovernance custody",
+      "milliseconds": 1015.75,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/authorization/governance-custody",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 25.92
+        }
+      ]
+    },
+    {
+      "destination": "profiles",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Profiles",
+      "milliseconds": 944.25,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/page",
+          "query": "sort=name&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 15.01
+        }
+      ]
+    },
+    {
+      "destination": "security-levels",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Security levels",
+      "milliseconds": 913.89,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/page",
+          "query": "sort=level_number&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 8.55
+        }
+      ]
+    },
+    {
+      "destination": "saved-search-administration",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Administer Saved Searches",
+      "milliseconds": 891.8,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/saved-searches/administration",
+          "query": "limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 12.38
+        }
+      ]
+    },
+    {
+      "destination": "security-operations",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "monitor_heart\nSecurity operations",
+      "milliseconds": 950.77,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/security-operations/summary",
+          "query": "hours=24",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 44.15
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-operations/reconciliation",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 8.41
+        }
+      ]
+    },
+    {
+      "destination": "login-sessions",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "devices\nLogin sessions",
+      "milliseconds": 880.18,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/sessions/page",
+          "query": "limit=20&offset=0&query=&session_status=all&sort_by=date_created&descending=true&date_field=date_created",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 6.02
+        }
+      ]
+    },
+    {
+      "destination": "audit-trail",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "manage_history\nAudit trail",
+      "milliseconds": 943.48,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/event-history/filter-options",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 39.33
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/event-history/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 26.63
+        }
+      ]
+    },
+    {
+      "destination": "application-settings",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "settings\nSettings",
+      "milliseconds": 898.88,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/application-settings",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 14.36
+        }
+      ]
+    },
+    {
+      "destination": "text-indexers",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "manage_search\nText Indexers",
+      "milliseconds": 881.42,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 20.13
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers/diagnostics",
+          "query": "limit=10&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.24
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers/health",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 25.99
+        }
+      ]
+    },
+    {
+      "destination": "users",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "group\nUsers",
+      "milliseconds": 905.03,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/users/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 6.27
+        }
+      ]
+    },
+    {
+      "destination": "roles",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "badge\nRoles",
+      "milliseconds": 1468.15,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/roles/search",
+          "query": "include_system=true",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 7.34
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 35.89
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/4",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 24.5
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/org-units/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 49.95
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/5",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 24.34
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.91
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/4",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 12.25
+        }
+      ]
+    },
+    {
+      "destination": "org-units",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "corporate_fare\nOrganization units",
+      "milliseconds": 972.95,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/org-units/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 6.58
+        }
+      ]
+    },
+    {
+      "destination": "organization-browser",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "lan\nBrowse organization structure",
+      "milliseconds": 920.1,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/browse/organization/roots",
+          "query": "limit=26&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 29.6
+        }
+      ]
+    },
+    {
+      "destination": "messages-notifications",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Notification Administration",
+      "milliseconds": 933.27,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/notification-administration/producers",
+          "query": "q=&after=&limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 18.13
+        }
+      ]
+    },
+    {
+      "destination": "messages-monitor",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Messages Monitor",
+      "milliseconds": 924.15,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor/gateways",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 19.67
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 26.63
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor/producers",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 20.19
+        }
+      ]
+    },
+    {
+      "destination": "messages-drafts",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Drafts",
+      "milliseconds": 911.14,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/drafts",
+          "query": "limit=25&deleted=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 14.15
+        }
+      ]
+    },
+    {
+      "destination": "messages-outbox",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Outbox",
+      "milliseconds": 1047.21,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/outbox",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.57
+        }
+      ]
+    },
+    {
+      "destination": "messages-inbox",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Inbox",
+      "milliseconds": 931.83,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/inbox",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 14.63
+        }
+      ]
+    },
+    {
+      "destination": "disposition-templates",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Document templates",
+      "milliseconds": 912.46,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/templates",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 19.05
+        }
+      ]
+    },
+    {
+      "destination": "disposition-jobs",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Disposition jobs",
+      "milliseconds": 972.49,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/context",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 14.96
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/jobs",
+          "query": "limit=25&offset=0&query=&lifecycle=active&owner=&assignee=&unassigned=false&sort=id&descending=true",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 12.69
+        }
+      ]
+    },
+    {
+      "destination": "disposition-eligibility",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Disposition eligibility",
+      "milliseconds": 931.68,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/context",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.75
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/eligibility",
+          "query": "limit=25&offset=0&sort=due&descending=false&group_owner=false&active_job=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 27.04
+        }
+      ]
+    },
+    {
+      "destination": "disposition-tasks",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "My tasks",
+      "milliseconds": 917.68,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/tasks",
+          "query": "limit=25&offset=0&sort=received&descending=false&query=",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 49.42
+        }
+      ]
+    },
+    {
+      "destination": "relationship-types",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "Relationship Types",
+      "milliseconds": 955.8,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/relationships/types/aggregation",
+          "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.81
+        }
+      ]
+    },
+    {
+      "destination": "classification-workspace",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "account_tree\nClassification schemes",
+      "milliseconds": 1032.01,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/classification-schemes",
+          "query": "limit=26&sort=code&direction=asc&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 10.15
+        }
+      ]
+    },
+    {
+      "destination": "records",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "description\nRecords",
+      "milliseconds": 981.55,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/favourites",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 30.38
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/me/recent-activity",
+          "query": "limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 24.51
+        }
+      ]
+    },
+    {
+      "destination": "aggregations",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "folder\nAggregations",
+      "milliseconds": 892.34,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/favourites",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 12.34
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/me/recent-activity",
+          "query": "limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.43
+        }
+      ]
+    },
+    {
+      "destination": "advanced-search",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "manage_search\nAdvanced Search",
+      "milliseconds": 942.87,
+      "requests": []
+    },
+    {
+      "destination": "dashboard",
+      "language": "en",
+      "cycle": "reverse",
+      "heading": "dashboard\nDashboard",
+      "milliseconds": 930.0,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/dashboard/summary",
+          "query": "recent_limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 97.47
+        }
+      ]
+    },
+    {
+      "destination": "dashboard",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "dashboard\nلوحة المعلومات",
+      "milliseconds": 1032.55,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/dashboard/summary",
+          "query": "recent_limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 73.07
+        }
+      ]
+    },
+    {
+      "destination": "advanced-search",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "manage_search\nالبحث المتقدم",
+      "milliseconds": 955.74,
+      "requests": []
+    },
+    {
+      "destination": "aggregations",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "folder\nالملفات",
+      "milliseconds": 928.84,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/favourites",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.32
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/me/recent-activity",
+          "query": "limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 17.64
+        }
+      ]
+    },
+    {
+      "destination": "records",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "description\nالوثائق",
+      "milliseconds": 926.72,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/favourites",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 15.09
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/me/recent-activity",
+          "query": "limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 15.44
+        }
+      ]
+    },
+    {
+      "destination": "classification-workspace",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "account_tree\nنظم التصنيف",
+      "milliseconds": 930.5,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/classification-schemes",
+          "query": "limit=26&sort=code&direction=asc&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 10.66
+        }
+      ]
+    },
+    {
+      "destination": "relationship-types",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "أنواع العلاقات",
+      "milliseconds": 906.35,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/relationships/types/aggregation",
+          "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 8.84
+        }
+      ]
+    },
+    {
+      "destination": "disposition-tasks",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "مهامي",
+      "milliseconds": 950.37,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/tasks",
+          "query": "limit=25&offset=0&sort=received&descending=false&query=",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 51.66
+        }
+      ]
+    },
+    {
+      "destination": "disposition-eligibility",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "أهلية التصرف",
+      "milliseconds": 961.38,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/context",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 29.24
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/eligibility",
+          "query": "limit=25&offset=0&sort=due&descending=false&group_owner=false&active_job=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 28.84
+        }
+      ]
+    },
+    {
+      "destination": "disposition-jobs",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "عمليات التصرف",
+      "milliseconds": 923.99,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/jobs",
+          "query": "limit=25&offset=0&query=&lifecycle=active&owner=&assignee=&unassigned=false&sort=id&descending=true",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.48
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/context",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 20.89
+        }
+      ]
+    },
+    {
+      "destination": "disposition-templates",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "قوالب المستندات",
+      "milliseconds": 968.14,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/templates",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.43
+        }
+      ]
+    },
+    {
+      "destination": "messages-inbox",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "الوارد",
+      "milliseconds": 969.14,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/inbox",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.93
+        }
+      ]
+    },
+    {
+      "destination": "messages-outbox",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "الصادر",
+      "milliseconds": 1040.16,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/outbox",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.81
+        }
+      ]
+    },
+    {
+      "destination": "messages-drafts",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "المسودات",
+      "milliseconds": 913.11,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/drafts",
+          "query": "limit=25&deleted=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 9.22
+        }
+      ]
+    },
+    {
+      "destination": "messages-monitor",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "مراقبة الرسائل",
+      "milliseconds": 922.66,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor/gateways",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 26.35
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor/producers",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 15.03
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 39.22
+        }
+      ]
+    },
+    {
+      "destination": "messages-notifications",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "إدارة الإشعارات",
+      "milliseconds": 914.62,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/notification-administration/producers",
+          "query": "q=&after=&limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.23
+        }
+      ]
+    },
+    {
+      "destination": "organization-browser",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "lan\nاستعراض الهيكل التنظيمي",
+      "milliseconds": 1023.06,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/browse/organization/roots",
+          "query": "limit=26&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 25.69
+        }
+      ]
+    },
+    {
+      "destination": "org-units",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "corporate_fare\nالوحدات التنظيمية",
+      "milliseconds": 924.3,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/org-units/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.76
+        }
+      ]
+    },
+    {
+      "destination": "roles",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "badge\nالأدوار",
+      "milliseconds": 1026.61,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/roles/search",
+          "query": "include_system=true",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.7
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/org-units/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 37.53
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/4",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 23.38
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 33.66
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/5",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 21.96
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 7.97
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/4",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 9.24
+        }
+      ]
+    },
+    {
+      "destination": "users",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "group\nالمستخدمون",
+      "milliseconds": 941.78,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/users/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 8.57
+        }
+      ]
+    },
+    {
+      "destination": "text-indexers",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "manage_search\nمفهرسات النصوص",
+      "milliseconds": 925.23,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 7.75
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers/diagnostics",
+          "query": "limit=10&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.72
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers/health",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 24.58
+        }
+      ]
+    },
+    {
+      "destination": "application-settings",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "settings\nالإعدادات",
+      "milliseconds": 919.9,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/application-settings",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.01
+        }
+      ]
+    },
+    {
+      "destination": "audit-trail",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "manage_history\nمسار التتبع",
+      "milliseconds": 913.73,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/event-history/filter-options",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 49.52
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/event-history/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 27.47
+        }
+      ]
+    },
+    {
+      "destination": "login-sessions",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "devices\nجلسات الدخول",
+      "milliseconds": 899.97,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/sessions/page",
+          "query": "limit=20&offset=0&query=&session_status=all&sort_by=date_created&descending=true&date_field=date_created",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 10.39
+        }
+      ]
+    },
+    {
+      "destination": "security-operations",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "monitor_heart\nعمليات الأمان",
+      "milliseconds": 950.52,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/security-operations/summary",
+          "query": "hours=24",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 37.32
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-operations/reconciliation",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 18.36
+        }
+      ]
+    },
+    {
+      "destination": "saved-search-administration",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "إدارة عمليات البحث المحفوظة",
+      "milliseconds": 940.15,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/saved-searches/administration",
+          "query": "limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.96
+        }
+      ]
+    },
+    {
+      "destination": "security-levels",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "درجات السرية",
+      "milliseconds": 893.61,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/page",
+          "query": "sort=level_number&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 6.82
+        }
+      ]
+    },
+    {
+      "destination": "profiles",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "ملفات الصلاحيات",
+      "milliseconds": 928.08,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/page",
+          "query": "sort=name&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 8.01
+        }
+      ]
+    },
+    {
+      "destination": "governance-custody",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "shield_person\nحفظ الحوكمة",
+      "milliseconds": 967.84,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/authorization/governance-custody",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.46
+        }
+      ]
+    },
+    {
+      "destination": "holds",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "التعليقات",
+      "milliseconds": 968.33,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/holds/people",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 15.04
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/holds",
+          "query": "sort=code&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 17.38
+        }
+      ]
+    },
+    {
+      "destination": "translations",
+      "language": "ar",
+      "cycle": "forward",
+      "heading": "الترجمات",
+      "milliseconds": 1050.93,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/languages",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 6.33
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/messages",
+          "query": "language_tag=ar&key=&source_text=&translated_text=&semantic_meaning=&status=all&origin=all&review_state=all&limit=10&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 40.8
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/generation-report/ar",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 33.15
+        }
+      ]
+    },
+    {
+      "destination": "translations",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "الترجمات",
+      "milliseconds": 1144.15,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/languages",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 12.49
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/messages",
+          "query": "language_tag=ar&key=&source_text=&translated_text=&semantic_meaning=&status=all&origin=all&review_state=all&limit=10&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 43.64
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/admin/i18n/generation-report/ar",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 46.22
+        }
+      ]
+    },
+    {
+      "destination": "holds",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "التعليقات",
+      "milliseconds": 956.19,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/holds/people",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 10.82
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/holds",
+          "query": "sort=code&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 10.48
+        }
+      ]
+    },
+    {
+      "destination": "governance-custody",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "shield_person\nحفظ الحوكمة",
+      "milliseconds": 921.88,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/authorization/governance-custody",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 11.27
+        }
+      ]
+    },
+    {
+      "destination": "profiles",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "ملفات الصلاحيات",
+      "milliseconds": 916.23,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/page",
+          "query": "sort=name&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 6.35
+        }
+      ]
+    },
+    {
+      "destination": "security-levels",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "درجات السرية",
+      "milliseconds": 891.59,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/page",
+          "query": "sort=level_number&limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 10.37
+        }
+      ]
+    },
+    {
+      "destination": "saved-search-administration",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "إدارة عمليات البحث المحفوظة",
+      "milliseconds": 1068.58,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/saved-searches/administration",
+          "query": "limit=25&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 9.68
+        }
+      ]
+    },
+    {
+      "destination": "security-operations",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "monitor_heart\nعمليات الأمان",
+      "milliseconds": 927.14,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/security-operations/summary",
+          "query": "hours=24",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 35.15
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-operations/reconciliation",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.85
+        }
+      ]
+    },
+    {
+      "destination": "login-sessions",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "devices\nجلسات الدخول",
+      "milliseconds": 975.93,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/sessions/page",
+          "query": "limit=20&offset=0&query=&session_status=all&sort_by=date_created&descending=true&date_field=date_created",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 12.44
+        }
+      ]
+    },
+    {
+      "destination": "audit-trail",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "manage_history\nمسار التتبع",
+      "milliseconds": 906.87,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/event-history/filter-options",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 29.93
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/event-history/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 21.82
+        }
+      ]
+    },
+    {
+      "destination": "application-settings",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "settings\nالإعدادات",
+      "milliseconds": 879.06,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/application-settings",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 8.54
+        }
+      ]
+    },
+    {
+      "destination": "text-indexers",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "manage_search\nمفهرسات النصوص",
+      "milliseconds": 946.96,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 23.34
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers/diagnostics",
+          "query": "limit=10&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.56
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/text-indexers/health",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 27.6
+        }
+      ]
+    },
+    {
+      "destination": "users",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "group\nالمستخدمون",
+      "milliseconds": 2835.8,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/users/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 1952.74
+        }
+      ]
+    },
+    {
+      "destination": "roles",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "badge\nالأدوار",
+      "milliseconds": 1025.91,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/roles/search",
+          "query": "include_system=true",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 12.46
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/4",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 26.69
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 39.68
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/org-units/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 50.11
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/profiles/5",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 36.4
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/1",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 29.28
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/security-levels/4",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.17
+        }
+      ]
+    },
+    {
+      "destination": "org-units",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "corporate_fare\nالوحدات التنظيمية",
+      "milliseconds": 965.75,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/v1/org-units/search",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 29.96
+        }
+      ]
+    },
+    {
+      "destination": "organization-browser",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "lan\nاستعراض الهيكل التنظيمي",
+      "milliseconds": 908.38,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/browse/organization/roots",
+          "query": "limit=26&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 6.53
+        }
+      ]
+    },
+    {
+      "destination": "messages-notifications",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "إدارة الإشعارات",
+      "milliseconds": 941.43,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/notification-administration/producers",
+          "query": "q=&after=&limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 51.4
+        }
+      ]
+    },
+    {
+      "destination": "messages-monitor",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "مراقبة الرسائل",
+      "milliseconds": 1129.04,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor/producers",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 70.85
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor/gateways",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 108.41
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/monitor",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 148.41
+        }
+      ]
+    },
+    {
+      "destination": "messages-drafts",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "المسودات",
+      "milliseconds": 1105.73,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/drafts",
+          "query": "limit=25&deleted=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 14.28
+        }
+      ]
+    },
+    {
+      "destination": "messages-outbox",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "الصادر",
+      "milliseconds": 949.81,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/outbox",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 13.03
+        }
+      ]
+    },
+    {
+      "destination": "messages-inbox",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "الوارد",
+      "milliseconds": 891.27,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/messages/inbox",
+          "query": "limit=25",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 15.37
+        }
+      ]
+    },
+    {
+      "destination": "disposition-templates",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "قوالب المستندات",
+      "milliseconds": 1461.78,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/templates",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.72
+        }
+      ]
+    },
+    {
+      "destination": "disposition-jobs",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "عمليات التصرف",
+      "milliseconds": 1165.41,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/context",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 12.19
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/jobs",
+          "query": "limit=25&offset=0&query=&lifecycle=active&owner=&assignee=&unassigned=false&sort=id&descending=true",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 25.94
+        }
+      ]
+    },
+    {
+      "destination": "disposition-eligibility",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "أهلية التصرف",
+      "milliseconds": 899.45,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/context",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 19.25
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/eligibility",
+          "query": "limit=25&offset=0&sort=due&descending=false&group_owner=false&active_job=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 43.78
+        }
+      ]
+    },
+    {
+      "destination": "disposition-tasks",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "مهامي",
+      "milliseconds": 912.13,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/disposition/tasks",
+          "query": "limit=25&offset=0&sort=received&descending=false&query=",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 83.17
+        }
+      ]
+    },
+    {
+      "destination": "relationship-types",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "أنواع العلاقات",
+      "milliseconds": 996.49,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/relationships/types/aggregation",
+          "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 10.31
+        }
+      ]
+    },
+    {
+      "destination": "classification-workspace",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "account_tree\nنظم التصنيف",
+      "milliseconds": 926.54,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/classification-schemes",
+          "query": "limit=26&sort=code&direction=asc&offset=0",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 18.57
+        }
+      ]
+    },
+    {
+      "destination": "records",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "description\nالوثائق",
+      "milliseconds": 1028.29,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/me/recent-activity",
+          "query": "limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 40.45
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/favourites",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 60.65
+        }
+      ]
+    },
+    {
+      "destination": "aggregations",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "folder\nالملفات",
+      "milliseconds": 947.97,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/favourites",
+          "query": "",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 14.67
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/auth/me/recent-activity",
+          "query": "limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 16.0
+        }
+      ]
+    },
+    {
+      "destination": "advanced-search",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "manage_search\nالبحث المتقدم",
+      "milliseconds": 960.02,
+      "requests": []
+    },
+    {
+      "destination": "dashboard",
+      "language": "ar",
+      "cycle": "reverse",
+      "heading": "dashboard\nلوحة المعلومات",
+      "milliseconds": 1429.43,
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/api/v1/dashboard/summary",
+          "query": "recent_limit=50",
+          "controlled": false,
+          "status": 200,
+          "milliseconds": 89.15
+        }
+      ]
+    }
+  ],
+  "browser_errors": [],
+  "existing_pagination_icon_errors": [
+    {
+      "language": "en",
+      "destination": "org-units",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "roles",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "users",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "login-sessions",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "security-levels",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "profiles",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "profiles",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "security-levels",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "login-sessions",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "users",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "roles",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "destination": "org-units",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "org-units",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "roles",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "users",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "login-sessions",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "security-levels",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "profiles",
+      "cycle": "forward",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "profiles",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "security-levels",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "login-sessions",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "users",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "roles",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "destination": "org-units",
+      "cycle": "reverse",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    }
+  ]
+}

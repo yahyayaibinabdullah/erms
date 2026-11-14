@@ -1,0 +1,1088 @@
+{
+  "state_accesses": [
+    {
+      "owner": "index.clear_authenticated_view",
+      "key": "favourites",
+      "line": 4434,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.clear_authenticated_view",
+      "key": "favourite_ids",
+      "line": 4435,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.reload_favourites",
+      "key": "favourites",
+      "line": 4552,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.reload_favourites",
+      "key": "favourite_ids",
+      "line": 4553,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.favourite_state",
+      "key": "favourite_ids",
+      "line": 4560,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.toggle_favourite",
+      "key": "favourite_ids",
+      "line": 4582,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_created",
+      "line": 7224,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_updated",
+      "line": 7225,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_activity",
+      "line": 7226,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_created",
+      "line": 7229,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_updated",
+      "line": 7230,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_activity",
+      "line": 7231,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_activity",
+      "line": 7236,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_created",
+      "line": 7237,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_updated",
+      "line": 7238,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_activity",
+      "line": 7241,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_created",
+      "line": 7242,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.load_recent",
+      "key": "recent_updated",
+      "line": 7243,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.render_recent_section",
+      "key": "recent_created",
+      "line": 10199,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_recent_section",
+      "key": "recent_updated",
+      "line": 10200,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_entity_favourites_section.show_all",
+      "key": "favourites",
+      "line": 10292,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_entity_favourites_section.show_all.render_complete",
+      "key": "favourites",
+      "line": 10299,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_entity_favourites_section.remove_favourite",
+      "key": "favourites",
+      "line": 10319,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_entity_favourites_section.remove_favourite",
+      "key": "favourites",
+      "line": 10320,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_entity_favourites_section.render_preview",
+      "key": "favourites",
+      "line": 10329,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_resource_personal_sections",
+      "key": "favourites",
+      "line": 10357,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_resource_personal_sections",
+      "key": "recent_activity",
+      "line": 10359,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_resource_personal_sections.remove_favourite",
+      "key": "favourites",
+      "line": 10438,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_resource_personal_sections.remove_favourite",
+      "key": "favourites",
+      "line": 10439,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.render_resource_personal_sections",
+      "key": "personal_section_hosts",
+      "line": 10489,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.select_dashboard.load_dashboard",
+      "key": "favourites",
+      "line": 12290,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.select_dashboard.load_dashboard",
+      "key": "favourite_ids",
+      "line": 12291,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.select_dashboard.load_dashboard.remove_dashboard_favourite",
+      "key": "favourites",
+      "line": 12856,
+      "operation": "Store"
+    },
+    {
+      "owner": "index.select_dashboard.load_dashboard.remove_dashboard_favourite",
+      "key": "favourite_ids",
+      "line": 12857,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.select_aggregation_browser",
+      "key": "recent_created",
+      "line": 13691,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.select_aggregation_browser",
+      "key": "recent_updated",
+      "line": 13692,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.select_entity",
+      "key": "personal_sections_loading",
+      "line": 19037,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.select_entity.refresh_personal_sections",
+      "key": "personal_sections_loading",
+      "line": 19053,
+      "operation": "Load"
+    },
+    {
+      "owner": "index.select_entity.refresh_personal_sections",
+      "key": "personal_section_hosts",
+      "line": 19057,
+      "operation": "Load"
+    }
+  ],
+  "calls": [
+    {
+      "owner": "index.render_global_search_results",
+      "callee": "render_compact_resource_result",
+      "line": 4036
+    },
+    {
+      "owner": "index.render_global_search_results",
+      "callee": "render_compact_resource_result",
+      "line": 4058
+    },
+    {
+      "owner": "index.restore_navigation_entry",
+      "callee": "load_rows",
+      "line": 4384
+    },
+    {
+      "owner": "index.show_acl_editor.render_principals",
+      "callee": "bind_remote_relationship_select",
+      "line": 5823
+    },
+    {
+      "owner": "index.show_governed_move",
+      "callee": "bind_remote_relationship_select",
+      "line": 6333
+    },
+    {
+      "owner": "index.show_security_level_change",
+      "callee": "bind_remote_relationship_select",
+      "line": 6514
+    },
+    {
+      "owner": "index.select_record_details",
+      "callee": "decorate_for_spec",
+      "line": 6652
+    },
+    {
+      "owner": "index.select_record_details.confirm_delete_record.delete_record",
+      "callee": "load_recent",
+      "line": 6727
+    },
+    {
+      "owner": "index.load_recent",
+      "callee": "decorate_for_spec",
+      "line": 7235
+    },
+    {
+      "owner": "index.load_recent",
+      "callee": "decorate_for_spec",
+      "line": 7242
+    },
+    {
+      "owner": "index.load_recent",
+      "callee": "decorate_for_spec",
+      "line": 7243
+    },
+    {
+      "owner": "index.open_record_draft_editor.commit",
+      "callee": "form_payload",
+      "line": 7569
+    },
+    {
+      "owner": "index.open_record_draft_editor.commit",
+      "callee": "load_recent",
+      "line": 7586
+    },
+    {
+      "owner": "index.open_record_draft_editor.commit",
+      "callee": "show_number_conflict",
+      "line": 7597
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "callee": "field_input",
+      "line": 7620
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "callee": "bind_remote_relationship_select",
+      "line": 7641
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "callee": "field_input",
+      "line": 7718
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "callee": "add_number_suggestion",
+      "line": 7720
+    },
+    {
+      "owner": "index.open_editor",
+      "callee": "field_input",
+      "line": 8221
+    },
+    {
+      "owner": "index.open_editor",
+      "callee": "bind_remote_relationship_select",
+      "line": 8226
+    },
+    {
+      "owner": "index.open_editor",
+      "callee": "field_input",
+      "line": 8309
+    },
+    {
+      "owner": "index.open_editor",
+      "callee": "add_number_suggestion",
+      "line": 8319
+    },
+    {
+      "owner": "index.open_editor",
+      "callee": "bind_remote_relationship_select",
+      "line": 8332
+    },
+    {
+      "owner": "index.open_editor",
+      "callee": "bind_remote_relationship_select",
+      "line": 8355
+    },
+    {
+      "owner": "index.open_editor.save",
+      "callee": "load_rows",
+      "line": 8810
+    },
+    {
+      "owner": "index.open_editor.save",
+      "callee": "form_payload",
+      "line": 8812
+    },
+    {
+      "owner": "index.open_editor.save",
+      "callee": "load_recent",
+      "line": 8888
+    },
+    {
+      "owner": "index.open_editor.save",
+      "callee": "load_recent",
+      "line": 8892
+    },
+    {
+      "owner": "index.open_editor.save",
+      "callee": "load_rows",
+      "line": 8895
+    },
+    {
+      "owner": "index.open_editor.save",
+      "callee": "load_rows",
+      "line": 8902
+    },
+    {
+      "owner": "index.open_editor.save",
+      "callee": "show_number_conflict",
+      "line": 8908
+    },
+    {
+      "owner": "index.show_memberships",
+      "callee": "bind_remote_relationship_select",
+      "line": 9189
+    },
+    {
+      "owner": "index.open_aggregation.reopen_current.reopened",
+      "callee": "load_recent",
+      "line": 9382
+    },
+    {
+      "owner": "index.open_aggregation.close_current",
+      "callee": "load_recent",
+      "line": 9394
+    },
+    {
+      "owner": "index.open_aggregation.confirm_delete_current.delete_current",
+      "callee": "load_recent",
+      "line": 9491
+    },
+    {
+      "owner": "index.open_aggregation.render_contained_records",
+      "callee": "render_compact_resource_result",
+      "line": 10147
+    },
+    {
+      "owner": "index.render_recent_section.refresh_recent",
+      "callee": "load_recent",
+      "line": 10182
+    },
+    {
+      "owner": "index.render_entity_compact_results.render_results",
+      "callee": "render_compact_resource_result",
+      "line": 10809
+    },
+    {
+      "owner": "index.render_table",
+      "callee": "render_resource_personal_sections",
+      "line": 10847
+    },
+    {
+      "owner": "index.render_table",
+      "callee": "render_recent_section",
+      "line": 10858
+    },
+    {
+      "owner": "index.render_table",
+      "callee": "render_resource_personal_sections",
+      "line": 10862
+    },
+    {
+      "owner": "index.render_table.reload_governance_cards",
+      "callee": "load_rows",
+      "line": 11102
+    },
+    {
+      "owner": "index.render_table.move_card_page",
+      "callee": "load_rows",
+      "line": 11109
+    },
+    {
+      "owner": "index.render_table.toggle_table_favourite",
+      "callee": "reload_favourites",
+      "line": 11433
+    },
+    {
+      "owner": "index.render_table.reopen_from_table.reopened",
+      "callee": "load_recent",
+      "line": 11444
+    },
+    {
+      "owner": "index.render_table.reopen_from_table.reopened",
+      "callee": "load_rows",
+      "line": 11446
+    },
+    {
+      "owner": "index.render_table.publish_scheme",
+      "callee": "load_rows",
+      "line": 11464
+    },
+    {
+      "owner": "index.render_table.change_scheme_lifecycle",
+      "callee": "load_rows",
+      "line": 11482
+    },
+    {
+      "owner": "index.render_table.change_suspension.proceed",
+      "callee": "decorate_for_spec",
+      "line": 11544
+    },
+    {
+      "owner": "index.render_table.confirm_lifecycle.proceed",
+      "callee": "decorate_for_spec",
+      "line": 11605
+    },
+    {
+      "owner": "index.select_dashboard.show_unclassified_roots",
+      "callee": "decorate_for_spec",
+      "line": 12133
+    },
+    {
+      "owner": "index.load_rows",
+      "callee": "decorate_for_spec",
+      "line": 13152
+    },
+    {
+      "owner": "index.load_rows",
+      "callee": "decorate_for_spec",
+      "line": 13208
+    },
+    {
+      "owner": "index.select_advanced_search.render_condition",
+      "callee": "bind_remote_relationship_select",
+      "line": 18333
+    },
+    {
+      "owner": "index.select_advanced_search.render_results",
+      "callee": "render_compact_resource_result",
+      "line": 18621
+    },
+    {
+      "owner": "index.select_advanced_search.render_results",
+      "callee": "render_compact_resource_result",
+      "line": 18643
+    },
+    {
+      "owner": "index.select_entity",
+      "callee": "load_rows",
+      "line": 19039
+    },
+    {
+      "owner": "index.select_entity.refresh_personal_sections",
+      "callee": "reload_favourites",
+      "line": 19045
+    },
+    {
+      "owner": "index.select_entity.refresh_personal_sections",
+      "callee": "load_recent",
+      "line": 19045
+    },
+    {
+      "owner": "index.select_entity.refresh_personal_sections",
+      "callee": "render_resource_personal_sections",
+      "line": 19059
+    },
+    {
+      "owner": "index.select_entity",
+      "callee": "reload_favourites",
+      "line": 19069
+    },
+    {
+      "owner": "index.select_entity",
+      "callee": "load_recent",
+      "line": 19071
+    },
+    {
+      "owner": "index.select_entity",
+      "callee": "load_rows",
+      "line": 19078
+    },
+    {
+      "owner": "index",
+      "callee": "load_rows",
+      "line": 20680
+    },
+    {
+      "owner": "index",
+      "callee": "load_rows",
+      "line": 20681
+    },
+    {
+      "owner": "index.clear_collection_search",
+      "callee": "load_rows",
+      "line": 20686
+    }
+  ],
+  "symbol_references_including_callback_arguments": [
+    {
+      "owner": "index.bind_remote_relationship_select.make_options",
+      "symbol": "relationship_options",
+      "line": 1594
+    },
+    {
+      "owner": "index.bind_remote_relationship_select.schedule_filter",
+      "symbol": "relationship_search_query",
+      "line": 1714
+    },
+    {
+      "owner": "index.bind_remote_relationship_select.schedule_filter.delayed",
+      "symbol": "relationship_search_query",
+      "line": 1722
+    },
+    {
+      "owner": "index.bind_resource_security_select.load",
+      "symbol": "relationship_options",
+      "line": 1780
+    },
+    {
+      "owner": "index.bind_resource_security_select.search",
+      "symbol": "relationship_search_query",
+      "line": 1792
+    },
+    {
+      "owner": "index.render_global_search_results",
+      "symbol": "render_compact_resource_result",
+      "line": 4036
+    },
+    {
+      "owner": "index.render_global_search_results",
+      "symbol": "render_compact_resource_result",
+      "line": 4058
+    },
+    {
+      "owner": "index.restore_navigation_entry",
+      "symbol": "load_rows",
+      "line": 4384
+    },
+    {
+      "owner": "index.toggle_favourite",
+      "symbol": "favourite_state",
+      "line": 4576
+    },
+    {
+      "owner": "index.toggle_favourite",
+      "symbol": "apply_favourite_button",
+      "line": 4581
+    },
+    {
+      "owner": "index.toggle_favourite",
+      "symbol": "apply_favourite_button",
+      "line": 4601
+    },
+    {
+      "owner": "index.favourite_button",
+      "symbol": "favourite_state",
+      "line": 4609
+    },
+    {
+      "owner": "index.favourite_button",
+      "symbol": "toggle_favourite",
+      "line": 4621
+    },
+    {
+      "owner": "index.render_compact_resource_result",
+      "symbol": "favourite_button",
+      "line": 4708
+    },
+    {
+      "owner": "index.show_acl_editor.render_principals",
+      "symbol": "bind_remote_relationship_select",
+      "line": 5823
+    },
+    {
+      "owner": "index.show_access_explanation.search_users",
+      "symbol": "relationship_search_query",
+      "line": 6018
+    },
+    {
+      "owner": "index.show_governed_move",
+      "symbol": "bind_remote_relationship_select",
+      "line": 6333
+    },
+    {
+      "owner": "index.show_security_level_change",
+      "symbol": "relationship_options",
+      "line": 6500
+    },
+    {
+      "owner": "index.show_security_level_change",
+      "symbol": "bind_remote_relationship_select",
+      "line": 6514
+    },
+    {
+      "owner": "index.select_record_details",
+      "symbol": "decorate_for_spec",
+      "line": 6652
+    },
+    {
+      "owner": "index.select_record_details.confirm_delete_record.delete_record",
+      "symbol": "load_recent",
+      "line": 6727
+    },
+    {
+      "owner": "index.select_record_details",
+      "symbol": "favourite_button",
+      "line": 6820
+    },
+    {
+      "owner": "index.select_record_details",
+      "symbol": "bind_remote_relationship_select",
+      "line": 7058
+    },
+    {
+      "owner": "index.load_recent",
+      "symbol": "decorate_for_spec",
+      "line": 7235
+    },
+    {
+      "owner": "index.load_recent",
+      "symbol": "decorate_for_spec",
+      "line": 7242
+    },
+    {
+      "owner": "index.load_recent",
+      "symbol": "decorate_for_spec",
+      "line": 7243
+    },
+    {
+      "owner": "index.browse_advanced_aggregation.select_aggregation",
+      "symbol": "apply_relationship_selection",
+      "line": 7299
+    },
+    {
+      "owner": "index.open_record_draft_editor.commit",
+      "symbol": "form_payload",
+      "line": 7569
+    },
+    {
+      "owner": "index.open_record_draft_editor.commit",
+      "symbol": "load_recent",
+      "line": 7586
+    },
+    {
+      "owner": "index.open_record_draft_editor.commit",
+      "symbol": "show_number_conflict",
+      "line": 7597
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "symbol": "field_input",
+      "line": 7620
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "symbol": "relationship_options",
+      "line": 7623
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "symbol": "bind_remote_relationship_select",
+      "line": 7641
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "symbol": "relationship_options",
+      "line": 7707
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "symbol": "field_input",
+      "line": 7718
+    },
+    {
+      "owner": "index.open_record_draft_editor",
+      "symbol": "add_number_suggestion",
+      "line": 7720
+    },
+    {
+      "owner": "index.open_editor",
+      "symbol": "relationship_options",
+      "line": 8040
+    },
+    {
+      "owner": "index.open_editor.browse_classification_tree.show_level.choose",
+      "symbol": "apply_relationship_selection",
+      "line": 8138
+    },
+    {
+      "owner": "index.open_editor.browse_classification_tree.show_level.choose",
+      "symbol": "relationship_options",
+      "line": 8140
+    },
+    {
+      "owner": "index.open_editor",
+      "symbol": "field_input",
+      "line": 8221
+    },
+    {
+      "owner": "index.open_editor",
+      "symbol": "bind_remote_relationship_select",
+      "line": 8226
+    },
+    {
+      "owner": "index.open_editor",
+      "symbol": "field_input",
+      "line": 8309
+    },
+    {
+      "owner": "index.open_editor",
+      "symbol": "add_number_suggestion",
+      "line": 8319
+    },
+    {
+      "owner": "index.open_editor",
+      "symbol": "bind_remote_relationship_select",
+      "line": 8332
+    },
+    {
+      "owner": "index.open_editor",
+      "symbol": "bind_remote_relationship_select",
+      "line": 8355
+    },
+    {
+      "owner": "index.open_editor.save",
+      "symbol": "load_rows",
+      "line": 8810
+    },
+    {
+      "owner": "index.open_editor.save",
+      "symbol": "form_payload",
+      "line": 8812
+    },
+    {
+      "owner": "index.open_editor.save",
+      "symbol": "load_recent",
+      "line": 8888
+    },
+    {
+      "owner": "index.open_editor.save",
+      "symbol": "load_recent",
+      "line": 8892
+    },
+    {
+      "owner": "index.open_editor.save",
+      "symbol": "load_rows",
+      "line": 8895
+    },
+    {
+      "owner": "index.open_editor.save",
+      "symbol": "load_rows",
+      "line": 8902
+    },
+    {
+      "owner": "index.open_editor.save",
+      "symbol": "show_number_conflict",
+      "line": 8908
+    },
+    {
+      "owner": "index.show_memberships",
+      "symbol": "bind_remote_relationship_select",
+      "line": 9189
+    },
+    {
+      "owner": "index.open_aggregation.reopen_current.reopened",
+      "symbol": "load_recent",
+      "line": 9382
+    },
+    {
+      "owner": "index.open_aggregation.close_current",
+      "symbol": "load_recent",
+      "line": 9394
+    },
+    {
+      "owner": "index.open_aggregation.confirm_delete_current.delete_current",
+      "symbol": "load_recent",
+      "line": 9491
+    },
+    {
+      "owner": "index.open_aggregation",
+      "symbol": "favourite_button",
+      "line": 9544
+    },
+    {
+      "owner": "index.open_aggregation",
+      "symbol": "bind_remote_relationship_select",
+      "line": 10059
+    },
+    {
+      "owner": "index.open_aggregation.render_contained_records",
+      "symbol": "render_compact_resource_result",
+      "line": 10147
+    },
+    {
+      "owner": "index.render_recent_section.refresh_recent",
+      "symbol": "load_recent",
+      "line": 10182
+    },
+    {
+      "owner": "index.render_entity_favourites_section.remove_favourite",
+      "symbol": "toggle_favourite",
+      "line": 10316
+    },
+    {
+      "owner": "index.render_resource_personal_sections.remove_favourite",
+      "symbol": "toggle_favourite",
+      "line": 10435
+    },
+    {
+      "owner": "index.render_entity_compact_results.render_results",
+      "symbol": "render_compact_resource_result",
+      "line": 10809
+    },
+    {
+      "owner": "index.render_table",
+      "symbol": "render_resource_personal_sections",
+      "line": 10847
+    },
+    {
+      "owner": "index.render_table",
+      "symbol": "render_recent_section",
+      "line": 10858
+    },
+    {
+      "owner": "index.render_table",
+      "symbol": "render_resource_personal_sections",
+      "line": 10862
+    },
+    {
+      "owner": "index.render_table.reload_governance_cards",
+      "symbol": "load_rows",
+      "line": 11102
+    },
+    {
+      "owner": "index.render_table.move_card_page",
+      "symbol": "load_rows",
+      "line": 11109
+    },
+    {
+      "owner": "index.render_table",
+      "symbol": "favourite_state",
+      "line": 11221
+    },
+    {
+      "owner": "index.render_table.toggle_table_favourite",
+      "symbol": "toggle_favourite",
+      "line": 11426
+    },
+    {
+      "owner": "index.render_table.toggle_table_favourite",
+      "symbol": "reload_favourites",
+      "line": 11433
+    },
+    {
+      "owner": "index.render_table.reopen_from_table.reopened",
+      "symbol": "load_recent",
+      "line": 11444
+    },
+    {
+      "owner": "index.render_table.reopen_from_table.reopened",
+      "symbol": "load_rows",
+      "line": 11446
+    },
+    {
+      "owner": "index.render_table.publish_scheme",
+      "symbol": "load_rows",
+      "line": 11464
+    },
+    {
+      "owner": "index.render_table.change_scheme_lifecycle",
+      "symbol": "load_rows",
+      "line": 11482
+    },
+    {
+      "owner": "index.render_table.change_suspension.proceed",
+      "symbol": "decorate_for_spec",
+      "line": 11544
+    },
+    {
+      "owner": "index.render_table.confirm_lifecycle.proceed",
+      "symbol": "decorate_for_spec",
+      "line": 11605
+    },
+    {
+      "owner": "index.select_dashboard.show_unclassified_roots",
+      "symbol": "decorate_for_spec",
+      "line": 12133
+    },
+    {
+      "owner": "index.load_rows",
+      "symbol": "decorate_for_spec",
+      "line": 13152
+    },
+    {
+      "owner": "index.load_rows",
+      "symbol": "decorate_for_spec",
+      "line": 13208
+    },
+    {
+      "owner": "index.show_organization_structure.confirm_browser_selection",
+      "symbol": "apply_relationship_selection",
+      "line": 16161
+    },
+    {
+      "owner": "index.select_advanced_search.browse_advanced_classification.show_level.choose",
+      "symbol": "apply_relationship_selection",
+      "line": 18216
+    },
+    {
+      "owner": "index.select_advanced_search.render_condition",
+      "symbol": "bind_remote_relationship_select",
+      "line": 18333
+    },
+    {
+      "owner": "index.select_advanced_search.render_results",
+      "symbol": "render_compact_resource_result",
+      "line": 18621
+    },
+    {
+      "owner": "index.select_advanced_search.render_results",
+      "symbol": "render_compact_resource_result",
+      "line": 18643
+    },
+    {
+      "owner": "index.select_disposition",
+      "symbol": "bind_remote_relationship_select",
+      "line": 18835
+    },
+    {
+      "owner": "index.select_messages",
+      "symbol": "bind_remote_relationship_select",
+      "line": 18970
+    },
+    {
+      "owner": "index.select_messages",
+      "symbol": "bind_remote_relationship_select",
+      "line": 18980
+    },
+    {
+      "owner": "index.select_entity",
+      "symbol": "load_rows",
+      "line": 19039
+    },
+    {
+      "owner": "index.select_entity.refresh_personal_sections",
+      "symbol": "reload_favourites",
+      "line": 19045
+    },
+    {
+      "owner": "index.select_entity.refresh_personal_sections",
+      "symbol": "load_recent",
+      "line": 19045
+    },
+    {
+      "owner": "index.select_entity.refresh_personal_sections",
+      "symbol": "render_resource_personal_sections",
+      "line": 19059
+    },
+    {
+      "owner": "index.select_entity",
+      "symbol": "reload_favourites",
+      "line": 19069
+    },
+    {
+      "owner": "index.select_entity",
+      "symbol": "load_recent",
+      "line": 19071
+    },
+    {
+      "owner": "index.select_entity",
+      "symbol": "load_rows",
+      "line": 19078
+    },
+    {
+      "owner": "index",
+      "symbol": "bind_remote_relationship_select",
+      "line": 20514
+    },
+    {
+      "owner": "index",
+      "symbol": "load_rows",
+      "line": 20680
+    },
+    {
+      "owner": "index",
+      "symbol": "load_rows",
+      "line": 20681
+    },
+    {
+      "owner": "index.clear_collection_search",
+      "symbol": "load_rows",
+      "line": 20686
+    }
+  ],
+  "state_method_accesses": [
+    {
+      "owner": "index.render_resource_personal_sections",
+      "key": "personal_sections_loading",
+      "line": 10364,
+      "operation": "get"
+    }
+  ],
+  "initial_personal_state_keys": [
+    "favourite_ids",
+    "favourites",
+    "personal_section_hosts",
+    "personal_sections_loading",
+    "recent_activity",
+    "recent_created",
+    "recent_updated"
+  ],
+  "alias_mutations": [
+    "toggle_favourite: ids aliases favourite_ids[resource]; optimistic add/discard and rollback",
+    "Dashboard removal: local favourites aliases response data; host assigns it back to the personal owner"
+  ]
+}

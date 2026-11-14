@@ -3,10 +3,21 @@ import ast
 from pathlib import Path
 from types import SimpleNamespace
 import pytest
-from nicegui import ui
+from nicegui import Client, ui
 
-SOURCE = Path(__file__).parents[2] / 'app.py'
+SOURCE = Path(__file__).parents[2] / 'record_capture.py'
 TREE = ast.parse(SOURCE.read_text())
+
+
+@pytest.fixture
+def editor_client():
+    """Own the control slot explicitly, independent of other tests' resets."""
+    client = Client(ui.page('/capture-controls-test'), request=None)
+    try:
+        with client:
+            yield client
+    finally:
+        client.delete()
 
 def callback(name, scope):
     node = next(n for n in ast.walk(TREE) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name == name)
@@ -14,7 +25,7 @@ def callback(name, scope):
     return scope[name]
 
 @pytest.mark.parametrize('parent_medium', [None, 'digital', 'mixed'])
-def test_capture_medium_remains_digital_before_and_after_parent_selection(parent_medium):
+def test_capture_medium_remains_digital_before_and_after_parent_selection(parent_medium, editor_client):
     control = ui.select({'digital':'Digital','mixed':'Mixed'}, value='digital')
     scope = dict(controls={'medium':control,'aggregation_id':SimpleNamespace(value=1)},
                  aggregations_by_id={1:{'medium':parent_medium}} if parent_medium else {},
@@ -40,7 +51,7 @@ async def test_destination_typeahead_is_bounded_and_does_not_preload():
     assert calls[0][1]=={'record_creation':True,'digital_only':True}
 
 
-def test_ordinary_record_medium_remains_editable_in_mixed_parent():
+def test_ordinary_record_medium_remains_editable_in_mixed_parent(editor_client):
     control = ui.select({'digital':'Digital','mixed':'Mixed','physical':'Physical'}, value='mixed')
     scope = dict(controls={'medium':control,'aggregation_id':SimpleNamespace(value=1)},
                  aggregations_by_id={1:{'medium':'mixed'}},existing_capture_draft=None,

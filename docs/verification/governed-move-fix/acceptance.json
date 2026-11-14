@@ -1,0 +1,52 @@
+{
+  "status": "P1 fixed and locally verified",
+  "date": "2026-11-11",
+  "branch": "refactor-API-python-file",
+  "head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "git_mutations": false,
+  "tests": {
+    "interaction-final": 38,
+    "unit": 163,
+    "runner-api": 18
+  },
+  "browsers": {
+    "chrome-final": {
+      "version": "157.0.8103.40",
+      "checks": 14,
+      "moves": 8,
+      "screenshots": 12,
+      "source_files_matched": 186,
+      "expected_denials": 2,
+      "unexpected_errors": 0
+    },
+    "edge-final": {
+      "version": "157.0.4341.42",
+      "checks": 14,
+      "moves": 8,
+      "screenshots": 12,
+      "source_files_matched": 186,
+      "expected_denials": 2,
+      "unexpected_errors": 0
+    }
+  },
+  "known_separate_defects": [
+    "P2 subtree preview count keys mismatch",
+    "P3 untranslated resource names in Arabic Move titles"
+  ],
+  "disposable_databases_removed": 6,
+  "catalogues_unchanged": true,
+  "excluded_attempts": {
+    "before": "expected failing regression",
+    "after": "mixed NiceGUI/unit context invocation corrected",
+    "runner": "wrong virtual environment corrected",
+    "chrome": "async detail readiness locator corrected",
+    "chrome-ready": "card option locator corrected",
+    "chrome-cards": "wrong denied-preview status assertion corrected after all eight moves passed",
+    "edge": "owned runner interrupted to apply same assertion correction"
+  },
+  "test_source_sha256": {
+    "frontend/webui/interaction/tests/test_governed_move.py": "6336682f2774b47d1f40b1e7a56cc1fa1079236c230d4c365761b8686b70f5b0",
+    "frontend/webui/interaction/tests/test_aggregation_actions.py": "2b4cf0a80c9dee7615c7c4c2a7035a44ae95a6545114f92e3c0922b7258269a2",
+    "tools/webui_browser_governed_moves.py": "7add72bfe1f7bf3968659591284e15d54bdf5d3722becd5b7d07353f5e948564"
+  }
+}

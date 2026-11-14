@@ -1,0 +1,39 @@
+{
+  "select_messages": {
+    "lines": 106,
+    "state_references": [
+      "state['messaging_workspace']",
+      "state['messaging_workspace_token']"
+    ]
+  },
+  "open_live_delivery": {
+    "lines": 14,
+    "state_references": []
+  },
+  "show_message_notification": {
+    "lines": 13,
+    "state_references": [
+      "message_live['notifications']"
+    ]
+  },
+  "stop_message_stream": {
+    "lines": 11,
+    "state_references": [
+      "message_live['adapter']",
+      "message_live['api']",
+      "message_live['notifications']"
+    ]
+  },
+  "refresh_message_unread": {
+    "lines": 8,
+    "state_references": []
+  },
+  "start_message_stream": {
+    "lines": 55,
+    "state_references": [
+      "message_live['adapter']",
+      "message_live['api']",
+      "message_live['token']"
+    ]
+  }
+}

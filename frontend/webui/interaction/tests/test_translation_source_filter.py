@@ -14,7 +14,7 @@ from frontend.webui.i18n_catalogue import render_message, set_active_messages, s
 pytest_plugins = ['nicegui.testing.user_plugin']
 pytestmark = pytest.mark.asyncio
 ROOT = Path(__file__).parents[4]
-SCREEN = next(node for node in ast.walk(ast.parse((ROOT/'frontend/webui/app.py').read_text()))
+SCREEN = next(node for node in ast.walk(ast.parse((ROOT/'frontend/webui/translation_administration.py').read_text()))
               if isinstance(node, ast.AsyncFunctionDef) and node.name == 'select_translation_administration')
 AR = {item['message_key']: item['translated_text'] for item in
       json.loads((ROOT/'frontend/webui/i18n/messages.ar.generated.json').read_text())['items']}
@@ -49,7 +49,9 @@ async def open_translation_page(user, language='en'):
     @ui.page('/translation-source-filter')
     async def page():
         set_active_messages(AR if language == 'ar' else {})
-        scope = dict(ui=ui, api=api, state=state, Any=Any, Callable=Callable, ApiError=ApiError,
+        scope = dict(ui=ui, api=api, translation_state=state,
+                     enter_translations=lambda:state.update(resource="translations",rows=[],searched=True),
+                     current_page=lambda:state.get("resource"), Any=Any, Callable=Callable, ApiError=ApiError,
                      background_tasks=background_tasks, render_message=render_message,
                      strip_diagnostic_metadata=strip_diagnostic_metadata, error_message=str,
                      register_navigation=lambda *args: None, show_authenticated_view=lambda: None,

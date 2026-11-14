@@ -1,0 +1,192 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "audit",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9466.01
+    },
+    {
+      "name": "audit drawer entry, bounded pagination, reset and keyboard focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 24631.75
+    },
+    {
+      "name": "audit details preserve snapshots, collapsed technical section and current-record link",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 11823.04
+    },
+    {
+      "name": "audit empty search, read errors, abandoned responses and restoration",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 17150.16
+    },
+    {
+      "name": "message-monitor scoped audit link and Settings audit link",
+      "language": "en",
+      "status": "fail",
+      "error": "Message: \n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_audit.py\", line 108, in check_audit\n    page.wait.until(lambda _: page.field(key('select.entity_type_3b68096e')).get_attribute('value'))\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/support/wait.py\", line 121, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: \n\n",
+      "recent_native_clicks": [
+        {
+          "id": "c82",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c1288",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 23470.44
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "audit-timeline-en.png",
+      "sha256": "656b82d8b7e069acb566d7b8f07b3a5b2d8367b2cdba4c92e07d4c2add565dba",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "audit-second-page-en.png",
+      "sha256": "bc90cebe3f057c36b434af2487d8098bba459731af92a82f13389aea12cad39f",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "audit-detail-en.png",
+      "sha256": "2c8c653f9ef1ab6a946f38f77027f72a7b53d5ab69a1c1d1362163a40ee744a1",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "audit-entity-history-en.png",
+      "sha256": "f0f57c410ccd3f7ea59386b348fa25747dc96d4fd165d795d1de8e401c8b856a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "audit-nested-detail-en.png",
+      "sha256": "ced1d34d7924adcd7ccdb3b1cdabae59da3060127bbbc85e8b18bf1e4aabac3b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "audit-empty-en.png",
+      "sha256": "c4fdd614b9d4b79cc0bb62ee1451dc79cc1056430c0b010bcecfe52f08ca1f6c",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-5.png",
+      "sha256": "b0782069ced92b262bd90eb8b77241e47cc9b6a850553e9a5d3497e841e0ee73",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "audit_focus": [
+    {
+      "language": "en",
+      "sequence": [
+        {
+          "tag": "i",
+          "text": "cancel",
+          "role": "button",
+          "aria_label": "Clear"
+        },
+        {
+          "tag": "button",
+          "text": "filter_alt_off\n⁣︆︁︇︅︆︄︆︉︇︄︂︎︆︆︆︉︆︌︇︄︆︅︇︂︂︎︆︃︆︌︆︅︆︁︇︂⁤︁⁤︍⁤Clear filters",
+          "role": null,
+          "aria_label": null
+        }
+      ]
+    }
+  ],
+  "browser_errors": []
+}

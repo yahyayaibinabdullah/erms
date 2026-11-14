@@ -1,0 +1,4161 @@
+[
+  {
+    "browser": "chrome",
+    "workflow": "classification",
+    "language": "ar",
+    "metrics": [
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 107.42750000000001,
+            "current_ms": 107.406,
+            "delta_ms": -0.021500000000003183,
+            "delta_percent": -0.02001349747504427,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 126.71470000000001,
+            "current_ms": 134.30540000000002,
+            "delta_ms": 7.590700000000012,
+            "delta_percent": 5.990386277203838,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 109.42099999999999,
+            "current_ms": 110.394,
+            "delta_ms": 0.9730000000000132,
+            "delta_percent": 0.8892260169437431,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 137.0062,
+            "current_ms": 147.9985,
+            "delta_ms": 10.9923,
+            "delta_percent": 8.023213548000017,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 107.42750000000001,
+        "p90_ms": 126.71470000000001,
+        "slowest_cycles": [
+          {
+            "cycle": 10,
+            "total_ms": 140.313,
+            "api_ms": [
+              7.68
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 1,
+            "total_ms": 126.941,
+            "api_ms": [
+              6.24
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 124.678,
+            "api_ms": [
+              7.6
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 107.406,
+        "p90_ms": 134.30540000000002,
+        "slowest_cycles": [
+          {
+            "cycle": 5,
+            "total_ms": 143.441,
+            "api_ms": [
+              5.95
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 1,
+            "total_ms": 135.52,
+            "api_ms": [
+              5.79
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 123.374,
+            "api_ms": [
+              6.21
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 110.394,
+        "p90_ms": 147.9985,
+        "slowest_cycles": [
+          {
+            "cycle": 5,
+            "total_ms": 155.634,
+            "api_ms": [
+              7.95
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 149.476,
+            "api_ms": [
+              6.74
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 134.701,
+            "api_ms": [
+              16.71
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 109.42099999999999,
+        "p90_ms": 137.0062,
+        "slowest_cycles": [
+          {
+            "cycle": 2,
+            "total_ms": 153.841,
+            "api_ms": [
+              6.56
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 138.056,
+            "api_ms": [
+              7.28
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 127.558,
+            "api_ms": [
+              6.5
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "chrome",
+    "workflow": "custody",
+    "language": "ar",
+    "metrics": [
+      "median",
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 89.79650000000001,
+            "current_ms": 92.8315,
+            "delta_ms": 3.0349999999999966,
+            "delta_percent": 3.379864471332397,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 94.96170000000001,
+            "current_ms": 101.6621,
+            "delta_ms": 6.700399999999988,
+            "delta_percent": 7.055897272268701,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 90.64150000000001,
+            "current_ms": 93.7295,
+            "delta_ms": 3.087999999999994,
+            "delta_percent": 3.4068279982127323,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 97.7691,
+            "current_ms": 97.959,
+            "delta_ms": 0.18990000000000862,
+            "delta_percent": 0.19423314728273924,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 89.79650000000001,
+        "p90_ms": 94.96170000000001,
+        "slowest_cycles": [
+          {
+            "cycle": 4,
+            "total_ms": 103.65,
+            "api_ms": [
+              12.69
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 94.974,
+            "api_ms": [
+              11.27
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 94.851,
+            "api_ms": [
+              13.18
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 92.8315,
+        "p90_ms": 101.6621,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 158.288,
+            "api_ms": [
+              12.01
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 102.455,
+            "api_ms": [
+              9.23
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 1,
+            "total_ms": 94.526,
+            "api_ms": [
+              8.94
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 93.7295,
+        "p90_ms": 97.959,
+        "slowest_cycles": [
+          {
+            "cycle": 5,
+            "total_ms": 98.981,
+            "api_ms": [
+              8.92
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 98.24,
+            "api_ms": [
+              9.36
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 95.43,
+            "api_ms": [
+              9.48
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 90.64150000000001,
+        "p90_ms": 97.7691,
+        "slowest_cycles": [
+          {
+            "cycle": 8,
+            "total_ms": 109.608,
+            "api_ms": [
+              21.13
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 98.062,
+            "api_ms": [
+              9.73
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 95.133,
+            "api_ms": [
+              11.01
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "chrome",
+    "workflow": "dashboard_fresh",
+    "language": "ar",
+    "metrics": [
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 119.142,
+            "current_ms": 125.525,
+            "delta_ms": 6.38300000000001,
+            "delta_percent": 5.357472595726117,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 146.0661,
+            "current_ms": 150.76059999999998,
+            "delta_ms": 4.694499999999977,
+            "delta_percent": 3.213955873402505,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 118.4495,
+            "current_ms": 117.1435,
+            "delta_ms": -1.3059999999999974,
+            "delta_percent": -1.1025795803274792,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 146.1008,
+            "current_ms": 157.4413,
+            "delta_ms": 11.34050000000002,
+            "delta_percent": 7.762106709887982,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 119.142,
+        "p90_ms": 146.0661,
+        "slowest_cycles": [
+          {
+            "cycle": 4,
+            "total_ms": 181.645,
+            "api_ms": [
+              30.67
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 147.414,
+            "api_ms": [
+              21.92
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 11,
+            "total_ms": 133.935,
+            "api_ms": [
+              34.5
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 125.525,
+        "p90_ms": 150.76059999999998,
+        "slowest_cycles": [
+          {
+            "cycle": 9,
+            "total_ms": 216.763,
+            "api_ms": [
+              79.98
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 151.277,
+            "api_ms": [
+              29.94
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 146.113,
+            "api_ms": [
+              21.6
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 117.1435,
+        "p90_ms": 157.4413,
+        "slowest_cycles": [
+          {
+            "cycle": 10,
+            "total_ms": 163.186,
+            "api_ms": [
+              28.47
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 160.08,
+            "api_ms": [
+              25.51
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 133.693,
+            "api_ms": [
+              29.32
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 118.4495,
+        "p90_ms": 146.1008,
+        "slowest_cycles": [
+          {
+            "cycle": 7,
+            "total_ms": 151.373,
+            "api_ms": [
+              26.67
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 146.184,
+            "api_ms": [
+              27.54
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 145.352,
+            "api_ms": [
+              21.41
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "chrome",
+    "workflow": "dashboard_fresh",
+    "language": "en",
+    "metrics": [
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 128.08350000000002,
+            "current_ms": 122.3105,
+            "delta_ms": -5.77300000000001,
+            "delta_percent": -4.507215995815238,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 144.516,
+            "current_ms": 147.0718,
+            "delta_ms": 2.555800000000005,
+            "delta_percent": 1.7685239004677717,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 122.832,
+            "current_ms": 120.3225,
+            "delta_ms": -2.5094999999999885,
+            "delta_percent": -2.0430343884329725,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 147.806,
+            "current_ms": 162.6225,
+            "delta_ms": 14.81649999999999,
+            "delta_percent": 10.024288594509013,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 128.08350000000002,
+        "p90_ms": 144.516,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 181.122,
+            "api_ms": [
+              30.5
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 11,
+            "total_ms": 144.673,
+            "api_ms": [
+              26.59
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 143.103,
+            "api_ms": [
+              25.62
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 122.3105,
+        "p90_ms": 147.0718,
+        "slowest_cycles": [
+          {
+            "cycle": 3,
+            "total_ms": 149.293,
+            "api_ms": [
+              27.88
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 148.051,
+            "api_ms": [
+              27.69
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 138.259,
+            "api_ms": [
+              27.15
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 120.3225,
+        "p90_ms": 162.6225,
+        "slowest_cycles": [
+          {
+            "cycle": 8,
+            "total_ms": 211.362,
+            "api_ms": [
+              32.97
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 11,
+            "total_ms": 164.874,
+            "api_ms": [
+              33.31
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 142.359,
+            "api_ms": [
+              25.78
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 122.832,
+        "p90_ms": 147.806,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 152.732,
+            "api_ms": [
+              30.98
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 11,
+            "total_ms": 148.678,
+            "api_ms": [
+              29.77
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 9,
+            "total_ms": 139.958,
+            "api_ms": [
+              38.39
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "chrome",
+    "workflow": "parent_aggregation",
+    "language": "ar",
+    "metrics": [
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 261.8555,
+            "current_ms": 260.21500000000003,
+            "delta_ms": -1.6404999999999745,
+            "delta_percent": -0.6264905644525223,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 263.037,
+            "current_ms": 276.3521,
+            "delta_ms": 13.31510000000003,
+            "delta_percent": 5.0620635119774136,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 261.1975,
+            "current_ms": 262.32550000000003,
+            "delta_ms": 1.1280000000000427,
+            "delta_percent": 0.4318571196125701,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 261.978,
+            "current_ms": 277.24830000000003,
+            "delta_ms": 15.27030000000002,
+            "delta_percent": 5.82884822389667,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 261.8555,
+        "p90_ms": 263.037,
+        "slowest_cycles": [
+          {
+            "cycle": 10,
+            "total_ms": 279.325,
+            "api_ms": [
+              10.88,
+              9.6,
+              12.4,
+              14.69,
+              13.96,
+              7.41,
+              26.87,
+              7.77,
+              12.01,
+              17.22,
+              5.45,
+              4.02,
+              3.62,
+              5.0
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 263.126,
+            "api_ms": [
+              11.5,
+              11.51,
+              14.61,
+              10.84,
+              11.77,
+              8.88,
+              25.8,
+              8.65,
+              12.91,
+              19.48,
+              7.77,
+              3.82,
+              2.41,
+              5.64
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 262.236,
+            "api_ms": [
+              10.4,
+              9.18,
+              15.0,
+              12.85,
+              13.33,
+              8.0,
+              27.57,
+              9.06,
+              11.7,
+              18.09,
+              5.88,
+              9.41,
+              4.42,
+              7.5
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 260.21500000000003,
+        "p90_ms": 276.3521,
+        "slowest_cycles": [
+          {
+            "cycle": 2,
+            "total_ms": 278.109,
+            "api_ms": [
+              9.62,
+              8.8,
+              13.85,
+              11.68,
+              11.35,
+              8.56,
+              25.65,
+              9.7,
+              13.67,
+              20.4,
+              5.07,
+              6.46,
+              3.7,
+              6.2
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 277.894,
+            "api_ms": [
+              9.79,
+              10.49,
+              12.99,
+              10.5,
+              12.65,
+              9.32,
+              23.74,
+              9.78,
+              11.36,
+              31.9,
+              9.4,
+              9.63,
+              4.27,
+              7.18
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 262.475,
+            "api_ms": [
+              10.91,
+              8.71,
+              16.06,
+              11.13,
+              12.51,
+              7.88,
+              24.13,
+              8.77,
+              13.71,
+              16.51,
+              7.6,
+              4.37,
+              3.4,
+              6.11
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 262.32550000000003,
+        "p90_ms": 277.24830000000003,
+        "slowest_cycles": [
+          {
+            "cycle": 8,
+            "total_ms": 278.95,
+            "api_ms": [
+              14.41,
+              11.37,
+              13.18,
+              10.88,
+              13.0,
+              8.57,
+              28.21,
+              7.33,
+              13.04,
+              16.06,
+              6.1,
+              4.14,
+              2.75,
+              6.21
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 278.802,
+            "api_ms": [
+              12.16,
+              9.74,
+              16.03,
+              13.61,
+              15.97,
+              9.5,
+              30.75,
+              8.68,
+              12.42,
+              17.5,
+              4.82,
+              5.4,
+              3.89,
+              5.53
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 263.265,
+            "api_ms": [
+              11.7,
+              11.68,
+              14.99,
+              12.77,
+              15.56,
+              11.45,
+              29.4,
+              8.68,
+              11.15,
+              16.85,
+              5.25,
+              4.26,
+              2.66,
+              5.24
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 261.1975,
+        "p90_ms": 261.978,
+        "slowest_cycles": [
+          {
+            "cycle": 2,
+            "total_ms": 278.316,
+            "api_ms": [
+              11.55,
+              10.98,
+              12.04,
+              9.76,
+              11.88,
+              9.78,
+              28.82,
+              8.37,
+              12.26,
+              21.59,
+              6.48,
+              4.83,
+              5.46,
+              6.19
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 261.995,
+            "api_ms": [
+              9.79,
+              9.2,
+              12.93,
+              15.0,
+              14.26,
+              7.52,
+              27.39,
+              7.85,
+              12.9,
+              25.23,
+              13.19,
+              6.2,
+              3.9,
+              5.53
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 261.825,
+            "api_ms": [
+              11.71,
+              9.42,
+              13.15,
+              11.06,
+              10.72,
+              7.65,
+              25.72,
+              8.79,
+              12.09,
+              16.22,
+              5.22,
+              3.4,
+              3.3,
+              5.85
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "chrome",
+    "workflow": "records",
+    "language": "ar",
+    "metrics": [
+      "median"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 75.702,
+            "current_ms": 79.8825,
+            "delta_ms": 4.180499999999995,
+            "delta_percent": 5.522311167472451,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 79.2585,
+            "current_ms": 88.2221,
+            "delta_ms": 8.9636,
+            "delta_percent": 11.309323290246471,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 78.45400000000001,
+            "current_ms": 80.1765,
+            "delta_ms": 1.7224999999999966,
+            "delta_percent": 2.195554082647152,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 85.1263,
+            "current_ms": 82.65339999999999,
+            "delta_ms": -2.47290000000001,
+            "delta_percent": -2.904977662602521,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 75.702,
+        "p90_ms": 79.2585,
+        "slowest_cycles": [
+          {
+            "cycle": 2,
+            "total_ms": 84.585,
+            "api_ms": [
+              10.18,
+              7.86
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 9,
+            "total_ms": 79.321,
+            "api_ms": [
+              4.88,
+              9.53
+            ],
+            "api_paths": [
+              "/api/v1/auth/me/recent-activity",
+              "/api/v1/favourites"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 78.696,
+            "api_ms": [
+              7.51,
+              4.87
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 79.8825,
+        "p90_ms": 88.2221,
+        "slowest_cycles": [
+          {
+            "cycle": 6,
+            "total_ms": 93.73,
+            "api_ms": [
+              12.09,
+              22.76
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 88.538,
+            "api_ms": [
+              9.74,
+              9.38
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 11,
+            "total_ms": 85.379,
+            "api_ms": [
+              11.65,
+              9.66
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 80.1765,
+        "p90_ms": 82.65339999999999,
+        "slowest_cycles": [
+          {
+            "cycle": 5,
+            "total_ms": 87.493,
+            "api_ms": [
+              10.74,
+              6.71
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 82.74,
+            "api_ms": [
+              9.64,
+              8.39
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 81.874,
+            "api_ms": [
+              11.07,
+              8.56
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 78.45400000000001,
+        "p90_ms": 85.1263,
+        "slowest_cycles": [
+          {
+            "cycle": 3,
+            "total_ms": 86.291,
+            "api_ms": [
+              10.54,
+              8.92
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 85.739,
+            "api_ms": [
+              11.07,
+              8.59
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 79.612,
+            "api_ms": [
+              7.91,
+              12.15
+            ],
+            "api_paths": [
+              "/api/v1/auth/me/recent-activity",
+              "/api/v1/favourites"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "classification",
+    "language": "ar",
+    "metrics": [
+      "median"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 111.5755,
+            "current_ms": 111.9745,
+            "delta_ms": 0.3990000000000009,
+            "delta_percent": 0.35760538827968585,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 127.1066,
+            "current_ms": 126.0853,
+            "delta_ms": -1.0212999999999965,
+            "delta_percent": -0.8034987954992082,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 108.907,
+            "current_ms": 114.8735,
+            "delta_ms": 5.966500000000011,
+            "delta_percent": 5.478527551029788,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 142.79590000000002,
+            "current_ms": 138.5422,
+            "delta_ms": -4.253700000000009,
+            "delta_percent": -2.9788670403001825,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 111.5755,
+        "p90_ms": 127.1066,
+        "slowest_cycles": [
+          {
+            "cycle": 10,
+            "total_ms": 169.155,
+            "api_ms": [
+              6.77
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 127.345,
+            "api_ms": [
+              7.05
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 124.961,
+            "api_ms": [
+              9.89
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 111.9745,
+        "p90_ms": 126.0853,
+        "slowest_cycles": [
+          {
+            "cycle": 5,
+            "total_ms": 138.987,
+            "api_ms": [
+              6.57
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 127.24,
+            "api_ms": [
+              7.87
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 115.693,
+            "api_ms": [
+              7.47
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 114.8735,
+        "p90_ms": 138.5422,
+        "slowest_cycles": [
+          {
+            "cycle": 4,
+            "total_ms": 156.652,
+            "api_ms": [
+              11.64
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 139.861,
+            "api_ms": [
+              6.04
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 126.673,
+            "api_ms": [
+              10.91
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 108.907,
+        "p90_ms": 142.79590000000002,
+        "slowest_cycles": [
+          {
+            "cycle": 7,
+            "total_ms": 154.521,
+            "api_ms": [
+              6.18
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 145.339,
+            "api_ms": [
+              7.04
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 119.908,
+            "api_ms": [
+              5.62
+            ],
+            "api_paths": [
+              "/api/v1/classification-schemes"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "custody",
+    "language": "ar",
+    "metrics": [
+      "median"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 90.616,
+            "current_ms": 92.182,
+            "delta_ms": 1.5660000000000025,
+            "delta_percent": 1.7281716253200345,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 111.86580000000001,
+            "current_ms": 106.5554,
+            "delta_ms": -5.310400000000001,
+            "delta_percent": -4.747116634395857,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 86.52350000000001,
+            "current_ms": 94.435,
+            "delta_ms": 7.9114999999999895,
+            "delta_percent": 9.143758632047927,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 98.1382,
+            "current_ms": 98.8451,
+            "delta_ms": 0.7069000000000045,
+            "delta_percent": 0.7203107454589595,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 90.616,
+        "p90_ms": 111.86580000000001,
+        "slowest_cycles": [
+          {
+            "cycle": 10,
+            "total_ms": 127.136,
+            "api_ms": [
+              12.07
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 9,
+            "total_ms": 113.622,
+            "api_ms": [
+              15.36
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 11,
+            "total_ms": 96.06,
+            "api_ms": [
+              8.26
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 92.182,
+        "p90_ms": 106.5554,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 133.233,
+            "api_ms": [
+              8.79
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 9,
+            "total_ms": 107.409,
+            "api_ms": [
+              8.89
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 98.873,
+            "api_ms": [
+              8.98
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 94.435,
+        "p90_ms": 98.8451,
+        "slowest_cycles": [
+          {
+            "cycle": 1,
+            "total_ms": 99.916,
+            "api_ms": [
+              8.01
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 98.921,
+            "api_ms": [
+              7.62
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 98.162,
+            "api_ms": [
+              12.07
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 86.52350000000001,
+        "p90_ms": 98.1382,
+        "slowest_cycles": [
+          {
+            "cycle": 2,
+            "total_ms": 122.59,
+            "api_ms": [
+              8.63
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 98.192,
+            "api_ms": [
+              8.67
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 97.654,
+            "api_ms": [
+              13.69
+            ],
+            "api_paths": [
+              "/api/v1/authorization/governance-custody"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "dashboard_fresh",
+    "language": "ar",
+    "metrics": [
+      "median",
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 119.437,
+            "current_ms": 130.62349999999998,
+            "delta_ms": 11.186499999999981,
+            "delta_percent": 9.366025603456201,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 147.5748,
+            "current_ms": 508.77850000000007,
+            "delta_ms": 361.2037,
+            "delta_percent": 244.75974217820385,
+            "crosses_both_limits": true
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 128.238,
+            "current_ms": 130.2835,
+            "delta_ms": 2.045500000000004,
+            "delta_percent": 1.5950810212261608,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 141.1472,
+            "current_ms": 167.57410000000002,
+            "delta_ms": 26.426900000000018,
+            "delta_percent": 18.722936055408834,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 119.437,
+        "p90_ms": 147.5748,
+        "slowest_cycles": [
+          {
+            "cycle": 1,
+            "total_ms": 239.312,
+            "api_ms": [
+              35.1
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 147.755,
+            "api_ms": [
+              31.87
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 145.953,
+            "api_ms": [
+              28.59
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 130.62349999999998,
+        "p90_ms": 508.77850000000007,
+        "slowest_cycles": [
+          {
+            "cycle": 10,
+            "total_ms": 756.151,
+            "api_ms": [
+              28.07
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 539.987,
+            "api_ms": [
+              29.87
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 227.902,
+            "api_ms": [
+              34.23
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 130.2835,
+        "p90_ms": 167.57410000000002,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 332.634,
+            "api_ms": [
+              29.39
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 168.598,
+            "api_ms": [
+              20.11
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 158.359,
+            "api_ms": [
+              28.12
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 128.238,
+        "p90_ms": 141.1472,
+        "slowest_cycles": [
+          {
+            "cycle": 4,
+            "total_ms": 196.56,
+            "api_ms": [
+              36.68
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 141.975,
+            "api_ms": [
+              50.29
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 133.697,
+            "api_ms": [
+              29.52
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "dashboard_fresh",
+    "language": "en",
+    "metrics": [
+      "median"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 122.497,
+            "current_ms": 130.67000000000002,
+            "delta_ms": 8.173000000000016,
+            "delta_percent": 6.672000130615456,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 154.0095,
+            "current_ms": 152.87,
+            "delta_ms": -1.1394999999999982,
+            "delta_percent": -0.7398894224057595,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 125.3555,
+            "current_ms": 131.8965,
+            "delta_ms": 6.540999999999997,
+            "delta_percent": 5.217960121414693,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 173.5602,
+            "current_ms": 159.45700000000002,
+            "delta_ms": -14.103199999999987,
+            "delta_percent": -8.12582608224696,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 122.497,
+        "p90_ms": 154.0095,
+        "slowest_cycles": [
+          {
+            "cycle": 11,
+            "total_ms": 156.815,
+            "api_ms": [
+              29.72
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 156.679,
+            "api_ms": [
+              38.42
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 129.984,
+            "api_ms": [
+              32.74
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 130.67000000000002,
+        "p90_ms": 152.87,
+        "slowest_cycles": [
+          {
+            "cycle": 9,
+            "total_ms": 190.925,
+            "api_ms": [
+              54.35
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 153.245,
+            "api_ms": [
+              31.06
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 149.495,
+            "api_ms": [
+              22.11
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 131.8965,
+        "p90_ms": 159.45700000000002,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 215.605,
+            "api_ms": [
+              30.74
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 160.348,
+            "api_ms": [
+              33.15
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 151.438,
+            "api_ms": [
+              27.04
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 125.3555,
+        "p90_ms": 173.5602,
+        "slowest_cycles": [
+          {
+            "cycle": 11,
+            "total_ms": 182.23,
+            "api_ms": [
+              36.49
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 174.214,
+            "api_ms": [
+              36.58
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 167.676,
+            "api_ms": [
+              33.8
+            ],
+            "api_paths": [
+              "/api/v1/dashboard/summary"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "inbox",
+    "language": "en",
+    "metrics": [
+      "median",
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 79.3275,
+            "current_ms": 84.945,
+            "delta_ms": 5.617499999999993,
+            "delta_percent": 7.081403044341486,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 87.8807,
+            "current_ms": 96.62610000000001,
+            "delta_ms": 8.745400000000004,
+            "delta_percent": 9.951445539236719,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 91.1255,
+            "current_ms": 93.0185,
+            "delta_ms": 1.8930000000000007,
+            "delta_percent": 2.077354856763475,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 100.2979,
+            "current_ms": 106.4385,
+            "delta_ms": 6.140600000000006,
+            "delta_percent": 6.122361485135787,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 79.3275,
+        "p90_ms": 87.8807,
+        "slowest_cycles": [
+          {
+            "cycle": 4,
+            "total_ms": 97.128,
+            "api_ms": [
+              7.77
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 88.11,
+            "api_ms": [
+              7.05
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 85.817,
+            "api_ms": [
+              7.85
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 84.945,
+        "p90_ms": 96.62610000000001,
+        "slowest_cycles": [
+          {
+            "cycle": 1,
+            "total_ms": 122.646,
+            "api_ms": [
+              6.1
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 96.629,
+            "api_ms": [
+              15.7
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          },
+          {
+            "cycle": 11,
+            "total_ms": 96.6,
+            "api_ms": [
+              7.26
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 93.0185,
+        "p90_ms": 106.4385,
+        "slowest_cycles": [
+          {
+            "cycle": 1,
+            "total_ms": 113.395,
+            "api_ms": [
+              10.37
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 107.543,
+            "api_ms": [
+              26.75
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 96.498,
+            "api_ms": [
+              6.63
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 91.1255,
+        "p90_ms": 100.2979,
+        "slowest_cycles": [
+          {
+            "cycle": 1,
+            "total_ms": 115.142,
+            "api_ms": [
+              9.44
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 100.722,
+            "api_ms": [
+              10.16
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 96.481,
+            "api_ms": [
+              7.57
+            ],
+            "api_paths": [
+              "/api/v1/messages/inbox"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "page_to_sign_in",
+    "language": "en",
+    "metrics": [
+      "median"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 881.356,
+            "current_ms": 1093.563,
+            "delta_ms": 212.2070000000001,
+            "delta_percent": 24.07733084020533,
+            "crosses_both_limits": true
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 873.164,
+            "current_ms": 897.612,
+            "delta_ms": 24.44799999999998,
+            "delta_percent": 2.7999322005946166,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 881.356,
+        "p90_ms": 881.356,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 881.356,
+            "api_ms": [],
+            "api_paths": []
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 1093.563,
+        "p90_ms": 1093.563,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 1093.563,
+            "api_ms": [],
+            "api_paths": []
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 897.612,
+        "p90_ms": 897.612,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 897.612,
+            "api_ms": [],
+            "api_paths": []
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 873.164,
+        "p90_ms": 873.164,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 873.164,
+            "api_ms": [],
+            "api_paths": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "parent_aggregation",
+    "language": "en",
+    "metrics": [
+      "median",
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 261.7905,
+            "current_ms": 261.9005,
+            "delta_ms": 0.11000000000001364,
+            "delta_percent": 0.04201833145206325,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 262.6601,
+            "current_ms": 279.23319999999995,
+            "delta_ms": 16.573099999999954,
+            "delta_percent": 6.309713580402944,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 261.394,
+            "current_ms": 276.058,
+            "delta_ms": 14.663999999999987,
+            "delta_percent": 5.6099221864312065,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 279.33709999999996,
+            "current_ms": 292.9252,
+            "delta_ms": 13.588100000000054,
+            "delta_percent": 4.864409346270172,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 261.7905,
+        "p90_ms": 262.6601,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 278.389,
+            "api_ms": [
+              15.16,
+              16.54,
+              19.83,
+              22.92,
+              16.81,
+              7.74,
+              31.29,
+              5.0,
+              6.58,
+              9.43,
+              7.74,
+              5.82,
+              3.95,
+              7.49
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 262.722,
+            "api_ms": [
+              11.25,
+              10.88,
+              12.56,
+              15.04,
+              13.23,
+              8.45,
+              25.9,
+              7.18,
+              10.08,
+              15.55,
+              4.92,
+              3.62,
+              2.67,
+              5.09
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 7,
+            "total_ms": 262.103,
+            "api_ms": [
+              11.02,
+              9.59,
+              16.5,
+              14.15,
+              16.1,
+              9.47,
+              29.04,
+              7.92,
+              11.08,
+              29.88,
+              8.58,
+              4.31,
+              2.8,
+              5.92
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 261.9005,
+        "p90_ms": 279.23319999999995,
+        "slowest_cycles": [
+          {
+            "cycle": 10,
+            "total_ms": 310.367,
+            "api_ms": [
+              13.49,
+              12.32,
+              12.09,
+              14.81,
+              15.76,
+              24.35,
+              44.26,
+              18.1,
+              18.11,
+              24.0,
+              20.79,
+              8.97,
+              4.68,
+              23.87
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 279.506,
+            "api_ms": [
+              13.69,
+              21.6,
+              20.08,
+              16.42,
+              19.22,
+              14.61,
+              34.73,
+              7.65,
+              11.18,
+              14.69,
+              5.96,
+              5.03,
+              3.18,
+              7.72
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 276.778,
+            "api_ms": [
+              13.31,
+              11.89,
+              21.71,
+              12.33,
+              14.22,
+              10.93,
+              27.31,
+              7.89,
+              14.99,
+              25.66,
+              8.38,
+              4.49,
+              5.3,
+              5.36
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/org-units/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 276.058,
+        "p90_ms": 292.9252,
+        "slowest_cycles": [
+          {
+            "cycle": 1,
+            "total_ms": 294.707,
+            "api_ms": [
+              11.39,
+              16.21,
+              14.34,
+              19.57,
+              18.87,
+              14.63,
+              33.39,
+              11.32,
+              14.51,
+              22.33,
+              10.08,
+              13.88,
+              4.09,
+              9.84
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 294.457,
+            "api_ms": [
+              12.13,
+              7.5,
+              10.74,
+              18.38,
+              14.37,
+              9.55,
+              30.14,
+              11.32,
+              17.32,
+              14.79,
+              5.47,
+              3.86,
+              2.79,
+              5.7
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 279.139,
+            "api_ms": [
+              15.27,
+              7.63,
+              12.59,
+              15.02,
+              15.17,
+              7.84,
+              23.97,
+              7.86,
+              10.93,
+              18.39,
+              4.96,
+              4.23,
+              2.7,
+              5.7
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 261.394,
+        "p90_ms": 279.33709999999996,
+        "slowest_cycles": [
+          {
+            "cycle": 1,
+            "total_ms": 294.899,
+            "api_ms": [
+              14.82,
+              14.48,
+              14.04,
+              18.45,
+              22.46,
+              16.05,
+              34.27,
+              10.86,
+              16.83,
+              24.9,
+              11.22,
+              8.34,
+              12.31,
+              8.85
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 279.429,
+            "api_ms": [
+              26.24,
+              18.6,
+              15.24,
+              22.63,
+              13.46,
+              10.15,
+              25.38,
+              11.43,
+              18.41,
+              11.89,
+              14.76,
+              7.44,
+              8.09,
+              7.21
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 278.51,
+            "api_ms": [
+              12.51,
+              10.44,
+              10.9,
+              14.18,
+              13.81,
+              13.47,
+              29.95,
+              13.89,
+              16.95,
+              22.7,
+              7.04,
+              4.61,
+              3.03,
+              22.8
+            ],
+            "api_paths": [
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1",
+              "/api/v1/org-units/1",
+              "/api/v1/security-levels/1",
+              "/api/v1/aggregations/1/effective-holds",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/aggregations/1/capabilities",
+              "/api/v1/aggregations/search",
+              "/api/v1/records/search",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/aggregations/1/effective-retention-rule",
+              "/api/v1/aggregations/1/retention-rule",
+              "/api/v1/classifications/1/path",
+              "/api/v1/relationships/aggregation/1"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "record_search",
+    "language": "ar",
+    "metrics": [
+      "median"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 131.01850000000002,
+            "current_ms": 140.481,
+            "delta_ms": 9.462499999999977,
+            "delta_percent": 7.2222625049134095,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 173.24110000000002,
+            "current_ms": 162.4682,
+            "delta_ms": -10.772900000000021,
+            "delta_percent": -6.21844354486321,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 132.34,
+            "current_ms": 144.204,
+            "delta_ms": 11.864000000000004,
+            "delta_percent": 8.964787668127554,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 146.48420000000002,
+            "current_ms": 163.5036,
+            "delta_ms": 17.01939999999999,
+            "delta_percent": 11.618590947009977,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 131.01850000000002,
+        "p90_ms": 173.24110000000002,
+        "slowest_cycles": [
+          {
+            "cycle": 5,
+            "total_ms": 182.488,
+            "api_ms": [
+              14.26,
+              9.23,
+              8.69,
+              22.18,
+              8.75
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 9,
+            "total_ms": 176.145,
+            "api_ms": [
+              30.23,
+              21.06,
+              13.53,
+              28.62,
+              7.6
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 147.106,
+            "api_ms": [
+              15.82,
+              13.19,
+              7.85,
+              25.05,
+              5.28
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 140.481,
+        "p90_ms": 162.4682,
+        "slowest_cycles": [
+          {
+            "cycle": 10,
+            "total_ms": 173.744,
+            "api_ms": [
+              19.29,
+              15.31,
+              10.15,
+              25.46,
+              5.85
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 162.766,
+            "api_ms": [
+              16.57,
+              10.1,
+              9.07,
+              24.49,
+              4.99
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 11,
+            "total_ms": 159.788,
+            "api_ms": [
+              18.21,
+              10.88,
+              10.38,
+              26.3,
+              6.19
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 144.204,
+        "p90_ms": 163.5036,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 212.87,
+            "api_ms": [
+              13.71,
+              9.35,
+              6.9,
+              22.25,
+              6.46
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 165.179,
+            "api_ms": [
+              32.66,
+              11.94,
+              12.66,
+              29.94,
+              5.42
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 148.425,
+            "api_ms": [
+              14.48,
+              10.76,
+              9.63,
+              23.0,
+              6.26
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 132.34,
+        "p90_ms": 146.48420000000002,
+        "slowest_cycles": [
+          {
+            "cycle": 8,
+            "total_ms": 153.135,
+            "api_ms": [
+              17.38,
+              9.66,
+              7.83,
+              23.24,
+              6.91
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 1,
+            "total_ms": 147.084,
+            "api_ms": [
+              13.28,
+              14.22,
+              7.69,
+              20.57,
+              5.18
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 9,
+            "total_ms": 141.086,
+            "api_ms": [
+              12.73,
+              9.7,
+              9.0,
+              19.86,
+              4.67
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "record_search",
+    "language": "en",
+    "metrics": [
+      "median",
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 133.5705,
+            "current_ms": 148.051,
+            "delta_ms": 14.480499999999978,
+            "delta_percent": 10.841091408656835,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 155.8604,
+            "current_ms": 161.4282,
+            "delta_ms": 5.567800000000005,
+            "delta_percent": 3.5722993140015076,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 140.6165,
+            "current_ms": 151.3395,
+            "delta_ms": 10.722999999999985,
+            "delta_percent": 7.625705375969381,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 155.5247,
+            "current_ms": 171.5034,
+            "delta_ms": 15.978700000000003,
+            "delta_percent": 10.274059361631949,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 133.5705,
+        "p90_ms": 155.8604,
+        "slowest_cycles": [
+          {
+            "cycle": 5,
+            "total_ms": 158.792,
+            "api_ms": [
+              16.92,
+              12.06,
+              10.01,
+              27.06,
+              5.95
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 155.925,
+            "api_ms": [
+              19.95,
+              14.19,
+              9.63,
+              28.56,
+              6.31
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 155.279,
+            "api_ms": [
+              20.62,
+              13.96,
+              18.42,
+              30.89,
+              4.82
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 148.051,
+        "p90_ms": 161.4282,
+        "slowest_cycles": [
+          {
+            "cycle": 6,
+            "total_ms": 162.355,
+            "api_ms": [
+              13.77,
+              8.83,
+              9.78,
+              26.14,
+              6.08
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 11,
+            "total_ms": 161.564,
+            "api_ms": [
+              14.93,
+              9.69,
+              8.67,
+              26.25,
+              5.52
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 160.206,
+            "api_ms": [
+              27.76,
+              6.92,
+              6.04,
+              31.45,
+              5.54
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 151.3395,
+        "p90_ms": 171.5034,
+        "slowest_cycles": [
+          {
+            "cycle": 0,
+            "total_ms": 193.142,
+            "api_ms": [
+              36.76,
+              12.41,
+              22.67,
+              33.7,
+              6.14
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 173.4,
+            "api_ms": [
+              19.89,
+              26.59,
+              13.8,
+              30.86,
+              8.73
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 154.434,
+            "api_ms": [
+              18.97,
+              14.72,
+              13.55,
+              24.49,
+              5.58
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 140.6165,
+        "p90_ms": 155.5247,
+        "slowest_cycles": [
+          {
+            "cycle": 4,
+            "total_ms": 162.308,
+            "api_ms": [
+              21.97,
+              16.89,
+              9.74,
+              24.79,
+              12.39
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 156.23,
+            "api_ms": [
+              17.67,
+              20.08,
+              19.57,
+              23.97,
+              4.27
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 149.177,
+            "api_ms": [
+              14.69,
+              10.69,
+              9.29,
+              27.31,
+              6.48
+            ],
+            "api_paths": [
+              "/api/v1/records/search",
+              "/api/v1/aggregations/1",
+              "/api/v1/aggregations/1/effective-closure",
+              "/api/v1/records/1/capabilities",
+              "/api/v1/digital-components/search"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "records",
+    "language": "ar",
+    "metrics": [
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 80.1255,
+            "current_ms": 78.70150000000001,
+            "delta_ms": -1.4239999999999924,
+            "delta_percent": -1.7772119986770658,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 85.16619999999999,
+            "current_ms": 89.7123,
+            "delta_ms": 4.54610000000001,
+            "delta_percent": 5.337915745917994,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 82.5495,
+            "current_ms": 88.5505,
+            "delta_ms": 6.001000000000005,
+            "delta_percent": 7.2695776473509905,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 89.2428,
+            "current_ms": 91.65289999999999,
+            "delta_ms": 2.4100999999999857,
+            "delta_percent": 2.700610021200574,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 80.1255,
+        "p90_ms": 85.16619999999999,
+        "slowest_cycles": [
+          {
+            "cycle": 10,
+            "total_ms": 94.538,
+            "api_ms": [
+              8.34,
+              5.21
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 2,
+            "total_ms": 85.335,
+            "api_ms": [
+              8.38,
+              8.88
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 83.647,
+            "api_ms": [
+              11.97,
+              11.48
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 78.70150000000001,
+        "p90_ms": 89.7123,
+        "slowest_cycles": [
+          {
+            "cycle": 2,
+            "total_ms": 92.506,
+            "api_ms": [
+              10.54,
+              6.21
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 89.76,
+            "api_ms": [
+              5.96,
+              11.3
+            ],
+            "api_paths": [
+              "/api/v1/auth/me/recent-activity",
+              "/api/v1/favourites"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 89.283,
+            "api_ms": [
+              11.0,
+              8.89
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 88.5505,
+        "p90_ms": 91.65289999999999,
+        "slowest_cycles": [
+          {
+            "cycle": 2,
+            "total_ms": 235.959,
+            "api_ms": [
+              121.99,
+              112.37
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 91.695,
+            "api_ms": [
+              7.16,
+              4.67
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 6,
+            "total_ms": 91.274,
+            "api_ms": [
+              8.47,
+              7.26
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 82.5495,
+        "p90_ms": 89.2428,
+        "slowest_cycles": [
+          {
+            "cycle": 7,
+            "total_ms": 89.872,
+            "api_ms": [
+              6.74,
+              7.98
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 89.683,
+            "api_ms": [
+              4.41,
+              8.24
+            ],
+            "api_paths": [
+              "/api/v1/auth/me/recent-activity",
+              "/api/v1/favourites"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 85.281,
+            "api_ms": [
+              7.28,
+              7.77
+            ],
+            "api_paths": [
+              "/api/v1/favourites",
+              "/api/v1/auth/me/recent-activity"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "browser": "edge",
+    "workflow": "settings",
+    "language": "ar",
+    "metrics": [
+      "p90"
+    ],
+    "pairs": [
+      {
+        "original_sequence": 1,
+        "current_sequence": 2,
+        "metrics": {
+          "median": {
+            "original_ms": 78.967,
+            "current_ms": 82.429,
+            "delta_ms": 3.4620000000000033,
+            "delta_percent": 4.384109818025255,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 83.90899999999999,
+            "current_ms": 92.08699999999999,
+            "delta_ms": 8.177999999999997,
+            "delta_percent": 9.746272747857795,
+            "crosses_both_limits": false
+          }
+        }
+      },
+      {
+        "original_sequence": 4,
+        "current_sequence": 3,
+        "metrics": {
+          "median": {
+            "original_ms": 83.12899999999999,
+            "current_ms": 78.7245,
+            "delta_ms": -4.4044999999999845,
+            "delta_percent": -5.298391656341331,
+            "crosses_both_limits": false
+          },
+          "p90": {
+            "original_ms": 92.0886,
+            "current_ms": 92.74210000000001,
+            "delta_ms": 0.6535000000000082,
+            "delta_percent": 0.7096426702110882,
+            "crosses_both_limits": false
+          }
+        }
+      }
+    ],
+    "runs": [
+      {
+        "sequence": 1,
+        "median_ms": 78.967,
+        "p90_ms": 83.90899999999999,
+        "slowest_cycles": [
+          {
+            "cycle": 11,
+            "total_ms": 89.12,
+            "api_ms": [
+              18.13
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          },
+          {
+            "cycle": 4,
+            "total_ms": 84.005,
+            "api_ms": [
+              10.53
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 83.045,
+            "api_ms": [
+              14.04
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "median_ms": 82.429,
+        "p90_ms": 92.08699999999999,
+        "slowest_cycles": [
+          {
+            "cycle": 6,
+            "total_ms": 92.931,
+            "api_ms": [
+              14.16
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          },
+          {
+            "cycle": 3,
+            "total_ms": 92.469,
+            "api_ms": [
+              12.32
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          },
+          {
+            "cycle": 8,
+            "total_ms": 88.649,
+            "api_ms": [
+              13.93
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 3,
+        "median_ms": 78.7245,
+        "p90_ms": 92.74210000000001,
+        "slowest_cycles": [
+          {
+            "cycle": 7,
+            "total_ms": 98.034,
+            "api_ms": [
+              10.01
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          },
+          {
+            "cycle": 10,
+            "total_ms": 92.769,
+            "api_ms": [
+              10.5
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          },
+          {
+            "cycle": 5,
+            "total_ms": 92.5,
+            "api_ms": [
+              10.28
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          }
+        ]
+      },
+      {
+        "sequence": 4,
+        "median_ms": 83.12899999999999,
+        "p90_ms": 92.0886,
+        "slowest_cycles": [
+          {
+            "cycle": 5,
+            "total_ms": 256.934,
+            "api_ms": [
+              174.74
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          },
+          {
+            "cycle": 0,
+            "total_ms": 92.264,
+            "api_ms": [
+              11.11
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          },
+          {
+            "cycle": 1,
+            "total_ms": 90.51,
+            "api_ms": [
+              11.62
+            ],
+            "api_paths": [
+              "/api/v1/application-settings"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

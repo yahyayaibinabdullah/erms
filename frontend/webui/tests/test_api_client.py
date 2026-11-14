@@ -215,33 +215,6 @@ def test_localization_catalogue_uses_etag_and_handles_not_modified():
     assert result == {"not_modified": True, "etag": '"ar-17"'}
 
 
-def test_search_builds_controlled_or_grammar():
-    captured = {}
-
-    async def handler(request: httpx.Request) -> httpx.Response:
-        captured["path"] = request.url.path
-        captured["body"] = json.loads(request.content)
-        return httpx.Response(200, json={"items": [{"id": 4}], "total": 1})
-
-    async def exercise():
-        client = ErmsApiClient("http://api.test", transport=httpx.MockTransport(handler))
-        try:
-            return await client.search("records", "annual", ("record_number", "title"))
-        finally:
-            await client.close()
-
-    rows = asyncio.run(exercise())
-
-    assert rows == [{"id": 4}]
-    assert captured["path"] == "/api/v1/records/search"
-    assert captured["body"]["where"] == {
-        "or": [
-            {"field": "record_number", "operator": "contains_ci", "value": "annual"},
-            {"field": "title", "operator": "contains_ci", "value": "annual"},
-        ]
-    }
-
-
 def test_saved_search_execution_uses_the_dedicated_endpoint():
     captured = {}
 
@@ -337,49 +310,6 @@ def test_entity_translation_update_is_locale_scoped_and_versioned():
     assert captured == {
         "method": "PATCH", "path": "/api/v1/entity-translations/roles/7/ar",
         "body": {"name": "مدير"}, "version": "3", "reason": "Add Arabic name",
-    }
-
-
-def test_classification_search_uses_literal_case_insensitive_containment():
-    captured = {}
-
-    async def handler(request: httpx.Request) -> httpx.Response:
-        captured["body"] = json.loads(request.content)
-        return httpx.Response(200, json={"items": [], "total": 0})
-
-    async def exercise():
-        client = ErmsApiClient("http://api.test", transport=httpx.MockTransport(handler))
-        try:
-            await client.search("classifications", "finance", ("code", "title"))
-        finally:
-            await client.close()
-
-    asyncio.run(exercise())
-    assert captured["body"]["where"]["or"][0] == {
-        "field": "code", "operator": "contains_ci", "value": "finance",
-    }
-
-
-def test_resource_search_can_scope_results_to_an_organizational_owner():
-    captured = {}
-
-    async def handler(request: httpx.Request) -> httpx.Response:
-        captured["body"] = json.loads(request.content)
-        return httpx.Response(200, json={"items": [], "total": 0})
-
-    async def exercise():
-        client = ErmsApiClient("http://api.test", transport=httpx.MockTransport(handler))
-        try:
-            await client.search(
-                "records", "finance", ("record_number", "title"),
-                owning_org_unit_id=14,
-            )
-        finally:
-            await client.close()
-
-    asyncio.run(exercise())
-    assert captured["body"]["where"]["and"][1] == {
-        "field": "owning_org_unit_id", "operator": "eq", "value": 14,
     }
 
 
@@ -754,34 +684,29 @@ def test_recently_updated_uses_self_activity_without_audit_access():
     ]
 
 
-def test_recent_resource_activity_hydrates_content_views_for_aggregations():
+@pytest.mark.parametrize(("resource", "entity_type"), [("aggregations", "aggregation"), ("records", "record")])
+def test_recent_resource_activity_uses_one_scoped_card_request(resource, entity_type):
     requests = []
 
     async def handler(request: httpx.Request) -> httpx.Response:
-        requests.append(request.url.path)
-        if request.url.path == "/api/v1/auth/me/recent-activity":
-            return httpx.Response(200, json=[{
-                "entity_type": "aggregation", "entity_id": 8,
-                "operation": "CONTENT_VIEWED", "occurred_at": "2026-09-25T18:00:00Z",
-            }])
-        assert request.url.path == "/api/v1/aggregations/8"
-        return httpx.Response(200, json={"id": 8, "title": "Parent aggregation"})
+        requests.append((request.url.path, dict(request.url.params)))
+        return httpx.Response(200, json=[{
+            "entity_type": entity_type, "entity_id": 8, "title": "Activity resource",
+            "number": "ITEM-8", "operation": "CONTENT_VIEWED", "occurred_at": "2026-09-25T18:00:00Z",
+        }])
 
     async def exercise():
         client = ErmsApiClient("http://api.test", transport=httpx.MockTransport(handler))
         try:
-            return await client.recent_resource_activity("aggregations")
+            return await client.recent_resource_activity(resource)
         finally:
             await client.close()
 
     assert asyncio.run(exercise()) == [{
-        "id": 8, "title": "Parent aggregation",
-        "_activity_at": "2026-09-25T18:00:00Z",
-        "_operation": "CONTENT_VIEWED",
+        "id": 8, "title": "Activity resource", f"{entity_type}_number": "ITEM-8",
+        "_activity_at": "2026-09-25T18:00:00Z", "_operation": "CONTENT_VIEWED",
     }]
-    assert requests == [
-        "/api/v1/auth/me/recent-activity", "/api/v1/aggregations/8",
-    ]
+    assert requests == [("/api/v1/auth/me/recent-activity", {"limit": "50", "entity_type": entity_type})]
 
 
 @pytest.mark.parametrize(
@@ -1041,6 +966,11 @@ def test_security_operations_client_routes_are_read_only():
         client = ErmsApiClient("http://api.test", transport=httpx.MockTransport(handler))
         try:
             await client.security_summary(hours=48)
+            await client.security_summary(hours=24, recent_event_limit=10)
+            await client.security_events(
+                start_at="2030-01-01T00:00:00Z", end_at="2030-01-02T00:00:00Z",
+                limit=10, offset=100,
+            )
             await client.security_reconciliation()
         finally:
             await client.close()
@@ -1048,6 +978,11 @@ def test_security_operations_client_routes_are_read_only():
     asyncio.run(exercise())
     assert seen == [
         ("GET", "/api/v1/security-operations/summary", {"hours": "48"}),
+        ("GET", "/api/v1/security-operations/summary", {"hours": "24", "recent_event_limit": "10"}),
+        ("GET", "/api/v1/security-operations/events", {
+            "start_at": "2030-01-01T00:00:00Z", "end_at": "2030-01-02T00:00:00Z",
+            "limit": "10", "offset": "100",
+        }),
         ("GET", "/api/v1/security-operations/reconciliation", {}),
     ]
 

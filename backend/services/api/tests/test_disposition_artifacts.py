@@ -339,6 +339,8 @@ def test_task_recipient_can_preview_without_management_but_cannot_correct(queued
     with db() as c:
         with c.transaction(force_rollback=True):
             job,dest=fixture(c);old=seed_document(c,job)
+            # A queued review must satisfy today's standard-route reviewer gates.
+            if queued:c.execute('UPDATE org_units SET managing_role_id=1 WHERE id=1')
             make_task(c,job['id'],role=1 if queued else None,user=None if queued else 1)
             c.execute("DELETE FROM profile_privileges WHERE privilege_id=(SELECT id FROM privileges WHERE code='disposition.jobs.manage')")
             assert not c.execute('SELECT disposition_private.can_manage() allowed').fetchone()['allowed']

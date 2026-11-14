@@ -251,6 +251,8 @@ async def blockers_dialog(*, api, root, active, on_error, open_resource):
                         ui.label(text('hidden') if item['redacted'] else item.get('resource_label') or text(item['resource_kind'])+' #'+str(item['resource_id'])).props('dir=auto')
                         ui.label(' · '.join(text(key) for key,flag in [('vital',item['is_vital']),('security',item['security_blocked']),('held',item['legal_hold'])] if flag)).classes('font-semibold text-amber-900')
                         for hold in item['holds']:ui.label(hold['code']+' · '+hold['name']).props('dir=auto')
+                        if item['holds_has_more']:
+                            ui.label(text('blockers_holds_more')).classes('text-sm text-slate-600').props('role=status')
                         if not item['redacted']:
                             ui.button(text('open'),icon='open_in_new',on_click=lambda i=item:open_resource(i['resource_kind'],i['resource_id'])).tooltip(text('open')).props('flat dense no-caps')
                 for relation in result.get('relationships',[]):
@@ -298,27 +300,37 @@ async def jobs_screen(*, api, container, active, on_error, bind_remote, open_job
                 owner=ui.input(text('owner'),value=saved.get('owner','')).props('outlined dense maxlength=200')
                 assignee=ui.input(text('assignee'),value=saved.get('assignee','')).props('outlined dense maxlength=200')
                 unassigned=ui.checkbox(text('unassigned'),value=saved.get('unassigned',False))
-            ui.button(text('filters'),icon='filter_alt',on_click=lambda:page.load(reset=True)).tooltip(text('filters')).props('outline no-caps')
+            ui.button(text('filters'),icon='filter_alt',on_click=lambda:apply_filters()).tooltip(text('filters')).props('outline no-caps')
         with ui.row().classes('w-full justify-between gap-3'):
             ui.button(text('refresh'),icon='refresh',on_click=lambda:page.load()).tooltip(text('refresh')).props('outline no-caps')
             async def created(result):await open_job(result['id'])
             ui.button(text('create'),icon='add',on_click=lambda:create_dialog(api=api,context=context,bind_remote=bind_remote,active=alive,on_error=on_error,after=created)).tooltip(text('create')).props('no-caps')
+        def read_filters():
+            return dict(query=search.value,lifecycle=lifecycle.value,job_type=kind.value,
+                        owner=owner.value,assignee=assignee.value,unassigned=unassigned.value)
+        applied=read_filters()
+        async def apply_filters():
+            nonlocal applied
+            applied=read_filters()
+            await page.load(reset=True)
         async def fetch(p):
-            result=await api.disposition_page('jobs',limit=p.size,offset=(p.page-1)*p.size,query=search.value,
-                lifecycle=lifecycle.value or None,job_type=kind.value or None,owner=owner.value,assignee=assignee.value,unassigned=unassigned.value,
+            criteria=applied
+            result=await api.disposition_page('jobs',limit=p.size,offset=(p.page-1)*p.size,query=criteria['query'],
+                lifecycle=criteria['lifecycle'] or None,job_type=criteria['job_type'] or None,
+                owner=criteria['owner'],assignee=criteria['assignee'],unassigned=criteria['unassigned'],
                 sort={'type_label':'job_type','state_label':'lifecycle_state'}.get(p.sort,p.sort) or 'id',descending=p.descending if p.sort else True)
             for row in result['items']:
                 row['type_label']=text(row['job_type']);row['state_label']=text(row['lifecycle_state'])
                 row['assignee']=row.get('assignee') or text('unassigned')
                 row['review_setup_warning']=text('review_setup_attention') if any((row.get('review_setup') or {}).values()) else ''
-            result['_view']={'page':p.page,'size':p.size,'sort':p.sort,'descending':p.descending,'query':search.value,'lifecycle':lifecycle.value,'job_type':kind.value,'owner':owner.value,'assignee':assignee.value,'unassigned':unassigned.value}
+            result['_view']={'page':p.page,'size':p.size,'sort':p.sort,'descending':p.descending,**criteria}
             return result
         page=PageTable(columns=[column('job_number',sortable=True),column('type_label','job_type',True),column('state_label','lifecycle',True),column('owner',sortable=True),column('assignee',sortable=True),column('actions')],fetch=fetch,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),on_loaded=lambda p,result:remember(result['_view']),initial=saved)
         restore_page(page,saved)
         page.table.add_slot('body-cell-job_number','''<q-td :props="props"><div dir="auto">{{ props.row.job_number }}</div><div v-if="props.row.review_setup_warning" class="text-xs text-amber-900" role="status"><q-icon name="warning_amber" aria-hidden="true" /> {{ props.row.review_setup_warning }}</div></q-td>''')
         page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-job', props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn></q-td>''')
         page.table.on('open-job',lambda event:open_job(event.args))
-        search.on('keydown.enter',lambda:page.load(reset=True))
+        search.on('keydown.enter',apply_filters)
         context,_=await asyncio.gather(context_task,page.load())
 
 
@@ -328,7 +340,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
     saved=saved or {};filters=saved.get('filters',{})
     with container, ui.card().classes('detail-surface messaging-workspace w-full p-5 gap-4') as host:
         def alive():return active() and not host._deleted
-        selection_state={'revision':0,'scope':None,'checking':None,'criteria':None}
+        selection_state={'revision':0,'scope':None,'checking':None}
         context_task=asyncio.create_task(api.disposition_page('context'))
         context={}
         def disclosure_changed(event):
@@ -348,7 +360,9 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
                 grouped=ui.checkbox(text('group_owner'),value=filters.get('group_owner',False))
                 descending=ui.checkbox(text('descending'),value=saved.get('descending',False))
             async def apply_filters():
+                nonlocal applied
                 clear_selection()
+                applied=read_filters()
                 page.sort='';page.descending=descending.value
                 await page.load(reset=True)
             ui.button(text('filters'),icon='filter_alt',on_click=apply_filters).tooltip(text('filters')).props('outline no-caps')
@@ -368,18 +382,19 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
         selection_warning.set_visibility(False)
         results=ui.column().classes('w-full gap-2').props('aria-live=polite')
         results.set_visibility(False)
-        async def fetch(p):
-            current={'status':status.value,'due_from':due_from.value,'due_to':due_to.value,'due_from_fold':from_fold.value,'due_to_fold':to_fold.value,'group_owner':grouped.value,
+        def read_filters():
+            return {'status':status.value,'due_from':due_from.value,'due_to':due_to.value,'due_from_fold':from_fold.value,'due_to_fold':to_fold.value,'group_owner':grouped.value,
                      'sort':sort.value,**{key:control.value for key,control in boolean.items()},
                      'owner_selected':{'id':owner.value,'name':owner.options.get(owner.value)} if owner.value else None}
-            criteria={key:value for key,value in current.items() if key not in ('sort','group_owner')}
-            if selection_state['criteria'] is not None and criteria!=selection_state['criteria']:clear_selection()
-            selection_state['criteria']=criteria
-            result=await api.disposition_page('eligibility',limit=p.size,offset=(p.page-1)*p.size,sort={'identity':'id','due_label':'due','owner_label':'owner','state_label':'status'}.get(p.sort,p.sort) or sort.value,
-                descending=p.descending,owner=owner.value,status=status.value or None,group_owner=grouped.value,
-                due_from=date_filter(due_from.value,from_fold.value),
-                due_to=date_filter(due_to.value,to_fold.value),
-                **{key:(control.value if control.value else 'all' if key=='active_job' else None) for key,control in boolean.items()})
+        applied=read_filters()
+        async def fetch(p):
+            current=applied
+            result=await api.disposition_page('eligibility',limit=p.size,offset=(p.page-1)*p.size,sort={'identity':'id','due_label':'due','owner_label':'owner','state_label':'status'}.get(p.sort,p.sort) or current['sort'],
+                descending=p.descending,owner=(current['owner_selected'] or {}).get('id'),
+                status=current['status'] or None,group_owner=current['group_owner'],
+                due_from=date_filter(current['due_from'],current['due_from_fold']),
+                due_to=date_filter(current['due_to'],current['due_to_fold']),
+                **{key:(current[key] if current[key] else 'all' if key=='active_job' else None) for key in boolean})
             previous_owner=object()
             for row in result['items']:
                 if row['redacted']:
@@ -395,7 +410,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
                     protection_label=' · '.join(reasons) or text('no_blockers'),
                     job_label=row.get('job_number') or '—',
                     admission_label=text('in_active_job') if row.get('job_id') else text('blocked') if row['blocked'] else text('closed_required') if not row['date_closed'] else text('ready'),
-                    _group_start=bool(grouped.value and row['owning_org_unit_id']!=previous_owner))
+                    _group_start=bool(current['group_owner'] and row['owning_org_unit_id']!=previous_owner))
                 row['unavailable']=bool(row['blocked'] or row.get('job_id'))
                 row['unavailable_reason']=' · '.join(([text('in_active_job')+': '+row['job_label']] if row.get('job_id') else [])+reasons)
                 acceleration=row.get('acceleration')
@@ -564,9 +579,10 @@ async def choose_job_dialog(*, api, context, bind_remote, active, on_error, choo
         scope_label=ui.label('').classes('text-sm font-semibold').props('dir=auto role=status')
         scope_label.set_visibility(False)
         search=ui.input(text('search')).props('outlined dense maxlength=200').classes('w-full')
+        applied_query=''
         def alive():return active() and dialog.value and not dialog._deleted
         async def fetch(p):
-            result=await api.disposition_page('jobs',query=search.value,lifecycle='active',root_ids=root_ids,matching_scope=bool(root_ids),limit=p.size,offset=(p.page-1)*p.size)
+            result=await api.disposition_page('jobs',query=applied_query,lifecycle='active',root_ids=root_ids,matching_scope=bool(root_ids),limit=p.size,offset=(p.page-1)*p.size)
             for row in result['items']:
                 row['type_label']=text(row['job_type'])
                 row['selection_reason']=text(row['selection_error']) if row.get('selection_error') in KEYS else ''
@@ -600,7 +616,11 @@ async def choose_job_dialog(*, api, context, bind_remote, active, on_error, choo
                 await create_dialog(api=api,context=context,bind_remote=bind_remote,
                     active=alive,on_error=on_error,after=created,owner_suggestion=suggestion)
         page.table.on('choose',selected)
-        search.on('keydown.enter',lambda:page.load(reset=True))
+        async def apply_query():
+            nonlocal applied_query
+            applied_query=search.value
+            await page.load(reset=True)
+        search.on('keydown.enter',apply_query)
         with ui.row().classes('w-full justify-end gap-2'):
             ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
             ui.button(text('create'),icon='add',on_click=create).tooltip(text('create')).props('no-caps')
@@ -740,6 +760,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                     ui.button(text('add_aggregations'),icon='playlist_add',on_click=add_members).tooltip(text('add_aggregations')).props('no-caps')
             with ui.row().classes('w-full gap-3 items-start'):
                 member_query=ui.input(text('search_aggregations'),value=member_saved.get('query','')).props(f'outlined dense maxlength=200 hint={text("search_aggregations_hint")!r}').classes('grow min-w-0')
+            applied_member_query=member_query.value
             from .bulk import BulkSelection,bulk_dialog
             bulk_mode='remove' if job['membership_editable'] else 'propose' if review and 'propose' in review.actions else None
             member_selection=None
@@ -780,7 +801,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                     label=lambda row:row['identity'],active=lambda:section_active('members'),
                     actions=[('bulk_remove_selected' if bulk_mode=='remove' else 'bulk_propose_selected',bulk_members)])
             async def fetch_members(p):
-                result=await api.disposition_page(f'jobs/{identity}/memberships',limit=p.size,offset=(p.page-1)*p.size,query=member_query.value,state='retained',sort=p.sort or 'id',descending=p.descending if p.sort else True)
+                result=await api.disposition_page(f'jobs/{identity}/memberships',limit=p.size,offset=(p.page-1)*p.size,query=applied_member_query,state='retained',sort=p.sort or 'id',descending=p.descending if p.sort else True)
                 for row in result['items']:
                     row['last_viewed']=row['id']==view.get('opened_member') and not row['redacted']
                     row['classification_label']=' · '.join(v for v in (row.get('classification_code'),row.get('classification_title')) if v) or '—'
@@ -814,7 +835,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 if member_selection and 'items' in result:member_selection.loaded(p,result)
                 view.update(section=navigation.value,job_id=identity,task_id=task_id,
                   members={'page':p.page,'size':p.size,'sort':p.sort,'descending':p.descending,
-                    'query':member_query.value})
+                    'query':applied_member_query})
                 remember(dict(view))
             def member_columns():
                 columns=[column('identity','aggregation',True),column('owning_org_unit_name','owner',True),column('classification_label','classification',True),column('rule_label','rule'),column('local_label','local_override'),column('medium_label','medium'),column('proposal_count','proposals')]
@@ -868,6 +889,8 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 dialog.open()
             members.table.on('retention-rule',show_rule)
             async def filter_members():
+                nonlocal applied_member_query
+                applied_member_query=member_query.value
                 if member_selection:member_selection.clear()
                 members.table.columns=member_columns()
                 if members.sort and members.sort not in {c['name'] for c in members.table.columns}:members.sort='';members.descending=True

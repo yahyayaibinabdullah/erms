@@ -1,0 +1,235 @@
+--- before/frontend/webui/entities.py
++++ after/frontend/webui/entities.py
+@@ -37,7 +37,7 @@
+     ),
+     "classification-schemes": EntitySpec(
+         "classification-schemes", "Classification schemes", "classification scheme",
+-        (("code", "Code"), ("title", "Title"), ("date_published", "Published"), ("date_deactivated", "Deactivated")),
++        (),
+         (FieldSpec("code", "Code", required=True), FieldSpec("title", "Title", required=True), FieldSpec("description", "Description", "textarea"), FieldSpec("authority", "Authority"), FieldSpec("scope_note", "Scope note", "textarea"), FieldSpec("edition", "Edition"), FieldSpec("date_published", "Date published", "datetime")),
+         False, ("code", "title", "description"),
+     ),
+@@ -97,3 +97,6 @@
+         (),
+     ),
+ }
++
++# Entity definitions also serve editors and API resources without collection pages.
++COLLECTION_ENTITIES = {key: spec for key, spec in ENTITIES.items() if spec.columns}
+--- before/frontend/webui/collection_table.py
++++ after/frontend/webui/collection_table.py
+@@ -2,7 +2,6 @@
+ from __future__ import annotations
+ from typing import Any
+ from .organization_table import bind_organization_table_destinations
+-from .classification_editor import bind_scheme_actions
+ from .organization_collection_actions import build_change_suspension
+ from .organization_collection_actions import build_confirm_lifecycle
+ from .organization_collection_actions import build_issue_password
+@@ -14,14 +13,16 @@
+ from .organization_table import organization_user_actions
+ from .organization_table import organization_user_slots
+ from .classification_editor import render_classification_search_prompt
++from .entities import COLLECTION_ENTITIES
+ from .i18n_catalogue import render_message
+-from .classification_editor import scheme_action_buttons
+ from nicegui import ui
+ 
+ def build_collection_table(
+     *, RELATIONSHIP_DISPLAY_FIELDS, add_timestamp_slots, api, collection_state, current_session_revoked, decorate_for_spec, error_message, favourite_state, format_timestamp, guidance, load_recent, load_rows, open_editor, reload_favourites, render_administration_cards, render_entity_compact_results, render_recent_section, render_resource_personal_sections, required_principal, select_organization_unit_details, select_role_details, select_user_details, show_api_error, show_components, show_entity_history, show_memberships, show_profile_privilege_editor, show_record_details, subtitle, table_container, toggle_favourite,
+ ):
+     def render_table(spec: EntitySpec) -> None:
++        if spec.key not in COLLECTION_ENTITIES:
++            raise ValueError("Entity has no collection page")
+         # Background personal-section refreshes do not inherit a NiceGUI slot.
+         # Resolve translations in the owning page before updating its labels.
+         with table_container:
+@@ -79,7 +80,7 @@
+                 {"name", "description"}
+                 if spec.key in {"org-units", "roles", "users", "security-levels"}
+                 else {"title", "description"}
+-                if spec.key in {"classification-schemes", "classifications"}
++                if spec.key == "classifications"
+                 else set()
+             )
+             for row in visible_rows:
+@@ -290,8 +291,6 @@
+                 buttons += '<q-btn flat round dense icon="key" color="secondary" @click="$parent.$emit(\'profile_privileges\', props.row)"><q-tooltip>Manage privileges</q-tooltip></q-btn>'
+             buttons = organization_user_actions(spec, buttons)
+             buttons = organization_lifecycle_actions(spec, buttons)
+-            if spec.key == "classification-schemes":
+-                buttons = scheme_action_buttons(buttons)
+             table.add_slot("body-cell-actions", f'<q-td :props="props">{buttons}</q-td>')
+             table.on("edit", lambda event: open_editor(event.args))
+             table.on("history", lambda event, resource=spec.key: show_entity_history(resource, event.args))
+@@ -314,21 +313,6 @@
+             if spec.key == "records":
+                 table.on("open_record", lambda event: show_record_details(event.args))
+                 table.on("components", lambda event: show_components(event.args))
+-            if spec.key == "classification-schemes":
+-                async def refresh_scheme_table() -> None:
+-                    # The mutation may finish after navigation deleted this table.
+-                    # Do not start a read for the new page, or repaint an old view.
+-                    if table.is_deleted:
+-                        return
+-                    await load_rows(
+-                        repeat_search=True,
+-                        is_current=lambda: not table.is_deleted,
+-                    )
+-
+-                bind_scheme_actions(
+-                    table, api=api, error_message=error_message,
+-                    refresh=refresh_scheme_table,
+-                )
+             if spec.key in {"users", "roles"}:
+                 table.on(
+                     "memberships",
+--- before/frontend/webui/collection_controls.py
++++ after/frontend/webui/collection_controls.py
+@@ -7,7 +7,7 @@
+ from typing import Any, Callable
+ from nicegui import ui
+ from .api_client import ApiError
+-from .entities import ENTITIES
++from .entities import COLLECTION_ENTITIES
+ 
+ 
+ def build_collection_loader(
+@@ -22,7 +22,7 @@
+         *, repeat_search: bool = False, on_loaded: Callable[[], None] | None = None,
+         is_current: Callable[[], bool] | None = None,
+     ) -> None:
+-        spec = ENTITIES[get_resource()]
++        spec = COLLECTION_ENTITIES[get_resource()]
+         nonlocal request_revision
+         request_revision += 1
+         revision = request_revision
+@@ -53,11 +53,7 @@
+                 page = pages.setdefault(spec.key, {
+                     "offset": 0, "limit": 25, "total": 0, "query": "",
+                     "status": "all", "account_type": "all",
+-                    "sort": (
+-                        "level_number" if spec.key == "security-levels"
+-                        else "title" if spec.key == "classification-schemes"
+-                        else "name"
+-                    ),
++                    "sort": "level_number" if spec.key == "security-levels" else "name",
+                 })
+                 conditions: list[dict[str, Any]] = []
+                 query = str(page.get("query") or "").strip()
+--- before/frontend/webui/collection_navigation.py
++++ after/frontend/webui/collection_navigation.py
+@@ -1,7 +1,7 @@
+ """Collection entry, bounded loading and existing background personal refresh."""
+ from __future__ import annotations
+ from .api_client import ApiError
+-from .entities import ENTITIES
++from .entities import COLLECTION_ENTITIES
+ from .entities import EntitySpec
+ import asyncio
+ from nicegui import background_tasks
+@@ -13,6 +13,7 @@
+     *, add_button, add_record_button, aggregation_mode_bar, aggregation_state, collection_state, error_message, get_resource, guidance, load_recent, load_rows, personal, principal, register_navigation, reload_favourites, render_resource_personal_sections, render_table, search_bar, search_input, select_aggregation_browser, set_connection_status, set_resource, show_authenticated_view, subtitle, title,
+ ):
+     async def select_entity(key: str) -> None:
++        spec = COLLECTION_ENTITIES[key]
+         entity_navigation_keys = {
+             "aggregations": "navigation.item.aggregations",
+             "records": "navigation.item.records",
+@@ -32,7 +33,6 @@
+         register_navigation(key, entity_label)
+         show_authenticated_view()
+         set_resource(key); collection_state.update(rows=[], searched=False, lifecycle_filter='all'); aggregation_state.update(aggregation_detail=None)
+-        spec = ENTITIES[key]
+         title.text = entity_label
+         subtitle.text = render_message("webui.select_entity.text.search_required_before_loading_results_88549c49") if spec.search_first else render_message("webui.select_entity.text.manage_current_system_entries_fcec8116")
+         aggregation_mode_bar.set_visibility(key == "aggregations")
+--- before/frontend/webui/classification_editor.py
++++ after/frontend/webui/classification_editor.py
+@@ -1,5 +1,4 @@
+ """Classification-specific rules and adapters used by the shared entity controls."""
+-from typing import Any
+ from nicegui import ui
+ from .api_client import ApiError
+ from .i18n_catalogue import render_message
+@@ -77,44 +76,3 @@
+             render_message("webui.render_table.label.search_classifications_by_code_title_descr_30044cab")
+         ).classes("font-medium")
+         ui.label(render_message("webui.render_table.label.partial_matching_is_automatic_wildcard_cha_6cff96d6")).classes("text-xs")
+-
+-
+-
+-def scheme_action_buttons(buttons):
+-    buttons += '<q-btn v-if="!props.row.date_published" flat round dense icon="publish" color="primary" @click="$parent.$emit(\'publish_scheme\', props.row)"><q-tooltip>Publish now</q-tooltip></q-btn>'
+-    buttons += '<q-btn flat round dense :icon="props.row.date_deactivated ? \'toggle_on\' : \'toggle_off\'" :color="props.row.date_deactivated ? \'positive\' : \'negative\'" @click="$parent.$emit(\'scheme_lifecycle\', props.row)"><q-tooltip>{{ props.row.date_deactivated ? \'Reactivate\' : \'Deactivate\' }}</q-tooltip></q-btn>'
+-
+-    return buttons
+-
+-
+-def bind_scheme_actions(table, *, api, refresh, error_message):
+-    async def publish_scheme(event) -> None:
+-        row = event.args
+-        try:
+-            await api.request(
+-                "POST", f"/api/v1/classification-schemes/{row['id']}/publish",
+-                headers={"If-Match": str(row["version"])},
+-            )
+-            ui.notify(render_message("webui.publish_scheme.notify.classification_scheme_published_cd141332"), color="positive")
+-            await refresh()
+-        except ApiError as error:
+-            ui.notify(error_message(error), color="negative", close_button=True)
+-    async def change_scheme_lifecycle(event) -> None:
+-        row = event.args
+-        action_id = "reactivate" if row.get("date_deactivated") else "deactivate"
+-        action = render_message("webui.change_scheme_lifecycle.text.reactivate_ef9784c4") if row.get("date_deactivated") else render_message("webui.change_scheme_lifecycle.text.deactivate_871a64d1")
+-        try:
+-            await api.request(
+-                "POST", f"/api/v1/classification-schemes/{row['id']}/{action_id}",
+-                headers={
+-                    "If-Match": str(row["version"]),
+-                    "X-Change-Reason": f"{action_id.title()} from classification administration",
+-                },
+-            )
+-            ui.notify(render_message("webui.change_scheme_lifecycle.notify.classification_scheme_action_d_18fb0eda", action=action), color="positive")
+-            await refresh()
+-        except ApiError as error:
+-            ui.notify(error_message(error), color="negative", close_button=True)
+-    table.on("publish_scheme", publish_scheme)
+-    table.on("scheme_lifecycle", change_scheme_lifecycle)
+-
+--- before/frontend/webui/app.py
++++ after/frontend/webui/app.py
+@@ -97,7 +97,7 @@
+ from .relationship_types_controller import RelationshipTypesController
+ from .capabilities import can_navigate, can_navigate_disposition
+ from .config import api_url, full_text_search_enabled, host, port, reload_enabled, storage_secret
+-from .entities import ENTITIES
++from .entities import COLLECTION_ENTITIES, ENTITIES
+ from .i18n_catalogue import clear_active_messages, disable_diagnostic_metadata, render_message, render_message_plain, set_active_messages
+ from .locale_services import (
+     clear_locale_context, current_locale_context, format_instant, format_local_date,
+@@ -2334,7 +2334,6 @@
+             "aggregations": "folder",
+             "records": "description",
+             "advanced-search": "manage_search",
+-            "classification-schemes": "account_tree",
+             "classification-workspace": "account_tree",
+             "classification-scheme-details": "account_tree",
+             "classification-details": "schema",
+@@ -2430,7 +2429,6 @@
+         "full-text-search": "webui.run_global_search.text.search_results_ecc13a7a",
+         "aggregations": "navigation.item.aggregations",
+         "records": "navigation.item.records",
+-        "classification-schemes": "navigation.item.classification_schemes",
+         "classification-workspace": "navigation.item.classification_schemes",
+         "organization-browser": "navigation.item.organization_browser",
+         "org-units": "navigation.item.org_units",
+@@ -2556,7 +2554,7 @@
+             await select_messages(page.removeprefix("messages-"))
+         elif page == "advanced-search":
+             await select_advanced_search()
+-        elif page in ENTITIES:
++        elif page in COLLECTION_ENTITIES:
+             if saved.get("entity_result_state"):
+                 restored_result_state = dict(saved["entity_result_state"])
+                 restored_result_state["expanded_results"] = set(

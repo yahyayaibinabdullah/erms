@@ -1,0 +1,99 @@
+{
+  "browser": "chrome",
+  "synthetic_draft_identity_mapping": {
+    "before-chrome": {
+      "c4ce443e-7bf9-4d36-94a9-87732adc3642": "<created-draft-1>",
+      "9f3e3a72-3fd5-4b1e-b022-6deac8390b14": "<created-draft-2>"
+    },
+    "after-chrome": {
+      "608064b1-f569-4425-ad5d-bfbf27b2f0ab": "<created-draft-1>",
+      "b732d213-15d1-4c1c-9e41-c51bfb6fbcd1": "<created-draft-2>"
+    }
+  },
+  "focus_identical": true,
+  "no_browser_errors": true,
+  "screenshots": [
+    {
+      "file": "messaging-inbox-en.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "messaging-compose-en.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "messaging-draft-content-en.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "messaging-monitor-en.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 221,
+      "bbox": [
+        548,
+        441,
+        580,
+        450
+      ],
+      "max_channel_difference": 184
+    },
+    {
+      "file": "messaging-notifications-en.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "messaging-inbox-ar.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "messaging-compose-ar.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "messaging-draft-content-ar.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "messaging-monitor-ar.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 264,
+      "bbox": [
+        850,
+        441,
+        897,
+        452
+      ],
+      "max_channel_difference": 184
+    },
+    {
+      "file": "messaging-notifications-ar.png",
+      "comparison_top": 72,
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    }
+  ],
+  "requests_only_before": [],
+  "requests_only_after": []
+}

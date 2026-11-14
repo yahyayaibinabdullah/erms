@@ -1,0 +1,380 @@
+{
+  "checks": [
+    "packaged unit files pass systemd-analyze verify",
+    "API_WORKERS=2 runs two API children and one separate cleanup process",
+    "API restart replaces both processes and real cleanup deletes only expired lists",
+    "API stop stops cleanup without leaving a process behind",
+    "API start after stop starts cleanup again",
+    "replacing one API child leaves the single cleanup process unchanged",
+    "API main-process failure recovers with exactly one new cleanup process",
+    "cleanup failure recovers without restarting API"
+  ],
+  "snapshots": [
+    {
+      "label": "start_with_two_api_workers",
+      "api": {
+        "MainPID": "9695",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "dbecc5a3abf1498a9933a42007d2fb2e"
+      },
+      "cleanup": {
+        "MainPID": "9696",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "7f60442a556c48bdb3b97dbba48bc1ae"
+      },
+      "api_children": [
+        {
+          "pid": 9702,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.resource_tracker import main;main(6)"
+          ]
+        },
+        {
+          "pid": 9703,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=9)",
+            "--multiprocessing-fork"
+          ]
+        },
+        {
+          "pid": 9704,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=13)",
+            "--multiprocessing-fork"
+          ]
+        }
+      ],
+      "cleanup_pids": [
+        9696
+      ]
+    },
+    {
+      "label": "restart",
+      "api": {
+        "MainPID": "9732",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "aaab61c94ce54ae6a6f0f37c8c8f9622"
+      },
+      "cleanup": {
+        "MainPID": "9733",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "c1ff9116a2994bca81cd0d5635f39103"
+      },
+      "api_children": [
+        {
+          "pid": 9739,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.resource_tracker import main;main(6)"
+          ]
+        },
+        {
+          "pid": 9740,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=9)",
+            "--multiprocessing-fork"
+          ]
+        },
+        {
+          "pid": 9741,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=13)",
+            "--multiprocessing-fork"
+          ]
+        }
+      ],
+      "cleanup_pids": [
+        9733
+      ]
+    },
+    {
+      "label": "stop",
+      "api": {
+        "MainPID": "0",
+        "NRestarts": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "InvocationID": ""
+      },
+      "cleanup": {
+        "MainPID": "0",
+        "NRestarts": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "InvocationID": ""
+      },
+      "api_children": [],
+      "cleanup_pids": []
+    },
+    {
+      "label": "start_after_stop",
+      "api": {
+        "MainPID": "9772",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "f935ef88a35948c9965d83eb2b26022f"
+      },
+      "cleanup": {
+        "MainPID": "9773",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "5b496e74b272455c9702714b7fd89790"
+      },
+      "api_children": [
+        {
+          "pid": 9779,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.resource_tracker import main;main(6)"
+          ]
+        },
+        {
+          "pid": 9780,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=9)",
+            "--multiprocessing-fork"
+          ]
+        },
+        {
+          "pid": 9781,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=13)",
+            "--multiprocessing-fork"
+          ]
+        }
+      ],
+      "cleanup_pids": [
+        9773
+      ]
+    },
+    {
+      "label": "api_child_replacement",
+      "api": {
+        "MainPID": "9772",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "f935ef88a35948c9965d83eb2b26022f"
+      },
+      "cleanup": {
+        "MainPID": "9773",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "5b496e74b272455c9702714b7fd89790"
+      },
+      "api_children": [
+        {
+          "pid": 9779,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.resource_tracker import main;main(6)"
+          ]
+        },
+        {
+          "pid": 9781,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=13)",
+            "--multiprocessing-fork"
+          ]
+        },
+        {
+          "pid": 9800,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=15)",
+            "--multiprocessing-fork"
+          ]
+        }
+      ],
+      "cleanup_pids": [
+        9773
+      ]
+    },
+    {
+      "label": "api_failure_recovery",
+      "api": {
+        "MainPID": "9889",
+        "NRestarts": "1",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "ac776de147c046e48c66abc60c50e3d3"
+      },
+      "cleanup": {
+        "MainPID": "9890",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "7beb5d632cf24bc78f68449077ec0553"
+      },
+      "api_children": [
+        {
+          "pid": 9894,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.resource_tracker import main;main(6)"
+          ]
+        },
+        {
+          "pid": 9895,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=9)",
+            "--multiprocessing-fork"
+          ]
+        },
+        {
+          "pid": 9896,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=13)",
+            "--multiprocessing-fork"
+          ]
+        }
+      ],
+      "cleanup_pids": [
+        9890
+      ]
+    },
+    {
+      "label": "cleanup_failure_recovery",
+      "api": {
+        "MainPID": "9889",
+        "NRestarts": "1",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "ac776de147c046e48c66abc60c50e3d3"
+      },
+      "cleanup": {
+        "MainPID": "9971",
+        "NRestarts": "1",
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "39c139daa2da4bbda6cda7b6221b25f8"
+      },
+      "api_children": [
+        {
+          "pid": 9894,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.resource_tracker import main;main(6)"
+          ]
+        },
+        {
+          "pid": 9895,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=9)",
+            "--multiprocessing-fork"
+          ]
+        },
+        {
+          "pid": 9896,
+          "cmdline": [
+            "/opt/erms/backend/services/api/.venv/bin/python",
+            "-c",
+            "from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=7, pipe_handle=13)",
+            "--multiprocessing-fork"
+          ]
+        }
+      ],
+      "cleanup_pids": [
+        9971
+      ]
+    },
+    {
+      "label": "final_stop",
+      "api": {
+        "MainPID": "0",
+        "NRestarts": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "InvocationID": ""
+      },
+      "cleanup": {
+        "MainPID": "0",
+        "NRestarts": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "InvocationID": ""
+      },
+      "api_children": [],
+      "cleanup_pids": []
+    }
+  ],
+  "systemd": "systemd 255 (255.4-1ubuntu8.18)",
+  "linux": "Linux 6.8.0-147-generic aarch64 GNU/Linux",
+  "os_release": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+  "api_workers": 2,
+  "restart_seconds": 2.754,
+  "stop_seconds": 0.745,
+  "passed": true,
+  "date": "2026-11-13",
+  "timezone": "Asia/Dubai",
+  "postgresql": "18.7 (Ubuntu 18.7-1.pgdg24.04+2)",
+  "source_sha256": {
+    "backend/services/api/deploy/erms-api.service": "42fba3398d4922f1780913413cb856213a32acb5aabb304dd0816625d3063aad",
+    "backend/services/api/deploy/erms-session-cleanup.service": "fdad1fd22f904f7a95c6c0c5f74316c910f9c81b4cdcb065580e557a5acb4a13",
+    "backend/services/api/session_cleanup.py": "634b453bd4e48bae3e6dc7c68a3ab28bef3db9fc2604c1efed2267a1a7e0392a",
+    "backend/services/api/launcher.py": "97e52055adafe103af23b27bd7e40151d5ef6cbf7616229d564e785649617dda",
+    "run-api.sh": "cdbe1915e8c2c9dbdf619e93e7cd5cfe5aef717d7f3d5535b2e98f7cad2ad265",
+    "tools/linux_search_cleanup/verify.py": "450f0932be19db34ade4c9317d7df6d36f62149e39a34bba3de38d85f6afd0aa"
+  },
+  "first_passing_run": {
+    "passed": true,
+    "stop_seconds": 0.857,
+    "restart_seconds": 2.751
+  },
+  "disposable_marker_negative_check": "passed",
+  "docker_cleanup": {
+    "test_cache_removed": 10,
+    "older_cache_records_preserved": 19,
+    "test_containers_images_networks_remaining": 0
+  },
+  "vm_cleanup": {
+    "databases_explicitly_dropped": [
+      "erms_linux_cleanup_2c01489a3516",
+      "erms_linux_cleanup_5177a607b3aa",
+      "erms_linux_cleanup_0b8f1c6c4c61"
+    ],
+    "vm_deleted": true,
+    "temporary_vm_home_removed": true,
+    "downloaded_vm_image_cache_removed": true,
+    "downloaded_launcher_removed": true
+  }
+}

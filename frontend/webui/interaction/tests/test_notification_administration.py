@@ -1,4 +1,5 @@
 """Real administration controls, bounded fake API, no database."""
+from frontend.webui.entity_selectors import build_relationship_selector
 
 import ast
 import asyncio
@@ -8,11 +9,9 @@ from typing import Any, Callable
 import pytest
 from nicegui import ui, background_tasks
 from nicegui.testing import User
-from frontend.webui.app import (
-    relationship_select,
-    relationship_options,
-    relationship_search_query,
-)
+from frontend.webui.relationship_select import relationship_select
+from frontend.webui.entity_selectors import relationship_options
+from frontend.webui.entity_selectors import relationship_search_query
 from frontend.webui.api_client import ApiError
 from frontend.webui.i18n_catalogue import set_active_messages, render_message_plain
 from frontend.webui.notification_administration import notification_administration
@@ -20,11 +19,6 @@ from frontend.webui.notification_administration import notification_administrati
 pytest_plugins = ["nicegui.testing.user_plugin"]
 pytestmark = pytest.mark.asyncio
 ROOT = Path(__file__).parents[2]
-BINDING = next(
-    n
-    for n in ast.walk(ast.parse((ROOT / "app.py").read_text()))
-    if isinstance(n, ast.FunctionDef) and n.name == "bind_remote_relationship_select"
-)
 
 
 class Api:
@@ -116,10 +110,7 @@ async def setup(user, language="en"):
         relationship_options=relationship_options,
         relationship_search_query=relationship_search_query,
     )
-    exec(
-        compile(ast.Module(body=[BINDING], type_ignores=[]), "<selector>", "exec"),
-        scope,
-    )
+    scope["bind_remote_relationship_select"] = build_relationship_selector(scope["api"], error_message=str)
 
     @ui.page("/notification-test")
     async def page():
@@ -232,3 +223,31 @@ async def test_recipient_rules_have_localized_labels_and_stable_values(user: Use
     controls = list(user.find(ui.select).elements)
     selected = next(control for control in controls if control.value == mode)
     assert selected.options == {mode:label}
+
+
+async def test_producer_pager_uses_last_submitted_query(user, monkeypatch):
+    original = Api.request
+    queries = []
+
+    async def request(self, method, path, **kwargs):
+        if path.endswith('/producers'):
+            queries.append(kwargs['params'])
+            return {'items': [], 'next_cursor': 'producer-25'}
+        return await original(self, method, path, **kwargs)
+
+    monkeypatch.setattr(Api, 'request', request)
+    await setup(user)
+    search = render_message_plain('messaging.admin.search')
+    field = next(control for control in user.find(ui.input).elements if control.label == search)
+    field.value = 'Submitted'
+    user.find(kind=ui.button, content=search).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'q': 'Submitted', 'after': '', 'limit': 25}
+    field.value = 'Draft'
+    user.find('Next', kind=ui.button).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'q': 'Submitted', 'after': 'producer-25', 'limit': 25}
+    assert field.value == 'Draft'
+    user.find(kind=ui.button, content=search).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'q': 'Draft', 'after': '', 'limit': 25}

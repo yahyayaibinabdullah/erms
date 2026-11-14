@@ -1,6 +1,8 @@
 import os
+from uuid import uuid4
 
 import psycopg
+import pytest
 from psycopg.types.json import Jsonb
 
 from backend.services.api.authentication import hash_password
@@ -32,6 +34,15 @@ def _payload(**changes) -> dict:
     }
     value.update(changes)
     return value
+
+
+def _restore_legacy_limit(saved_id: int, maximum: int) -> None:
+    with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
+        connection.execute("SELECT set_config('app.user_id','1',true), set_config('app.change_reason','Legacy test fixture',true)")
+        connection.execute(
+            "UPDATE saved_searches SET definition = definition || jsonb_build_object('max_results', %s::integer) WHERE id=%s",
+            (maximum, saved_id),
+        )
 
 
 def test_owner_name_follows_viewer_language(client):
@@ -120,6 +131,10 @@ def test_execute_saved_search_uses_fresh_results_and_enforces_stored_cap(client,
     created = client.post("/api/v1/saved-searches", json=_payload(definition=_definition(maximum=2)))
     assert created.status_code == 201, created.text
     saved = created.json()
+    assert "max_results" not in saved["definition"]
+    assert saved["result_cap"] == 1000
+    _restore_legacy_limit(saved["id"], 2)
+    saved = client.get(f"/api/v1/saved-searches/{saved['id']}").json()
 
     first = client.post(f"/api/v1/saved-searches/{saved['id']}/execute", json={"limit": 25, "offset": 0})
     assert first.status_code == 200, first.text
@@ -144,13 +159,20 @@ def test_execute_saved_search_uses_fresh_results_and_enforces_stored_cap(client,
     fresh = client.post(f"/api/v1/saved-searches/{saved['id']}/execute", json={})
     assert fresh.status_code == 200
     assert fresh.json()["total"] == 2
+    from backend.services.api.tests.test_application_settings import save
+    assert save(client, {"SEARCH_RESULT_LIMIT": 1}).status_code == 200
+    reduced = client.post(f"/api/v1/saved-searches/{saved['id']}/execute", json={})
+    assert reduced.status_code == 200
+    assert reduced.json()["result_cap"] == 1 and reduced.json()["returned"] == 1
 
 
-def test_role_sharing_is_visible_but_does_not_grant_administration(client):
+@pytest.mark.parametrize('cached', [False, True])
+def test_role_sharing_is_visible_but_does_not_grant_administration(client, cached):
     password = "Saved-Search-Recipient-123!"
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         profile_id = connection.execute(
-            "INSERT INTO profiles(code,name) VALUES ('SAVED_SEARCH_READER','Saved search reader') RETURNING id"
+            "INSERT INTO profiles(code,name) VALUES (%s,%s) RETURNING id",
+            (f'SAVED_SEARCH_READER_{int(cached)}', f'Saved search reader {int(cached)}'),
         ).fetchone()[0]
         connection.execute(
             """INSERT INTO profile_privileges(profile_id,privilege_id)
@@ -184,7 +206,8 @@ def test_role_sharing_is_visible_but_does_not_grant_administration(client):
     assert shared.status_code == 200
     assert [item["id"] for item in shared.json()["items"]] == [saved_id]
     assert shared.json()["items"][0]["capabilities"]["execute"] is True
-    executed = client.post(f"/api/v1/saved-searches/{saved_id}/execute", json={})
+    execution = {'tab_id': str(uuid4())} if cached else {}
+    executed = client.post(f"/api/v1/saved-searches/{saved_id}/execute", json=execution)
     assert executed.status_code == 200, executed.text
     assert shared.json()["items"][0]["capabilities"]["update"] is False
     denied_update = client.put(
@@ -193,6 +216,13 @@ def test_role_sharing_is_visible_but_does_not_grant_administration(client):
     )
     assert denied_update.status_code == 403
     assert client.get("/api/v1/saved-searches/administration").status_code == 403
+    with psycopg.connect(os.environ['DATABASE_URL']) as connection:
+        connection.execute("SELECT set_config('app.user_id','1',true),set_config('app.change_reason','Revoke search audience',true)")
+        connection.execute('DELETE FROM saved_search_role_grants WHERE saved_search_id=%s', (saved_id,))
+    if cached:
+        execution['search_id'] = executed.json()['search_id']
+    # An existing cached list never bypasses the current saved-search audience.
+    assert client.post(f'/api/v1/saved-searches/{saved_id}/execute', json=execution).status_code == 404
 
 
 def test_sharing_definition_does_not_grant_record_view(client):
@@ -269,6 +299,7 @@ def test_administration_filters_and_execution_does_not_create_history(client):
         name="Small finance search", category="Finance", definition=_definition(maximum=50),
     ))
     assert private.status_code == 201, private.text
+    _restore_legacy_limit(private.json()["id"], 50)
     other = client.post("/api/v1/saved-searches", json=_payload(
         name="Large legal search", category="Legal", definition=_definition(maximum=2000),
     ))

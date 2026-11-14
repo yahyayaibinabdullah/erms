@@ -1,3 +1,4 @@
+from frontend.webui.tests.search_sources import search_sources
 import ast
 import asyncio
 import pytest
@@ -7,7 +8,7 @@ from types import SimpleNamespace
 
 @pytest.mark.parametrize("multiple", [True, False])
 def test_audience_paging_keeps_selected_values_and_resets_offset_for_new_query(multiple):
-    source = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    source = ast.parse(search_sources())
     binder = next(n for n in ast.walk(source) if isinstance(n, ast.FunctionDef) and n.name == 'bind_remote_saved_audience_select')
     calls = []
     async def page(kind, **kwargs):
@@ -51,7 +52,7 @@ def test_audience_paging_keeps_selected_values_and_resets_offset_for_new_query(m
 
 
 def test_every_audience_binder_call_supplies_load_more_button():
-    source = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    source = ast.parse(search_sources())
     calls = [node for node in ast.walk(source) if isinstance(node, ast.Call)
              and isinstance(node.func, ast.Name) and node.func.id == 'bind_remote_saved_audience_select']
     assert len(calls) == 4
@@ -59,7 +60,7 @@ def test_every_audience_binder_call_supplies_load_more_button():
 
 
 def test_saved_search_tabs_use_api_scope_ids_separate_from_translated_labels():
-    source = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    source = ast.parse(search_sources())
     dialog = next(node for node in ast.walk(source) if isinstance(node, ast.AsyncFunctionDef)
                   and node.name == 'open_saved_search_dialog')
     tabs = [node for node in ast.walk(dialog) if isinstance(node, ast.Call)
@@ -70,7 +71,7 @@ def test_saved_search_tabs_use_api_scope_ids_separate_from_translated_labels():
 
 
 def test_saved_audience_ancestor_cannot_be_selected():
-    source = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    source = ast.parse((Path(__file__).parents[1] / 'organization_browser.py').read_text())
     browser = next(n for n in ast.walk(source) if isinstance(n, ast.AsyncFunctionDef)
                    and n.name == 'show_organization_structure')
     predicate = next(n for n in ast.walk(browser) if isinstance(n, ast.FunctionDef)
@@ -89,7 +90,7 @@ def test_saved_audience_ancestor_cannot_be_selected():
 
 
 def test_saved_audience_scope_survives_every_browser_page_and_search():
-    source = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    source = ast.parse((Path(__file__).parents[1] / 'organization_browser.py').read_text())
     browser = next(n for n in ast.walk(source) if isinstance(n, ast.AsyncFunctionDef)
                    and n.name == 'show_organization_structure')
     calls = [n for n in ast.walk(browser) if isinstance(n, ast.Call)

@@ -244,7 +244,7 @@ async def test_shared_tree_browser_drills_down_and_selects_only_requested_kind(h
     async def selected(item,active):
         assert active()
         chosen.append(item['id'])
-    tree=ast.parse(Path('frontend/webui/app.py').read_text())
+    tree=ast.parse(Path('frontend/webui/aggregation_selector.py').read_text())
     function=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='browse_advanced_aggregation')
     namespace={'Any':Any,'ui':ui,'asyncio':asyncio,'api':SimpleNamespace(browse_page=page,browse_schemes=schemes),
                'render_message':lambda key:key,'error_message':str,'tree_expander_icon':lambda opened:'expand_more' if opened else 'chevron_right',

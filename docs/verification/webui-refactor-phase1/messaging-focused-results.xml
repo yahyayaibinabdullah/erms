@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="3.181" timestamp="2026-11-10T08:18:00.216475+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_messaging_phase5" name="test_deleted_mailbox_restore_uses_own_route_and_refresh[en]" time="0.132"><failure message="AssertionError: expected to find at least one element with marker=Open or content=Open on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Column&#10;     Column&#10;      Row&#10;       Button [label=Refresh, icon=refresh, flat=True, no-caps=True]&#10;       Switch [text=Recently deleted, model-value=True]&#10;      Row [visible=False]&#10;       Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=Priority, outlined=True, dense=True]&#10;       Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=Read, outlined=True, dense=True]&#10;       Input [label=Sent on or after, type=date, outlined=True, dense=True]&#10;       Input [label=Sent before, type=date, outlined=True, dense=True]&#10;       Button [label=Search subject, icon=search, flat=True, no-caps=True]&#10;      Label [role=status]&#10;      Grid&#10;       Column&#10;        Column&#10;         Column&#10;          Label [text=Inbox]&#10;         Row [markers=message-row-delivery, tabindex=0, role=button]&#10;          Column&#10;           Label [text=Test notice]&#10;           Label [text=TEST — not a product...]&#10;           Row&#10;            Label [text=system]&#10;             Tooltip [text=system]&#10;            Badge [text=Unread]&#10;            Badge [text=Normal]&#10;           Label [text=Expires: 2026-02-01T...]&#10;           Label [text=2026-01-01T00:00:00Z]&#10;        Row&#10;         Button [label=Previous, outline=True, no-caps=True, disable=True]&#10;         Button [label=Next, outline=True, no-caps=True, disable=True]&#10;       Column [visible=False]">args = ()
+kwargs = {'tag': 'en', 'user': &lt;nicegui.testing.user.User object at 0x1109bd590&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_messaging_phase5.py:96: in test_deleted_mailbox_restore_uses_own_route_and_refresh
+    user.find(render_message_plain("messaging.action.open")).click()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1109bd590&gt;, target = 'Open'
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element with marker=Open or content=Open on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Column
+E                    Column
+E                     Row
+E                      Button [label=Refresh, icon=refresh, flat=True, no-caps=True]
+E                      Switch [text=Recently deleted, model-value=True]
+E                     Row [visible=False]
+E                      Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=Priority, outlined=True, dense=True]
+E                      Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=Read, outlined=True, dense=True]
+E                      Input [label=Sent on or after, type=date, outlined=True, dense=True]
+E                      Input [label=Sent before, type=date, outlined=True, dense=True]
+E                      Button [label=Search subject, icon=search, flat=True, no-caps=True]
+E                     Label [role=status]
+E                     Grid
+E                      Column
+E                       Column
+E                        Column
+E                         Label [text=Inbox]
+E                        Row [markers=message-row-delivery, tabindex=0, role=button]
+E                         Column
+E                          Label [text=Test notice]
+E                          Label [text=TEST — not a product...]
+E                          Row
+E                           Label [text=system]
+E                            Tooltip [text=system]
+E                           Badge [text=Unread]
+E                           Badge [text=Normal]
+E                          Label [text=Expires: 2026-02-01T...]
+E                          Label [text=2026-01-01T00:00:00Z]
+E                       Row
+E                        Button [label=Previous, outline=True, no-caps=True, disable=True]
+E                        Button [label=Next, outline=True, no-caps=True, disable=True]
+E                      Column [visible=False]
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_messaging_phase5" name="test_deleted_mailbox_restore_uses_own_route_and_refresh[ar]" time="0.130"><failure message="AssertionError: expected to find at least one element with marker=فتح or content=فتح on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Column&#10;     Column&#10;      Row&#10;       Button [label=تحديث, icon=refresh, flat=True, no-caps=True]&#10;       Switch [text=المحذوفة مؤخراً, model-value=True]&#10;      Row [visible=False]&#10;       Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=الأولوية, outlined=True, dense=True]&#10;       Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=مقروءة, outlined=True, dense=True]&#10;       Input [label=أُرسلت في أو بعد, type=date, outlined=True, dense=True]&#10;       Input [label=أُرسلت قبل, type=date, outlined=True, dense=True]&#10;       Button [label=البحث في الموضوع, icon=search, flat=True, no-caps=True]&#10;      Label [role=status]&#10;      Grid&#10;       Column&#10;        Column&#10;         Column&#10;          Label [text=الوارد]&#10;         Row [markers=message-row-delivery, tabindex=0, role=button]&#10;          Column&#10;           Label [text=Test notice]&#10;           Label [text=اختبار — ليس إشعاراً...]&#10;           Row&#10;            Label [text=system]&#10;             Tooltip [text=system]&#10;            Badge [text=غير مقروءة]&#10;            Badge [text=عادية]&#10;           Label [text=تنتهي الصلاحية: 2026...]&#10;           Label [text=2026-01-01T00:00:00Z]&#10;        Row&#10;         Button [label=السابق, outline=True, no-caps=True, disable=True]&#10;         Button [label=التالي, outline=True, no-caps=True, disable=True]&#10;       Column [visible=False]">args = ()
+kwargs = {'tag': 'ar', 'user': &lt;nicegui.testing.user.User object at 0x1109cba10&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_messaging_phase5.py:96: in test_deleted_mailbox_restore_uses_own_route_and_refresh
+    user.find(render_message_plain("messaging.action.open")).click()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1109cba10&gt;, target = 'فتح'
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element with marker=فتح or content=فتح on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Column
+E                    Column
+E                     Row
+E                      Button [label=تحديث, icon=refresh, flat=True, no-caps=True]
+E                      Switch [text=المحذوفة مؤخراً, model-value=True]
+E                     Row [visible=False]
+E                      Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=الأولوية, outlined=True, dense=True]
+E                      Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=مقروءة, outlined=True, dense=True]
+E                      Input [label=أُرسلت في أو بعد, type=date, outlined=True, dense=True]
+E                      Input [label=أُرسلت قبل, type=date, outlined=True, dense=True]
+E                      Button [label=البحث في الموضوع, icon=search, flat=True, no-caps=True]
+E                     Label [role=status]
+E                     Grid
+E                      Column
+E                       Column
+E                        Column
+E                         Label [text=الوارد]
+E                        Row [markers=message-row-delivery, tabindex=0, role=button]
+E                         Column
+E                          Label [text=Test notice]
+E                          Label [text=اختبار — ليس إشعاراً...]
+E                          Row
+E                           Label [text=system]
+E                            Tooltip [text=system]
+E                           Badge [text=غير مقروءة]
+E                           Badge [text=عادية]
+E                          Label [text=تنتهي الصلاحية: 2026...]
+E                          Label [text=2026-01-01T00:00:00Z]
+E                       Row
+E                        Button [label=السابق, outline=True, no-caps=True, disable=True]
+E                        Button [label=التالي, outline=True, no-caps=True, disable=True]
+E                      Column [visible=False]
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_messaging_phase5" name="test_capture_button_is_busy_until_staging_finishes" time="0.008"><failure message="AssertionError: expected to find at least one element with marker=Open or content=Open on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Column&#10;     Column&#10;      Row&#10;       Button [label=Refresh, icon=refresh, flat=True, no-caps=True]&#10;       Switch [text=Recently deleted]&#10;      Row&#10;       Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=Priority, outlined=True, dense=True]&#10;       Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=Read, outlined=True, dense=True]&#10;       Input [label=Sent on or after, type=date, outlined=True, dense=True]&#10;       Input [label=Sent before, type=date, outlined=True, dense=True]&#10;       Button [label=Search subject, icon=search, flat=True, no-caps=True]&#10;      Label [role=status]&#10;      Grid&#10;       Column&#10;        Column&#10;         Column&#10;          Label [text=Inbox]&#10;         Row [markers=message-row-delivery, tabindex=0, role=button]&#10;          Column&#10;           Label [text=Capture this message]&#10;           Row&#10;            Label [text=Sender]&#10;             Tooltip [text=Sender]&#10;            Badge [text=Read]&#10;            Badge [text=Normal]&#10;           Label [text=Expires: 2029-01-01T...]&#10;           Label [text=2026-01-01T00:00:00Z]&#10;        Row&#10;         Button [label=Previous, outline=True, no-caps=True, disable=True]&#10;         Button [label=Next, outline=True, no-caps=True, disable=True]&#10;       Column [visible=False]">args = (), kwargs = {'user': &lt;nicegui.testing.user.User object at 0x1077e71d0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_messaging_phase5.py:257: in test_capture_button_is_busy_until_staging_finishes
+    user.find("Open").click()
+    ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1077e71d0&gt;, target = 'Open'
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element with marker=Open or content=Open on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Column
+E                    Column
+E                     Row
+E                      Button [label=Refresh, icon=refresh, flat=True, no-caps=True]
+E                      Switch [text=Recently deleted]
+E                     Row
+E                      Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=Priority, outlined=True, dense=True]
+E                      Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=Read, outlined=True, dense=True]
+E                      Input [label=Sent on or after, type=date, outlined=True, dense=True]
+E                      Input [label=Sent before, type=date, outlined=True, dense=True]
+E                      Button [label=Search subject, icon=search, flat=True, no-caps=True]
+E                     Label [role=status]
+E                     Grid
+E                      Column
+E                       Column
+E                        Column
+E                         Label [text=Inbox]
+E                        Row [markers=message-row-delivery, tabindex=0, role=button]
+E                         Column
+E                          Label [text=Capture this message]
+E                          Row
+E                           Label [text=Sender]
+E                            Tooltip [text=Sender]
+E                           Badge [text=Read]
+E                           Badge [text=Normal]
+E                          Label [text=Expires: 2029-01-01T...]
+E                          Label [text=2026-01-01T00:00:00Z]
+E                       Row
+E                        Button [label=Previous, outline=True, no-caps=True, disable=True]
+E                        Button [label=Next, outline=True, no-caps=True, disable=True]
+E                      Column [visible=False]
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_messaging_workspace" name="test_two_character_mixed_search_keeps_to_and_cc_separate" time="1.723" /></testsuite></testsuites>

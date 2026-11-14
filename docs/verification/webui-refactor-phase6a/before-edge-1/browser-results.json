@@ -1,0 +1,236 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.42",
+  "scope": "relationships",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9181.11
+    },
+    {
+      "name": "relationship catalogue entry, repeated visits, URL and restoration",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4441.94
+    },
+    {
+      "name": "relationship kind tabs, server pagination, sorting and empty search",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 6797.71
+    },
+    {
+      "name": "relationship creation validation, Arabic names and keyboard focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 13151.76
+    },
+    {
+      "name": "relationship editing refreshes data and preserves immutable fields",
+      "language": "en",
+      "status": "fail",
+      "error": "Message: Missing text: Controlled disposable test failure\n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_relationships.py\", line 92, in check_relationships\n    page.click(t('save'), scope=dialog()); page.see(page.t('common.error.conflict'))\n                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 99, in see\n    def see(self,text): self.wait.until(lambda _:text in self.text(),f'Missing text: {text}')\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/support/wait.py\", line 121, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: Missing text: Controlled disposable test failure\n\n",
+      "recent_native_clicks": [
+        {
+          "id": "",
+          "tag": "TH"
+        },
+        {
+          "id": "c175",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c175",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c175",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c177",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c221",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c205",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c206",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c207",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c221",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "",
+          "tag": "DIV"
+        },
+        {
+          "id": "f_c2f8af51-88b6-452f-9f2d-5e92379762f8",
+          "tag": "INPUT"
+        },
+        {
+          "id": "f_c2f8af51-88b6-452f-9f2d-5e92379762f8_1",
+          "tag": "DIV"
+        },
+        {
+          "id": "c210",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c211",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c206",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c221",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c227",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c243",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 26463.7
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "relationships-table-en.png",
+      "sha256": "f67cb117ae369cbfc6a914857e1c38b660c832ff6d6f24cbbad7be920544f171",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-empty-en.png",
+      "sha256": "d5fe7d85600422fcb110f9351a4fecf98fee7ffa374a89555f8c12289c355777",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-required-en.png",
+      "sha256": "04ab8543291fa888d16f313262cef33911cbaa12fac8bac9a482bfd9b9f0ba76",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-create-en.png",
+      "sha256": "36ea49f22654044443599b846ace9d11ee64e70a2a9605e4f62787c8ea4fa19f",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-edit-en.png",
+      "sha256": "a9f17c6174466c5ca7f64368dc4aab23b308cdd332f53406c2a4c4846d1a18fb",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-5.png",
+      "sha256": "1a58f0b6394e7795df1135db35609da6aae677f3c9814101d3c1ab6f7b437e5c",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "browser_errors": [],
+  "focus": [
+    {
+      "language": "en",
+      "from": "english_forward",
+      "to": "english_reverse",
+      "tag": "input"
+    }
+  ]
+}

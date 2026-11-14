@@ -1,0 +1,207 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "classification",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9941.06
+    },
+    {
+      "name": "classification entry, retained preferences, URL and bounded hierarchy",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8458.96
+    },
+    {
+      "name": "inherited retention, details, reload and keyboard editor",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10361.15
+    },
+    {
+      "name": "scheme editing, transfer entry, empty state and restoration",
+      "language": "en",
+      "status": "fail",
+      "error": "Message: Expected exactly one visible button: MS Word\n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_classification.py\", line 66, in check_classification\n    page.click('MS Word')\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 97, in click\n    def click(self,label,scope=None): self.activate(self.button(label,scope))\n                                                    ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 88, in button\n    def button(self, label, scope=None): return self.one('button',label,scope)\n                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 86, in one\n    return self.wait.until(found, f'Expected exactly one visible {selector}: {label}')\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/support/wait.py\", line 121, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: Expected exactly one visible button: MS Word\n\n",
+      "recent_native_clicks": [
+        {
+          "id": "c262",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "f_ffa27b04-14eb-43e6-9b2a-d1c45e060b04",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c295",
+          "tag": "DIV"
+        },
+        {
+          "id": "c324",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c273",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c182",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c389",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c886",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c937",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c890",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 31812.76
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "classification-filtered-tree-en.png",
+      "sha256": "5f06e148fe744f33fa1ad0bea810ca61e460fc9ee13971b63c99e17ae98f0b31",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-paged-branch-en.png",
+      "sha256": "06e220f6ad7e54359a848e0932de6dd3758c5b7a33a59f79e3353f6cb6381910",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-inherited-detail-en.png",
+      "sha256": "72644eadc55ac442162a996c3c753c421eec40931239607e4ae01d6e1ab68069",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-classification-editor-en.png",
+      "sha256": "755333811485854df352655eb73b20ab74a45f0fcc64c3169acb1b1dac4ce0e3",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-scheme-detail-en.png",
+      "sha256": "747237ba8d07a2a015753e397feab999ea3f87059fdbdd17cc21e4c636a75466",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-scheme-editor-en.png",
+      "sha256": "140fdd86455d120432ce092cbe14c2c95895f56c18f8ad503d25efb3e4d7b9f1",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-4.png",
+      "sha256": "d6bb68c3f3da457c9fe29517f043a1420ce7cd499bd911c9ec5e0cecddfdee68",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "browser_errors": [],
+  "classification_focus": [
+    {
+      "language": "en",
+      "tag": "input",
+      "type": "search",
+      "label": "⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇︄︆︁︆︄︆︁︇︄︆︁︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︀︆︁︇︂︆︅︆︎︇︄︅️︆︃︆︌︆︁︇︃︇︃︆︉︆︆︆︉︆︃︆︁︇︄︆︉︆️︆︎⁤︁⁤︁︅⁤Parent classification"
+    }
+  ]
+}

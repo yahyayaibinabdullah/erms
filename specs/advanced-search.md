@@ -3,7 +3,7 @@
 **Status:** Approved  
 **Project:** ERMS / Wathiq  
 **Prepared:** 25 September 2026  
-**Revision:** 1.0 — approved component-metadata-search amendment
+**Revision:** 1.2 — administrator-controlled Advanced Search result limit
 
 **Approved extension:** [Effective retention filters](advanced-search-effective-retention-extension.md)
 — 28 October 2026; one implementation phase, including Arabic translations.
@@ -97,7 +97,6 @@ The visual builder and saved-search API use this versioned document:
 {
   "schema_version": 1,
   "resource_type": "records",
-  "max_results": 1000,
   "request": {
     "where": {
       "and": [
@@ -145,6 +144,14 @@ not expose configurations, dictionaries, weights, SQL, or raw `tsquery`.
 A full-text condition may be nested, negated, or combined with structured
 conditions exactly like any other leaf. A non-indexable full-text value is a
 validation error and must never become an unbounded query.
+
+Full-text query strings use the same chunk-local matching as Global Search.
+AND terms and quoted phrases do not combine evidence across extracted-text
+chunks; a minus-prefixed term excludes it from the matching chunk, not from
+every chunk in the file. These are the approved limitations in
+[Full-Text Search §10.1.1](full-text-search.md#1011-matching-scope-and-multi-chunk-limitations),
+including for saved-search execution. Outer JSON Boolean groups retain their
+existing resource-predicate semantics.
 
 `_relevance` is offered as a sort only when the expression contains a positive
 full-text leaf. When match details are useful, the UI adds
@@ -252,23 +259,69 @@ be persisted in the definition:
 - `offset` other than canonical `0`;
 - cursors;
 - `debug`;
+- runtime `tab_id` and `search_id`;
 - selected result-page number; and
 - returned results, counts, snippets, scores, or index-freshness state.
 
-`max_results` is part of the saved definition. It is the maximum number of
-authorized matching resources that may be returned across all pages of one
-execution. The creator selects a value from `1` through the system-fixed maximum
-of **5,000**; the default is **1,000**. The client cannot raise either the saved
-cap or the system cap while executing the search.
+Application Settings supplies the shared `SEARCH_RESULT_LIMIT` for Global
+Search, Advanced Search, and aggregation/record collection filters. It defaults to 1,000 and accepts values from 1 to
+5,000. Saved definitions created under the former contract may carry a smaller
+`max_results`. Execution uses the lower of that stored value and the
+administrator's current cap. Updates preserve the legacy value. New saved
+definitions follow the administrator's current cap. An older client can send
+the legacy field, but a create or update cannot set or change the limit.
 
-The page size may be persisted as the user's preferred bounded `limit`, but it
-does not change `max_results`. Executing or reopening a saved search always
-begins at offset `0`.
+The page size may be persisted as the user's preferred bounded `limit`.
+Executing or reopening a saved search begins at offset `0`.
 
 Unknown `schema_version` values shall be rejected. A future grammar change that
 cannot execute an older definition shall return a stable
 `saved_search_definition_unsupported` error rather than silently rewriting its
 meaning.
+
+### 4.1 Shared tab result cache
+
+Advanced Search, saved-search execution, Global Search, and aggregation/record
+collection filters use **one replaceable server result list per authenticated
+user, login session and NiceGUI `client.tab_id`**. The list lives in PostgreSQL's
+existing UNLOGGED `search_results_cache` table. Reloads reuse the framework tab
+identifier; duplicated tabs and other devices/logins have independent slots.
+
+Each submission ranks/sorts all authorized candidates in SQL, retains at most
+`SEARCH_RESULT_LIMIT` IDs/scores, and uses the same ordered list for its first
+page. Advanced Search, saved execution and collection-filter responses include
+`search_id`, `result_cap`, `truncated`, and the served `offset`; Global Search
+retains its documented page/cursor response. Paging sends the list identity,
+the same `tab_id`, and the last submitted
+criteria/sort. Unsubmitted builder edits do not change paging. The server checks
+current permissions and criteria for saved IDs before selecting the page;
+display details and capabilities are computed only for that page. New matches
+enter on explicit resubmission or automatic rebuilding, and mutation refreshes
+submit a new search. Ordinary relationship selectors do not replace the slot.
+When the list is still valid, Next reuses its saved order and scores; it does
+not repeat the full-corpus search or ranking. This applies equally to record
+filters and aggregation filters.
+
+The fingerprint includes the endpoint/resource, submitted criteria/sorting,
+display filter, saved-definition version, and cap/idle setting versions. The
+server also checks the user, login, tab and list IDs. A mismatched, expired,
+replaced or lost list silently rebuilds the submitted search and serves the
+requested offset, clamped to the last remaining page if needed. It cannot read
+another search type's list. Saved-search audience/privilege/version checks still
+run on every execution. Missing or revoked login sessions require sign-in.
+
+Global → Advanced → collection filter replaces the slot twice. Returning to
+Advanced and clicking Next rebuilds Advanced, replaces the filter list, and
+serves Advanced's requested page. Other tabs are unaffected. All lists follow
+the idle expiry, login revocation/deletion, setting-change invalidation and
+independent cleanup lifecycle defined in the
+[Global Search cache contract](full-text-search.md#103-global-search-endpoint).
+
+The aggregation/record collection screens now intentionally cap total search
+matches using the same administrator setting (default 1,000, maximum 5,000),
+show the existing truncated-results notice, and allow only page-size selection.
+This changes their former uncapped filtered-results contract. It does not add
+caps to other domain searches, relationship selectors, or hierarchy browsing.
 
 ## 5. Advanced Search page
 
@@ -333,7 +386,9 @@ place the complete query or sensitive search values in the URL.
 The mockup above is the approved conceptual layout and interaction baseline. It
 establishes the nested
 Boolean-group presentation, typed condition rows, full-text treatment, sorting,
-maximum-results control, and primary actions. The task-first ordering in
+and primary actions. Its maximum-results control is superseded by the
+administrator-owned result cap in §4; users cannot choose that limit.
+The task-first ordering in
 section 5.2 supersedes the mockup's earlier always-visible saved-search metadata
 placement. Exact spacing may adapt to the
 implemented Wathiq component system and responsive viewport, but implementation
@@ -415,7 +470,7 @@ logical tab order, screen-reader group descriptions, and Arabic/RTL layout.
 
 ### 5.4 Unsaved changes
 
-Editing the builder, sort, target, or maximum results marks the page dirty,
+Editing the builder, sort, or target marks the page dirty,
 except choosing a target for an otherwise unchanged unsaved search. That target
 switch establishes a fresh clean baseline: switching again, opening a saved
 search, starting a new search, or leaving must not prompt unless other edits
@@ -468,15 +523,21 @@ application process.
 Results use offset/limit pagination because a single advanced search targets
 one existing resource endpoint. The initial page size is 25; allowed choices
 are 25, 50, and 100. The UI provides First, Previous, Next, and Last controls
-and displays **Showing X–Y of Z**. Changing criteria, target, sort, or page size
-returns to offset `0`.
+and displays **Showing X–Y of Z**. Page controls use the criteria, sort, result
+cap, and page size of the last execution. Editing those controls leaves the
+displayed results and current page in place. Submitting with **Search** starts
+at offset `0`. Changing the target clears the current execution.
 
-For a saved search, `offset + limit` may not exceed its `max_results`. The final
-page is shortened when necessary. The API may report that more authorized
-matches exist, but it shall not return them through that saved search. The UI
-then states, for example, **Showing the first 1,000 of 2,438 matches — this
-saved search is limited to 1,000 results**. Raising the saved cap requires an
-authorized update and can never exceed 5,000.
+The server enforces the maximum across all pages for both unsaved and saved
+Advanced Search. Unsaved executions use `POST /api/v1/records/advanced-search`
+or `POST /api/v1/aggregations/advanced-search` with the existing search grammar
+and the administrator-controlled `SEARCH_RESULT_LIMIT`. Saved executions
+apply the lower cap if a legacy definition has one. The server rejects an offset at or beyond the maximum and
+shortens the final page as needed. It stops counting at one more authorized
+match than the maximum, returns a capped `total`, and reports `truncated`
+when more matches exist. The UI indicates when it shows only the first results.
+The normal Records and Aggregations collection filters continue to page over
+all matching results.
 
 The requested sort is respected. The existing compiler appends `id ASC` when
 needed for deterministic pagination. A positive full-text search with no
@@ -584,7 +645,8 @@ principal ID is prohibited.
 - `Save as` is shown only while an existing saved search is open and always
   creates a new owner-scoped search.
 - The user who created a saved search may rename it and update its category,
-  description, and definition, including criteria, sort, and maximum results.
+  description, and definition, including criteria and sort. The result cap is
+  administrator-owned and is not an editable saved-search control.
   This owner right remains available even if the owner later loses the save
   privilege. Ownership cannot be transferred.
 - Only the owner or a user with `search.saved_search.administer` may modify a
@@ -796,7 +858,6 @@ The creation/save dialog contains:
 - optional description;
 - resource target and the visually built criteria;
 - ordered sort fields and directions;
-- maximum total results, defaulting to 1,000 and never exceeding 5,000; and
 - audience selection.
 
 The initial audience is **Only me**. Choosing **Roles or organization units**
@@ -950,7 +1011,7 @@ data volumes.
 | AS-05 | Changing target confirms before resetting an open saved search or unsaved edits; untouched new-search target selection is silent; stored saved searches change only on explicit update | UI interaction tests |
 | AS-06 | Results are card-based, sorted deterministically, and pageable with total/range controls | UI/API pagination tests and live-browser evidence |
 | AS-07 | Record result cards show only components attributed as matches by the executed criteria, preserve each matched component's safe highlighted snippet, and offer governed preview on those rows without enumerating unmatched components | multi-user ACL/clearance, attribution, preview-wiring, and snippet tests |
-| AS-08 | A saved search stores its target, criteria, sort and creator-selected `max_results`, but no page offset, cursor, debug flag, result, count, score, or snippet | schema/API tests |
+| AS-08 | A saved search stores its target, criteria and sort. Existing definitions retain their legacy cap. Definitions exclude page offsets, cursors, debug flags, results, counts, scores and snippets | schema/API tests |
 | AS-09 | Executing a saved search returns fresh results under the executor's current authorization and never grants resource access through sharing | multi-user mutation/authorization tests |
 | AS-10 | A user with `search.saved_search.save` can create searches, use **Save as**, and share an owned search only to their own eligible roles/units | privilege and audience tests |
 | AS-11 | Only the creator or a user with `search.saved_search.administer` can modify a saved search's name, category, description, or definition; administration authority permits arbitrary eligible audience administration but neither deletion nor result-authorization bypass | ownership and negative authorization tests |
@@ -964,7 +1025,7 @@ data volumes.
 | AS-19 | Canonical schema and migration produce equivalent saved-search objects and constraints | disposable-database parity test |
 | AS-20 | Requirement-to-implementation-to-test reconciliation contains no unexplained omissions or unapproved behaviors | traceability review |
 | AS-21 | Category grouping is case-insensitive, preserves display casing, supports Uncategorized, and requires no separately administered category entity | API and UI grouping tests |
-| AS-22 | `max_results` defaults to 1,000, is bounded from 1 through the fixed 5,000 system maximum, limits all pages of an execution, and cannot be overridden at execution | boundary, pagination, and authorization tests |
+| AS-22 | The administrator-set `SEARCH_RESULT_LIMIT` defaults to 1,000 with a maximum of 5,000. The server applies it across all pages, honors smaller legacy saved limits and prevents user overrides | boundary, pagination, and authorization tests |
 | AS-23 | Record searches accept the approved `component.*` metadata fields through ordinary comparison leaves, while aggregation searches reject them and result resources remain records or aggregations | grammar, API, and negative target tests |
 | AS-24 | Component predicates within one `and` scope are correlated to the same authorized digital component, including nested component-only `or` alternatives | multi-component database tests designed to detect false cross-component matches |
 | AS-25 | Component metadata fields use existing typed operators, Boolean nesting and complexity limits, cannot be used as sort fields, and expose no SQL, storage internals, extracted content, or raw component rows | boundary, injection, sorting, and response-contract tests |
@@ -986,8 +1047,8 @@ The product owner approved the following decisions on 25 September 2026:
 
 1. an advanced/saved search targets one resource type, while header search
    remains the mixed-resource experience;
-2. the saved-search result-cap default is 1,000 and the fixed system maximum is
-   5,000;
+2. the administrator-controlled search cap defaults to 1,000 and can be set
+   from 1 through 5,000. Existing saved searches retain smaller limits;
 3. categories are optional creator-defined labels rather than administered
    entities;
 4. organizational-unit audiences include the selected unit directly, not its
@@ -1042,3 +1103,12 @@ clearance/resource access still applies and is checked afresh on every request.
 Erased content and extracted-text indexes remain erased. Retained titles and
 numbers support structured metadata predicates; this does not restore former
 full-text content or backfill already-erased identities.
+
+## Search performance acceptance
+
+All search and filtering implementations must follow the normative
+[search performance contract](../docs/search-performance.md). Use SQL for matching, authorization, ranking and paging;
+reuse batch permission calculations and indexable candidate predicates.
+Changes require the disposable large-data correctness and latency gate: more
+than 50,000 aggregations and 150,000 records, a 1,000-result cap, exact expected
+counts/ranking/order, and every measured response within 3 seconds.

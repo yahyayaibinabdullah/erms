@@ -1,0 +1,37 @@
+--- before/administration_cards.py
++++ after/administration_cards.py
+@@ -80,8 +80,8 @@
+             ui.space()
+             card_first = ui.button(render_message("webui.render_table.button.first_6e0613a1"), icon="first_page").props("flat dense no-caps")
+             card_previous = ui.button(render_message("webui.render_table.button.previous_ff5ac91d"), icon="chevron_left").props("flat dense no-caps")
+-            card_next = ui.button(render_message("webui.render_table.button.next_7c669a6d"), icon="chevron_right").props("flat dense no-caps icon-right")
+-            card_last = ui.button(render_message("webui.render_table.button.last_cb5252cb"), icon="last_page").props("flat dense no-caps icon-right")
++            card_next = ui.button(render_message("webui.render_table.button.next_7c669a6d"), icon="chevron_right").props("flat dense no-caps")
++            card_last = ui.button(render_message("webui.render_table.button.last_cb5252cb"), icon="last_page").props("flat dense no-caps")
+ 
+         def render_governance_cards(*, reset: bool = False) -> None:
+             rows = list(get_rows())
+--- before/login_sessions.py
++++ after/login_sessions.py
+@@ -61,8 +61,8 @@
+                 rows_per_page = ui.select({20: "20", 50: "50", 100: "100"}, value=20, label=render_message("webui.select_login_sessions.select.per_page_a942866a")).props("outlined dense options-dense").classes("w-28")
+                 first_page = ui.button(render_message("webui.select_login_sessions.button.first_3e9443bf"), icon="first_page").props("flat dense no-caps")
+                 previous_page = ui.button(render_message("webui.select_login_sessions.button.previous_6631329f"), icon="chevron_left").props("flat dense no-caps")
+-                next_page = ui.button(render_message("webui.select_login_sessions.button.next_b09718d5"), icon="chevron_right").props("flat dense no-caps icon-right")
+-                last_page = ui.button(render_message("webui.select_login_sessions.button.last_5cfe5c95"), icon="last_page").props("flat dense no-caps icon-right")
++                next_page = ui.button(render_message("webui.select_login_sessions.button.next_b09718d5"), icon="chevron_right").props("flat dense no-caps")
++                last_page = ui.button(render_message("webui.select_login_sessions.button.last_5cfe5c95"), icon="last_page").props("flat dense no-caps")
+ 
+         def client_summary(user_agent: str | None) -> tuple[str, str]:
+             value = user_agent or render_message("webui.client_summary.text.unknown_client_a90618da")
+--- before/text_indexer_details.py
++++ after/text_indexer_details.py
+@@ -200,7 +200,7 @@
+                 credential_summary = ui.label().classes("text-sm text-slate-500")
+                 with ui.row().classes("gap-2"):
+                     credential_previous = ui.button(render_message("webui.select_text_indexer_details.button.previous_86972be8"), icon="chevron_right" if direction() == "rtl" else "chevron_left").props("outline dense no-caps")
+-                    credential_next = ui.button(render_message("webui.select_text_indexer_details.button.next_e284c9ef"), icon="chevron_left" if direction() == "rtl" else "chevron_right").props("outline dense no-caps icon-right")
++                    credential_next = ui.button(render_message("webui.select_text_indexer_details.button.next_e284c9ef"), icon="chevron_left" if direction() == "rtl" else "chevron_right").props("outline dense no-caps")
+ 
+             def render_credentials() -> None:
+                 page = credential_state["page"]

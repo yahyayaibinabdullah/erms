@@ -8,7 +8,7 @@ from frontend.webui.i18n_catalogue import render_message, set_active_messages
 
 def test_security_explanations_follow_current_session_language():
     root = Path(__file__).parents[1]
-    module = ast.parse((root / 'app.py').read_text())
+    module = ast.parse((root / 'security_operations.py').read_text())
     loader = next(node for node in ast.walk(module)
                   if isinstance(node, ast.AsyncFunctionDef)
                   and node.name == 'render_security_operations')
@@ -66,7 +66,7 @@ def test_event_catalogue_covers_emitters_and_preserves_codes():
 
 
 def test_security_refresh_restores_client_context_before_rendering():
-    tree = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    tree = ast.parse((Path(__file__).parents[1] / 'security_operations.py').read_text())
     loader = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef) and n.name == 'load_security_operations')
     assert isinstance(loader.body[0], ast.With)
     assert loader.body[0].items[0].context_expr.id == 'page_client'

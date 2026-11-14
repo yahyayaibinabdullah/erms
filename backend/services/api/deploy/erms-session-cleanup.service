@@ -1,6 +1,8 @@
 [Unit]
-Description=ERMS login-session cleanup worker
+Description=ERMS login-session and search-cache cleanup worker
 Wants=network-online.target
+# Independent of API replicas/restarts. PostgreSQL elects one active process
+# per database; optional copies on other hosts wait as standbys.
 After=network-online.target
 
 [Service]

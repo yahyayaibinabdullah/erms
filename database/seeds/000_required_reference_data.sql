@@ -495,7 +495,11 @@ INSERT INTO public."application_settings" ("id", "key", "value", "protected_secr
  (52, 'SMTP_SENDER_EMAIL', 'null'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
  (53, 'SMTP_SENDER_NAME', 'null'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
  (54, 'SMTP_REPLY_TO_EMAIL', 'null'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
- (55, 'SMTP_TIMEOUT_SECONDS', '30'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL);
+ (55, 'SMTP_TIMEOUT_SECONDS', '30'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
+ (56, 'SEARCH_RESULT_LIMIT', '1000'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
+ (57, 'GLOBAL_SEARCH_CACHE_IDLE_MINUTES', '15'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
+ (58, 'GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS', '60'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
+ (59, 'GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE', '5000'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL);
 SELECT pg_catalog.setval('public.application_settings_id_seq', (SELECT max("id") FROM public."application_settings"), true);
 
 -- application_settings_state

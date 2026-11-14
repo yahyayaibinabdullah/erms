@@ -1,4 +1,5 @@
 """Real NiceGUI events and production selector binding; no database required."""
+from frontend.webui.entity_selectors import build_relationship_selector
 import ast
 import asyncio
 import copy
@@ -12,7 +13,8 @@ from nicegui import ui, background_tasks, events
 from nicegui.testing import User
 
 from frontend.webui.application_settings import settings_page, changed_rows, disposition_warning_panel, DESTINATION_KEYS
-from frontend.webui.app import relationship_options, relationship_search_query
+from frontend.webui.entity_selectors import relationship_options
+from frontend.webui.entity_selectors import relationship_search_query
 from frontend.webui.api_client import ApiError
 from frontend.webui.capabilities import can_navigate
 from frontend.webui.i18n_catalogue import render_message_plain, set_active_messages, strip_diagnostic_metadata
@@ -21,8 +23,6 @@ from backend.services.api.application_settings_registry import REGISTRY
 pytest_plugins = ['nicegui.testing.user_plugin']
 pytestmark = pytest.mark.asyncio
 ROOT = Path(__file__).parents[4]
-BINDING = next(n for n in ast.walk(ast.parse((ROOT/'frontend/webui/app.py').read_text()))
-               if isinstance(n,ast.FunctionDef) and n.name=='bind_remote_relationship_select')
 EN = {i['message_key']:i['default_text'] for i in json.loads((ROOT/'frontend/webui/i18n/messages.en.json').read_text())}
 AR = {i['message_key']:i['translated_text'] for i in json.loads((ROOT/'frontend/webui/i18n/messages.ar.generated.json').read_text())['items']}
 
@@ -90,7 +90,7 @@ async def open_page(user,language='en',configured=False,initial_setting_key=None
                ApiError=ApiError,error_message=str,render_message_plain=render_message_plain,
                relationship_options=relationship_options,relationship_search_query=relationship_search_query,
                strip_diagnostic_metadata=strip_diagnostic_metadata)
-    exec(compile(ast.Module(body=[BINDING],type_ignores=[]),'<settings-selector>','exec'),scope)
+    scope["bind_remote_relationship_select"] = build_relationship_selector(scope["api"], error_message=str)
     @ui.page('/settings-test')
     async def page():
         set_active_messages(AR if language=='ar' else {})

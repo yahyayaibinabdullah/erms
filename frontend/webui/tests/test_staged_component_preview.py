@@ -29,10 +29,8 @@ class Api:
 
 
 def viewer(api):
-    tree=ast.parse(Path(webapp.__file__).read_text());node=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='preview_record_components')
-    namespace={**vars(webapp),'api':api,'error_message':lambda e:'Preview unavailable'}
-    exec(compile(ast.fix_missing_locations(ast.Module(body=[node],type_ignores=[])),webapp.__file__,'exec'),namespace)
-    return namespace['preview_record_components']
+    from frontend.webui.component_preview import build_component_preview
+    return build_component_preview(api=api,error_message=lambda e:'Preview unavailable')
 
 
 class JSResult:
@@ -153,10 +151,10 @@ async def test_api_client_staged_preview_is_a_read_only_binary_get(monkeypatch):
 async def test_saved_viewer_keeps_its_original_capability_controls_and_content_route(host,monkeypatch,download,printing):
     patch_js(monkeypatch)
     class Saved(Api):
-        async def resource_capabilities(self,resource,identity):return dict(view_component=True,download_component=download,print_component=printing)
-        async def component_page(self,identity,**params):
+        async def resource_capabilities(self,resource,identity):return dict(list_components=True,view_component=True,download_component=download,print_component=printing)
+        async def previewable_component_page(self,identity,**params):
             self.calls.append(('page',identity,params))
-            return {'items':[component(status='available')],'total':1}
+            return {'items':[component(status='available')],'total':1,'offset':0}
         async def view_component_pdf(self,identity):self.calls.append(('saved',identity));return PNG
     api=Saved()
     with host:
@@ -165,4 +163,38 @@ async def test_saved_viewer_keeps_its_original_capability_controls_and_content_r
         icons=[e._props.get('icon') for e in dialog.descendants() if isinstance(e,ui.button)]
         assert ('download' in icons)==download and ('print' in icons)==printing
         assert not any(isinstance(e,ui.label) and e.text==render_message_plain('components.staged.preview_hint') for e in dialog.descendants())
-    assert api.calls==[('page',99,{'limit':50,'offset':0}),('saved',1)]
+    assert api.calls==[('page',99,{'limit':50,'selected_component_id':None}),('saved',1)]
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('denied,failed',[(True,False),(False,True)])
+async def test_saved_preview_denial_and_initial_failure_create_no_viewer(host,monkeypatch,denied,failed):
+    patch_js(monkeypatch)
+    class Saved(Api):
+        async def resource_capabilities(self,*args):
+            if failed:raise ApiError(403,'Forbidden')
+            return {'list_components':True,'view_component':not denied}
+        async def previewable_component_page(self,*args,**kwargs):
+            pytest.fail('A denied viewer must not request component metadata')
+    with host:
+        await viewer(Saved())({'id':99})
+        assert not any(isinstance(e,ui.dialog) and e.value for e in host.descendants())
+
+@pytest.mark.asyncio
+async def test_saved_print_and_download_keep_binary_routes_and_mime(host,monkeypatch):
+    from unittest.mock import Mock
+    scripts=patch_js(monkeypatch);download=Mock();monkeypatch.setattr(ui,'download',download)
+    class Saved(Api):
+        async def resource_capabilities(self,*args):return dict(list_components=True,view_component=True,download_component=True,print_component=True)
+        async def previewable_component_page(self,*args,**kwargs):return {'items':[component(status='available',name='image.png')],'total':1,'offset':0}
+        async def view_component_pdf(self,identity):return PNG
+        async def print_component_pdf(self,identity):self.calls.append(('print',identity));return PNG
+        async def download_component(self,identity):self.calls.append(('download',identity));return PNG
+    api=Saved()
+    with host:
+        await viewer(api)({'id':99})
+        dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+        for icon in ('print','download'):
+            await click(next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.props.get('icon')==icon))
+    assert api.calls==[('print',1),('download',1)]
+    download.assert_called_once_with(PNG,'image.png','image/png')
+    assert any('ermsPdfViewer.print(' in script and 'image/png' in script for script in scripts)

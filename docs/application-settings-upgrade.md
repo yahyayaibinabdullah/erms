@@ -262,9 +262,10 @@ them automatically. See configuration-authority-inventory.json and run
 ## Current environment-template reconciliation
 
 The root example, generated API example, standalone indexer example and all
-three deployment templates contain deployment configuration only. All **55**
+three deployment templates contain deployment configuration only. All **59**
 current database-managed settings, including the four request-presentation
-settings added on 27 October 2026, are absent from these files. Configure them
+settings and the four search policy/cleanup settings added in migrations 108
+and 110, are absent from these files. Configure them
 through Administration > Settings; obsolete private environment entries have
 no runtime authority and are not removed automatically.
 
@@ -294,3 +295,66 @@ enabled. See [local trust setup](local-tooling.md#certificate-trust-and-local-fi
 Deployment environment changes require restarting the affected service;
 database setting edits follow the existing cache policy. This reconciliation
 adds no variables and requires no private `.env` edits or database migration.
+
+
+## Search limit and Global Search cache timeout (108)
+
+Apply migration `108_search_application_settings` after 107 before deploying
+the updated API and WebUI. It registers `SEARCH_RESULT_LIMIT` (default 1,000,
+range 1–5,000) and `GLOBAL_SEARCH_CACHE_IDLE_MINUTES` (default 15, minimum 1).
+The new settings use the normal Application Settings refresh rules. The
+cache uses the earlier of its idle deadline and login expiry. If the list is
+gone and the user is still signed in, paging rebuilds it and serves the
+requested page if it still exists. Saved searches
+with a legacy smaller limit retain it. No environment settings are needed.
+
+## Independent search-cache cleanup (110)
+
+Apply `110_search_cache_cleanup_settings` after 109 before starting the updated
+API and cleanup worker. It adds two settings under **Search and indexing**:
+`GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS` (60) and
+`GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE` (5,000). Both require positive integers;
+the batch counts cached lists, one per browser tab/login, not search hits.
+Existing configured values are preserved. Fresh installations use the canonical
+schema and required reference-data seed, with no migration includes.
+
+These values belong in PostgreSQL Application Settings, not any `.env` file.
+The worker still reads database connection/bootstrap configuration from
+`/etc/erms/api.env` in production and the launcher's selected `.env` locally.
+No environment template or private environment value changes. Restart once to
+load the new worker code; later settings edits take effect within the normal
+30-second refresh window while idle. Login retention/cleanup settings and cache
+idle expiry remain unchanged.
+
+For the current independent-worker deployment, stop all old cleanup copies,
+install the updated worker code and **both** `erms-api.service` and
+`erms-session-cleanup.service`, reload systemd, then re-enable and start cleanup.
+Re-enabling replaces its old API-service link with the system boot-target link.
+API restart is not required. Remove old scheduled copies and any site-specific
+API lifecycle dependencies. This leadership change needs no additional migration
+or environment setting. Optional updated copies wait as standbys; each holds
+one database connection. See the
+[production lifecycle procedure](deployment.md#separate-systemd-services).
+Four English message keys and four generated Arabic drafts cover the new labels
+and descriptions; existing translations/provenance are preserved. Synchronize
+definitions and seed missing drafts with the existing `--missing-only` utility;
+the new drafts require review and are not published automatically.
+
+## Shared search cache and collection caps (migration 111)
+
+Stop/restart the API and independent cleanup worker as one deployment unit around
+`111_shared_search_results_cache.sql`. It renames `global_search_results` to
+`search_results_cache` in place and preserves its rows, UNLOGGED storage, indexes,
+(session_id, tab_id) key and login-session deletion cascade. Old binaries still
+refer to the old name and must not remain running after migration. New databases
+use the canonical schema and updated baseline directly.
+
+Restart WebUI to activate NiceGUI tab IDs and shared caching for Global Search,
+Advanced Search/saved-search execution, and aggregation/record collection filters.
+These filters now use the existing `SEARCH_RESULT_LIMIT` (default 1,000; maximum
+5,000). The settings whose persisted keys start `GLOBAL_SEARCH_CACHE_` retain
+those keys and current values for compatibility; their UI labels now say Search
+results cache and their idle/cleanup policy covers every search type in the slot.
+No environment variables are added or renamed. This migration does not apply
+itself during local stack startup; apply it explicitly before restarting updated
+services. Arabic wording changes remain drafts for administrator review.

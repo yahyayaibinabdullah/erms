@@ -1,0 +1,64 @@
+{
+  "status": "paused at user request",
+  "branch": "refactor-API-python-file",
+  "head": "9fdf51279e1db78597118c2df05b3467c8b7190e",
+  "commits_created": false,
+  "all_changes_local_and_uncommitted": true,
+  "runtime_changes": [
+    "frontend/webui/app.py",
+    "frontend/webui/session_context.py"
+  ],
+  "passing_tests": {
+    "unit": 1630,
+    "interaction": 432,
+    "assembled_real_api": 74
+  },
+  "passing_native_runs": [
+    {
+      "browser": "chrome",
+      "scope": "full",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/full-chrome"
+    },
+    {
+      "browser": "edge",
+      "scope": "full",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/full-edge"
+    },
+    {
+      "browser": "chrome",
+      "scope": "session",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/session-chrome-resumed"
+    },
+    {
+      "browser": "edge",
+      "scope": "session",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/session-edge"
+    }
+  ],
+  "all_disposable_databases_removed": 7,
+  "owned_processes_remaining": false,
+  "partial_runs": [
+    "session-chrome (execution interruption; recovered cleanup)",
+    "application-chrome (stopped at user request; normal runner cleanup)"
+  ],
+  "pending": [
+    "Fresh application journeys Chrome/Edge",
+    "Keyboard journeys Chrome/Edge",
+    "Collections journeys Chrome/Edge",
+    "Dedicated translations/Inspector journeys Chrome/Edge, English/Arabic",
+    "Visual/focus comparisons and review",
+    "Sequential original/current ABBA performance series; 20% AND 100 ms gate",
+    "Final cleanup audit, archive, verification report and prioritized defect handoff"
+  ],
+  "resume_notes": [
+    "Do not restart either existing queue blindly: output directories already exist. Preserve the four completed native runs and use fresh outputs for partial runs.",
+    "Adding the two translations scopes requires adjusting performance-queue.py/archive.py expected functional-run counts from 10 to 12 and adding their baseline comparisons from Phase 6J.",
+    "No application source changed after passing full suites. Check source-audit.json hashes before reusing evidence.",
+    "Do not mark complete while pending gates remain. No further work until user resumes."
+  ],
+  "unrelated_file_left_untouched": "specs/dashboard-records-and-creation.md appeared during this task; not created or modified by this task."
+}

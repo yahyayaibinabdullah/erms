@@ -1,20 +1,29 @@
+from frontend.webui.tests.search_sources import search_sources
+from frontend.webui.tests.record_sources import record_sources
 import pytest
 from pathlib import Path
+from frontend.webui.tests.aggregation_sources import aggregation_sources
 from frontend.webui.tests.localization_assertions import with_english_messages
 
-from frontend.webui.app import (
-    advanced_search_depth, advanced_search_has_positive_full_text,
-    advanced_search_leaf_count, advanced_search_node_from_expression,
-    advanced_search_operators, advanced_search_field_options,
-    advanced_search_empty_value, advanced_search_has_component_field,
-    compile_advanced_search_node,
-)
+from frontend.webui.advanced_search_model import advanced_search_depth
+from frontend.webui.advanced_search_model import advanced_search_has_positive_full_text
+from frontend.webui.advanced_search_model import advanced_search_leaf_count
+from frontend.webui.advanced_search_model import advanced_search_node_from_expression
+from frontend.webui.advanced_search_model import advanced_search_operators
+from frontend.webui.advanced_search_model import advanced_search_field_options
+from frontend.webui.advanced_search_model import advanced_search_empty_value
+from frontend.webui.advanced_search_model import advanced_search_has_component_field
+from frontend.webui.advanced_search_model import compile_advanced_search_node
 
 
 APP_SOURCE = with_english_messages(
-    (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8")
+    (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8") + aggregation_sources() + record_sources() + search_sources()
 )
 
+
+SELECTOR_SOURCE = with_english_messages((Path(__file__).parents[1] / 'entity_selectors.py').read_text())
+CLASSIFICATION_SOURCE = with_english_messages((Path(__file__).parents[1] / 'classification_selectors.py').read_text())
+COMPACT_SOURCE = with_english_messages((Path(__file__).parents[1] / 'compact_resource_view.py').read_text())
 
 def test_nested_builder_compiles_existing_boolean_and_full_text_grammar():
     tree = {"type": "group", "operator": "and", "children": [
@@ -102,10 +111,10 @@ def test_component_guidance_is_contextual_to_component_conditions():
 
 
 def test_advanced_search_restores_the_workspace_across_result_drill_down():
-    assert 'restored_workspace = state.get("advanced_search_workspace")' in APP_SOURCE
+    assert 'restored_workspace = advanced_search_state.get("advanced_search_workspace")' in APP_SOURCE
     assert 'workspace["last_result"] = copy.deepcopy(result)' in APP_SOURCE
-    assert 'state["advanced_search_workspace"] = copy.deepcopy(workspace)' in APP_SOURCE
-    assert APP_SOURCE.count('state.pop("discard_navigation_guard", None)') >= 4
+    assert 'advanced_search_state["advanced_search_workspace"] = copy.deepcopy(workspace)' in APP_SOURCE
+    assert APP_SOURCE.count('state.pop("discard_navigation_guard", None)') + APP_SOURCE.count("discard_navigation_guard()") >= 4
     assert 'render_results(workspace["last_result"])' in APP_SOURCE
     assert 'workspace["return_anchor"] = f"compact-result-records-{int(identifier)}"' in APP_SOURCE
     assert 'workspace["return_anchor"] = f"compact-result-aggregations-{int(identifier)}"' in APP_SOURCE
@@ -180,15 +189,15 @@ def test_restored_advanced_search_selectors_reject_stale_values_before_rendering
     assert 'if workspace.get("limit") not in {25, 50, 100}:' in APP_SOURCE
     assert 'load_selected_roles(selected_role_ids)' in APP_SOURCE
     assert 'load_selected_units(selected_unit_ids)' in APP_SOURCE
-    assert 'selected_loader(int(value))' in APP_SOURCE
-    assert 'if not active() or getattr(control, "_deleted", False):' in APP_SOURCE
+    assert 'selected_loader(int(value))' in SELECTOR_SOURCE
+    assert 'if not active() or getattr(control, "_deleted", False):' in SELECTOR_SOURCE
 
 
 def test_restored_relationship_values_are_resolved_to_localized_labels():
-    assert 'async def resolve_selected_options()' in APP_SOURCE
-    assert 'else api.get(resource, int(value))) for value in selected_values' in APP_SOURCE
-    assert 'include_level_number=resource == "security-levels"' in APP_SOURCE
-    assert 'level_label=security_level_label' in APP_SOURCE
+    assert 'async def resolve_selected_options()' in SELECTOR_SOURCE
+    assert 'else api.get(resource, int(value))) for value in selected_values' in SELECTOR_SOURCE
+    assert 'include_level_number=resource == "security-levels"' in SELECTOR_SOURCE
+    assert 'level_label=security_level_label' in SELECTOR_SOURCE
     assert 'selected_label = str(node.get("_value_label") or "…")' in APP_SOURCE
     assert '({int(selected_value): selected_label} if selected_value is not None else {})' in APP_SOURCE
     assert '"_value_label", options[int(condition["value"])]' in APP_SOURCE
@@ -228,7 +237,7 @@ def test_saved_search_dialog_never_uses_system_inventory():
     advanced_search = APP_SOURCE[APP_SOURCE.index("async def select_advanced_search"):]
     dialog = advanced_search[advanced_search.index("async def open_saved_search_dialog"):]
     assert "administrator = False" in dialog
-    assert 'administrative_all = administrator and scope_control.value == "all"' in dialog
+    assert 'administrative_all = administrator and scope == "all"' in dialog
     assert 'api.saved_search_administration(**params) if administrative_all' in dialog
     assert 'ui.button("Administration"' not in advanced_search
     assert 'Saved-search administration' not in dialog
@@ -254,10 +263,8 @@ def test_advanced_search_uses_clearable_catalogues_and_classification_aggregatio
 
 def test_record_component_attributions_open_the_governed_viewer():
     assert "Preview digital component" in APP_SOURCE
-    assert 'preview_record_components(selected, component_id)' in APP_SOURCE
-    assert 'workspace["record_component_details"] = {' in APP_SOURCE
+    assert 'preview_record_components(selected, component_id)' in COMPACT_SOURCE
     assert 'for component in search_meta.get("matching_components", [])' in APP_SOURCE
-    assert '{**authorized_component_details.get(int(component["id"]), {}), **component}' in APP_SOURCE
     assert 'workspace["record_capabilities"] = {' in APP_SOURCE
 
 
@@ -269,14 +276,14 @@ def test_advanced_search_builder_and_results_use_compact_aligned_layouts():
     assert 'render_compact_resource_result(' in APP_SOURCE
     assert '.compact-result-row {' in APP_SOURCE
     assert 'grid-template-areas: "identity actions";' in APP_SOURCE
-    assert 'with ui.element("div").classes("compact-result-identity"):' in APP_SOURCE
+    assert 'with ui.element("div").classes("compact-result-identity"):' in COMPACT_SOURCE
     rtl_result_layout = APP_SOURCE.split('html[dir="rtl"] .compact-result-row {', 1)[1].split('}', 1)[0]
     assert 'grid-template-areas: "actions identity";' in rtl_result_layout
     rtl_identity_layout = APP_SOURCE.split('html[dir="rtl"] .compact-result-identity {', 1)[1].split('}', 1)[0]
     assert 'grid-template-areas: "title type";' in rtl_identity_layout
     assert 'justify-content: end;' in rtl_identity_layout
-    assert 'compact-result-primary w-full items-center no-wrap' in APP_SOURCE
-    assert 'compact-result-meta w-full items-center no-wrap' in APP_SOURCE
+    assert 'compact-result-primary w-full items-center no-wrap' in COMPACT_SOURCE
+    assert 'compact-result-meta w-full items-center no-wrap' in COMPACT_SOURCE
     rtl_result_title_row = APP_SOURCE.rsplit('html[dir="rtl"] .compact-result-primary,', 1)[1].split('}', 1)[0]
     assert 'justify-content: flex-start !important;' in rtl_result_title_row
     assert 'width: auto !important;' in rtl_result_title_row
@@ -287,7 +294,7 @@ def test_advanced_search_builder_and_results_use_compact_aligned_layouts():
     assert 'flex-direction: row !important;' in rtl_result_actions
     assert '.compact-result-type {' in APP_SOURCE
     assert '.compact-result-actions { grid-area: actions; flex-wrap: nowrap; gap: 0; }' in APP_SOURCE
-    assert 'ui.button(icon=tree_expander_icon(False))' in APP_SOURCE
+    assert 'ui.button(icon=tree_expander_icon(False))' in COMPACT_SOURCE
 
 
 def test_advanced_search_builder_mirrors_its_structure_in_rtl():
@@ -311,12 +318,10 @@ def test_each_advanced_search_preview_is_attributed_to_its_component():
         APP_SOURCE.index("def render_results(result:"):
         APP_SOURCE.index("async def open_advanced_record")
     ]
-    assert 'displayed_components = (' in result_renderer
-    assert 'matching_components if uses_full_text' in result_renderer
-    assert 'else list(authorized_component_details.values())' in result_renderer
-    assert 'components=displayed_components' in result_renderer
-    assert 'record_capabilities.get("list_components") and displayed_components' in result_renderer
-    assert 'record_capabilities.get("view_component")' in result_renderer
+    assert 'components=matching_components if uses_full_text else None' in result_renderer
+    assert 'component_total=component_count' in result_renderer
+    assert 'record_capabilities.get("list_components")' in result_renderer
+    assert 'record_capabilities.get("has_previewable_component")' in result_renderer
 
 
 def test_advanced_results_include_medium_and_component_indicators_without_parent_link():
@@ -342,21 +347,24 @@ def test_classification_browse_selectors_sort_each_level_by_code():
     code_order = '''rows.sort(key=lambda item: (
                     str(item.get("code") or "").casefold(), int(item.get("id") or 0),
                 ))'''
-    assert APP_SOURCE.count(code_order) >= 2
+    assert ' '.join(CLASSIFICATION_SOURCE.split()).count(' '.join(code_order.split())) >= 2
 
 
 def test_classification_browse_selectors_mirror_navigation_icons_in_rtl():
-    assert APP_SOURCE.count(
+    assert CLASSIFICATION_SOURCE.count(
         'ui.icon("check_circle" if classification["is_terminal"] else tree_expander_icon(False)'
     ) == 1
-    assert APP_SOURCE.count(
+    assert CLASSIFICATION_SOURCE.count(
         'ui.icon("check_circle" if item["is_terminal"] else tree_expander_icon(False)'
     ) == 1
-    assert APP_SOURCE.count(
-        'icon="arrow_forward" if current_direction["value"] == "rtl" else "arrow_back"'
+    assert CLASSIFICATION_SOURCE.count(
+        'icon="arrow_forward" if direction() == "rtl" else "arrow_back"'
     ) >= 2
-    assert 'current_direction["value"] = normalized' in APP_SOURCE
-    assert "aria-label='Open {'record' if is_record else 'aggregation'}'" in APP_SOURCE
+    assert 'set_direction=lambda value: current_direction.__setitem__("value", value)' in APP_SOURCE
+    direction_source=(Path(__file__).parents[1]/"account_localization.py").read_text()
+    assert "normalized = normalize_direction(direction)" in direction_source
+    assert "set_direction(normalized)" in direction_source
+    assert "aria-label='Open {'record' if is_record else 'aggregation'}'" in COMPACT_SOURCE
 
 
 @pytest.mark.parametrize('resource',['records','aggregations'])
@@ -369,7 +377,8 @@ def test_disposition_filter_available_only_for_governance_and_compiles_existing_
 
 
 def test_effective_retention_filters_round_trip_and_validate_typed_values():
-    from frontend.webui.app import ADVANCED_SEARCH_FIELDS, ADVANCED_SEARCH_CONTROLLED_VALUES
+    from frontend.webui.app import ADVANCED_SEARCH_CONTROLLED_VALUES
+    from frontend.webui.advanced_search_model import ADVANCED_SEARCH_FIELDS
     prefix = 'effective_retention.'
     fields = {prefix+'current_period_years', prefix+'intermediate_period_years', prefix+'final_disposition'}
     assert fields <= advanced_search_field_options('aggregations').keys()

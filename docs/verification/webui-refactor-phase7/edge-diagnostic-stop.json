@@ -1,0 +1,13 @@
+{
+  "controller_pids": [
+    48541
+  ],
+  "owned_runners": [
+    {
+      "pid": 56845,
+      "command": "backend/services/api/.venv/bin/python .runtime/webui-refactor-phase7/run-original-ui.py --browser edge --browser-scope performance --output .runtime/webui-refactor-phase7/performance-clean-edge-4-original"
+    }
+  ],
+  "reason": "Stop verbose diagnostic timings; standardize Edge driver selection and warning-only logs before repeating the complete Edge ABBA series. Observed browser version stayed at 157.0.4341.42; driver selection changed from .42 to .46.",
+  "cleanup": "Owning runner received SIGTERM and retains its finally cleanup."
+}

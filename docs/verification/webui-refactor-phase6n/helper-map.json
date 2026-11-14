@@ -1,0 +1,38 @@
+{
+  "moved": [
+    {
+      "name": "relationship_cell",
+      "module": "resource_row_presentation",
+      "original": "def relationship_cell(item: dict[str, Any] | None, *, number_field: str | None = None) -> dict[str, Any] | None:\n    if item is None:\n        return None\n    localized = item.get(\"localized\") or {}\n    code = item.get(\"code\") or (item.get(number_field) if number_field else None)\n    return {\n        \"name\": (\n            localized.get(\"name\") or localized.get(\"title\")\n            or item.get(\"name\") or item.get(\"title\")\n            or f\"Item {item['id']}\"\n        ),\n        \"code\": code,\n    }\n"
+    },
+    {
+      "name": "decorate_relationship_rows",
+      "module": "resource_row_presentation",
+      "original": "def decorate_relationship_rows(\n    resource: str,\n    rows: list[dict[str, Any]],\n    related_rows: list[dict[str, Any]] | None = None,\n) -> list[dict[str, Any]]:\n    related_by_id = {item[\"id\"]: item for item in (related_rows or rows)}\n    decorated = []\n    for row in rows:\n        item = dict(row)\n        if resource == \"org-units\":\n            item[\"parent_org_unit_display\"] = relationship_cell(\n                related_by_id.get(row.get(\"parent_org_unit_id\"))\n            )\n        elif resource == \"roles\":\n            item[\"org_unit_display\"] = relationship_cell(\n                related_by_id.get(row.get(\"org_unit_id\"))\n            )\n        elif resource == \"records\":\n            item[\"aggregation_display\"] = relationship_cell(\n                related_by_id.get(row.get(\"aggregation_id\")),\n                number_field=\"aggregation_number\",\n            )\n        decorated.append(item)\n    return decorated\n"
+    },
+    {
+      "name": "RECORD_DETAIL_HEADER_CLASSES",
+      "module": "record_presentation",
+      "original": "RECORD_DETAIL_HEADER_CLASSES = \"w-full items-center gap-3 no-wrap\"\n"
+    },
+    {
+      "name": "RECORD_DETAIL_TITLE_CLASSES",
+      "module": "record_presentation",
+      "original": "RECORD_DETAIL_TITLE_CLASSES = \"gap-0 grow min-w-0\"\n"
+    },
+    {
+      "name": "RECORD_UPLOAD_WAIT_MESSAGE",
+      "module": "record_presentation",
+      "original": "RECORD_UPLOAD_WAIT_MESSAGE = render_message(\"webui.module.text.please_wait_until_all_files_have_finished_65b4bf18\")\n"
+    },
+    {
+      "name": "record_draft_component_context",
+      "module": "record_editor",
+      "original": "def record_draft_component_context(\n    aggregation_id: Any, medium: Any,\n) -> dict[str, Any]:\n    \"\"\"Return the persisted draft context required before staging content.\"\"\"\n    if aggregation_id in (None, \"\") or medium in (None, \"\"):\n        raise ValueError(\n            \"Select the parent aggregation and record medium before adding digital files.\"\n        )\n    return {\"aggregation_id\": int(aggregation_id), \"medium\": str(medium)}\n"
+    }
+  ],
+  "hook": {
+    "name": "configure_record_medium",
+    "original": "                aggregation_rows = lookup_rows_by_field.get(\"aggregation_id\", [])\n\n                def constrain_edited_record_medium() -> None:\n                    parent = next(\n                        (item for item in aggregation_rows\n                         if item[\"id\"] == controls[\"aggregation_id\"].value),\n                        None,\n                    )\n                    medium_control = controls[\"medium\"]\n                    if not parent:\n                        return\n                    parent_medium = parent.get(\"medium\", \"mixed\")\n                    if parent_medium == \"mixed\":\n                        medium_control.set_options(\n                            medium_options(), value=medium_control.value or \"mixed\",\n                        )\n                        medium_control.enable()\n                    else:\n                        medium_control.set_options(\n                            {parent_medium: medium_options()[parent_medium]}, value=parent_medium,\n                        )\n                        medium_control.disable()\n                    medium_control.update()\n\n                controls[\"aggregation_id\"].on_value_change(\n                    lambda _: constrain_edited_record_medium()\n                )\n                constrain_edited_record_medium()\n"
+  }
+}

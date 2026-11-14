@@ -1,0 +1,2516 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.42",
+  "scope": "keyboard",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9731.47
+    },
+    {
+      "name": "General forward and reverse Tab order, validation and save focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9934.82
+    },
+    {
+      "name": "Category keyboard selection and focus observation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 529.26
+    },
+    {
+      "name": "Email dialog forward/reverse traversal, validation and close focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 7865.55
+    },
+    {
+      "name": "Classification dialog keyboard order and close focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 3120.35
+    },
+    {
+      "name": "Breadcrumb, custody and audit navigation focus baseline",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 7989.24
+    },
+    {
+      "name": "General forward and reverse Tab order, validation and save focus",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 8991.33
+    },
+    {
+      "name": "Category keyboard selection and focus observation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 649.71
+    },
+    {
+      "name": "Email dialog forward/reverse traversal, validation and close focus",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 7716.92
+    },
+    {
+      "name": "Classification dialog keyboard order and close focus",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 2985.82
+    },
+    {
+      "name": "Breadcrumb, custody and audit navigation focus baseline",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 7325.06
+    },
+    {
+      "name": "keyboard journey browser errors and API failures",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 4.99
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "focus-en-reason-tab.png",
+      "sha256": "d805f6c8bf8428b18c45f1b13bc9de0860fc2ed43f1e4aa3e0d8228765b02fd4",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-save-tab.png",
+      "sha256": "1b603f0a273ac8bdd6eca343aa78c182fee99c578de26c802729bf8467bda963",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-number-reverse-tab.png",
+      "sha256": "991916a0d59f04b9c6bcb392990c1cc7af492edd854482c9d6d857cce194d54a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-required-reason-validation.png",
+      "sha256": "020d9a59bfaf012dd98ecd4a81194ca8710a1a608dd7bd38cceb0821b3d87496",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-category-enter.png",
+      "sha256": "cce391ab3970d9b31cb6cdd722c5c9f5de76f22dc50667391d94a51048dfe6bf",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-open.png",
+      "sha256": "3fe6d838f7b1f32d805b36ae6eda1c7a0a9a1f6903690b965c0317c7c2f38834",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-tab-0.png",
+      "sha256": "dea7d239e3ec3d9dc458089d06beee9ecb24b2eacfa9f345acc4837d156c17b3",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-tab-1.png",
+      "sha256": "29228d162372ccfcc459aca6d1f93b4362d5689f23887d7550e876a520a73efe",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-tab-2.png",
+      "sha256": "bb5f2daa09ceb53b52595c84b4721cb2dee089df4083413d50b77fa3dbb30a5a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-tab-3.png",
+      "sha256": "a98923aa302d198463d2aa29f5a4667d2ed3ea10a8711c201eb19e5ffb03cdc0",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-reverse-tab-0.png",
+      "sha256": "a1f8fbebee3c6d961792f7aa186a13c764caec332db2bb51fcd3f6807716f258",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-reverse-tab-1.png",
+      "sha256": "264b29ff03534f4616142d685c39c41bfb2509a94c06d1414d7d6678fda89d7a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-reverse-tab-2.png",
+      "sha256": "de8033a57d7e50c125aa8ca47f34112cd1b514e1a99db34525a3e4750bcc2006",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-reverse-tab-3.png",
+      "sha256": "9a941b9ed06e169599a79318ef479338108888f1078b39fc65a01a2fdcdaaaf3",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-invalid-recipient.png",
+      "sha256": "af038c01a12567087e5f41445537f76c70e80503ddc7cc4e8cf99c34241c16e5",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-escape-return.png",
+      "sha256": "fc3331b598276696a59f4608df0faf660946b6297b17364174a8135ac6091b57",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-next-tab.png",
+      "sha256": "c633a0ce1052f40294dd75b075153c3dc630753993debfd70144a46fa4ff863c",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-browse-open.png",
+      "sha256": "063782d3b658b6d6b839318f75931e0f2311db09b2e8dae5d8f145d25d86668d",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-browse-tab.png",
+      "sha256": "563ef89fc94d832a87114fb472b280a675f0bf30b9cc040a270c2f75b09ac142",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-browse-next-tab.png",
+      "sha256": "60e0773bf8d8f1291dd09e90358e057c58a98bdf0fd5ddd46be453f338b346eb",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-browse-escape-return.png",
+      "sha256": "5e80e9d7d98b3a0a71acb45ca11ae079c752653b7fc4ed5cfc0cdbcbeab2bdf6",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-drawer-return.png",
+      "sha256": "5f7749b03e06c3b4953af38f452a99b427bae7e2e3a39c29b1851716a66fb2c5",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-breadcrumb-return.png",
+      "sha256": "79fb55d05e8655be83ff10847acf5d7034f50c107d587c83224e2b4192c0d26c",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-breadcrumb-next-tab.png",
+      "sha256": "e30ff2f19cc5ac57fa1047e2ea909cc2cd5c0d98a6e4f5ddaf176197cee8abff",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-custody-return.png",
+      "sha256": "8e93bb6971a31d22a5e1a53675fb2fc78b29cd4868661d43bfe5339679e002dc",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-audit-return.png",
+      "sha256": "a6f96fcce882d7b2e077c26810c55798984c9b076514bbe9a7a51b2d0fb7cb6a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [
+        "Audit-event timestamps reflect the real run"
+      ],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-audit-next-tab.png",
+      "sha256": "c253fdf445da8b653f1836738628b7d28bd598f684a5be560647c31036546716",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [
+        "Audit-event timestamps reflect the real run"
+      ],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-reason-tab.png",
+      "sha256": "228a3c88e92d278e7ffe63da1fca0b93f19379fcef864f3c5393028097678bf2",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-save-tab.png",
+      "sha256": "94acc49eca4e484b606b1cc51bbc9edc4bae9e3ccc4cdcbaf9601bf5f063f8a2",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-number-reverse-tab.png",
+      "sha256": "c9c433771aa3dee2826ed79a100ec989cd86a554905ec1e61ed7661788a8d801",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-required-reason-validation.png",
+      "sha256": "2574b9bf224e5cc245883ddc9828f1b7314fcda9adad3398691238b366c5d5f9",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-category-enter.png",
+      "sha256": "207f5e71cfd36a841664e07987ece65d14bb73c3762a3b378eace3b612da3ad5",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-open.png",
+      "sha256": "4bade1a18a3491a48f54338b90dbb22a9b7551fd5644e0c61c06ab9397c09350",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-tab-0.png",
+      "sha256": "15e042d3198242434c1e1f2b93f04a17358986f653e418bd509ea44c18d5e483",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-tab-1.png",
+      "sha256": "32b1f1752dc4e945c69b52a8232d0c62a236237d749ebeeb952105b291de2239",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-tab-2.png",
+      "sha256": "80394af9e34751627fe0f3efc2525539d4dbb75b4f08f08c666051a7d921c0de",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-tab-3.png",
+      "sha256": "55afd8e013b68d63637ffbb76aa249d2dc8e3c13157a63c1986abaa5a0e9295d",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-reverse-tab-0.png",
+      "sha256": "5d6ae4a9629761be585d9de1693c669963f3b6b90d8ec010fe4a0d5f300ff5dd",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-reverse-tab-1.png",
+      "sha256": "4217ea48dc0e2167af926bc723bacd022ed5ae6ac53c0e2666846e1f389bb5d4",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-reverse-tab-2.png",
+      "sha256": "24b7e2e48c97e49d360e0561e3e0c73b7bae0a6eb1b8d8ff06d189183c8bddc4",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-reverse-tab-3.png",
+      "sha256": "0037391d4accc1c0b11a6224bf1029a698e466948bbda34d8b32833556bb6dd8",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-invalid-recipient.png",
+      "sha256": "e4c7eac54166fed5f13d297f2c63c1731e9b576cb24dedecf5e606fb3c5f05ab",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-escape-return.png",
+      "sha256": "a9b60ff8cc03d3b18848ee2ef44fab254a728d6b58ae537cdb7cafe62a168ab6",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-email-next-tab.png",
+      "sha256": "5b5a88b1a535786e79b56d44dd966c12e2554719d853d115b24a5047795a80ca",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-browse-open.png",
+      "sha256": "e1827b31f6ba41f82c401e650b4792c80354574d925b1ccfaa1636514f0a89ec",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-browse-tab.png",
+      "sha256": "79727ccd626be36d480b66831bab61fedca5da8c1172f7dbc93f9e0b076e7339",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-browse-next-tab.png",
+      "sha256": "2c47ca37bbbf144394f3c6666604c931149f441fe009a047fa49af24cc6689f3",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-browse-escape-return.png",
+      "sha256": "52e88b0fbbde9d05ecf5a10bbc0b65dcecd307365e14bddbe8517214a1a63eaf",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-drawer-return.png",
+      "sha256": "a4257d2cba6a303810f2c431dad4ccf9de74f49882181d44e8463b0858114645",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-breadcrumb-return.png",
+      "sha256": "6ab917324981b9785257d1fe4fb4284a38ffa5585a245205aecb43af744e654f",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-breadcrumb-next-tab.png",
+      "sha256": "d10aee36f269e171b5a8c7e63c52ca5d02e93e9ba859ef20e7ec3e5fd439cb98",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-custody-return.png",
+      "sha256": "002607684890102a62a1e68a91f662fd42d5d62788079c344807f4996acf42fe",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-audit-return.png",
+      "sha256": "4e58dad7332605db75164434cd3bf9e12cf138242e7dd2913f424e9f35477884",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [
+        "Audit-event timestamps reflect the real run"
+      ],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-ar-audit-next-tab.png",
+      "sha256": "e5ad401c8e3966ecffb57e08198b1dd23269bbf4db0279dcb4ffef71a1a5b9e5",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [
+        "Audit-event timestamps reflect the real run"
+      ],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": true,
+  "keyboard_observations": [
+    {
+      "name": "reason-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c497",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "Reason for change (required)",
+      "rect": {
+        "height": 40,
+        "width": 1002,
+        "x": 369,
+        "y": 738.234375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-en-reason-tab.png"
+    },
+    {
+      "name": "save-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c500",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "save\nSave",
+      "rect": {
+        "height": 36,
+        "width": 97.046875,
+        "x": 1285.953125,
+        "y": 810.234375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-save-tab.png"
+    },
+    {
+      "name": "number-reverse-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c495",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted q-field--with-bottom w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "Review warning window",
+      "rect": {
+        "height": 40,
+        "width": 479,
+        "x": 369,
+        "y": 563.234375
+      },
+      "role": null,
+      "setting": "REVIEW_WARNING_WINDOW_DAYS",
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-en-number-reverse-tab.png"
+    },
+    {
+      "name": "required-reason-validation",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c500",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "save\nSave",
+      "rect": {
+        "height": 36,
+        "width": 97.046875,
+        "x": 1285.953125,
+        "y": 830.234375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-required-reason-validation.png"
+    },
+    {
+      "name": "saved-setting",
+      "language": "en",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1000,
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true
+    },
+    {
+      "name": "category-enter",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c463",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "Content and document viewing",
+      "rect": {
+        "height": 48,
+        "width": 222.4375,
+        "x": 601.953125,
+        "y": 349.734375
+      },
+      "role": "tab",
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-en-category-enter.png"
+    },
+    {
+      "name": "email-open",
+      "language": "en",
+      "focusVisible": true,
+      "id": "",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "Test Send\nUses the saved SMTP settings. Save any changes first. Enter the address that should receive the test email.\nRecipient email address\nClose\nsend\nSend test email",
+      "rect": {
+        "height": 1000,
+        "width": 1425,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-en-email-open.png"
+    },
+    {
+      "name": "email-tab-0",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c785",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.218028",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "Close",
+      "rect": {
+        "height": 36,
+        "width": 64.6875,
+        "x": 699.703125,
+        "y": 570.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-email-tab-0.png"
+    },
+    {
+      "name": "email-tab-1",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c786",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.216749",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "send\nSend test email",
+      "rect": {
+        "height": 36,
+        "width": 164.109375,
+        "x": 772.390625,
+        "y": 570.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-email-tab-1.png"
+    },
+    {
+      "name": "email-tab-2",
+      "language": "en",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light q-body--force-scrollbar-y q-body--prevent-scroll",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1686.234375,
+        "width": 1425,
+        "x": 0,
+        "y": -686
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true,
+      "screenshot": "focus-en-email-tab-2.png"
+    },
+    {
+      "name": "email-tab-3",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c782",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "Recipient email address",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-en-email-tab-3.png"
+    },
+    {
+      "name": "email-reverse-tab-0",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c782",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "Recipient email address",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-en-email-reverse-tab-0.png"
+    },
+    {
+      "name": "email-reverse-tab-1",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c782",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "Recipient email address",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-en-email-reverse-tab-1.png"
+    },
+    {
+      "name": "email-reverse-tab-2",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c782",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "Recipient email address",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-en-email-reverse-tab-2.png"
+    },
+    {
+      "name": "email-reverse-tab-3",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c782",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "Recipient email address",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-en-email-reverse-tab-3.png"
+    },
+    {
+      "name": "email-invalid-recipient",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c786",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "send\nSend test email",
+      "rect": {
+        "height": 36,
+        "width": 164.109375,
+        "x": 772.390625,
+        "y": 582.125
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-email-invalid-recipient.png"
+    },
+    {
+      "name": "email-escape-return",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c759",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "outgoing_mail\nTest Send",
+      "rect": {
+        "height": 36,
+        "width": 126.984375,
+        "x": 1127.96875,
+        "y": 861.234375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-email-escape-return.png"
+    },
+    {
+      "name": "email-next-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c760",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.21675",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "save\nSave",
+      "rect": {
+        "height": 36,
+        "width": 97.046875,
+        "x": 1270.953125,
+        "y": 861.234375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-email-next-tab.png"
+    },
+    {
+      "name": "browse-open",
+      "language": "en",
+      "focusVisible": true,
+      "id": "",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "Browse classification schemes\nclose\nShowing 25 items, starting at 1.\naccount_tree\nT01 · Test scheme 1\naccount_tree\nT02 · Test scheme 2\naccount_tree\nT03 · Test scheme 3\naccount_tree\nT04 · Test scheme 4\naccount_tree\nT05 · Test scheme 5\naccount_tree\nT06 · Test scheme 6\naccount_tree\nT07 · Test scheme 7\naccount_tree\nT08 · Test scheme 8\naccount_tree\nT09 · Test scheme 9\naccount_tree\nT10 · Test scheme 10\naccount_tree\nT11 · Test scheme 11\naccount_tree\nT12 · Test scheme 12\naccount_tree\nT13 · Test scheme 13\naccount_tree\nT14 · Test scheme 14\naccount_tree\nT15 · Test scheme 15\naccount_tree\nT16 · Test scheme 16\naccount_tree\nT17 · Test scheme 17\naccount_tree\nT18 · Test scheme 18\naccount_tree\nT19 · Test scheme 19\naccount_tree\nT20 · Test scheme 20\naccount_tree\nT21 · Test scheme 21\naccount_tree\nT22 · Test scheme 22\naccount_tree\nT23 · Test scheme 23\naccount_tree\nT24 · Test scheme 24\naccount_tree\nT25 · Test scheme 25\nPrevious\nNext",
+      "rect": {
+        "height": 1000,
+        "width": 1425,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-en-browse-open.png"
+    },
+    {
+      "name": "browse-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c791",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.216752",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "close",
+      "rect": {
+        "height": 33.59375,
+        "width": 33.59375,
+        "x": 942.90625,
+        "y": 133.203125
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-browse-tab.png"
+    },
+    {
+      "name": "browse-next-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c803",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.216757",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "T01 · Test scheme 1",
+      "rect": {
+        "height": 36,
+        "width": 457,
+        "x": 487.5,
+        "y": 239.796875
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-browse-next-tab.png"
+    },
+    {
+      "name": "browse-reverse-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c791",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.216755",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "close",
+      "rect": {
+        "height": 33.59375,
+        "width": 33.59375,
+        "x": 942.90625,
+        "y": 133.203125
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true
+    },
+    {
+      "name": "browse-escape-return",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c650",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "account_tree\nBrowse",
+      "rect": {
+        "height": 31.984375,
+        "width": 82.828125,
+        "x": 357,
+        "y": 525.734375
+      },
+      "role": null,
+      "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-browse-escape-return.png"
+    },
+    {
+      "name": "drawer-return",
+      "language": "en",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "",
+      "rect": {
+        "height": 48,
+        "width": 208.953125,
+        "x": 393,
+        "y": 294.984375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-en-drawer-return.png"
+    },
+    {
+      "name": "breadcrumb-return",
+      "language": "en",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1000,
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true,
+      "screenshot": "focus-en-breadcrumb-return.png"
+    },
+    {
+      "name": "breadcrumb-next-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c2627",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(96, 125, 139)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.218018",
+        "outline": "rgb(96, 125, 139) none 0px"
+      },
+      "label": "Dashboard",
+      "rect": {
+        "height": 31.984375,
+        "width": 74.96875,
+        "x": 336,
+        "y": 90
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-breadcrumb-next-tab.png"
+    },
+    {
+      "name": "custody-return",
+      "language": "en",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1746.203125,
+        "width": 1425,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true,
+      "screenshot": "focus-en-custody-return.png"
+    },
+    {
+      "name": "audit-return",
+      "language": "en",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1000,
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true,
+      "screenshot": "focus-en-audit-return.png"
+    },
+    {
+      "name": "audit-next-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c3986",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.218028",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "refresh\nRefresh",
+      "rect": {
+        "height": 36,
+        "width": 115.34375,
+        "x": 1267.65625,
+        "y": 226.984375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-audit-next-tab.png"
+    },
+    {
+      "name": "reason-tab",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c211",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "سبب التغيير (مطلوب)",
+      "rect": {
+        "height": 40,
+        "width": 1002,
+        "x": 69,
+        "y": 772.984375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-ar-reason-tab.png"
+    },
+    {
+      "name": "save-tab",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c214",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "save\nحفظ",
+      "rect": {
+        "height": 36,
+        "width": 96.546875,
+        "x": 57,
+        "y": 844.984375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-save-tab.png"
+    },
+    {
+      "name": "number-reverse-tab",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c209",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted q-field--with-bottom w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "فترة التنبيه للمراجعة",
+      "rect": {
+        "height": 40,
+        "width": 479,
+        "x": 592,
+        "y": 620.734375
+      },
+      "role": null,
+      "setting": "REVIEW_WARNING_WINDOW_DAYS",
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-ar-number-reverse-tab.png"
+    },
+    {
+      "name": "required-reason-validation",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c214",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "save\nحفظ",
+      "rect": {
+        "height": 36,
+        "width": 96.546875,
+        "x": 57,
+        "y": 864.984375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-required-reason-validation.png"
+    },
+    {
+      "name": "saved-setting",
+      "language": "ar",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light wathiq-rtl",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1003.984375,
+        "width": 1425,
+        "x": 0,
+        "y": -4
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true
+    },
+    {
+      "name": "category-enter",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c177",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "المحتوى وعرض الوثائق",
+      "rect": {
+        "height": 48,
+        "width": 170.34375,
+        "x": 706.640625,
+        "y": 372.484375
+      },
+      "role": "tab",
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-ar-category-enter.png"
+    },
+    {
+      "name": "email-open",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "اختبار الإرسال\nيستخدم الاختبار إعدادات خادم البريد المحفوظة. احفظ أي تغييرات أولًا، ثم أدخل عنوان البريد الذي سيستقبل رسالة الاختبار.\nعنوان البريد الإلكتروني للمستلم\nإغلاق\nsend\nإرسال رسالة الاختبار",
+      "rect": {
+        "height": 1000,
+        "width": 1425,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-ar-email-open.png"
+    },
+    {
+      "name": "email-tab-0",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c522",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.21676",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "إغلاق",
+      "rect": {
+        "height": 36,
+        "width": 65.96875,
+        "x": 679.140625,
+        "y": 570.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-email-tab-0.png"
+    },
+    {
+      "name": "email-tab-1",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c523",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.218028",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "send\nإرسال رسالة الاختبار",
+      "rect": {
+        "height": 36,
+        "width": 183.390625,
+        "x": 753.109375,
+        "y": 570.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-email-tab-1.png"
+    },
+    {
+      "name": "email-tab-2",
+      "language": "ar",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light wathiq-rtl q-body--force-scrollbar-y q-body--prevent-scroll",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1724.984375,
+        "width": 1425,
+        "x": 0,
+        "y": -725
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true,
+      "screenshot": "focus-ar-email-tab-2.png"
+    },
+    {
+      "name": "email-tab-3",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c519",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "عنوان البريد الإلكتروني للمستلم",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-ar-email-tab-3.png"
+    },
+    {
+      "name": "email-reverse-tab-0",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c519",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "عنوان البريد الإلكتروني للمستلم",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-ar-email-reverse-tab-0.png"
+    },
+    {
+      "name": "email-reverse-tab-1",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c519",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "عنوان البريد الإلكتروني للمستلم",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-ar-email-reverse-tab-1.png"
+    },
+    {
+      "name": "email-reverse-tab-2",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c519",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "عنوان البريد الإلكتروني للمستلم",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-ar-email-reverse-tab-2.png"
+    },
+    {
+      "name": "email-reverse-tab-3",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c519",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "عنوان البريد الإلكتروني للمستلم",
+      "rect": {
+        "height": 40,
+        "width": 424,
+        "x": 500.5,
+        "y": 498.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-ar-email-reverse-tab-3.png"
+    },
+    {
+      "name": "email-invalid-recipient",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c523",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.219893",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "send\nإرسال رسالة الاختبار",
+      "rect": {
+        "height": 36,
+        "width": 183.390625,
+        "x": 753.109375,
+        "y": 582.125
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-email-invalid-recipient.png"
+    },
+    {
+      "name": "email-escape-return",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c473",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "outgoing_mail\nاختبار الإرسال",
+      "rect": {
+        "height": 36,
+        "width": 144.953125,
+        "x": 169.546875,
+        "y": 860.984375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-email-escape-return.png"
+    },
+    {
+      "name": "email-next-tab",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c474",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.215077",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "save\nحفظ",
+      "rect": {
+        "height": 36,
+        "width": 96.546875,
+        "x": 57,
+        "y": 860.984375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-email-next-tab.png"
+    },
+    {
+      "name": "browse-open",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "استعراض نظم التصنيف\nclose\nعرض 25 عناصر، بدءا من 1.\naccount_tree\nT01 · Test scheme 1\naccount_tree\nT02 · Test scheme 2\naccount_tree\nT03 · Test scheme 3\naccount_tree\nT04 · Test scheme 4\naccount_tree\nT05 · Test scheme 5\naccount_tree\nT06 · Test scheme 6\naccount_tree\nT07 · Test scheme 7\naccount_tree\nT08 · Test scheme 8\naccount_tree\nT09 · Test scheme 9\naccount_tree\nT10 · Test scheme 10\naccount_tree\nT11 · Test scheme 11\naccount_tree\nT12 · Test scheme 12\naccount_tree\nT13 · Test scheme 13\naccount_tree\nT14 · Test scheme 14\naccount_tree\nT15 · Test scheme 15\naccount_tree\nT16 · Test scheme 16\naccount_tree\nT17 · Test scheme 17\naccount_tree\nT18 · Test scheme 18\naccount_tree\nT19 · Test scheme 19\naccount_tree\nT20 · Test scheme 20\naccount_tree\nT21 · Test scheme 21\naccount_tree\nT22 · Test scheme 22\naccount_tree\nT23 · Test scheme 23\naccount_tree\nT24 · Test scheme 24\naccount_tree\nT25 · Test scheme 25\nالسابق\nالتالي",
+      "rect": {
+        "height": 1000,
+        "width": 1425,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-ar-browse-open.png"
+    },
+    {
+      "name": "browse-tab",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c528",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.216753",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "close",
+      "rect": {
+        "height": 33.59375,
+        "width": 33.59375,
+        "x": 448.5,
+        "y": 133.203125
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-browse-tab.png"
+    },
+    {
+      "name": "browse-next-tab",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c540",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.216749",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "T01 · Test scheme 1",
+      "rect": {
+        "height": 36,
+        "width": 457,
+        "x": 480.5,
+        "y": 239.796875
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-browse-next-tab.png"
+    },
+    {
+      "name": "browse-reverse-tab",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c528",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.216757",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "close",
+      "rect": {
+        "height": 33.59375,
+        "width": 33.59375,
+        "x": 448.5,
+        "y": 133.203125
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true
+    },
+    {
+      "name": "browse-escape-return",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c364",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "account_tree\nاستعراض",
+      "rect": {
+        "height": 31.984375,
+        "width": 93.5625,
+        "x": 974.4375,
+        "y": 548.484375
+      },
+      "role": null,
+      "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-browse-escape-return.png"
+    },
+    {
+      "name": "drawer-return",
+      "language": "ar",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "",
+      "rect": {
+        "height": 48,
+        "width": 155.015625,
+        "x": 891.984375,
+        "y": 352.484375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-ar-drawer-return.png"
+    },
+    {
+      "name": "breadcrumb-return",
+      "language": "ar",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light wathiq-rtl",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1000,
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true,
+      "screenshot": "focus-ar-breadcrumb-return.png"
+    },
+    {
+      "name": "breadcrumb-next-tab",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c2147",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(96, 125, 139)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.216746",
+        "outline": "rgb(96, 125, 139) none 0px"
+      },
+      "label": "لوحة المعلومات",
+      "rect": {
+        "height": 31.984375,
+        "width": 107.234375,
+        "x": 996.765625,
+        "y": 90
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-breadcrumb-next-tab.png"
+    },
+    {
+      "name": "custody-return",
+      "language": "ar",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light wathiq-rtl",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1768.953125,
+        "width": 1425,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true,
+      "screenshot": "focus-ar-custody-return.png"
+    },
+    {
+      "name": "audit-return",
+      "language": "ar",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light wathiq-rtl",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1000,
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true,
+      "screenshot": "focus-ar-audit-return.png"
+    },
+    {
+      "name": "audit-next-tab",
+      "language": "ar",
+      "focusVisible": true,
+      "id": "c3576",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.216759",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "refresh\nتحديث",
+      "rect": {
+        "height": 36,
+        "width": 104.953125,
+        "x": 978.046875,
+        "y": 284.484375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-ar-audit-next-tab.png"
+    }
+  ],
+  "browser_errors": []
+}

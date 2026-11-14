@@ -4,12 +4,14 @@ import re
 from fastapi import APIRouter, Depends, HTTPException, Query
 from psycopg import Connection, sql
 
+from .operation_policy import operation_policy
 from .database import get_connection
 
 router = APIRouter(prefix='/api/v1/number-suggestions', tags=['number suggestions'])
 
 
 @router.get('/{resource}')
+@operation_policy("relationship_scoped")
 def suggest_number(resource: str, number: str | None = Query(None, min_length=1, max_length=200),
                    connection: Connection = Depends(get_connection, scope='function'), root: bool = False,
                    parent_aggregation_id: int | None = None, classification_id: int | None = None):

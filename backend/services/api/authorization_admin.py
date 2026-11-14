@@ -6,6 +6,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from psycopg import Connection
 
+from .operation_policy import operation_policy
 from .audit_context import decode_change_reason
 from .concurrency import expected_version
 from .crud import create_row, delete_row, get_or_404, list_rows, update_row
@@ -225,12 +226,14 @@ def get_profile(profile_id: int, request: Request, connection: Connection=Depend
     tags=["event history"],
     dependencies=[Depends(require_audit_view)],
 )
+@operation_policy("globally_privileged", "audit.view")
 def get_profile_history(
-    profile_id: int, connection: Connection=Depends(get_connection,scope="function"),
+    profile_id: int, limit: int = Query(500, ge=1, le=500), offset: int = Query(0, ge=0),
+    connection: Connection=Depends(get_connection,scope="function"),
 ):
     get_or_404(connection, "profiles", profile_id)
     return list_rows(
-        connection, "event_history", limit=500, offset=0,
+        connection, "event_history", limit=limit, offset=offset,
         filters={"entity_type": "profile", "entity_id": profile_id},
         order_by=("occurred_at", "id"), descending=True,
     )

@@ -1,0 +1,97 @@
+{
+  "created": 15,
+  "runner_cleanup_confirmed": true,
+  "remaining_databases": [],
+  "runs": [
+    {
+      "run": "after-assembled",
+      "database": "erms_webui_test_b71b4f31470c4a5993c64e953bec8512",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "after-chrome",
+      "database": "erms_webui_test_5af069dd3a3848a781a6bbbbc8af0568",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "after-chrome-2",
+      "database": "erms_webui_test_6147540f7785456cadbc37b0e450f2dd",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "after-edge",
+      "database": "erms_webui_test_cbc58347c9c147b988303fb331b53fef",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "after-edge-2",
+      "database": "erms_webui_test_4cc843c9f868407494c13ad850018824",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-assembled",
+      "database": "erms_webui_test_eb3d1145f49b4bf0a3c09bec71b9e4a5",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-chrome-1",
+      "database": "erms_webui_test_309cfb662a17432cba0c1dca25ab96dc",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-2",
+      "database": "erms_webui_test_950c8a840b0748c092b7072481264045",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-3",
+      "database": "erms_webui_test_f5b85cfa506345b0b4238b653759fb18",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-4",
+      "database": "erms_webui_test_ff6c6e9d11674f94b0e41f6b16c7bee7",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-5",
+      "database": "erms_webui_test_36b7ecc5b5014d769862a468be6752d9",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-6",
+      "database": "erms_webui_test_8ba4dbcd2417426aabe48b08a17ad4ab",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-edge-1",
+      "database": "erms_webui_test_16d359be55ef4a6a9c34df4670bcf553",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-edge-2",
+      "database": "erms_webui_test_777dcefa1cde452dbc84a4c741f4b6cc",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-edge-3",
+      "database": "erms_webui_test_f480b6073f2a4841bfde6ae1e3c019bd",
+      "database_dropped": true,
+      "test_exit_code": 0
+    }
+  ]
+}

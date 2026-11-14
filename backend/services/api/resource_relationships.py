@@ -7,6 +7,7 @@ from psycopg.errors import CheckViolation, ForeignKeyViolation, InsufficientPriv
 from psycopg.types.json import Jsonb
 from pydantic import BaseModel, ConfigDict, Field
 
+from .operation_policy import operation_policy
 from .authentication import principal_from_request
 from .authorization_policy import require_global_privilege
 from .concurrency import expected_version
@@ -94,6 +95,7 @@ def labels(row, language):
 
 
 @router.get('/types/{kind}')
+@operation_policy("authenticated_only")
 def list_types(kind: Kind, limit: int = Query(25, ge=1, le=100), offset: int = Query(0, ge=0),
                active_only: bool = True, language_tag: Language = 'en', q: str = Query('', max_length=200), descending: bool = False,
                c: Connection = Depends(get_connection, scope='function')):
@@ -112,6 +114,7 @@ def list_types(kind: Kind, limit: int = Query(25, ge=1, le=100), offset: int = Q
 
 
 @router.get('/types/{kind}/{type_id}')
+@operation_policy("authenticated_only")
 def get_type(kind: Kind, type_id: int, language_tag: Language = 'en',
              c: Connection = Depends(get_connection, scope='function')):
     row = c.execute('SELECT * FROM relationship_types WHERE id=%s AND resource_kind=%s', (type_id, kind)).fetchone()
@@ -192,6 +195,7 @@ def delete_type(kind: Kind, type_id: int, version: int = Depends(expected_versio
 
 
 @router.get('/{kind}/{resource_id}/targets')
+@operation_policy("resource_scoped")
 def targets(kind: Kind, resource_id: int, q: str = Query('', max_length=200),
             selected_id: int | None = Query(None, gt=0), limit: int = Query(25, ge=1, le=50),
             c: Connection = Depends(get_connection, scope='function')):
@@ -209,6 +213,7 @@ def targets(kind: Kind, resource_id: int, q: str = Query('', max_length=200),
 
 @router.post('/{kind}/{resource_id}', status_code=201,
              dependencies=[Depends(require_global_privilege('relationships.link'))])
+@operation_policy("relationship_scoped", "relationships.link")
 def create_link(kind: Kind, resource_id: int, payload: LinkCreate,
                 c: Connection = Depends(get_connection, scope='function')):
     c.execute('SELECT pg_advisory_xact_lock(7357,1)')
@@ -225,6 +230,7 @@ def create_link(kind: Kind, resource_id: int, payload: LinkCreate,
 
 @router.delete('/{kind}/{resource_id}/{link_id}', status_code=204,
                dependencies=[Depends(require_global_privilege('relationships.link'))])
+@operation_policy("relationship_scoped", "relationships.link")
 def delete_link(kind: Kind, resource_id: int, link_id: int,
                 c: Connection = Depends(get_connection, scope='function')):
     c.execute('SELECT pg_advisory_xact_lock(7357,1)')
@@ -244,6 +250,7 @@ def delete_link(kind: Kind, resource_id: int, link_id: int,
 
 
 @router.get('/{kind}/{resource_id}')
+@operation_policy("relationship_scoped")
 def list_links(kind: Kind, resource_id: int, language_tag: Language = 'en',
                limit: int = Query(25, ge=1, le=100), offset: int = Query(0, ge=0),
                type_id: int | None = Query(None, gt=0), selected_id: int | None = Query(None,gt=0),

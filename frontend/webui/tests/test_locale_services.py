@@ -1,3 +1,5 @@
+from frontend.webui.tests.record_sources import record_sources
+from frontend.webui.tests.account_sources import account_sources, account_function
 from datetime import date, datetime, timedelta, timezone
 import inspect
 import json
@@ -166,7 +168,7 @@ def test_explicit_timezone_formatting_covers_offsets_locale_and_calendar_dates()
 
 
 def test_authenticated_catalogue_uses_revision_scoped_session_cache():
-    source = inspect.getsource(index)
+    source = ((inspect.getsource(index) + record_sources()) + account_sources())
     assert 'previous.get("effective_language") == bootstrap["effective_language"]' in source
     assert 'previous.get("catalogue_revision") == bootstrap["catalogue_revision"]' in source
     assert 'messages = session_messages' in source
@@ -176,7 +178,7 @@ def test_authenticated_catalogue_uses_revision_scoped_session_cache():
 
 
 def test_catalogue_revision_refresh_does_not_force_a_full_page_reload():
-    source = inspect.getsource(index)
+    source = ((inspect.getsource(index) + record_sources()) + account_sources())
     rebuild = source[source.index("needs_rebuild = ("):source.index("return needs_rebuild")]
     assert "catalogue_revision" not in rebuild
     assert 'previous.get("effective_language", initial_language)' in rebuild
@@ -184,24 +186,15 @@ def test_catalogue_revision_refresh_does_not_force_a_full_page_reload():
 
 
 def test_dashboard_startup_defers_optional_assets_and_avoids_duplicate_favourites_call():
-    source = inspect.getsource(index)
-    workspace_setup = source[
-        source.index("async def prepare_authenticated_workspace("):
-        source.index("async def load_login_animation()")
-    ]
+    source = ((inspect.getsource(index) + record_sources()) + account_sources())
+    workspace_setup = account_function("prepare_authenticated_workspace")
     assert "background_tasks.create(load_authenticated_client_assets())" in workspace_setup
-    initialization = source[
-        source.index("async def initialize_authenticated_ui()"):
-        source.index("ui.timer(0.05, initialize_authenticated_ui")
-    ]
+    initialization = account_function("initialize_authenticated_ui")
     assert "await reload_favourites()" not in initialization
     assert initialization.index('if principal["must_change_password"]:') < initialization.index(
         "await prepare_authenticated_workspace(principal)"
     )
-    login_flow = source[
-        source.index("async def submit_login()"):
-        source.index('login_submit.on("click", submit_login)')
-    ]
+    login_flow = account_function("submit_login")
     assert "await reload_favourites()" not in login_flow
     assert login_flow.index('if principal["must_change_password"]:') < login_flow.index(
         "await prepare_authenticated_workspace(principal)"
@@ -209,28 +202,28 @@ def test_dashboard_startup_defers_optional_assets_and_avoids_duplicate_favourite
 
 
 def test_dashboard_navigation_renders_cached_data_then_refreshes_in_background():
-    source = inspect.getsource(index)
-    dashboard = source[
-        source.index("async def select_dashboard()"):
-        source.index("async def select_audit_trail(")
-    ]
-    assert 'state["dashboard_summary_cache"] = summary' in dashboard
+    from frontend.webui import dashboard as dashboard_module
+    dashboard = inspect.getsource(dashboard_module)
+    assert 'dashboard_state["dashboard_summary_cache"] = summary' in dashboard
     assert "await load_dashboard(summary_override=cached_summary)" in dashboard
     assert "background_tasks.create(load_dashboard(refresh_only=True))" in dashboard
     assert "on_click=lambda: load_dashboard(refresh_only=True)" in dashboard
 
 
 def test_entity_page_startup_parallelizes_requests_and_bounds_relationship_resolution():
-    source = inspect.getsource(index)
+    source = ((inspect.getsource(index) + record_sources()) + account_sources())
     assert "await asyncio.gather(*startup_requests)" in source
-    assert "activity = await api.recent_resource_activity(spec.key, limit=50)" in source
-    assert "decorated = await decorate_for_spec(spec, activity)" in source
-    assert "async def rows_by_id(" in source
-    assert "async def org_unit_context(" in source
+    from frontend.webui import personal_resources, collection_hydration
+    personal_source = inspect.getsource(personal_resources)
+    hydration_source = inspect.getsource(collection_hydration)
+    assert "activity = await api.recent_resource_activity(spec.key, limit=50)" in personal_source
+    assert "async def rows_by_id(" in hydration_source
+    assert "async def org_unit_context(" in hydration_source
 
 
 def test_navigation_and_translation_administration_route_visible_copy_through_catalogue():
-    source = inspect.getsource(index)
+    from frontend.webui import application_shell, translation_administration
+    source = ((inspect.getsource(index) + record_sources()) + account_sources()) + inspect.getsource(application_shell) + inspect.getsource(translation_administration)
     for key in (
         "navigation.section.records",
         "navigation.section.organization",

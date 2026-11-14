@@ -6,6 +6,7 @@ from types import SimpleNamespace
 import pytest
 from nicegui import ui,background_tasks
 from frontend.webui import i18n_catalogue as i18n
+from frontend.webui.entities import COLLECTION_ENTITIES
 
 pytest_plugins=['nicegui.testing.user_plugin']
 pytestmark=pytest.mark.asyncio
@@ -17,7 +18,7 @@ KEYS=['webui.select_entity.text.search_required_before_loading_results_88549c49'
 async def test_background_refresh_keeps_page_language_without_inherited_context(user,resource,arabic):
     refreshed=asyncio.Event()
     labels={KEYS[0]:'يجب إجراء بحث قبل تحميل النتائج',KEYS[1]:'يبدأ البحث في المجموعات الكبيرة قبل عرضها'} if arabic else {}
-    node=next(n for n in ast.walk(ast.parse((Path(__file__).parents[2]/'app.py').read_text()))
+    node=next(n for n in ast.walk(ast.parse((Path(__file__).parents[2]/'collection_table.py').read_text()))
               if isinstance(n,ast.FunctionDef) and n.name=='render_table')
     elements={}
     @ui.page('/')
@@ -26,7 +27,7 @@ async def test_background_refresh_keeps_page_language_without_inherited_context(
         elements['subtitle']=ui.label('')
         elements['guidance']=ui.label('')
         container=ui.column()
-        scope=dict(ui=ui,EntitySpec=SimpleNamespace,state={'searched':False},
+        scope=dict(ui=ui,EntitySpec=SimpleNamespace,COLLECTION_ENTITIES=COLLECTION_ENTITIES,collection_state={'searched':False},
             table_container=container,subtitle=elements['subtitle'],guidance=elements['guidance'],
             render_message=i18n.render_message,
             render_resource_personal_sections=lambda _:ui.label('Personal sections'))

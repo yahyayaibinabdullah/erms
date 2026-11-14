@@ -1,16 +1,32 @@
 """Search state must not survive an authentication boundary (no database needed)."""
 import ast
 import asyncio
+from contextlib import nullcontext
+import copy
 import json
 import pytest
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
+from unittest.mock import AsyncMock, Mock
+from frontend.webui.global_search_state import new_global_search_state
 
-SOURCE = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+SOURCE = ast.parse('\n'.join((Path(__file__).parents[1] / name).read_text() for name in ('app.py','global_search.py','advanced_search.py')))
 
 
 def load(name, namespace):
+    state=namespace['state']
+    if 'ui' not in namespace:
+        namespace['ui'] = Mock()
+    namespace['page_client'] = SimpleNamespace(connected=AsyncMock(), tab_id='e2170d62-e82f-4718-a4c6-375eb00c7c49')
+    namespace.update(global_search_state=state, advanced_search_state=state, new_global_search_state=new_global_search_state,
+        get_principal=lambda:namespace.get('auth_state',{}).get('principal'),
+        get_resource=lambda:state.get('resource'),
+        enter_global_search=lambda:state.update(resource='full-text-search'),
+        discard_navigation_guard=lambda:state.pop('discard_navigation_guard',None),
+        clear_advanced_workspace=lambda:state.pop('advanced_search_workspace',None),
+        invalidate_advanced_session=lambda:state.__setitem__('advanced_search_session_revision',state.get('advanced_search_session_revision',0)+1),
+        clear_collection_results=lambda:namespace['collection_state'].update(entity_result_states={}))
     node = next(n for n in ast.walk(SOURCE)
                 if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name == name)
     exec(compile(ast.Module(body=[node], type_ignores=[]), 'app.py', 'exec'), namespace)
@@ -18,20 +34,25 @@ def load(name, namespace):
 
 
 def test_logout_discards_query_results_and_diagnostics():
-    state = dict(global_search_revision=4, global_search_query='private query',
-                 global_search_items=[{'record': {'id': 42}}], search_diagnostics_sent={'private': True})
+    state = new_global_search_state('private query')
+    state.update(global_search_revision=4, search_diagnostics_sent={'private': True},
+                 global_search_items=[{'record': {'id': 42}}],
+                 global_search_id='private-search', global_search_page_tokens={('record', 2): 'private cursor'},
+                 global_search_totals={'records': 1, 'aggregations': 0})
     control = SimpleNamespace(value='private query', update=lambda: None)
-    load('clear_global_search_session', {'state': state, 'global_search_input': control})()
+    load('clear_global_search_session', {'state': state, 'collection_state': state, 'global_search_input': control})()
     assert control.value == state['global_search_query'] == ''
     assert state['global_search_items'] == []
+    assert state['global_search_id'] is None
+    assert state['global_search_totals'] is None
     assert state['search_diagnostics_sent'] is None
     assert state['global_search_revision'] == 5
 
 
 def test_old_search_response_cannot_repopulate_new_session():
     async def scenario():
-        state = dict(resource='full-text-search', global_search_revision=0,
-                     search_diagnostics_enabled=False, global_search_items=[])
+        state = new_global_search_state('private query')
+        state.update(resource='full-text-search', global_search_revision=0)
         principal = {'principal': {'id': 1}}
         started, release = asyncio.Event(), asyncio.Event()
         renders = []
@@ -40,7 +61,7 @@ def test_old_search_response_cannot_repopulate_new_session():
             await release.wait()
             return {'items': [{'type': 'aggregation', 'id': 42}]}
         control = SimpleNamespace(value='private query', update=lambda: None)
-        namespace = dict(state=state, auth_state=principal, Any=Any, json=json, asyncio=asyncio,
+        namespace = dict(state=state,collection_state=state, auth_state=principal, Any=Any, json=json, asyncio=asyncio,
                          global_search_input=control, ApiError=RuntimeError,
                          global_search_payload=lambda *a, **k: {},
                          render_message=lambda *a: '', show_authenticated_view=lambda: None,
@@ -58,6 +79,7 @@ def test_old_search_response_cannot_repopulate_new_session():
         release.set()
         await task
         assert state['global_search_items'] == []
+        assert state['global_search_id'] is None
         assert state['global_search_query'] == ''
         assert len(renders) == 1  # only the original loading render
     asyncio.run(scenario())
@@ -69,7 +91,7 @@ def test_advanced_workspace_is_cleared_and_old_callbacks_cannot_restore_it():
              'advanced_search_workspace': {'root': {'value': 'private'},
              'last_result': {'items': [{'id': 42}]}, 'saved': {'id': 7}}}
     principal = {'principal': {'user': {'id': 1}}}
-    namespace = dict(state=state, auth_state=principal, copy=copy,
+    namespace = dict(state=state,collection_state=state, auth_state=principal, copy=copy,
                      search_principal=principal['principal'], search_session_revision=0,
                      workspace=copy.deepcopy(state['advanced_search_workspace']),
                      global_search_input=SimpleNamespace(value='', update=lambda: None))
@@ -87,7 +109,7 @@ def test_advanced_workspace_is_cleared_and_old_callbacks_cannot_restore_it():
     assert 'discard_navigation_guard' not in state
 
 
-@pytest.mark.parametrize("outcome", ["success", "error", "cancelled", "navigation", "component_details"])
+@pytest.mark.parametrize("outcome", ["success", "error", "cancelled", "navigation"])
 def test_advanced_search_late_response_does_not_render_or_restore_private_results(outcome):
     async def scenario():
         import copy
@@ -95,7 +117,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
         principal = {'principal': {'user': {'id': 1}}}
         started, release = asyncio.Event(), asyncio.Event()
         renders = []
-        async def search(*args):
+        async def search(*args, **kwargs):
             if outcome != 'component_details':
                 started.set()
                 await release.wait()
@@ -103,7 +125,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
                 raise RuntimeError('old-session failure')
             if outcome == 'cancelled':
                 raise asyncio.CancelledError
-            return {'items': [{'id': 42, 'title': 'private result'}], 'total': 1}
+            return {'items': [{'id': 42, 'title': 'private result'}], 'total': 1, 'offset': 0}
         async def component_details(*args, **kwargs):
             started.set()
             await release.wait()
@@ -115,12 +137,12 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
             def __exit__(self, *args): pass
         workspace = dict(root={}, resource='records' if outcome == 'component_details' else 'aggregations', sort_field='id', sort_direction='asc',
                          limit=25, offset=0, saved=None)
-        ns = dict(state=state, auth_state=principal, search_principal=principal['principal'],
+        ns = dict(state=state,collection_state=state, auth_state=principal, search_principal=principal['principal'],
                   search_session_revision=0, workspace=workspace, copy=copy, Any=Any,
                   asyncio=asyncio, ApiError=RuntimeError, results_host=Host(),
                   validate_builder=lambda: ({'field': 'title', 'operator': 'contains_ci', 'value': 'private'}, None),
                   search_advanced=SimpleNamespace(disable=lambda: None, enable=lambda: renders.append('enabled')),
-                  status_label=SimpleNamespace(text=''), max_results=SimpleNamespace(value=1000),
+                  status_label=SimpleNamespace(text=''),
                   render_message=lambda *a: '',
                   ui=SimpleNamespace(spinner=lambda **k: SimpleNamespace(classes=lambda *a: None)),
                   advanced_search_has_positive_full_text=lambda root: False,
@@ -150,7 +172,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
 
 
 @pytest.mark.parametrize('change', ['value', 'operator', 'add', 'remove', 'group', 'full_text', 'sort'])
-def test_criteria_changes_reset_later_page_before_persisting(change):
+def test_draft_edits_preserve_the_displayed_page_when_persisted(change):
     import copy
     root = {'type': 'group', 'operator': 'and', 'children': [
         {'type': 'condition', 'kind': 'structured', 'field': 'title', 'operator': 'contains_ci', 'value': 'old'},
@@ -158,7 +180,7 @@ def test_criteria_changes_reset_later_page_before_persisting(change):
     ]}
     workspace = {'root': root, 'offset': 75, 'sort_field': 'id'}
     state = {'advanced_search_workspace': copy.deepcopy(workspace)}
-    persist = load('persist_workspace', dict(state=state, workspace=workspace, copy=copy,
+    persist = load('persist_workspace', dict(state=state,collection_state=state, workspace=workspace, copy=copy,
                                             search_session_is_current=lambda: True))
     if change == 'value': root['children'][0]['value'] = 'new'
     elif change == 'operator': root['children'][0]['operator'] = 'eq'
@@ -168,8 +190,82 @@ def test_criteria_changes_reset_later_page_before_persisting(change):
     elif change == 'full_text': root['children'][1]['query'] = 'new'
     else: workspace['sort_field'] = 'title'
     persist()
-    assert workspace['offset'] == state['advanced_search_workspace']['offset'] == 0
-    # Normal pagination for unchanged criteria must still work.
-    workspace['offset'] = 25
-    persist()
-    assert state['advanced_search_workspace']['offset'] == 25
+    assert workspace['offset'] == state['advanced_search_workspace']['offset'] == 75
+    assert state['advanced_search_workspace']['root'] == root
+    assert state['advanced_search_workspace']['sort_field'] == workspace['sort_field']
+
+
+def test_advanced_pagination_uses_last_execution_until_search_is_submitted():
+    from frontend.webui.advanced_search_model import compile_advanced_search_node
+
+    async def scenario():
+        condition = {'type': 'condition', 'kind': 'structured', 'field': 'title',
+                     'operator': 'contains_ci', 'value': 'original'}
+        dates = {'type': 'condition', 'kind': 'structured', 'field': 'date_opened',
+                 'operator': 'between', 'value': ['2026-01-01', '2026-12-31']}
+        workspace = dict(root={'type': 'group', 'operator': 'and', 'children': [condition, dates]},
+                         resource='aggregations', sort_field='id', sort_direction='asc', limit=25)
+        search_request = AsyncMock(side_effect=lambda resource, payload, **kw: {'items': [], 'total': 62, 'result_cap': 62, 'offset': payload['offset'], 'search_id': 'saved-search'})
+        host = nullcontext()
+        host.clear = Mock()
+        namespace = dict(
+            state={}, workspace=workspace, search_view_is_current=lambda: True, copy=copy,
+            validate_builder=lambda: (compile_advanced_search_node(workspace['root'], 'aggregations'), None),
+            advanced_search_has_positive_full_text=lambda root: False,
+            api=SimpleNamespace(search_request=search_request),
+            search_advanced=Mock(), ui=Mock(), results_host=host, status_label=SimpleNamespace(),
+            render_message=lambda key: key, render_results=Mock(), refresh_saved_actions=Mock(),
+            persist_workspace=Mock(), ApiError=RuntimeError,
+        )
+        execute = load('execute_search', namespace)
+        move_page = load('move_page', namespace)
+        await execute()
+        original = copy.deepcopy(search_request.await_args.args[1])
+        assert original['where']['and'][0]['value'] == 'original'
+        condition['value'] = 'draft'
+        dates['value'][0] = '2026-06-01'
+        workspace.update(sort_field='title', sort_direction='desc', limit=100)
+        for direction, offset, limit in (
+            ('next', 25, 25), ('last', 50, 25), ('previous', 25, 25), ('first', 0, 25),
+        ):
+            await move_page(direction)
+            assert workspace['offset'] == offset
+            assert search_request.await_args.args == ('aggregations', {**original, 'offset': offset, 'limit': limit, 'search_id': 'saved-search'})
+        assert search_request.await_count == 5
+        await move_page('next')
+        await execute()
+        submitted = search_request.await_args.args[1]
+        assert workspace['offset'] == submitted['offset'] == 0
+        assert submitted['where']['and'][0]['value'] == 'draft'
+        assert submitted['where']['and'][1]['value'][0] == '2026-06-01'
+        assert submitted['sort'] == [{'field': 'title', 'direction': 'desc'}]
+        assert submitted['limit'] == 100
+        assert 'max_results' not in submitted
+        assert search_request.await_args.kwargs == {'advanced': True}
+    asyncio.run(scenario())
+
+
+def test_global_search_state_factory_keeps_clients_independent():
+    from frontend.webui.global_search_state import new_global_search_state
+    first, second = new_global_search_state(' private '), new_global_search_state()
+    first['global_search_items'].append({'type': 'record', 'record': {'id': 7}})
+    first['global_search_page_tokens'][('record', 2)] = 'cursor'
+    first['global_search_expanded_results'].add('records:7')
+    first['search_diagnostics_sent'] = {'query': 'private'}
+    assert first['global_search_query'] == 'private'
+    assert second['global_search_query'] == ''
+    assert second['global_search_items'] == []
+    assert second['global_search_page_tokens'] == {}
+    assert second['global_search_tab_id'] is first['global_search_tab_id'] is None
+    # The connected NiceGUI client owns identity, not the page state factory.
+    assert new_global_search_state(tab_id='framework-id')['global_search_tab_id'] == 'framework-id'
+    assert second['global_search_expanded_results'] == set()
+    assert second['search_diagnostics_sent'] is None
+
+
+def test_advanced_workspace_owner_is_private_to_each_client():
+    from frontend.webui.advanced_search_state import new_advanced_search_state
+    first, second = new_advanced_search_state(), new_advanced_search_state()
+    first.update(advanced_search_workspace={'root': {'value': 'private'}},
+                 admin_saved_search_id=17, advanced_search_session_revision=2)
+    assert second == {}

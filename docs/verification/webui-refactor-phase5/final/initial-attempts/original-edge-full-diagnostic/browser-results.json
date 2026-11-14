@@ -1,0 +1,196 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.42",
+  "scope": "full",
+  "maildev_enabled": true,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8876.51
+    },
+    {
+      "name": "seven categories, root URL and browser history",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 905.93
+    },
+    {
+      "name": "required reason, save, current value on return and reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10440.7
+    },
+    {
+      "name": "optimistic conflict keeps draft and reason",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 5196.25
+    },
+    {
+      "name": "repeated navigation uses one Settings read per visit",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 2836.79
+    },
+    {
+      "name": "controlled error, recovery and abandoned delayed read",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8498.65
+    },
+    {
+      "name": "reload visual repeatability",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 7995.94
+    },
+    {
+      "name": "category keyboard arrows and Enter preserve focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 331.32
+    },
+    {
+      "name": "custody warning and audit event Settings callers",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 3739.82
+    },
+    {
+      "name": "scheme-first selector and paged scheme/branch browsing",
+      "language": "en",
+      "status": "running",
+      "milliseconds": 14316.52
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "settings-error-en.png",
+      "sha256": "016523b30026c2cc7d9f52bbf78ccf8caac8dff94d0c841eacaa23341e6b84e1",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-loading-en.png",
+      "sha256": "daaeebeec7b340d408da006e55652caa8705cb070c70074e94573966e4b9c283",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-en-first.png",
+      "sha256": "75b814596ff122391b64fbd637172cca045afb4210c4935c31369c5e070c9db1",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-en-repeat.png",
+      "sha256": "565b744b400437e73cac68d922c749e204573d478033ad92cb4e8ceb689b573a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "scheme-browser-en.png",
+      "sha256": "13a6cdd655b2a09b87c98e5c31e4b69eca0a647a9ba074088d57212856db0aba",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-browser-en.png",
+      "sha256": "192685dcfaca648c93311a9ca7ba22c33fa5714e233df435dee1aac1f2953b33",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "browser_errors": [],
+  "visual_comparisons": [
+    {
+      "images": [
+        "settings-general-en-first.png",
+        "settings-general-en-repeat.png"
+      ],
+      "region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "different_pixels": 0,
+      "excluded": "Animated header and compression margin; full images retained for review"
+    }
+  ],
+  "focus_observations": [
+    {
+      "language": "en",
+      "category_after_arrow_enter": "Content and document viewing"
+    }
+  ]
+}

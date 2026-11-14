@@ -9,7 +9,7 @@ from nicegui import ui
 from nicegui.testing import User
 from frontend.webui.messaging_workspace import messaging_workspace
 from frontend.webui.messaging_monitor import messaging_monitor
-from frontend.webui.app import relationship_select
+from frontend.webui.relationship_select import relationship_select
 from frontend.webui.i18n_catalogue import set_active_messages, render_message_plain
 
 pytest_plugins = ["nicegui.testing.user_plugin"]
@@ -93,7 +93,7 @@ async def test_deleted_mailbox_restore_uses_own_route_and_refresh(user: User, ta
     language(tag)
     user.find(render_message_plain("messaging.retention.recently_deleted")).click()
     await user.should_see("Test notice")
-    user.find(render_message_plain("messaging.action.open")).click()
+    user.find(marker="message-row-delivery").click()
     await user.should_see(render_message_plain("messaging.retention.restore"))
     user.find(render_message_plain("messaging.retention.restore")).click()
     await user.should_see(render_message_plain("messaging.state.empty"))
@@ -254,7 +254,7 @@ async def test_capture_button_is_busy_until_staging_finishes(user: User):
         )
 
     await user.open("/capture-busy")
-    user.find("Open").click()
+    user.find(marker="message-row-delivery").click()
     await user.should_see("Save as record")
     user.find("Save as record").click()
     await asyncio.wait_for(entered.wait(), 1)

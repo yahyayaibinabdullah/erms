@@ -1,6 +1,6 @@
 # Full-text search implementation traceability
 
-**Specification:** `specs/full-text-search.md`, approved revision 0.25  
+**Specification:** `specs/full-text-search.md`, approved revision 0.44
 **Maintained from:** Phase 0  
 **Current delivery state:** Phases 0–5 implemented and verified locally; production rollout execution is an environment operation
 
@@ -16,6 +16,21 @@ requirement. `approved_deferred` may be used only with an explicit approved
 specification revision in Notes.
 
 ## 1. Complete normative-section allocation
+
+The 13 November 2026 cache-maintenance amendment to §10.3 is implemented by
+`session_cleanup.py`, the two database registry settings, migration 110 and the
+API/cleanup systemd units. Bounded expiry deletion, distinct schedules and locks,
+live settings, migration parity, shutdown, and deployment dependencies are
+verified in [the cleanup report](verification/search-cache-cleanup-2026-11-13.md).
+That report preserves the earlier API-coupled lifecycle evidence. Revision 0.40
+supersedes its production lifecycle: independent boot/restart, database-scoped
+session-lock leadership on the job connection, standby exclusion, graceful/crash
+and connection-loss takeover, and tandem local-stack ownership are traced to
+`session_cleanup.py`, both systemd units, `run-local-stack.sh`,
+`test_search_cache_cleanup.py`, `test_search_cleanup_deployment.py`, the existing
+local-stack lifecycle regressions and `tools/linux_search_cleanup/verify.py`.
+Current execution evidence is in
+[the independent-worker report](verification/search-cleanup-independent-2026-11-13.md).
 
 This inventory prevents requirements outside the acceptance-criteria table
 from disappearing during phased delivery.
@@ -41,7 +56,7 @@ from disappearing during phased delivery.
 | 13 | Required domain events, safe operational history, metrics and health semantics | 1–3 | verified |
 | 14 | Parser isolation, credential/lease secrecy, dependency/resource defenses, safe SQL/rendering/backups | 1–5 | verified |
 | 15 | Execute Phases 0–5 with entry inventories and exit reconciliation | 0–5 | verified |
-| 16 | Satisfy FTS-01 through FTS-63 with cited evidence | 0–5 | verified |
+| 16 | Satisfy FTS-01 through FTS-65 with cited evidence | 0–5 and performance gate | verified |
 
 ## 2. Phase 0 detailed matrix
 
@@ -130,6 +145,10 @@ and later rollout/final reconciliation may also apply.
 | FTS-61 | 5 | verified | Built-in role opt-in listing, read-only API guards, Wathiq Built-in presentation and Text Indexers link; disposable PostgreSQL and live-browser evidence |
 | FTS-62 | 5 | pending | Current-failed-document readiness metric, separate historical count, bounded idempotent retry API/UI and preserved history; disposable PostgreSQL and live-browser evidence required |
 | FTS-63 | 5 | verified | Privilege-gated current-failure groups/page, negative metadata/link authorization, current unsupported-format aggregation, and live-browser record/component navigation with highlighted component |
+| FTS-64 | Global Search paging | verified | `test_global_and_advanced_search_caps_keep_browse_available`, `test_global_search_saved_list_is_bound_to_tab_and_login_and_expires`, `test_global_search_respects_component_view_for_file_names_and_indexed_text`, `test_global_search_page_batch.py` (exact evidence, fresh scores and overlapping sources), `test_search_session_concurrency.py` (real locks and revocation), and WebUI paging/display-capability tests |
+| FTS-65 | Search performance | verified for the documented original maintained-data fixture; richer-text exception approved in revision 0.44 | `tools/check_search_performance.py`: current-storage native run passed 876 responses, maximum 2.4953 seconds; exact counts/ranks/order, denied access and index paths. [Benchmark history and acceptance](search-performance-benchmarks.md); [latest storage comparison and limits](verification/search-vector-storage-2026-11-14.md); [page-batching regressions](verification/search-page-batching-2026-11-13.md); [original first-scan limitation](verification/search-performance-2026-11-12.md) |
+| FTS-66 | Chunk-local matching and score reuse | correctness verified; remaining latency optimization `approved_deferred` in revision 0.44 | `search.py` and `search_cache.py` retain numeric chunk, metadata and per-record scores once; `test_search_candidate_indexes.py` protects accepted multi-chunk semantics; `test_global_search_page_batch.py` compares snippet selection with the prior implementation; `tools/check_large_text_search_performance.py` verifies complete capped rankings, uncapped membership and actual score-batch loop counts. [14 November comparison](verification/search-vector-storage-2026-11-14.md): current storage passed correctness but one of 428 responses took 3.407 s; [explicit user acceptance](search-performance-benchmarks.md#decision) retains that failure and the future three-second threshold |
+| FTS-67 | Physical vector storage | verified for the populated upgrade and fresh schema | Migration 112 and canonical MAIN/LZ4 policy; `test_search_vector_storage.py` compares binary values, weights/positions, matching, scores, row data and indexes, including an overflow-sized vector. Included in the 77-test native disposable regression pass. [Verification and historical performance failures](verification/search-score-reuse-2026-11-13.md); [decision to retain compression](search-performance-benchmarks.md#storage-cost) |
 
 ## 4. Approved deferrals and departures
 
@@ -137,6 +156,14 @@ There are no approved Phase 0 deferrals. Work explicitly assigned to Phases
 1–5 is not a deferral. The invalid illustrative `to_regconfig(text)` call was
 corrected in approved revision 0.22 to a portable PostgreSQL catalogue check;
 this preserves rather than changes the requirement.
+
+Specification revision 0.44 records the user's 14 November 2026 acceptance of
+the current compressed-storage search baseline as good enough for now. Further
+latency tuning is `approved_deferred`: the latest larger-text run's single
+3.4069-second response remains a numerical failure, alongside earlier failures.
+This is a performance-baseline exception only; it does not defer correctness,
+permission checks or future regression gates. See the
+[dedicated benchmark history and rationale](search-performance-benchmarks.md).
 
 ## 5. Phase 1 entry inventory
 
@@ -194,7 +221,7 @@ part of this phase.
 | --- | --- | --- | --- | --- | --- |
 | P3-01 — §§2.4, 10.1–10.2 and FTS-37/38: controlled resource-specific `full_text` leaf composes inside the existing bounded Boolean grammar | 3 | `schemas.py`; `search.py`; search grammar docs | Nested API/DB and rejection tests | verified | No raw SQL/config/tsquery surface |
 | P3-02 — §§10.2, 10.4–10.5 and FTS-08/09/39/40: authorization-before-ranking, deterministic relevance, capped attribution and safe snippets | 3 | Parameterized correlated SQL and attribution queries | Ranking, marker, cap and SYS_ADMIN non-bypass tests | verified | Rendered XSS coverage remains Phase 4 |
-| P3-03 — §§10.3–10.5 and FTS-41: global endpoint enforces independent matching branches, opaque query-bound cursor and freshness | 3 | `global_search_rows`; `/api/v1/full-text-search` | Branch mismatch, cursor continuation and freshness tests | verified | No omitted-branch match-all |
+| P3-03 — §§10.3–10.5 and FTS-41: global endpoint enforces independent matching branches, opaque query-bound page token and freshness | 3 | `global_search_rows`; `/api/v1/full-text-search` | Branch mismatch, token continuation, numbered rebuild and freshness tests; candidate-scoped ACL comparison against canonical SQL | verified | Single-leaf ranking reuses candidate access calculations |
 | P3-04 — §§2.5, 10.6 and FTS-42–44: opt-in privileged diagnostics expose only received/canonical API JSON and safe identifiers | 3 | Central allowlist serializer in `search.py` | Exact body, privilege and leakage assertions | verified | Browser panel belongs to Phase 4 |
 | P3-05 — §§9.1, 9.3–9.4 and FTS-03/48: component forced reindex is immediate, deduplicated while active, authorized and status-addressable | 3 | `reindexing.py`; component-card action | API/DB forced/reuse/status/event and negative privilege tests | verified | Existing published identity remains searchable |
 | P3-06 — §§9.2–9.4 and FTS-04/48: record reindex transactionally refreshes metadata, snapshots components and reports independent dispositions | 3 | Migration 012 batch tables; record action | Batch counts/status/event integration test | verified | Later content uses ordinary scheduling |
@@ -207,7 +234,7 @@ part of this phase.
 | --- | --- | --- | --- | --- | --- |
 | P4-01 — §§11–11.2 and FTS-15: authenticated responsive header search submits explicitly, retains query in header/URL, renders dedicated Wathiq results, and owns its navigation lifecycle | 4 | `frontend/webui/app.py`; API client; global-result detail wrappers | 178 frontend tests including stale-discard-guard regression; desktop and 390 px browser runs; URL-refresh run | verified | Entering global results clears prior page-specific guards; Back/breadcrumb from details returns without an unrelated unsaved-changes prompt |
 | P4-02 — §§10.5, 11.2 and FTS-08/09/36: governed record/aggregation cards show bounded attribution, safe highlights, freshness, matched-component previews and canonical actions | 4 | Match-only result renderer; governed metadata enrichment for attributed IDs; existing `preview_record_components` viewer | 178 frontend tests including match-only preview wiring; structural XSS assertion; API authorization tests | verified | Unmatched components are not displayed; highlighted snippets are preserved; disabled preview icons explain unavailable formats/states |
-| P4-03 — §§10.3, 11.2 and FTS-15: result-type filters, explicit loading/empty/error states and opaque cursor continuation | 4 | Result renderer and `run_global_search` | Browser state checks and Phase 3 cursor integration test | verified | Type tabs filter submitted results |
+| P4-03 — §§10.3, 11.2 and FTS-15: result-type filters, explicit loading/empty/error states, opaque page tokens and automatic recovery | 4 | Result renderer and `run_global_search` | English and Arabic browser paging with forced expiry, UI interaction and API integration tests | verified | Recovery retains the submitted query, selected type and requested page |
 | P4-04 — §§2.5, 10.6, 11.4 and FTS-42–46: diagnostics are privileged, off by default, session-local, exact, sanitized and failure-aware | 4 | Secondary action, disclosure and transient session state | Live opt-in/rerun/accepted/failure runs; API serializer tests | verified | Navigation clears displayed JSON |
 | P4-05 — §§5.2, 11.3 and FTS-30–32: service-account details expose governed credential issue/paginated history/rotate/revoke with one-time secret handling | 4 | `user_management.py`; schemas; API client; Text Indexers details UI | Disposable-DB lifecycle, pagination/filter tests and live details comparison | verified | Five rows per page by default; person accounts cannot receive credentials |
 | P4-06 — §§11.1–11.4 and FTS-15/32: live presentation follows Wathiq shell/cards/actions and is usable without horizontal page scrolling | 4 | Existing design tokens plus Phase 4 responsive CSS | Desktop screenshot comparison; 390 px `scrollWidth == innerWidth` after correction | verified | Diagnostic code surfaces wrap internally |
@@ -228,3 +255,20 @@ part of this phase.
 | P5-09 — approved revision 0.27 and FTS-59: operational health and bounded backfill within Text Indexers | 5 | Dedicated health/backfill APIs; Text Indexers Health section; operations guide | 272 API + 155 frontend tests on disposable PostgreSQL 18.4; live-browser Health cards and 1–500 batch dialog | verified | Distinguishes API liveness from worker/queue readiness; temporary UI administrator removed |
 | P5-10 — approved revisions 0.28–0.29 and FTS-60: process-isolated extraction concurrency | 5 | Claim/process-count configuration; supervisor and lease handling; `erms-text-indexer.service`; deployment/operations guidance | Text-indexer tests; configuration, supervisor and unit verification | verified | One service owns a restartable child pool; one claimed job per child |
 | P5-11 — approved revision 0.30 and FTS-61: read-only built-in role visibility | 5 | Roles API opt-in; mutation guards; Roles list/detail UI | 273 API + 157 frontend tests on disposable PostgreSQL 18.4; live list/detail/link verification | verified | Ordinary relationship selectors retain the default built-in exclusion; temporary UI administrator removed |
+
+## Shared tab result cache — 13 November 2026
+
+The cache is now `search_results_cache` (migration 111 preserves the existing
+UNLOGGED table in place). Global Search shares its `(session_id, tab_id)` slot
+with Advanced Search, saved-search execution and aggregation/record collection
+filters. Each list also checks the authenticated user, list ID and search
+fingerprint. The browser supplies NiceGUI's connected `client.tab_id`; reloads
+reuse it and copied/duplicated tabs receive distinct identities. Cross-screen
+replacement/rebuilding, caps, SQL parity and ownership regressions are mapped in
+[the Advanced Search traceability extension](advanced-search-implementation-traceability.md#shared-tab-cache-extension--13-november-2026).
+The [shared-cache verification report](verification/shared-search-cache-2026-11-13.md)
+records the English/Arabic browser regressions and the final 876-request
+large-fixture gate (maximum 2.3503 seconds), including failed attempts,
+measurement conditions and database/container cleanup. Migration 111 was
+subsequently applied to demo on 13 November 2026 after explicit authorization;
+all 111 migration markers and restarted local-stack health were verified.

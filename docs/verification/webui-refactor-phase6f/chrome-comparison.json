@@ -1,0 +1,69 @@
+{
+  "browser": "chrome",
+  "before": ".runtime/webui-refactor-phase6f/before-chrome",
+  "after": ".runtime/webui-refactor-phase6f/after-chrome",
+  "focus_identical": true,
+  "no_browser_errors": true,
+  "screenshots": [
+    {
+      "file": "login-sessions-page-one-en.png",
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "login-sessions-page-two-en.png",
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "login-sessions-confirmation-en.png",
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "login-sessions-empty-en.png",
+      "changed_pixels_below_header": 24,
+      "bbox": [
+        485,
+        219,
+        486,
+        243
+      ],
+      "max_channel_difference": 222
+    },
+    {
+      "file": "login-sessions-page-one-ar.png",
+      "changed_pixels_below_header": 24,
+      "bbox": [
+        971,
+        219,
+        972,
+        243
+      ],
+      "max_channel_difference": 222
+    },
+    {
+      "file": "login-sessions-page-two-ar.png",
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "login-sessions-confirmation-ar.png",
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    },
+    {
+      "file": "login-sessions-empty-ar.png",
+      "changed_pixels_below_header": 0,
+      "bbox": null,
+      "max_channel_difference": 0
+    }
+  ],
+  "requests_only_before": [],
+  "requests_only_after": []
+}

@@ -1,0 +1,60 @@
+--- before/frontend/webui/collection_table.py
++++ after/frontend/webui/collection_table.py
+@@ -315,12 +315,19 @@
+                 table.on("open_record", lambda event: show_record_details(event.args))
+                 table.on("components", lambda event: show_components(event.args))
+             if spec.key == "classification-schemes":
++                async def refresh_scheme_table() -> None:
++                    # The mutation may finish after navigation deleted this table.
++                    # Do not start a read for the new page, or repaint an old view.
++                    if table.is_deleted:
++                        return
++                    await load_rows(
++                        repeat_search=True,
++                        is_current=lambda: not table.is_deleted,
++                    )
++
+                 bind_scheme_actions(
+                     table, api=api, error_message=error_message,
+-                    refresh=lambda: load_rows(
+-                        repeat_search=True, on_loaded=render_governance_cards,
+-                        is_current=lambda: not card_host.is_deleted,
+-                    ),
++                    refresh=refresh_scheme_table,
+                 )
+             if spec.key in {"users", "roles"}:
+                 table.on(
+--- before/frontend/webui/collection_controls.py
++++ after/frontend/webui/collection_controls.py
+@@ -53,7 +53,11 @@
+                 page = pages.setdefault(spec.key, {
+                     "offset": 0, "limit": 25, "total": 0, "query": "",
+                     "status": "all", "account_type": "all",
+-                    "sort": "level_number" if spec.key == "security-levels" else "name",
++                    "sort": (
++                        "level_number" if spec.key == "security-levels"
++                        else "title" if spec.key == "classification-schemes"
++                        else "name"
++                    ),
+                 })
+                 conditions: list[dict[str, Any]] = []
+                 query = str(page.get("query") or "").strip()
+--- before/frontend/webui/classification_editor.py
++++ after/frontend/webui/classification_editor.py
+@@ -101,13 +101,14 @@
+             ui.notify(error_message(error), color="negative", close_button=True)
+     async def change_scheme_lifecycle(event) -> None:
+         row = event.args
++        action_id = "reactivate" if row.get("date_deactivated") else "deactivate"
+         action = render_message("webui.change_scheme_lifecycle.text.reactivate_ef9784c4") if row.get("date_deactivated") else render_message("webui.change_scheme_lifecycle.text.deactivate_871a64d1")
+         try:
+             await api.request(
+-                "POST", f"/api/v1/classification-schemes/{row['id']}/{action}",
++                "POST", f"/api/v1/classification-schemes/{row['id']}/{action_id}",
+                 headers={
+                     "If-Match": str(row["version"]),
+-                    "X-Change-Reason": f"{action.title()} from classification administration",
++                    "X-Change-Reason": f"{action_id.title()} from classification administration",
+                 },
+             )
+             ui.notify(render_message("webui.change_scheme_lifecycle.notify.classification_scheme_action_d_18fb0eda", action=action), color="positive")

@@ -1,4 +1,5 @@
 """Render the real dashboard across identity and cache boundaries, without a database."""
+from frontend.webui.personal_resources import PersonalResourceState
 import ast
 import asyncio
 import copy
@@ -10,12 +11,21 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from nicegui import Client, ui
 from frontend.webui import app as webui
+from frontend.webui import dashboard as feature_owner
 from frontend.webui.i18n_catalogue import clear_active_messages, set_active_messages
 
-SOURCE = ast.parse((Path(__file__).parents[2] / 'app.py').read_text())
+SOURCE = ast.parse((Path(__file__).parents[2] / 'dashboard.py').read_text())
 
 
 def load(name, scope):
+    state=scope['state']
+    scope.update(dashboard_state=state,
+        get_principal=lambda:scope.get('auth_state',{}).get('principal'),
+        require_principal=lambda:scope['auth_state']['principal'],
+        get_localization=lambda:state.get('localization'),
+        get_resource=lambda:state.get('resource'),
+        enter_dashboard=lambda:state.update(resource='dashboard'),
+        get_configuration=lambda:state['application_configuration'])
     node = next(n for n in ast.walk(SOURCE)
                 if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==name)
     exec(compile(ast.Module(body=[node],type_ignores=[]),'<dashboard-identity>','exec'),scope)
@@ -53,7 +63,8 @@ class DashboardFixture:
         self.auth={'principal':{'user':{'id':1},'global_privileges':[]}}
         self.api=SimpleNamespace(dashboard_summary=AsyncMock(side_effect=self.fetch))
         self.host=ui.column()
-        self.scope=dict(vars(webui),state=self.state,auth_state=self.auth,api=self.api,
+        self.personal=PersonalResourceState()
+        self.scope=dict({**vars(webui), **vars(feature_owner)},state=self.state,collection_state={},aggregation_state={},personal=self.personal,auth_state=self.auth,api=self.api,
             page_client=SimpleNamespace(id=client.id,_deleted=False,has_socket_connection=True),
             table_container=self.host,title=SimpleNamespace(text=''),subtitle=SimpleNamespace(text=''),
             guidance=SimpleNamespace(text=''),register_navigation=Mock(),show_authenticated_view=Mock(),
@@ -102,7 +113,7 @@ async def test_real_dashboard_a_b_a_and_same_account_login_never_reuse_another_s
                     assert 'USER A PRIVATE ACTIVITY' in labels
                 else:
                     assert 'USER A PRIVATE' not in labels
-                    assert fixture.state['favourites']=={'aggregations':[],'records':[]}
+                    assert fixture.personal.favourites=={'aggregations':[],'records':[]}
                 assert fixture.state['dashboard_summary_cache_key'][1]==identity
                 assert fixture.state['dashboard_summary_cache']['overview_counts']['records']==(12 if identity==1 else 0)
             assert fixture.api.dashboard_summary.await_count==4

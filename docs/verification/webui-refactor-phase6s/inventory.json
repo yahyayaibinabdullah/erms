@@ -1,0 +1,42 @@
+{
+  "dashboard_session_key": {
+    "lines": 13,
+    "state_references": [
+      "auth_state.get('principal')",
+      "state.get('dashboard_session_revision', 0)",
+      "state.get('localization')"
+    ]
+  },
+  "clear_dashboard_session": {
+    "lines": 6,
+    "state_references": [
+      "state.get('dashboard_session_revision', 0)",
+      "state.pop('dashboard_summary_cache', None)",
+      "state.pop('dashboard_summary_cache_key', None)",
+      "state.pop('dashboard_view_token', None)",
+      "state['dashboard_session_revision']"
+    ]
+  },
+  "select_dashboard": {
+    "lines": 1075,
+    "state_references": [
+      "aggregation_state.update(aggregation_detail=None)",
+      "auth_state.get('principal')",
+      "auth_state['principal']",
+      "collection_state.update(rows=[], searched=True)",
+      "collection_state['rows']",
+      "collection_state['searched']",
+      "state.get('dashboard_summary_cache')",
+      "state.get('dashboard_summary_cache_key')",
+      "state.get('dashboard_view_token')",
+      "state.get('resource')",
+      "state.pop('dashboard_summary_cache', None)",
+      "state.pop('dashboard_summary_cache_key', None)",
+      "state.update(resource='dashboard')",
+      "state['application_configuration']",
+      "state['dashboard_summary_cache']",
+      "state['dashboard_summary_cache_key']",
+      "state['dashboard_view_token']"
+    ]
+  }
+}

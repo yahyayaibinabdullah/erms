@@ -1,0 +1,17 @@
+{
+  "preserved": true,
+  "runtime_fix": false,
+  "observations": [
+    {
+      "implementation": "original",
+      "exception": "ValueError",
+      "message": "Invalid value: contains_ci"
+    },
+    {
+      "implementation": "extracted",
+      "exception": "ValueError",
+      "message": "Invalid value: contains_ci"
+    }
+  ],
+  "scope": "Synthetic saved definition with a bare condition. Normal UI-produced definitions have an outer Boolean group. Record for later product review; no refactor behavior change."
+}

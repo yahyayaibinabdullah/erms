@@ -1,0 +1,190 @@
+{
+  "source_inventory": [
+    {
+      "name": "preview_record_components",
+      "closure": [
+        "api"
+      ],
+      "globals": [
+        "ApiError",
+        "TimeoutError",
+        "base64",
+        "component_file_icon",
+        "component_is_previewable",
+        "context",
+        "current_locale_context",
+        "dict",
+        "enumerate",
+        "error_message",
+        "int",
+        "isinstance",
+        "json",
+        "len",
+        "max",
+        "native_preview_kind",
+        "next",
+        "render_message",
+        "repr",
+        "requires_document_conversion",
+        "sorted",
+        "str",
+        "ui"
+      ]
+    },
+    {
+      "name": "show_components",
+      "closure": [
+        "api",
+        "preview_record_components",
+        "show_entity_history"
+      ],
+      "globals": [
+        "ApiError",
+        "OSError",
+        "ValueError",
+        "asyncio",
+        "background_tasks",
+        "buffer_upload_batch",
+        "capability_allowed",
+        "component_uploader",
+        "dict",
+        "enumerate",
+        "error_message",
+        "int",
+        "isinstance",
+        "json",
+        "len",
+        "list",
+        "max",
+        "render_component_cards",
+        "render_message",
+        "repr",
+        "ui",
+        "zip"
+      ]
+    },
+    {
+      "name": "decorate_record_search_components",
+      "closure": [
+        "api"
+      ],
+      "globals": [
+        "ApiError",
+        "asyncio",
+        "int",
+        "zip"
+      ]
+    },
+    {
+      "name": "advanced_search_has_component_field",
+      "globals": [
+        "ADVANCED_SEARCH_COMPONENT_FIELDS",
+        "advanced_search_has_component_field",
+        "any"
+      ]
+    },
+    {
+      "name": "localized_component_status",
+      "globals": [
+        "render_message",
+        "str"
+      ]
+    },
+    {
+      "name": "record_draft_component_context",
+      "globals": [
+        "ValueError",
+        "int",
+        "str"
+      ]
+    },
+    {
+      "name": "component_file_icon",
+      "globals": []
+    },
+    {
+      "name": "component_is_previewable",
+      "globals": [
+        "bool",
+        "native_preview_kind",
+        "requires_document_conversion"
+      ]
+    },
+    {
+      "name": "render_component_cards",
+      "globals": [
+        "capability_allowed",
+        "component_file_icon",
+        "component_is_previewable",
+        "enumerate",
+        "format_file_size",
+        "format_timestamp",
+        "len",
+        "localized_component_status",
+        "localized_indexing_status",
+        "render_message",
+        "str",
+        "ui"
+      ]
+    },
+    {
+      "name": "component_uploader",
+      "globals": [
+        "html_escape",
+        "render_message",
+        "ui"
+      ]
+    }
+  ],
+  "owners": {
+    "components.py": [
+      "show_components",
+      "page-25 state",
+      "upload lock",
+      "optimistic deletion",
+      "ordering",
+      "indexing status"
+    ],
+    "component_preview.py": [
+      "preview_record_components",
+      "page-50 state",
+      "selected component",
+      "request generation",
+      "viewer cleanup"
+    ],
+    "component_presentation.py": [
+      "status labels",
+      "supported formats",
+      "file icons",
+      "uploader slots"
+    ],
+    "component_cards.py": [
+      "card rendering with explicit shared formatters"
+    ],
+    "upload_buffers.py": [
+      "copy temporary upload bytes before await"
+    ]
+  },
+  "state_lifetime": "Existing viewer/dialog invocation; no cache or application-state dictionary added.",
+  "callbacks": [
+    "api",
+    "error_message",
+    "deferred entity history",
+    "preview",
+    "card rendering"
+  ],
+  "callers": [
+    "saved-record details",
+    "record draft/capture",
+    "indexer component links",
+    "audit component links",
+    "disposition resource preview",
+    "compact/global/advanced result previews",
+    "existing generic record table"
+  ],
+  "retained_with_future_owners": {
+    "record_draft_component_context": "6N capture validation",
+    "decorate_record_search_components": "record search result hydration",
+    "advanced_search_has_component_field": "6R query builder"
+  }
+}

@@ -8,13 +8,13 @@ from frontend.webui.capabilities import can_edit_entity_translation
 
 
 def test_untouched_translation_fields_do_not_block_unrelated_metadata_save():
-    tree = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    tree = ast.parse((Path(__file__).parents[1] / 'entity_translation_editor.py').read_text())
     state_node = next(node for node in ast.walk(tree) if isinstance(node, ast.AnnAssign)
                       and isinstance(node.target, ast.Name) and node.target.id == 'translation_state')
     pending = next(node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)
                    and node.name == 'pending_entity_translation')
     state = eval(compile(ast.Expression(state_node.value), 'state', 'eval'), {
-        'multilingual_fields': {'roles': ('name', 'description')}, 'spec': SimpleNamespace(key='roles'),
+        'fields': ('name', 'description'),
     })
     controls = {field: SimpleNamespace(value=None) for field in ('name', 'description')}
     namespace = {'translation_state': state, 'translation_controls': controls,
@@ -30,7 +30,7 @@ def test_user_administration_includes_entity_translation_permission():
     assert can_edit_entity_translation('users', ['identity.users.administer'])
     assert not can_edit_entity_translation('users', ['localization.administer'])
     assert not can_edit_entity_translation('users', ['role.modify_metadata'])
-    tree=ast.parse((Path(__file__).parents[1]/'app.py').read_text())
+    tree=ast.parse((Path(__file__).parents[1]/'entity_editor.py').read_text())
     block=next(node for node in ast.walk(tree) if isinstance(node,ast.If)
                and 'translation_edit_allowed' in ast.unparse(node.test)
                and 'multilingual_fields' in ast.unparse(node.test))
@@ -43,7 +43,7 @@ def test_user_administration_includes_entity_translation_permission():
     ('en','The current account is not authorized for this operation'),
 ])
 async def test_failed_entity_translation_load_displays_error_in_editor_context(language,message):
-    tree=ast.parse((Path(__file__).parents[1]/'app.py').read_text())
+    tree=ast.parse((Path(__file__).parents[1]/'entity_translation_editor.py').read_text())
     loader=next(node for node in ast.walk(tree) if isinstance(node,ast.AsyncFunctionDef)
                 and node.name=='load_entity_translation')
     class Control:
@@ -72,7 +72,7 @@ async def test_failed_entity_translation_load_displays_error_in_editor_context(l
     namespace={'language_control':SimpleNamespace(value=language),'translation_state':state,
                'translation_controls':controls,'translation_status':SimpleNamespace(client=client,set_text=statuses.append),
                'translation_loading_status':'Loading','translation_loaded_status':'Loaded',
-               'api':SimpleNamespace(entity_translation=denied),'spec':SimpleNamespace(key='users'),
+               'api':SimpleNamespace(entity_translation=denied),'resource':'users',
                'row':{'id':17,'version':1},'dialog':SimpleNamespace(value=True),
                'ApiError':ApiError,'error_message':localized_error,'show_api_error':show_error}
     exec(compile(ast.Module(body=[loader],type_ignores=[]),'loader','exec'),namespace)

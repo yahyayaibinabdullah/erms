@@ -302,7 +302,10 @@ PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/pytho
     -m backend.services.api.content_cleanup --watch &
 CONTENT_CLEANUP_PID=$!
 
-echo "Starting API-owned login-session cleanup worker."
+# The local stack owns this separate process from startup through shutdown.
+# Production supervises it independently of API service restarts. PostgreSQL
+# elects one active worker if another local/deployed copy shares this database.
+echo "Starting login-session and search-cache cleanup worker."
 PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/python" -u \
     -m backend.services.api.session_cleanup --watch &
 SESSION_CLEANUP_PID=$!
@@ -374,7 +377,7 @@ echo "  API:     ${STACK_API_URL}"
 echo "  API docs:${STACK_API_URL}/docs"
 echo "  Disposition: eligibility, communications and destruction/completion workers are managed"
 echo "  Content: segmented-content cleanup is running"
-echo "  Sessions: login-session cleanup is running"
+echo "  Cleanup: login-session/search-cache worker is running (active or standby)"
 echo "  MailDev: mailbox/MCP URLs printed above; logs in .runtime/maildev/"
 if [[ -n "${INDEXING_MAINTENANCE_PID}" ]]; then
     echo "  Cleanup: API-owned indexing/credential maintenance is running"
@@ -393,7 +396,7 @@ python3 "${PROJECT_DIR}/tools/local_stack_control.py" _ready "$$" \
 while true; do
     if ! kill -0 "${SESSION_CLEANUP_PID}" 2>/dev/null; then
         wait "${SESSION_CLEANUP_PID}" || true
-        echo "The managed login-session cleanup worker stopped unexpectedly." >&2
+        echo "The managed login-session and search-cache cleanup worker stopped unexpectedly." >&2
         exit 1
     fi
     if ! kill -0 "${CONTENT_CLEANUP_PID}" 2>/dev/null; then

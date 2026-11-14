@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="16" skipped="0" tests="16" time="2.253" timestamp="2026-11-11T23:52:57.165854+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[success-False-en]" time="0.064"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': False, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1052a7550&gt;, 'outcome': 'success', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x1052bea90&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1052a7550&gt;
+language = 'en', inline = False, outcome = 'success'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[success-False-ar]" time="0.050"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': False, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x103e6ac90&gt;, 'outcome': 'success', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x1052eeb10&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x103e6ac90&gt;
+language = 'ar', inline = False, outcome = 'success'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[success-True-en]" time="0.036"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': True, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105632210&gt;, 'outcome': 'success', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x1056333d0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105632210&gt;
+language = 'en', inline = True, outcome = 'success'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[success-True-ar]" time="0.047"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': True, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1052da210&gt;, 'outcome': 'success', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x10525fe10&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1052da210&gt;
+language = 'ar', inline = True, outcome = 'success'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[delete_failure-False-en]" time="0.052"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': False, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10587a310&gt;, 'outcome': 'delete_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x1058b0290&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10587a310&gt;
+language = 'en', inline = False, outcome = 'delete_failure'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[delete_failure-False-ar]" time="0.129"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': False, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1054dc810&gt;, 'outcome': 'delete_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x105991f10&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1054dc810&gt;
+language = 'ar', inline = False, outcome = 'delete_failure'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[delete_failure-True-en]" time="0.034"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': True, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105a070d0&gt;, 'outcome': 'delete_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x105a07450&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105a070d0&gt;
+language = 'en', inline = True, outcome = 'delete_failure'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[delete_failure-True-ar]" time="0.042"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': True, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105839090&gt;, 'outcome': 'delete_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x105874b10&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105839090&gt;
+language = 'ar', inline = True, outcome = 'delete_failure'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[refresh_failure-False-en]" time="0.032"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': False, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105d12990&gt;, 'outcome': 'refresh_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x105bd5dd0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105d12990&gt;
+language = 'en', inline = False, outcome = 'refresh_failure'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[refresh_failure-False-ar]" time="0.041"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': False, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105584ad0&gt;, 'outcome': 'refresh_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x105a42f90&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105584ad0&gt;
+language = 'ar', inline = False, outcome = 'refresh_failure'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[refresh_failure-True-en]" time="0.030"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': True, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105c35fd0&gt;, 'outcome': 'refresh_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x105ba9110&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105c35fd0&gt;
+language = 'en', inline = True, outcome = 'refresh_failure'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[refresh_failure-True-ar]" time="0.045"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': True, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x110d41290&gt;, 'outcome': 'refresh_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x105455b50&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x110d41290&gt;
+language = 'ar', inline = True, outcome = 'refresh_failure'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[last_component-False-en]" time="0.033"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': False, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105d3ec90&gt;, 'outcome': 'last_component', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x110d80310&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105d3ec90&gt;
+language = 'en', inline = False, outcome = 'last_component'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[last_component-False-ar]" time="0.042"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': False, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x110ece4d0&gt;, 'outcome': 'last_component', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x1057ce150&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x110ece4d0&gt;
+language = 'ar', inline = False, outcome = 'last_component'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[last_component-True-en]" time="0.035"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': True, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x110eb0150&gt;, 'outcome': 'last_component', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x110e4a4d0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x110eb0150&gt;
+language = 'en', inline = True, outcome = 'last_component'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[last_component-True-ar]" time="0.043"><failure message="TypeError: object NoneType can't be used in 'await' expression">args = ()
+kwargs = {'inline': True, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x111024a90&gt;, 'outcome': 'last_component', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x105c36010&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x111024a90&gt;
+language = 'ar', inline = True, outcome = 'last_component'
+
+    @pytest.mark.parametrize('language',['en','ar'])
+    @pytest.mark.parametrize('inline',[False,True])
+    @pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+    async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+        from nicegui.functions.notify import notify as real_notify
+        api,v,rows,record,d=await setup(user,language=language,inline=inline)
+        notifications=[]
+        def notify(message,**kwargs):
+            # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+            real_notify(message,**kwargs)
+            notifications.append((str(message),kwargs.get('color')))
+        monkeypatch.setattr(ui,'notify',notify)
+        async def delete(identifier,version):
+            # Match native event lifetime: the originating card no longer owns a live slot.
+            gc.collect()
+            await asyncio.sleep(0)
+            if outcome=='delete_failure':raise ApiError(409,'Conflict')
+            rows[:]=[] if outcome=='last_component' else [r for r in rows if r['id']!=identifier]
+            if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+        api.delete_component.side_effect=delete
+        button=buttons(d,'delete_outline')[0]
+        callback=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        slot=button.parent_slot
+        # Await the real card callback inside the same parent-slot context as native events.
+        del button
+        with slot:
+&gt;           await callback(None)
+E           TypeError: object NoneType can't be used in 'await' expression
+
+frontend/webui/interaction/tests/test_components_feature.py:91: TypeError</failure></testcase></testsuite></testsuites>

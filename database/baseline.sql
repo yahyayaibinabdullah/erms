@@ -2,7 +2,18 @@
 -- Fresh-install bookkeeping: these versions are INCLUDED in the canonical schema.
 -- This does not execute upgrades. Never apply this file to an older database.
 BEGIN;
-DO $$ BEGIN IF EXISTS(SELECT 1 FROM schema_migrations) THEN RAISE EXCEPTION 'Schema baseline is already recorded'; END IF; IF to_regprocedure('disposition_private.complete_certificate_task(bigint,bigint,bigint)') IS NULL THEN RAISE EXCEPTION 'Load the latest canonical schema before recording its baseline'; END IF; END $$;
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM schema_migrations) THEN
+        RAISE EXCEPTION 'Schema baseline is already recorded';
+    END IF;
+    IF to_regprocedure('disposition_private.complete_certificate_task(bigint,bigint,bigint)') IS NULL
+       OR to_regclass('public.search_results_cache') IS NULL
+       OR NOT application_setting_value_valid('SEARCH_RESULT_LIMIT', '1000'::jsonb, NULL) THEN
+        RAISE EXCEPTION 'Load the latest canonical schema before recording its baseline';
+    END IF;
+END
+$$;
 INSERT INTO schema_migrations(version) VALUES
  ('049_resource_relationships'),
  ('050_application_settings'),
@@ -58,5 +69,11 @@ INSERT INTO schema_migrations(version) VALUES
  ('103_standard_destruction_owner_roles'),
  ('104_remaining_review_readiness'),
  ('105_background_disposition_operations'),
- ('106_final_certificate_task_queue');
+ ('106_final_certificate_task_queue'),
+ ('107_global_search_result_cache'),
+ ('108_search_application_settings'),
+ ('109_search_candidate_indexes'),
+ ('110_search_cache_cleanup_settings'),
+ ('111_shared_search_results_cache'),
+ ('112_search_vector_storage');
 COMMIT;

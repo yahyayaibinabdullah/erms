@@ -1,0 +1,124 @@
+{
+  "status": "Saved-search reopening fixed and locally verified",
+  "date": "2026-11-12",
+  "branch": "refactor-API-python-file",
+  "head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "git_mutations": false,
+  "tests": {
+    "unit": 63,
+    "interaction": 37
+  },
+  "browsers": {
+    "chrome": {
+      "version": "157.0.8103.40",
+      "checks": 9,
+      "screenshots": 22,
+      "bare_condition_reopening": [
+        {
+          "resource": "records",
+          "language": "en",
+          "stored_definition_unchanged_on_open": true,
+          "clean_navigation": true,
+          "saved_execution_matches_api": true,
+          "edited_value_retained": true,
+          "before_version": 1,
+          "after_version": 2
+        },
+        {
+          "resource": "aggregations",
+          "language": "en",
+          "stored_definition_unchanged_on_open": true,
+          "clean_navigation": true,
+          "saved_execution_matches_api": true,
+          "edited_value_retained": true,
+          "before_version": 1,
+          "after_version": 2
+        },
+        {
+          "resource": "records",
+          "language": "ar",
+          "stored_definition_unchanged_on_open": true,
+          "clean_navigation": true,
+          "saved_execution_matches_api": true,
+          "edited_value_retained": true,
+          "before_version": 1,
+          "after_version": 2
+        },
+        {
+          "resource": "aggregations",
+          "language": "ar",
+          "stored_definition_unchanged_on_open": true,
+          "clean_navigation": true,
+          "saved_execution_matches_api": true,
+          "edited_value_retained": true,
+          "before_version": 1,
+          "after_version": 2
+        }
+      ],
+      "saved_updates": 4,
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    },
+    "edge": {
+      "version": "157.0.4341.46",
+      "checks": 9,
+      "screenshots": 22,
+      "bare_condition_reopening": [
+        {
+          "resource": "records",
+          "language": "en",
+          "stored_definition_unchanged_on_open": true,
+          "clean_navigation": true,
+          "saved_execution_matches_api": true,
+          "edited_value_retained": true,
+          "before_version": 1,
+          "after_version": 2
+        },
+        {
+          "resource": "aggregations",
+          "language": "en",
+          "stored_definition_unchanged_on_open": true,
+          "clean_navigation": true,
+          "saved_execution_matches_api": true,
+          "edited_value_retained": true,
+          "before_version": 1,
+          "after_version": 2
+        },
+        {
+          "resource": "records",
+          "language": "ar",
+          "stored_definition_unchanged_on_open": true,
+          "clean_navigation": true,
+          "saved_execution_matches_api": true,
+          "edited_value_retained": true,
+          "before_version": 1,
+          "after_version": 2
+        },
+        {
+          "resource": "aggregations",
+          "language": "ar",
+          "stored_definition_unchanged_on_open": true,
+          "clean_navigation": true,
+          "saved_execution_matches_api": true,
+          "edited_value_retained": true,
+          "before_version": 1,
+          "after_version": 2
+        }
+      ],
+      "saved_updates": 4,
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    }
+  },
+  "disposable_databases_removed": 3,
+  "catalogues_unchanged": true,
+  "excluded_attempts": {
+    "before": "Absence check used a finder that requires a dialog to exist; assertion corrected",
+    "before-corrected": "16 expected standalone failures, 16 grouped passes; structured page exceptions also reported at teardown",
+    "chrome-first-attempt": "English passed; timeout closing saved picker at first Arabic standalone query. Screen remained on picker; no browser or server exception. Cause unproven; retained separately."
+  },
+  "test_source_sha256": {
+    "frontend/webui/interaction/tests/test_saved_search_reopening.py": "0833a9e5f2cedb9eac90b671a42ed36ecf1a7a5cc1097ab6c33457a3d96a9282",
+    "tools/webui_browser_advanced_search.py": "ba60b1ebbd5eb80dd5da6c13f6900e930727f43f6fca4c86ba7f97cd05edde3d"
+  }
+}

@@ -37,13 +37,13 @@ ENTITIES = {
     ),
     "classification-schemes": EntitySpec(
         "classification-schemes", "Classification schemes", "classification scheme",
-        (("code", "Code"), ("title", "Title"), ("date_published", "Published"), ("date_deactivated", "Deactivated")),
+        (),
         (FieldSpec("code", "Code", required=True), FieldSpec("title", "Title", required=True), FieldSpec("description", "Description", "textarea"), FieldSpec("authority", "Authority"), FieldSpec("scope_note", "Scope note", "textarea"), FieldSpec("edition", "Edition"), FieldSpec("date_published", "Date published", "datetime")),
         False, ("code", "title", "description"),
     ),
     "classifications": EntitySpec(
         "classifications", "Classifications", "classification",
-        (("code", "Code"), ("title", "Title"), ("type_display", "Type"), ("scheme_display", "Scheme")),
+        (),
         (
             FieldSpec("classification_scheme_id", "Classification scheme", "lookup", True, "classification-schemes", ("code", "title")),
             FieldSpec("parent_classification_id", "Parent classification", "lookup", False, "classifications", ("code", "title")),
@@ -56,7 +56,7 @@ ENTITIES = {
             FieldSpec("final_disposition", "Final disposition", "disposition"),
             FieldSpec("instructions", "Retention and disposal instructions", "textarea"),
         ),
-        True, ("code", "title", "description", "keywords"),
+        search_fields=("code", "title", "description", "keywords"),
     ),
     "org-units": EntitySpec(
         "org-units", "Organization units", "organization unit",
@@ -97,3 +97,6 @@ ENTITIES = {
         (),
     ),
 }
+
+# Entity definitions also serve editors and API resources without collection pages.
+COLLECTION_ENTITIES = {key: spec for key, spec in ENTITIES.items() if spec.columns}

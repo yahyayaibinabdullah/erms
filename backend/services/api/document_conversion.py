@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from backend.services.processing_workspace import working_copy_fds
+from backend.services.component_formats import CONVERTIBLE_EXTENSIONS
 
 import os
 import shutil
@@ -21,14 +22,6 @@ class ConversionUnavailable(RuntimeError):
 
 class UnsupportedPreview(RuntimeError):
     pass
-
-
-CONVERTIBLE_EXTENSIONS = {
-    ".doc", ".docx", ".odt", ".rtf",
-    ".xls", ".xlsx", ".ods", ".csv",
-    ".ppt", ".pptx", ".odp",
-    ".md", ".msg", ".eml", ".html", ".txt", ".xml",
-}
 
 
 def _libreoffice_binary() -> str:

@@ -1,0 +1,36 @@
+{
+  "remaining_uses": [
+    {
+      "file": "frontend/webui/record_details.py",
+      "line": 226,
+      "source": "+ (\" icon-right=arrow_forward\" if current_direction[\"value\"] == \"rtl\" else \"\")"
+    },
+    {
+      "file": "frontend/webui/aggregation_details.py",
+      "line": 360,
+      "source": "+ (\" icon-right=arrow_forward\" if current_direction[\"value\"] == \"rtl\" else \"\")"
+    },
+    {
+      "file": "frontend/webui/organization_units.py",
+      "line": 76,
+      "source": ").props(\"flat no-caps\" + (\" icon-right=arrow_forward\" if direction() == \"rtl\" else \"\"))"
+    },
+    {
+      "file": "frontend/webui/organization_roles.py",
+      "line": 110,
+      "source": ").props(\"flat no-caps\" + (\" icon-right=arrow_forward\" if direction() == \"rtl\" else \"\"))"
+    },
+    {
+      "file": "frontend/webui/organization_users.py",
+      "line": 265,
+      "source": ").props(\"flat no-caps\" + (\" icon-right=arrow_forward\" if direction() == \"rtl\" else \"\"))"
+    },
+    {
+      "file": "frontend/webui/account_sign_in.py",
+      "line": 72,
+      "source": "login_submit.props(\"icon-right=login\")"
+    }
+  ],
+  "all_remaining_uses_explicit_names": true,
+  "old_browser_error_allowances_removed": true
+}

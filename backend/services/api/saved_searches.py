@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from typing import Any, Literal
+from uuid import UUID
+
+from .authentication import Principal, principal_from_request
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from psycopg import Connection
@@ -10,10 +13,13 @@ from psycopg.types.json import Jsonb
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 from typing_extensions import Annotated
 
+from .operation_policy import operation_policy
 from .audit_context import decode_change_reason
 from .concurrency import expected_version
 from .database import get_connection
 from .authorization_policy import require_global_privilege
+from .application_settings import cache as settings_cache
+from .application_settings_registry import SEARCH_RESULT_LIMIT_MAXIMUM
 from .schemas import SearchRequest
 from .search import canonicalize_search_request, search_rows
 from .entity_localization import localize_rows, localized_projection, preferred_language
@@ -30,7 +36,8 @@ class SavedSearchDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
     schema_version: Literal[1] = 1
     resource_type: Literal["record", "aggregation"]
-    max_results: int = Field(default=1000, ge=1, le=5000)
+    # Accept the legacy field from older clients. Only already-stored limits affect execution.
+    max_results: int | None = Field(default=None, ge=1, le=SEARCH_RESULT_LIMIT_MAXIMUM)
     request: SearchRequest
 
     @model_validator(mode="after")
@@ -39,6 +46,8 @@ class SavedSearchDefinition(BaseModel):
             raise ValueError("saved-search page size must be 25, 50, or 100")
         if self.request.offset != 0:
             raise ValueError("saved-search definitions must begin at offset 0")
+        if self.request.tab_id is not None or self.request.search_id is not None:
+            raise ValueError("cache identifiers are runtime state and cannot be saved")
         if self.request.debug:
             raise ValueError("debug is runtime state and cannot be saved")
         return self
@@ -73,6 +82,8 @@ class SavedSearchExecution(BaseModel):
     limit: Literal[25, 50, 100] | None = None
     offset: int = Field(default=0, ge=0)
     debug: bool = False
+    tab_id: UUID | None = None
+    search_id: UUID | None = None
 
 
 def _current_user_id(connection: Connection) -> int:
@@ -179,6 +190,7 @@ def _capabilities(connection: Connection, row: dict[str, Any]) -> tuple[dict[str
 
 def _serialize(connection: Connection, row: dict[str, Any], language: str) -> dict[str, Any]:
     result = dict(row)
+    result["result_cap"] = _saved_search_result_cap(connection, row["definition"])
     roles, units = _audience(connection, row["id"])
     result["role_ids"] = roles
     result["org_unit_ids"] = units
@@ -190,6 +202,11 @@ def _serialize(connection: Connection, row: dict[str, Any], language: str) -> di
         result["owner"].pop("translations", None)
     result["capabilities"], result["capability_reasons"] = _capabilities(connection, row)
     return result
+
+
+def _saved_search_result_cap(connection: Connection, definition: dict[str, Any]) -> int:
+    system_limit = settings_cache.for_connection(connection)["SEARCH_RESULT_LIMIT"]
+    return min(int(definition.get("max_results") or system_limit), system_limit)
 
 
 def _get(
@@ -219,7 +236,6 @@ def _canonical_definition(connection: Connection, definition: SavedSearchDefinit
     return {
         "schema_version": 1,
         "resource_type": definition.resource_type,
-        "max_results": definition.max_results,
         "request": canonical,
     }
 
@@ -276,6 +292,7 @@ def _replace_audience(connection: Connection, saved_search_id: int, payload: Sav
 
 
 @router.get("")
+@operation_policy("relationship_scoped")
 def list_saved_searches(
     request: Request,
     scope: Literal["all", "owned", "shared_with_me"] = "all",
@@ -330,6 +347,7 @@ def audience_eligibility_sql(audience_kind: str, *, administrator: bool) -> str:
 
 
 @router.get("/audience-options/{audience_kind}")
+@operation_policy("relationship_scoped")
 def audience_options(
     audience_kind: Literal["roles", "org-units"],
     request: Request,
@@ -387,8 +405,8 @@ def administer_saved_searches(
     resource_type: Literal["record", "aggregation"] | None = None,
     q: str | None = None, category: str | None = None,
     role_id: int | None = None, org_unit_id: int | None = None,
-    max_results_min: int | None = Query(None, ge=1, le=5000),
-    max_results_max: int | None = Query(None, ge=1, le=5000),
+    max_results_min: int | None = Query(None, ge=1, le=SEARCH_RESULT_LIMIT_MAXIMUM),
+    max_results_max: int | None = Query(None, ge=1, le=SEARCH_RESULT_LIMIT_MAXIMUM),
     created_from: datetime | None = None, created_before: datetime | None = None,
     updated_from: datetime | None = None, updated_before: datetime | None = None,
     limit: int = Query(25, ge=1, le=100), offset: int = Query(0, ge=0),
@@ -398,6 +416,7 @@ def administer_saved_searches(
         raise HTTPException(status_code=403, detail={"code": "insufficient_privilege"})
     if max_results_min is not None and max_results_max is not None and max_results_min > max_results_max:
         raise HTTPException(status_code=422, detail={"code": "invalid_max_results_range"})
+    system_limit = settings_cache.for_connection(connection)["SEARCH_RESULT_LIMIT"]
     where = """WHERE (%s::bigint IS NULL OR saved.owner_user_id=%s)
       AND (%s::text IS NULL OR owner.name ILIKE '%%'||%s||'%%' OR owner.email ILIKE '%%'||%s||'%%')
       AND (%s::text IS NULL OR saved.resource_type=%s)
@@ -405,8 +424,8 @@ def administer_saved_searches(
       AND (%s::text IS NULL OR lower(saved.category)=lower(%s))
       AND (%s::bigint IS NULL OR EXISTS (SELECT 1 FROM saved_search_role_grants grant_row WHERE grant_row.saved_search_id=saved.id AND grant_row.role_id=%s))
       AND (%s::bigint IS NULL OR EXISTS (SELECT 1 FROM saved_search_org_unit_grants grant_row WHERE grant_row.saved_search_id=saved.id AND grant_row.org_unit_id=%s))
-      AND (%s::integer IS NULL OR (saved.definition->>'max_results')::integer >= %s)
-      AND (%s::integer IS NULL OR (saved.definition->>'max_results')::integer <= %s)
+      AND (%s::integer IS NULL OR LEAST((saved.definition->>'max_results')::integer, %s) >= %s)
+      AND (%s::integer IS NULL OR LEAST((saved.definition->>'max_results')::integer, %s) <= %s)
       AND (%s::timestamptz IS NULL OR saved.date_created >= %s::timestamptz)
       AND (%s::timestamptz IS NULL OR saved.date_created < %s::timestamptz)
       AND (%s::timestamptz IS NULL OR saved.date_updated >= %s::timestamptz)
@@ -415,7 +434,7 @@ def administer_saved_searches(
         owner_user_id, owner_user_id, owner_q, owner_q, owner_q,
         resource_type, resource_type, q, q, category, category,
         role_id, role_id, org_unit_id, org_unit_id,
-        max_results_min, max_results_min, max_results_max, max_results_max,
+        max_results_min, system_limit, max_results_min, max_results_max, system_limit, max_results_max,
         created_from, created_from, created_before, created_before,
         updated_from, updated_from, updated_before, updated_before,
     )
@@ -453,13 +472,16 @@ def create_saved_search(payload: SavedSearchWrite, request: Request, connection:
 
 
 @router.get("/{saved_search_id}")
+@operation_policy("relationship_scoped")
 def get_saved_search(saved_search_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
     return _serialize(connection, _get(connection, saved_search_id), preferred_language(connection, request))
 
 
 @router.post("/{saved_search_id}/execute")
+@operation_policy("relationship_scoped")
 def execute_saved_search(
     saved_search_id: int, payload: SavedSearchExecution,
+    principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     # Administration permits governance of a saved search, but never grants
@@ -473,30 +495,40 @@ def execute_saved_search(
             status_code=422,
             detail={"code": "saved_search_definition_unsupported"},
         )
-    maximum = int(definition["max_results"])
-    if payload.offset >= maximum:
+    maximum = _saved_search_result_cap(connection, definition)
+    if payload.search_id is not None and payload.tab_id is None:
+        raise HTTPException(status_code=422, detail="a saved result list requires its tab ID")
+    if payload.tab_id is None and payload.offset >= maximum:
         raise HTTPException(
             status_code=422,
             detail={"code": "saved_search_result_limit_exceeded", "max_results": maximum},
         )
     stored_request = SearchRequest.model_validate(definition["request"])
     requested_limit = payload.limit or stored_request.limit
-    effective_limit = min(requested_limit, maximum - payload.offset)
+    effective_limit = requested_limit if payload.tab_id else min(requested_limit, maximum - payload.offset)
     execution_request = stored_request.model_copy(update={
         "limit": effective_limit,
         "offset": payload.offset,
         "debug": payload.debug,
+        "tab_id": payload.tab_id, "search_id": payload.search_id,
     })
     resource = "records" if row["resource_type"] == "record" else "aggregations"
     result = search_rows(
         connection, resource, execution_request,
         endpoint=f"/api/v1/saved-searches/{saved_search_id}/execute",
+        max_results=maximum, session_id=principal.session_id, user_id=principal.user_id,
+        cache_version=row["version"],
     )
-    result["total"] = min(int(result["total"]), maximum)
     result["saved_search"] = {
         "id": row["id"], "name": row["name"], "version": row["version"],
         "resource_type": row["resource_type"], "max_results": maximum,
     }
+    if "index_freshness" in result:
+        return result
+    if payload.tab_id is not None and row["resource_type"] == "record":
+        from .search_cache import pending_content
+        result["index_freshness"] = {"has_pending_content": pending_content(connection)}
+        return result
     if row["resource_type"] == "record":
         pending = connection.execute(
             """SELECT EXISTS(SELECT 1 FROM digital_component_search_documents document
@@ -512,6 +544,7 @@ def execute_saved_search(
 
 
 @router.put("/{saved_search_id}")
+@operation_policy("relationship_scoped")
 def update_saved_search(
     saved_search_id: int, payload: SavedSearchWrite, request: Request,
     version: int = Depends(expected_version),
@@ -535,6 +568,8 @@ def update_saved_search(
     if audience_changed:
         _validate_audience(connection, payload, administrator=administrator)
     definition = _canonical_definition(connection, payload.definition)
+    if "max_results" in row["definition"]:
+        definition["max_results"] = row["definition"]["max_results"]
     connection.execute("SELECT set_config('app.change_reason',%s,true)", (reason,))
     connection.execute("SELECT set_config('app.event_metadata',%s,true)", (json.dumps({
         "audience_before": {"role_ids": old_roles, "org_unit_ids": old_units},
@@ -555,6 +590,7 @@ def update_saved_search(
 
 
 @router.delete("/{saved_search_id}", status_code=status.HTTP_204_NO_CONTENT)
+@operation_policy("relationship_scoped")
 def delete_saved_search(
     saved_search_id: int, request: Request, version: int = Depends(expected_version),
     connection: Connection = Depends(get_connection, scope="function"),

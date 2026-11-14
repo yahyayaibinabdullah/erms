@@ -1,0 +1,24 @@
+{
+  "identical_selectors_after_direction_reader_substitution": {
+    "bind_remote_scheme_select": true,
+    "browse_classification_tree": true,
+    "browse_advanced_classification": true
+  },
+  "unchanged_direct_host_functions": 113,
+  "changed_host_adapters": [
+    "bind_remote_scheme_select",
+    "clear_signed_in_identity",
+    "decorate_for_spec",
+    "open_editor",
+    "render_table",
+    "select_advanced_search",
+    "select_classification_workspace"
+  ],
+  "retention_payload_and_decoration_identical": true,
+  "legacy_actions_identical_after_refresh_adapter": true,
+  "styling_literals_identical": true,
+  "message_key_literals_identical": true,
+  "changed_existing_runtime_files": [
+    "frontend/webui/app.py"
+  ]
+}

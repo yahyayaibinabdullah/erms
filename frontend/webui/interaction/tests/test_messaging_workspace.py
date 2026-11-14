@@ -1,4 +1,5 @@
 """Real NiceGUI controls with bounded fake data; no database connections."""
+from frontend.webui.entity_selectors import build_relationship_selector
 
 import ast
 import asyncio
@@ -10,11 +11,9 @@ from unittest.mock import AsyncMock
 import pytest
 from nicegui import ui, background_tasks
 from nicegui.testing import User
-from frontend.webui.app import (
-    relationship_select,
-    relationship_options,
-    relationship_search_query,
-)
+from frontend.webui.relationship_select import relationship_select
+from frontend.webui.entity_selectors import relationship_options
+from frontend.webui.entity_selectors import relationship_search_query
 from frontend.webui.api_client import ApiError
 from frontend.webui.i18n_catalogue import render_message_plain, set_active_messages
 from frontend.webui.messaging_workspace import messaging_workspace
@@ -22,11 +21,6 @@ from frontend.webui.messaging_workspace import messaging_workspace
 pytest_plugins = ["nicegui.testing.user_plugin"]
 pytestmark = pytest.mark.asyncio
 ROOT = Path(__file__).parents[2]
-BINDING = next(
-    n
-    for n in ast.walk(ast.parse((ROOT / "app.py").read_text()))
-    if isinstance(n, ast.FunctionDef) and n.name == "bind_remote_relationship_select"
-)
 
 
 class Api:
@@ -104,12 +98,7 @@ async def setup(user, language="en", exchange=True, browse=None, mailbox="inbox"
         relationship_options=relationship_options,
         relationship_search_query=relationship_search_query,
     )
-    exec(
-        compile(
-            ast.Module(body=[BINDING], type_ignores=[]), "<shared-selector>", "exec"
-        ),
-        scope,
-    )
+    scope["bind_remote_relationship_select"] = build_relationship_selector(scope["api"], error_message=str)
 
     @ui.page("/messaging-test")
     async def page():
@@ -268,12 +257,7 @@ async def test_shared_remote_selector_retains_selection_and_disables_explained_r
         relationship_options=relationship_options,
         relationship_search_query=relationship_search_query,
     )
-    exec(
-        compile(
-            ast.Module(body=[BINDING], type_ignores=[]), "<shared-selector>", "exec"
-        ),
-        scope,
-    )
+    scope["bind_remote_relationship_select"] = build_relationship_selector(scope["api"], error_message=str)
     controls = {}
 
     @ui.page("/shared-messaging-selector")
@@ -388,7 +372,12 @@ async def test_two_character_mixed_search_keeps_to_and_cc_separate(user: User):
     cc.value = [8]
     await asyncio.sleep(0.1)
     next(c for c in user.find(ui.input).elements if c.label=='Subject').value='Mixed recipients'
-    user.find('Send',kind=ui.button).click()
+    # A positional text target also matches the Sender filter; NiceGUI ignores
+    # kind in that overload and iterates a set, making the old click unstable.
+    send = user.find(marker='messaging-send', kind=ui.button)
+    assert len(send.elements) == 1
+    assert next(iter(send.elements)).enabled
+    send.click()
     await user.should_see('Message sent')
     assert api.sent[0]['selectors'] == [
         {'recipient_type':'to','selector_kind':'user','target_id':2},
@@ -839,3 +828,35 @@ async def test_everyone_selection_exclusivity_and_removal(user: User, language):
     await asyncio.sleep(.1)
     assert buttons[0].enabled and buttons[1].enabled
     assert not any('/recipients/everyone' in c[1] for c in api.calls if len(c)>1)
+
+
+async def test_outbox_pages_keep_the_submitted_subject_until_search(user: User):
+    api = Api()
+    original = api.request
+    queries = []
+
+    async def request(method, path, **kwargs):
+        if path == '/api/v1/messages/outbox':
+            queries.append(kwargs['params'])
+            return {'items': [], 'has_more': True, 'next_cursor': 'page-two'}
+        return await original(method, path, **kwargs)
+
+    api.request = request
+    await setup(user, mailbox='outbox', api=api)
+    label = 'Search subject'
+    field = next(control for control in user.find(ui.input).elements if control.label == label)
+    field.value = 'Submitted'
+    user.find(kind=ui.button, content=label).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'limit': 25, 'q': 'Submitted'}
+    field.value = 'Draft'
+    user.find('Next', kind=ui.button).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'limit': 25, 'cursor': 'page-two', 'q': 'Submitted'}
+    user.find('Previous', kind=ui.button).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'limit': 25, 'q': 'Submitted'}
+    assert field.value == 'Draft'
+    user.find(kind=ui.button, content=label).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'limit': 25, 'q': 'Draft'}

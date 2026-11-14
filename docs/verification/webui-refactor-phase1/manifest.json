@@ -1,0 +1,198 @@
+{
+  "date": "2026-11-10",
+  "baseline_commit": "3a4481d5de96df1b27f1c2e401316ab00b93567f",
+  "required_browsers": [
+    "Chrome",
+    "Edge",
+    "Firefox",
+    "Safari"
+  ],
+  "observed_browser": "Codex embedded browser; does not establish coverage of the four required products",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "production_source_changed": false,
+  "disposable_databases_removed_and_catalogue_verified": true,
+  "test_runs": [
+    {
+      "file": "capture-isolated-results.xml",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 0.996,
+      "failing_cases": []
+    },
+    {
+      "file": "interaction-results.xml",
+      "tests": 209,
+      "failures": 8,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 96.997,
+      "failing_cases": [
+        "frontend.webui.interaction.tests.test_capture_destination_controls::test_capture_medium_remains_digital_before_and_after_parent_selection[None]",
+        "frontend.webui.interaction.tests.test_capture_destination_controls::test_capture_medium_remains_digital_before_and_after_parent_selection[digital]",
+        "frontend.webui.interaction.tests.test_capture_destination_controls::test_capture_medium_remains_digital_before_and_after_parent_selection[mixed]",
+        "frontend.webui.interaction.tests.test_capture_destination_controls::test_ordinary_record_medium_remains_editable_in_mixed_parent",
+        "frontend.webui.interaction.tests.test_messaging_phase5::test_deleted_mailbox_restore_uses_own_route_and_refresh[en]",
+        "frontend.webui.interaction.tests.test_messaging_phase5::test_deleted_mailbox_restore_uses_own_route_and_refresh[ar]",
+        "frontend.webui.interaction.tests.test_messaging_phase5::test_capture_button_is_busy_until_staging_finishes",
+        "frontend.webui.interaction.tests.test_messaging_workspace::test_two_character_mixed_search_keeps_to_and_cc_separate"
+      ]
+    },
+    {
+      "file": "messaging-focused-results.xml",
+      "tests": 4,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 3.181,
+      "failing_cases": [
+        "frontend.webui.interaction.tests.test_messaging_phase5::test_deleted_mailbox_restore_uses_own_route_and_refresh[en]",
+        "frontend.webui.interaction.tests.test_messaging_phase5::test_deleted_mailbox_restore_uses_own_route_and_refresh[ar]",
+        "frontend.webui.interaction.tests.test_messaging_phase5::test_capture_button_is_busy_until_staging_finishes"
+      ]
+    },
+    {
+      "file": "unit-results.xml",
+      "tests": 1484,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 93.349,
+      "failing_cases": [
+        "frontend.webui.tests.test_entities::test_entity_translation_editor_loads_selected_language_automatically",
+        "frontend.webui.tests.test_legal_holds_ui::test_aggregation_command_centre_matches_the_approved_two_column_layout"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "file": "aggregation-detail-ar.png",
+      "bytes": 103252,
+      "sha256": "a2d3950a7f2dd6fadf70345209984776a4e27ca6e7c433accbce719bbd92e311"
+    },
+    {
+      "file": "aggregation-detail-en.png",
+      "bytes": 113649,
+      "sha256": "97fb0be759f75e5ae75abdb1b40a77ac2f7ee9d36884f0e7f188da1b688006bd"
+    },
+    {
+      "file": "aggregation-reload-incomplete-en.png",
+      "bytes": 57987,
+      "sha256": "512bfc4e48f21199480e1c3e6b4f576c525ff09fafbf54e59469a5691d7e96cf"
+    },
+    {
+      "file": "aggregation-restore-incomplete-en.png",
+      "bytes": 57227,
+      "sha256": "2c296f6b2c3ff920ce1eafc5af96dec60cb2765a650c4b46d27026c7a3a7b69e"
+    },
+    {
+      "file": "capture-isolated-results.xml",
+      "bytes": 1167,
+      "sha256": "201b230e676563a950d037d448220f6d3ec049c0363621063d375b51811fa306"
+    },
+    {
+      "file": "dashboard-ar.png",
+      "bytes": 92499,
+      "sha256": "12e45ea4e0d82c66613c09cdbc78fe73e951659c1efdf7217c644d829795eec5"
+    },
+    {
+      "file": "dashboard-en.png",
+      "bytes": 92622,
+      "sha256": "5167781149bf246eb0dbb9cbd9f87da6f14d63c25ddb3f95f80f20f89d38df5a"
+    },
+    {
+      "file": "interaction-results.xml",
+      "bytes": 76207,
+      "sha256": "7f157a56e8f69ab987a8b88d786ec33de5dd8ed512186fa1df19a996a27b1828"
+    },
+    {
+      "file": "messaging-focused-results.xml",
+      "bytes": 17127,
+      "sha256": "bcfba42e5b4958267e22cc4432f0a0884729e0dd901c5eec3b15f64014ecdbaf"
+    },
+    {
+      "file": "navigation-requests-ar.json",
+      "bytes": 701,
+      "sha256": "0ba8606385bb6061841a84acfd3405c7e15f3fbbd91c77e3f06226c43d822018"
+    },
+    {
+      "file": "navigation-timings.json",
+      "bytes": 1615,
+      "sha256": "2da551348c4a251cb6886f08c911f3d10a0423de37d5d7f9418d30dad4eebcb0"
+    },
+    {
+      "file": "preferences-ar.png",
+      "bytes": 93504,
+      "sha256": "c93169a56581fe667f84438847c2887619502177cb55cb7f23179d2861e1d002"
+    },
+    {
+      "file": "preferences-en.png",
+      "bytes": 107222,
+      "sha256": "26babf12179b51f93ce7eea5ef043383b16c6aaa0a59da0b72c32990e266c96e"
+    },
+    {
+      "file": "record-detail-ar.png",
+      "bytes": 95629,
+      "sha256": "1f20e8440e2a71e850bf6f887f8891cb0a7afc6b6d41d1c4e1e21c14e16df527"
+    },
+    {
+      "file": "record-detail-en.png",
+      "bytes": 102334,
+      "sha256": "3fef72f3bc2603adf5c02c2633bac137a4e48bf2cbb09fb7587c39bb2ad00f11"
+    },
+    {
+      "file": "records-ar.png",
+      "bytes": 76504,
+      "sha256": "4df619c2b812c258c40ae99d70303763a956ecaaefee16798c0721dd3fc1db57"
+    },
+    {
+      "file": "records-en.png",
+      "bytes": 80858,
+      "sha256": "84ff8252c375ca4feef18f5550f0931a6c0cb863bde5c19be77c4fda5ecd06e0"
+    },
+    {
+      "file": "settings-browser-en.png",
+      "bytes": 90873,
+      "sha256": "5d467dec286bcf9138ea206fc4fe5f8195f40cca8c743eb96d2e6b6c9554471f"
+    },
+    {
+      "file": "settings-disposition-ar.png",
+      "bytes": 111087,
+      "sha256": "dbb2b5bc0b98eeb7117fe7f65acc2991bc2c1d3888297ff1efc126e74604b792"
+    },
+    {
+      "file": "settings-disposition-en.png",
+      "bytes": 122666,
+      "sha256": "08090ecd478790c3145009a19e7f9803ccca0241a957b66bdfce1a9aced5bedb"
+    },
+    {
+      "file": "settings-general-ar.png",
+      "bytes": 109444,
+      "sha256": "2ebf6dfc72d500457ae6efa23f4284429e602630ef2cfac1399583c13ce91037"
+    },
+    {
+      "file": "settings-general-en.png",
+      "bytes": 118948,
+      "sha256": "945f72dbf45f334d7e7332038e78254ad5a0371129d6bf587a0ca92cf45bd470"
+    },
+    {
+      "file": "source-inventory.json",
+      "bytes": 703941,
+      "sha256": "311d03b86a7e39a446815f4e084ad09b38c0562637a7f087c13004e1bfb68319"
+    },
+    {
+      "file": "source-inventory.md",
+      "bytes": 40302,
+      "sha256": "fb4eaa0f3eb8877f61925785e602885629fac3b4ba7ee549150ec2b4d0fab23d"
+    },
+    {
+      "file": "unit-results.xml",
+      "bytes": 259969,
+      "sha256": "82ec0f0d53953a38b7d3ed855b53dd36f5999aaf93e5fd4ee246144083733cbe"
+    }
+  ]
+}

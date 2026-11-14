@@ -1,0 +1,188 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "collections",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9263.38
+    },
+    {
+      "name": "security_levels bounded cards, empty filter, editor and keyboard",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8952.94
+    },
+    {
+      "name": "profiles bounded cards, empty filter, editor and keyboard",
+      "language": "en",
+      "status": "fail",
+      "error": "Message: stale element reference: stale element not found in the current frame\n  (Session info: chrome=157.0.8103.40); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#staleelementreferenceexception\nStacktrace:\n0   chromedriver                        0x0000000102722e44 chromedriver + 3059268\n1   chromedriver                        0x0000000102a803f0 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 153972\n2   chromedriver                        0x0000000102a84e4c __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 173008\n3   chromedriver                        0x0000000102a869a8 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 180012\n4   chromedriver                        0x0000000102ae9320 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 583844\n5   chromedriver                        0x0000000102a657fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n6   chromedriver                        0x0000000102ae8af4 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 581752\n7   chromedriver                        0x0000000102a657fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n8   chromedriver                        0x0000000102aaeb18 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 344220\n9   chromedriver                        0x00000001026f203c chromedriver + 2859068\n10  chromedriver                        0x00000001026f530c chromedriver + 2872076\n11  chromedriver                        0x00000001026dbdc8 chromedriver + 2768328\n12  chromedriver                        0x00000001026f5bcc chromedriver + 2874316\n13  chromedriver                        0x00000001026cf944 chromedriver + 2718020\n14  chromedriver                        0x00000001027118d8 chromedriver + 2988248\n15  chromedriver                        0x0000000102711a38 chromedriver + 2988600\n16  chromedriver                        0x0000000102722af4 chromedriver + 3058420\n17  libsystem_pthread.dylib             0x0000000192327c08 _pthread_start + 132\n18  libsystem_pthread.dylib             0x0000000192322b7c thread_start + 4\n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_collections.py\", line 17, in check_collections\n    assert len(page.visible('.governance-list-card')) <= 25\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 78, in visible\n    return [e for e in (scope or self.driver).find_elements(By.CSS_SELECTOR,selector) if e.is_displayed()]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 78, in <listcomp>\n    return [e for e in (scope or self.driver).find_elements(By.CSS_SELECTOR,selector) if e.is_displayed()]\n                                                                                         ^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/remote/webelement.py\", line 304, in is_displayed\n    return self.parent.execute_script(f\"/* isDisplayed */return ({isDisplayed_js}).apply(null, arguments);\", self)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py\", line 677, in execute_script\n    return self.execute(command, {\"script\": script, \"args\": converted_args})[\"value\"]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py\", line 566, in execute\n    self.error_handler.check_response(response)\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/remote/errorhandler.py\", line 234, in check_response\n    raise exception_class(message, screen, stacktrace)\nselenium.common.exceptions.StaleElementReferenceException: Message: stale element reference: stale element not found in the current frame\n  (Session info: chrome=157.0.8103.40); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#staleelementreferenceexception\nStacktrace:\n0   chromedriver                        0x0000000102722e44 chromedriver + 3059268\n1   chromedriver                        0x0000000102a803f0 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 153972\n2   chromedriver                        0x0000000102a84e4c __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 173008\n3   chromedriver                        0x0000000102a869a8 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 180012\n4   chromedriver                        0x0000000102ae9320 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 583844\n5   chromedriver                        0x0000000102a657fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n6   chromedriver                        0x0000000102ae8af4 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 581752\n7   chromedriver                        0x0000000102a657fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n8   chromedriver                        0x0000000102aaeb18 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 344220\n9   chromedriver                        0x00000001026f203c chromedriver + 2859068\n10  chromedriver                        0x00000001026f530c chromedriver + 2872076\n11  chromedriver                        0x00000001026dbdc8 chromedriver + 2768328\n12  chromedriver                        0x00000001026f5bcc chromedriver + 2874316\n13  chromedriver                        0x00000001026cf944 chromedriver + 2718020\n14  chromedriver                        0x00000001027118d8 chromedriver + 2988248\n15  chromedriver                        0x0000000102711a38 chromedriver + 2988600\n16  chromedriver                        0x0000000102722af4 chromedriver + 3058420\n17  libsystem_pthread.dylib             0x0000000192327c08 _pthread_start + 132\n18  libsystem_pthread.dylib             0x0000000192322b7c thread_start + 4\n\n",
+      "recent_native_clicks": [
+        {
+          "id": "c157",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c158",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c161",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c98",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c108",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c828",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c923",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c941",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c788",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c788",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c110",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 2795.5
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "collections-security_levels-en.png",
+      "sha256": "a9e4060977bfdb9cae5f58e989379a582340d1f703668e8fe6364ea54fa57dbe",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-security_levels-editor-en.png",
+      "sha256": "4a0d018112645cbd373593587262c95d5c7ee28a922f2ff86741de8780846d30",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-security_levels-empty-en.png",
+      "sha256": "e2ab55cdc6417b0a80de3fe93eeb9e9cecd40a7fb820f2491a551da69aa52475",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-3.png",
+      "sha256": "261e1358215a0e919e5d6743450f81c77beb302b1e9993e9dedcbf4942959fb3",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "collection_focus": [
+    {
+      "language": "en",
+      "resource": "security_levels",
+      "tag": "input",
+      "type": "text",
+      "label": "⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆︌︆︄︅️︆︉︆︎︇︀︇︅︇︄︂︎︇︄︆︅︇︈︇︄︂︎︆︌︆︁︆︂︆︅︆︌︅️︃︂︃︉︃︄︃︄︃︅︆︄︆︃︃︃⁤︁⁤︄︂⁤⁨⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇︄︆︁︆︄︆︁︇︄︆︁︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︎︆︁︆︍︆︅⁤︁⁤︄⁤Name⁩ *"
+    }
+  ],
+  "browser_errors": [
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    }
+  ]
+}

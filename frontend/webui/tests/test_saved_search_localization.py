@@ -15,7 +15,7 @@ def test_saved_search_refresh_uses_owning_page_catalogue():
     root = Path(__file__).parents[1]
     arabic = {item['message_key']: item['translated_text'] for item in
               json.loads((root / 'i18n/messages.ar.generated.json').read_text())['items']}
-    function = next(node for node in ast.walk(ast.parse((root / 'app.py').read_text()))
+    function = next(node for node in ast.walk(ast.parse((root / 'advanced_search.py').read_text()))
                     if isinstance(node, ast.FunctionDef) and node.name == 'refresh_saved_actions')
     client = Client(ui.page('/saved-search-localization-test'), request=None)
     try:
@@ -24,12 +24,12 @@ def test_saved_search_refresh_uses_owning_page_catalogue():
             button = ui.button('')
         scope = {name: MagicMock() for name in (
             'search_name', 'search_category', 'search_description', 'target',
-            'max_results', 'sort_field', 'sort_direction', 'page_size',
+            'sort_field', 'sort_direction', 'page_size',
             'reset_advanced', 'builder_host', 'search_advanced',
             'edit_details_button', 'save_as_button', 'delete_button',
             'render_saved_context',
         )}
-        workspace = {'saved': {'capabilities': {'update': True, 'execute': True}}}
+        workspace = {'busy': False, 'saved': {'capabilities': {'update': True, 'execute': True}}}
         scope.update(workspace=workspace, privileges={'search.saved_search.save'},
                      validate_builder=lambda: (None, None), save_button=button,
                      render_message=render_message)

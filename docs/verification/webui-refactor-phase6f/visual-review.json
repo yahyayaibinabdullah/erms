@@ -1,0 +1,44 @@
+{
+  "ignored_header_height": 72,
+  "differences": [
+    {
+      "browser": "chrome",
+      "file": "login-sessions-empty-en.png",
+      "changed_pixels_below_header": 24,
+      "bbox": [
+        485,
+        219,
+        486,
+        243
+      ],
+      "max_channel_difference": 222,
+      "cause": "Blinking insertion caret in the focused User or client input; observed at y=291..315 including header."
+    },
+    {
+      "browser": "chrome",
+      "file": "login-sessions-page-one-ar.png",
+      "changed_pixels_below_header": 24,
+      "bbox": [
+        971,
+        219,
+        972,
+        243
+      ],
+      "max_channel_difference": 222,
+      "cause": "Blinking insertion caret in the focused User or client input; observed at y=291..315 including header."
+    },
+    {
+      "browser": "edge",
+      "file": "login-sessions-empty-ar.png",
+      "changed_pixels_below_header": 24,
+      "bbox": [
+        924,
+        219,
+        925,
+        243
+      ],
+      "max_channel_difference": 222,
+      "cause": "Blinking insertion caret in the focused User or client input; observed at y=291..315 including header."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "identical_functions_after_principal_direction_readers": {
+    "bind_resource_security_select": true,
+    "show_contextual_acl_roles": true,
+    "show_acl_editor": true,
+    "show_access_explanation": true,
+    "show_security_level_change": true,
+    "show_profile_privilege_editor": true,
+    "localized_privilege_name": true,
+    "localized_privilege_description": true,
+    "localized_privilege_category": true,
+    "localized_privilege_matches_search": true,
+    "localized_profile_value": true
+  },
+  "unchanged_direct_host_functions": 115,
+  "changed_host_adapters": [
+    "bind_resource_security_select",
+    "show_contextual_acl_roles",
+    "show_acl_editor",
+    "show_access_explanation",
+    "show_security_level_change",
+    "open_editor",
+    "show_profile_privilege_editor"
+  ],
+  "shared_editor_identical_after_profile_helper_inlining": true,
+  "styling_literals_identical": true,
+  "message_key_literals_identical": true,
+  "changed_existing_runtime_files": [
+    "frontend/webui/app.py"
+  ]
+}

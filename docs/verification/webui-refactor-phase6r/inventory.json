@@ -1,0 +1,29 @@
+{
+  "bind_remote_saved_audience_select": {
+    "lines": 90,
+    "state_references": []
+  },
+  "select_saved_search_administration": {
+    "lines": 127,
+    "state_references": [
+      "auth_state.get('principal')",
+      "state.get('resource')",
+      "state.update(resource=page_key)",
+      "state['admin_saved_search_id']"
+    ]
+  },
+  "select_advanced_search": {
+    "lines": 1226,
+    "state_references": [
+      "auth_state.get('principal')",
+      "state.get('advanced_search_session_revision', 0)",
+      "state.get('advanced_search_workspace')",
+      "state.get('resource')",
+      "state.pop('admin_saved_search_id', None)",
+      "state.pop('discard_navigation_guard', None)",
+      "state.update(resource='advanced-search')",
+      "state['advanced_search_workspace']",
+      "state['discard_navigation_guard']"
+    ]
+  }
+}

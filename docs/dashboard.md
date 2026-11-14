@@ -228,6 +228,28 @@ first. The time shown on a card is that activity timestamp. Deleted or
 no-longer-visible entities are omitted because there is no currently authorized
 resource to open.
 
+The Records and Aggregations landing pages each request their own stream from
+`GET /api/v1/auth/me/recent-activity?entity_type=record&limit=50` (use
+`entity_type=aggregation` on Aggregations). PostgreSQL reads the caller's
+indexed history, resolves current permissions for the candidate IDs together,
+and returns the event details with the resource's title and number. The API
+applies the limit after checking permissions. The same bounded response supplies
+the preview and **View all**, which shows up to 50 entries for each of Created,
+Updated and Viewed. Opening a card obtains the current resource. Governance
+bypass audit events for the cards are appended in a batch where required.
+Existing callers that omit `entity_type` receive the combined stream with the
+original event fields.
+
+Landing pages reuse their own last successful snapshot during a refresh. The
+snapshot belongs to one WebUI client, login and language. An error during a
+refresh leaves the last successful snapshot visible. Navigation cancels the
+old refresh and guards against late responses, and sign-out clears both
+snapshots. The Dashboard continues to use its consolidated summary and its
+separate live-resource rules.
+
+See the [recent activity verification report](verification/recent-activity-2026-11-14.md)
+for the large database benchmark, WebUI switching timings and regression evidence.
+
 ## Optimization and maintenance
 
 ### Design and implementation map

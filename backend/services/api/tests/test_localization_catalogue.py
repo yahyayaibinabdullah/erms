@@ -6,6 +6,7 @@ import re
 import psycopg
 import pytest
 
+from backend.services.api import localization
 from backend.services.api.localization import ARABIC_TERMINOLOGY, synchronize_generated_arabic_drafts
 
 
@@ -296,6 +297,91 @@ def test_checked_in_definitions_are_synchronized_with_source_copy_queue(client):
         assert connection.execute(
             "SELECT count(*) FROM ui_message_translations WHERE language_tag='ar' AND origin='source_copy' AND status='draft'"
         ).fetchone()[0] == len(manifest)
+
+
+def test_catalogue_sync_deprecates_removed_key_and_preserves_publication_history(client, tmp_path, monkeypatch):
+    wording = "اللغة {language} غير متاحة."
+    path = f"/api/v1/admin/i18n/messages/{MESSAGE_KEY}/translations/ar"
+    saved = client.put(
+        path,
+        headers={
+            "If-Match": str(_translation(client)["translation_version"]),
+            "X-Change-Reason": "Save manual Arabic wording",
+        },
+        json={"translated_text": wording, "origin": "manual", "reviewed": True},
+    )
+    assert saved.status_code == 200, saved.text
+    publish_reason = "Publish manual Arabic wording"
+    published = client.post(
+        f"{path}/publish",
+        headers={"If-Match": str(saved.json()["version"]), "X-Change-Reason": publish_reason},
+    )
+    assert published.status_code == 200, published.text
+    assert published.json()["origin"] == "manual"
+    assert published.json()["status"] == "published"
+
+    catalogue_path = "/api/v1/i18n/catalogues/ar"
+    active = client.get(catalogue_path)
+    assert active.status_code == 200, active.text
+    assert active.json()["messages"][MESSAGE_KEY] == wording
+
+    def snapshot():
+        with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
+            connection.execute("SET LOCAL TIME ZONE 'UTC'")
+            definition = connection.execute(
+                "SELECT to_jsonb(d) FROM ui_message_definitions d WHERE message_key=%s",
+                (MESSAGE_KEY,),
+            ).fetchone()[0]
+            translation = connection.execute(
+                "SELECT to_jsonb(t) FROM ui_message_translations t WHERE message_key=%s AND language_tag='ar'",
+                (MESSAGE_KEY,),
+            ).fetchone()[0]
+            events = connection.execute(
+                """SELECT to_jsonb(e) FROM event_history e
+                    WHERE entity_type IN ('ui_message_definition', 'ui_message_translation')
+                      AND coalesce(after_state->>'message_key', before_state->>'message_key')=%s
+                    ORDER BY id""",
+                (MESSAGE_KEY,),
+            ).fetchall()
+        return definition, translation, [event for (event,) in events]
+
+    definition, translation, events = snapshot()
+    assert definition["is_deprecated"] is False
+    assert events[-1]["reason"] == publish_reason
+    assert events[-1]["after_state"] == translation
+
+    relative_manifest = Path("frontend/webui/i18n/messages.en.json")
+    manifest_path = Path(__file__).resolve().parents[4] / relative_manifest
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    reduced_manifest = tmp_path / relative_manifest
+    reduced_manifest.parent.mkdir(parents=True)
+    reduced_manifest.write_text(
+        json.dumps([item for item in manifest if item["message_key"] != MESSAGE_KEY]),
+        encoding="utf-8",
+    )
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(localization, "__file__", str(tmp_path / "backend/services/api/localization.py"))
+            localization.synchronize_message_definitions()
+
+        retired_definition, retained_translation, audit = snapshot()
+        assert retired_definition["is_deprecated"] is True
+        assert retained_translation == translation
+        assert audit[:-1] == events
+        deprecation = audit[-1]
+        assert deprecation["entity_type"] == "ui_message_definition"
+        assert deprecation["operation"] == "UPDATE"
+        assert deprecation["source"] == "seeding"
+        assert deprecation["before_state"] == definition
+        assert deprecation["after_state"] == retired_definition
+
+        refreshed = client.get(catalogue_path, headers={"If-None-Match": active.headers["etag"]})
+        assert refreshed.status_code == 200, refreshed.text
+        assert MESSAGE_KEY not in refreshed.json()["messages"]
+    finally:
+        # Restore the definition for other tests sharing the session's API client.
+        localization.synchronize_message_definitions()
+        localization.clear_catalogue_cache()
 
 
 def test_english_source_catalogue_is_a_complete_published_baseline(client):
@@ -959,7 +1045,16 @@ def test_bulk_review_acknowledges_review_marker_but_blocks_real_quality_flags(cl
     other='disposition.ui.accelerate_scope'
     with psycopg.connect(os.environ['DATABASE_URL']) as connection:
         connection.execute("SELECT set_config('app.change_reason','Prepare review-marker regression',true)")
-        connection.execute("UPDATE ui_message_translations SET generation_metadata=jsonb_set(generation_metadata,'{quality_flags}','[\"needs_human_review\",\"unknown_quality_defect\"]'::jsonb) WHERE message_key=%s AND language_tag='ar'",(other,))
+        for message_key, flags in (
+            (key, ['needs_human_review']),
+            (other, ['needs_human_review', 'unknown_quality_defect']),
+        ):
+            connection.execute(
+                """UPDATE ui_message_translations
+                      SET generation_metadata=jsonb_set(generation_metadata,'{quality_flags}',%s::jsonb)
+                    WHERE message_key=%s AND language_tag='ar'""",
+                (json.dumps(flags), message_key),
+            )
         before=connection.execute("SELECT message_key,version,generation_metadata FROM ui_message_translations WHERE message_key=ANY(%s) AND language_tag='ar' ORDER BY message_key",([key,other],)).fetchall()
         revision=connection.execute("SELECT catalogue_revision FROM supported_languages WHERE language_tag='ar'").fetchone()[0]
     preview=client.get('/api/v1/admin/i18n/translations/ar/bulk-publication-preview').json()

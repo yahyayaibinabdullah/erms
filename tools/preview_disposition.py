@@ -106,6 +106,13 @@ def seed(environment, phase=10):
             c.execute("SELECT set_config('app.event_source','seeding',true)")
         c.execute("INSERT INTO aggregations(aggregation_number,title,classification_id,owning_org_unit_id,date_opened) VALUES('DISP-OPEN','Open acceleration preview',1,1,'1900-01-01')")
         c.execute("SELECT set_config('app.actor_name','preview-administrator',true),set_config('app.actor_email','admin@test.invalid',true)")
+        # The standard route requires both designated reviewers before creation.
+        # These assigned roles exist only in this disposable preview fixture.
+        from backend.services.api.tests.test_disposition_workflow import role as reviewer_role
+        file_administrator = reviewer_role(c, 'preview-file-administrator', user=user)
+        unit_manager = reviewer_role(c, 'preview-unit-manager', user=user)
+        c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=1',
+                  (file_administrator, unit_manager))
         for index in range(1,29):
             create_job(c,job_number=f'PREVIEW-JOB-{index:02}',job_type='destruction',owning_org_unit_id=1,assigned_user_id=user,acting_role_id=role,reason='Seed disposable job fixture',command_id=uuid4())
         if phase>=11:

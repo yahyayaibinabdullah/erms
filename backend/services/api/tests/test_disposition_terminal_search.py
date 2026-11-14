@@ -1,5 +1,8 @@
 """Governance-only terminal search; never restore live access or content."""
 import pytest
+from uuid import uuid4
+from functools import partial
+import sys
 from fastapi import HTTPException
 from backend.services.api import search,crud
 from backend.services.api.schemas import SearchRequest
@@ -9,8 +12,20 @@ from backend.services.api.tests.test_disposition_membership import db,actor
 from backend.services.api.tests.test_disposition_destruction import guarded_fixture
 
 
-def find(c,table,conditions=None):
-    return search.search_rows(c,table,SearchRequest.model_validate({'where':conditions,'limit':25,'offset':0}))
+def find(c,table,conditions=None,*,cached=False):
+    payload={'where':conditions,'limit':25,'offset':0}
+    context={}
+    if cached:
+        payload['tab_id']=str(uuid4())
+        session=c.execute('SELECT id,user_id FROM login_sessions WHERE user_id=current_user_id() ORDER BY id DESC LIMIT 1').fetchone()
+        context={'session_id':session['id'],'user_id':session['user_id']}
+    return search.search_rows(c,table,SearchRequest.model_validate(payload),**context)
+
+
+@pytest.fixture(autouse=True, params=[False, True], ids=['uncached', 'tab-cache'])
+def search_transport(request, monkeypatch):
+    if request.param:
+        monkeypatch.setattr(sys.modules[__name__], 'find', partial(find, cached=True))
 
 
 @pytest.mark.parametrize('kind,table,number',[('aggregation','aggregations','aggregation_number'),('record','records','record_number')])

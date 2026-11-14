@@ -1,0 +1,274 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "account",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9786.53
+    },
+    {
+      "name": "account menu, preferences and keyboard cancellation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 6093.17
+    },
+    {
+      "name": "ordinary password dialog, keyboard and cancellation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 3236.65
+    },
+    {
+      "name": "account menu, preferences and keyboard cancellation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 6490.62
+    },
+    {
+      "name": "ordinary password dialog, keyboard and cancellation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 3283.59
+    },
+    {
+      "name": "independent simultaneous clients retain identity and language",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 18656.2
+    },
+    {
+      "name": "disconnect and reconnect retain current page and restart unread reconciliation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 372.5
+    },
+    {
+      "name": "abandoned old-identity read cannot replace the next identity or affect another client",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 15054.47
+    },
+    {
+      "name": "administrator-issued temporary password requires replacement and can be abandoned",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 41719.32
+    },
+    {
+      "name": "session journey has no unexpected browser or API failures",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8.65
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "account-profile-en.png",
+      "sha256": "600a007e3b28f42499d87816b8aaaad18adf34820855d7e6e9e4780dd7d96ddd",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "account-preferences-en.png",
+      "sha256": "7ce914e14495f6741439ccf17e141d26dbdd59cb16699ba11fbef798b0b87dd7",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "account-password-en.png",
+      "sha256": "0145fa354b6d12ca938cf5cb862e035dedf901383c4217bf3b6e849f5ef63061",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "account-profile-ar.png",
+      "sha256": "e2e0ace02814a179b0c188135f02148afa43fdffbd144fdb393cc90a5507aab3",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "account-preferences-ar.png",
+      "sha256": "4f01e5201a9e446f585ae69af48ce7af825bf666b98826c0c927bd41dba6f492",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "account-password-ar.png",
+      "sha256": "a4fcab054c456ff2d8be52fe6407a2ce38515c9a7d031e86b1eb2214b299be24",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "session-admin-ar.png",
+      "sha256": "7cc5d8a0813ccd1dd7cf2184c996eb3c2778f2bb289bdfaa1d7506e3fe614152",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "session-forced-password.png",
+      "sha256": "e312abbcc005d226f04a95d0bb75142b46f818a73e3b98543c80f79206867f58",
+      "language": "en",
+      "identity": null,
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "session-recovered.png",
+      "sha256": "6826ca9e4de9cd9daa6417c025e0cea236093667006a6b63774a68335f30a4c7",
+      "language": "en",
+      "identity": "recovery@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": true,
+  "account_focus": [
+    {
+      "language": "en",
+      "dialog": "preferences",
+      "tag": "input",
+      "type": "text",
+      "label": "⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︌︆︁︆︎︆︇︇︅︆︁︆︇︆︅⁤︁⁤︈⁤Language"
+    },
+    {
+      "language": "en",
+      "dialog": "password",
+      "tag": "input",
+      "type": "password",
+      "label": "⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︈︆️︇︇︅️︆︃︆︈︆︁︆︎︆︇︆︅︅️︇︀︆︁︇︃︇︃︇︇︆️︇︂︆︄︂︎︆︉︆︎︇︀︇︅︇︄︂︎︆︎︆︅︇︇︅️︇︀︆︁︇︃︇︃︇︇︆️︇︂︆︄︅️︃︂︃︈︃︃︃︉︃︉︆︃︃︅︆︂⁤︁⁤︌⁤New password"
+    },
+    {
+      "language": "ar",
+      "dialog": "preferences",
+      "tag": "input",
+      "type": "text",
+      "label": "⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︌︆︁︆︎︆︇︇︅︆︁︆︇︆︅⁤︀⁤︅⁤اللغة"
+    },
+    {
+      "language": "ar",
+      "dialog": "password",
+      "tag": "input",
+      "type": "password",
+      "label": "⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︈︆️︇︇︅️︆︃︆︈︆︁︆︎︆︇︆︅︅️︇︀︆︁︇︃︇︃︇︇︆️︇︂︆︄︂︎︆︉︆︎︇︀︇︅︇︄︂︎︆︎︆︅︇︇︅️︇︀︆︁︇︃︇︃︇︇︆️︇︂︆︄︅️︃︂︃︈︃︃︃︉︃︉︆︃︃︅︆︂⁤︀⁤︁︃⁤كلمة المرور الجديدة"
+    }
+  ],
+  "browser_errors": [],
+  "secondary_client_screenshots": [
+    {
+      "file": "session-viewer-en.png",
+      "sha256": "31e9af89ee67cc705e58ecce4d112b6d3a02dea0545277459845ce569b7f0fbc",
+      "language": "en",
+      "identity": "viewer@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 957,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ]
+}

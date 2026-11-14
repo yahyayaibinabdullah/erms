@@ -1,0 +1,67 @@
+{
+  "runs": {
+    "chrome-final": {
+      "database": "erms_webui_test_3aef3991fe8c41e4b1301d68492133d0",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:53761",
+      "ui_url": "http://127.0.0.1:53762",
+      "fixture": "fixed-v1",
+      "test_exit_code": 0,
+      "browser": "chrome"
+    },
+    "edge": {
+      "database": "erms_webui_test_4f383dc61c684ea5965e2e9f22d07f5c",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:53186",
+      "ui_url": "http://127.0.0.1:53187",
+      "fixture": "fixed-v1",
+      "interrupted": true,
+      "test_exit_code": 130,
+      "interruption_reason": "Stopped owned test runner to correct the specified 404 non-disclosure expectation; application unchanged."
+    },
+    "chrome": {
+      "database": "erms_webui_test_3f111e3bc7c340d8bd1263dcd5c70aab",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:52114",
+      "ui_url": "http://127.0.0.1:52115",
+      "fixture": "fixed-v1",
+      "test_exit_code": 1,
+      "browser": "chrome"
+    },
+    "edge-final": {
+      "database": "erms_webui_test_4e7a59520f80452fbee8ce3d34b5ae4c",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:53784",
+      "ui_url": "http://127.0.0.1:53785",
+      "fixture": "fixed-v1",
+      "test_exit_code": 0,
+      "browser": "edge"
+    },
+    "chrome-ready": {
+      "database": "erms_webui_test_6d913f73e76c435e826f0f9b194ef714",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:52393",
+      "ui_url": "http://127.0.0.1:52394",
+      "fixture": "fixed-v1",
+      "test_exit_code": 1,
+      "browser": "chrome"
+    },
+    "chrome-cards": {
+      "database": "erms_webui_test_fdb547a7382340f0ba54cdcda81d328e",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:52659",
+      "ui_url": "http://127.0.0.1:52660",
+      "fixture": "fixed-v1",
+      "test_exit_code": 1,
+      "browser": "chrome"
+    }
+  },
+  "remaining_databases": [],
+  "audit": "independent read-only PostgreSQL catalogue query"
+}

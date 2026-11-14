@@ -1,0 +1,216 @@
+{
+  "status": "complete for approved local scope",
+  "phase8_started": false,
+  "branch": "refactor-API-python-file",
+  "head": "123ad8bea711e92ce2c3f24748c41459963690d0",
+  "git_mutations": false,
+  "application_runtime_files_changed": [],
+  "suites": [
+    {
+      "evidence": "full-webui/1-unit.xml",
+      "passed": 1628,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "evidence": "full-webui/1-interaction.xml",
+      "passed": 420,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "evidence": "full-assembled/assembled.xml",
+      "passed": 74,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "evidence": "harness-final-tests.xml",
+      "passed": 46,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "runner_and_stream_safety_passed": 30,
+  "harness_total_passed": 46,
+  "initial_timing_breaches_retained": true,
+  "native": [
+    {
+      "scope": "full",
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 42,
+      "screenshots": 27,
+      "evidence": "full-chrome-resumed",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "full",
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 42,
+      "screenshots": 27,
+      "evidence": "full-edge-resumed",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "session",
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 6,
+      "screenshots": 3,
+      "evidence": "session-chrome",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "session",
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 6,
+      "screenshots": 3,
+      "evidence": "session-edge",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "keyboard",
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 12,
+      "screenshots": 54,
+      "evidence": "keyboard-chrome-resumed",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "keyboard",
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 12,
+      "screenshots": 54,
+      "evidence": "keyboard-edge-resumed",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "governance-custody",
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 5,
+      "screenshots": 18,
+      "evidence": "governance-custody-chrome",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "governance-custody",
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 5,
+      "screenshots": 18,
+      "evidence": "governance-custody-edge",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "dashboard",
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 5,
+      "screenshots": 8,
+      "evidence": "dashboard-chrome",
+      "existing_product_errors": "Two preserved deleted-slot notification tracebacks"
+    },
+    {
+      "scope": "dashboard",
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 5,
+      "screenshots": 8,
+      "evidence": "dashboard-edge",
+      "existing_product_errors": "Two preserved deleted-slot notification tracebacks"
+    },
+    {
+      "scope": "records",
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 5,
+      "screenshots": 14,
+      "evidence": "records-chrome",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "records",
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 5,
+      "screenshots": 14,
+      "evidence": "records-edge",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "aggregations",
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 7,
+      "screenshots": 22,
+      "evidence": "aggregations-chrome",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "aggregations",
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 7,
+      "screenshots": 22,
+      "evidence": "aggregations-edge",
+      "existing_product_errors": null
+    },
+    {
+      "scope": "components",
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 7,
+      "screenshots": 12,
+      "evidence": "components-chrome-resumed",
+      "existing_product_errors": "Two preserved deleted-slot notification tracebacks"
+    },
+    {
+      "scope": "components",
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 7,
+      "screenshots": 12,
+      "evidence": "components-edge-resumed",
+      "existing_product_errors": "Two preserved deleted-slot notification tracebacks"
+    },
+    {
+      "scope": "application",
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 6,
+      "screenshots": 60,
+      "evidence": "application-chrome-confirmed",
+      "existing_product_errors": "Known pagination icon errors, individually recorded"
+    },
+    {
+      "scope": "application",
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 6,
+      "screenshots": 60,
+      "evidence": "application-edge-resumed",
+      "existing_product_errors": "Known pagination icon errors, individually recorded"
+    }
+  ],
+  "native_check_groups": 190,
+  "native_screenshots": 436,
+  "performance_gate": "pass; approved 20% AND 100 ms across independent pairs",
+  "performance_samples": 1888,
+  "database_runs": 64,
+  "deferred": [
+    "Firefox",
+    "Safari",
+    "CI"
+  ],
+  "live_smtp": "Not repeated in Phase 7; prior Phase 2/3/5 evidence retained; MailDev left alone."
+}

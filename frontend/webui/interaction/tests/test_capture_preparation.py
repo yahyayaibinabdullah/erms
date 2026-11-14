@@ -1,4 +1,5 @@
 """Run the real shared record editor while PDF preparation is deliberately blocked."""
+from frontend.webui.entity_selectors import build_relationship_selector
 import ast
 import asyncio
 from pathlib import Path
@@ -7,12 +8,13 @@ from unittest.mock import AsyncMock
 import pytest
 from nicegui import ui, background_tasks
 from frontend.webui import app as webapp
+from frontend.webui import record_capture as feature_owner
 from frontend.webui.api_client import ApiError
 from frontend.webui.interaction.tests import test_messaging_workspace as fixture
 
 pytest_plugins = ['nicegui.testing.user_plugin']
 pytestmark = pytest.mark.asyncio
-TREE = ast.parse((Path(__file__).parents[2] / 'app.py').read_text())
+TREE = ast.parse((Path(__file__).parents[2] / 'record_capture.py').read_text())
 
 async def setup(user, outcome='success', active=None):
     ready=asyncio.Event()
@@ -28,13 +30,13 @@ async def setup(user, outcome='success', active=None):
         await ready.wait()
         if outcome=='error':raise ApiError(409, {'code':'message_capture_pdf_nonconforming'})
         return {'id':99,'title':'Original subject','medium':'digital','security_level_id':1}
-    scope=dict(vars(webapp),api=api,
+    scope=dict({**vars(webapp), **vars(feature_owner)},api=api,
         bind_resource_security_select=lambda *a,**k:None,
         add_number_suggestion=lambda *a,**k:None,
         browse_advanced_aggregation=AsyncMock(),
         render_component_cards=lambda *a,**k:ui.label('Validated PDF').mark('prepared-pdf'),
         error_message=lambda error:'Validation failed')
-    exec(compile(ast.Module(body=[fixture.BINDING],type_ignores=[]),'<binding>','exec'),scope)
+    scope["bind_remote_relationship_select"] = build_relationship_selector(scope["api"], error_message=str)
     node=next(n for n in ast.walk(TREE) if isinstance(n,ast.AsyncFunctionDef) and n.name=='open_record_draft_editor')
     exec(compile(ast.Module(body=[node],type_ignores=[]),'<editor>','exec'),scope)
     async def open_editor():
@@ -100,11 +102,12 @@ async def test_dialog_opens_before_even_the_capture_manifest_returns(user):
         await preview_ready.wait()
         return {'title':'Original subject'}
     editor=AsyncMock()
-    scope=dict(vars(webapp),api=SimpleNamespace(request=request),
+    scope=dict({**vars(webapp), **vars(feature_owner)},api=SimpleNamespace(request=request),
         auth_state={'principal':principal},principal=principal,
         state={'messaging_workspace_token':'token'},token='token',mailbox='inbox',
         select_messages=AsyncMock(),open_record_draft_editor=editor)
-    node=next(n for n in ast.walk(TREE) if isinstance(n,ast.AsyncFunctionDef) and n.name=='capture_message')
+    scope.update(get_principal=lambda:scope['auth_state'].get('principal'),messaging_state=scope['state'])
+    node=next(n for n in ast.walk(ast.parse((Path(__file__).parents[2] / 'messaging_controller.py').read_text())) if isinstance(n,ast.AsyncFunctionDef) and n.name=='capture_message')
     exec(compile(ast.Module(body=[node],type_ignores=[]),'<capture>','exec'),scope)
     @ui.page('/')
     def page():

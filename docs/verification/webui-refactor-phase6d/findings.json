@@ -1,0 +1,22 @@
+{
+  "original_test_corrections": [
+    "DOM container and localization markers",
+    "menu-item selector",
+    "scheme creation destination",
+    "canonical versus translated title control",
+    "owning-card simulator clicks",
+    "resource history endpoint"
+  ],
+  "extraction_error": {
+    "run": "after-assembled-diagnostic",
+    "type": "UnboundLocalError",
+    "name": "show_entity_history",
+    "correction": "Construct classification controller after audit_workspace.show_entity_history assignment",
+    "verified_by": "after-assembled-2: 47 passed"
+  },
+  "retargeted_assertions": [
+    "Classification selector sort and direction assertions now inspect classification_selectors.py; sorting comparison ignores indentation only."
+  ],
+  "runner_check_environment": "Initial frontend-venv attempt could not import psycopg; all 23 checks passed using the API virtualenv.",
+  "raw_failure_evidence": ".runtime/webui-refactor-phase6d/"
+}

@@ -7,6 +7,7 @@ import psycopg
 from psycopg import Connection
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StrictBool, StrictInt
 
+from ..operation_policy import operation_policy
 from ..audit_context import decode_change_reason
 from ..entity_localization import preferred_language
 from ..concurrency import expected_version
@@ -98,58 +99,69 @@ def _handoff(c, request, result, *, job_id=None):
 
 
 @router.post('/jobs',status_code=201)
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def create_job(payload: CreateJob,request: Request,c: Connection=Depends(get_consistent_connection,scope='function')):
     return _command(c,request,payload,membership.create_job,reason_required=False,**payload.model_dump(exclude={'acting_role_id','command_id'}))
 
 
 @router.post('/jobs/{job_id}/assignment')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def assign_job(job_id: int,payload: AssignJob,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     return _command(c,request,payload,membership.assign_job,job_id=job_id,expected_version=version,assigned_user_id=payload.assigned_user_id)
 
 
 @router.post('/jobs/{job_id}/memberships')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def add_items(job_id: int,payload: AddItems,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     return _command(c,request,payload,membership.add_many,reason_required=False,job_id=job_id,expected_version=version,items=[item.model_dump() for item in payload.items])
 
 
 @router.post('/memberships/{membership_id}/remove')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def remove_member(membership_id: int,payload: RemoveMember,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     return _command(c,request,payload,membership.remove_member,membership_id=membership_id,expected_version=version,root_version=payload.root_version)
 
 
 @router.post('/jobs/{job_id}/memberships/remove')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def remove_members(job_id: int,payload: RemoveMembers,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     return _command(c,request,payload,membership.remove_many,job_id=job_id,expected_version=version,
                     items=[item.model_dump() for item in payload.items])
 
 
 @router.post('/aggregations/{root_id}/accelerate')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def accelerate(root_id: int,payload: Command,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     return _command(c,request,payload,membership.accelerate,root_id=root_id,expected_version=version)
 
 
 @router.post('/jobs/{job_id}/terminate')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def terminate_job(job_id: int,payload: TerminateJob,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     return _command(c,request,payload,membership.terminate_job,job_id=job_id,expected_version=version,confirmed=payload.confirmed)
 
 
 @router.post('/jobs/{job_id}/owning-unit')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def change_job_owner(job_id: int,payload: ChangeOwner,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     return _command(c,request,payload,membership.change_job_owner,job_id=job_id,expected_version=version,owning_org_unit_id=payload.owning_org_unit_id)
 
 
 @router.get('/context')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def read_context(request: Request,c: Connection=Depends(get_connection,scope='function')):
     return queries.context(c,preferred_language(c,request))
 
 
 @router.get('/suggested-owner')
+@operation_policy("resource_scoped", "disposition.jobs.manage", "aggregation.view")
 def suggested_owner(request: Request,root_ids: list[int]=Query(...,min_length=1,max_length=100),
                     c: Connection=Depends(get_connection,scope='function')):
     return queries.suggested_owner(c,root_ids,preferred_language(c,request))
 
 
 @router.get('/eligibility')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def read_eligibility(request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),
                      sort: str='due',descending: bool=False,owner: int | None=None,
                      status: int | None=Query(None,ge=1,le=13),vital: bool | None=None,
@@ -162,6 +174,7 @@ def read_eligibility(request: Request,limit: int=Query(25,ge=1,le=100),offset: i
 
 
 @router.get('/jobs')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def read_jobs(request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),
               lifecycle: Literal['active','completed','terminated'] | None=None,sort: str='id',descending: bool=True,
               job_type: Literal['destruction','permanent_transfer','selective_transfer','local_archives'] | None=None,
@@ -172,26 +185,31 @@ def read_jobs(request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Quer
 
 
 @router.get('/jobs/{job_id}')
+@operation_policy("relationship_scoped")
 def read_job(job_id: int,request: Request,c: Connection=Depends(get_connection,scope='function')):
     return queries.job(c,job_id,preferred_language(c,request))
 
 
 @router.get('/jobs/{job_id}/memberships')
+@operation_policy("relationship_scoped")
 def read_members(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),sort: str='id',descending: bool=True,state: Literal['retained','active','removed','completed_history','terminated_history'] | None=None,c: Connection=Depends(get_connection,scope='function')):
     return queries.members(c,job_id,limit=limit,offset=offset,query=query,sort=sort,descending=descending,state=state,language_tag=preferred_language(c,request))
 
 
 @router.get('/jobs/{job_id}/history')
+@operation_policy("relationship_scoped")
 def read_history(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),grouped: bool=False,c: Connection=Depends(get_connection,scope='function')):
     return queries.history(c,job_id,limit=limit,offset=offset,language_tag=preferred_language(c,request),grouped=grouped)
 
 
 @router.get('/jobs/{job_id}/history/{event_id}/events')
+@operation_policy("relationship_scoped")
 def read_history_action_events(job_id: int,event_id: int,request: Request,limit: int=Query(25,ge=1,le=50),offset: int=Query(0,ge=0),c: Connection=Depends(get_connection,scope='function')):
     return queries.history_action_events(c,job_id,event_id,limit=limit,offset=offset,language_tag=preferred_language(c,request))
 
 
 @router.get('/aggregations/{root_id}/blockers')
+@operation_policy("resource_scoped", "disposition.jobs.manage", "aggregation.view")
 def read_blockers(root_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_connection,scope='function')):
     protections=blockers.protection_page(c,root_id,limit=limit,offset=offset)
     relationships=blockers.relationship_page(c,root_id,limit=limit,offset=offset,language_tag=preferred_language(c,request))
@@ -200,6 +218,7 @@ def read_blockers(root_id: int,request: Request,limit: int=Query(25,ge=1,le=100)
 
 
 @router.get('/selectors/{kind}')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def read_selector(request: Request,kind: Literal['owners','assignees'],query: str=Query('',max_length=200),selected: int | None=Query(None,ge=1),
                   job_type: Literal['destruction','permanent_transfer','selective_transfer','local_archives']='destruction',job_id: int | None=Query(None,ge=1),
                   c: Connection=Depends(get_connection,scope='function')):
@@ -207,6 +226,7 @@ def read_selector(request: Request,kind: Literal['owners','assignees'],query: st
 
 
 @router.get('/aggregations/{root_id}/eligibility')
+@operation_policy("resource_scoped", "disposition.jobs.manage", "aggregation.view")
 def read_root_eligibility(root_id: int,c: Connection=Depends(get_connection,scope='function')):
     blockers._require_root(c,root_id)
     return c.execute('''SELECT e.*,a.version FROM disposition_private.eligibility(%s) e
@@ -214,16 +234,19 @@ def read_root_eligibility(root_id: int,c: Connection=Depends(get_connection,scop
 
 
 @router.get('/jobs/{job_id}/documents')
+@operation_policy("relationship_scoped")
 def document_page(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),sort: Literal['id','file_name','type_label','evidence_version','created_label']='id',descending: bool=True,c: Connection=Depends(get_connection,scope='function')):
     return artifacts.page(c,job_id,limit=limit,offset=offset,sort=sort,descending=descending)
 
 
 @router.get('/jobs/{job_id}/artifact-destination')
+@operation_policy("relationship_scoped")
 def artifact_destination(job_id: int,document_type: str,c: Connection=Depends(get_connection,scope='function')):
     return artifacts.public_destination(c,job_id,document_type)
 
 
 @router.post('/jobs/{job_id}/documents/{document_id}/corrections',status_code=201)
+@operation_policy("relationship_scoped")
 def correct_evidence(job_id: int,document_id: int,request: Request,
                      command_id: UUID=Form(...),acting_role_id: int=Form(...,ge=1),
                      destination_token: str=Form(...,min_length=64,max_length=64),
@@ -244,6 +267,7 @@ def correct_evidence(job_id: int,document_id: int,request: Request,
 
 
 @router.get('/jobs/{job_id}/documents/{document_id}/content')
+@operation_policy("resource_scoped", "record.component.download", "record.component.download")
 def document_content(job_id: int,document_id: int,request: Request,c: Connection=Depends(get_consistent_connection,scope='function')):
     from ..main import download_digital_component_content
     row=artifacts.document(c,job_id,document_id)
@@ -252,6 +276,7 @@ def document_content(job_id: int,document_id: int,request: Request,c: Connection
 
 
 @router.get('/jobs/{job_id}/documents/{document_id}/preview')
+@operation_policy("resource_scoped", "record.component.view", "record.component.view")
 def document_preview(job_id: int,document_id: int,request: Request,c: Connection=Depends(get_connection,scope='function')):
     from ..main import view_digital_component_rendition
     row=artifacts.document(c,job_id,document_id)
@@ -259,16 +284,19 @@ def document_preview(job_id: int,document_id: int,request: Request,c: Connection
 
 
 @router.get('/jobs/{job_id}/templates')
+@operation_policy("relationship_scoped")
 def template_catalogue(job_id: int,c: Connection=Depends(get_connection,scope='function')):
     return documents.catalogue(c,job_id)
 
 
 @router.get('/templates')
+@operation_policy("relationship_scoped")
 def shared_template_catalogue(request: Request,c: Connection=Depends(get_connection,scope='function')):
     return documents.catalogue(c,None,language_tag=preferred_language(c,request))
 
 
 @router.get('/templates/{kind}/revisions')
+@operation_policy("relationship_scoped")
 def shared_template_history(kind: str,request: Request,limit: int=Query(25,ge=1,le=50),offset: int=Query(0,ge=0),
                             sort: Literal['revision_number','original_filename','uploaded_at']='revision_number',descending: bool=True,
                             c: Connection=Depends(get_connection,scope='function')):
@@ -276,11 +304,13 @@ def shared_template_history(kind: str,request: Request,limit: int=Query(25,ge=1,
 
 
 @router.get('/templates/{kind}/content')
+@operation_policy("relationship_scoped")
 def shared_template_content(kind: str,reference: str | None=Query(None,max_length=150),c: Connection=Depends(get_connection,scope='function')):
     return template_content(None,kind,reference,c)
 
 
 @router.post('/templates/{kind}/revisions',status_code=201)
+@operation_policy("relationship_scoped")
 def upload_shared_template(kind: str,request: Request,command_id: UUID=Form(...),acting_role_id: int=Form(...,ge=1),
                            expected_reference: str=Form(...,min_length=1,max_length=150),file: UploadFile=File(...),
                            c: Connection=Depends(get_connection,scope='function')):
@@ -288,6 +318,7 @@ def upload_shared_template(kind: str,request: Request,command_id: UUID=Form(...)
 
 
 @router.get('/jobs/{job_id}/templates/{kind}/revisions')
+@operation_policy("relationship_scoped")
 def template_history(job_id: int,kind: str,limit: int=Query(25,ge=1,le=50),offset: int=Query(0,ge=0),
                      sort: Literal['revision_number','original_filename','uploaded_at']='revision_number',descending: bool=True,
                      c: Connection=Depends(get_connection,scope='function')):
@@ -295,6 +326,7 @@ def template_history(job_id: int,kind: str,limit: int=Query(25,ge=1,le=50),offse
 
 
 @router.get('/jobs/{job_id}/templates/{kind}/content')
+@operation_policy("relationship_scoped")
 def template_content(job_id: int,kind: str,reference: str | None=Query(None,max_length=150),c: Connection=Depends(get_connection,scope='function')):
     from fastapi.responses import Response
     from urllib.parse import quote
@@ -305,6 +337,7 @@ def template_content(job_id: int,kind: str,reference: str | None=Query(None,max_
 
 
 @router.post('/jobs/{job_id}/templates/{kind}/revisions',status_code=201)
+@operation_policy("relationship_scoped")
 def upload_template(job_id: int,kind: str,request: Request,command_id: UUID=Form(...),acting_role_id: int=Form(...,ge=1),
                     expected_reference: str=Form(...,min_length=1,max_length=150),file: UploadFile=File(...),
                     c: Connection=Depends(get_connection,scope='function')):
@@ -323,6 +356,7 @@ class ReassignTask(Command):
 
 
 @router.get('/tasks')
+@operation_policy("relationship_scoped")
 def read_tasks(limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),
                sort: str='received',descending: bool=False,
                state: Literal['open','claimed'] | None=None,job_id: int | None=Query(None,ge=1),query: str=Query('',max_length=200),stage: str | None=Query(None,max_length=100),task_type: str | None=Query(None,max_length=100),indicator: Literal['blocked','removal_required','failed_reports','destruction_failed','certificate_failed'] | None=None,min_priority: int | None=None,min_roots: int | None=Query(None,ge=0),has_claimant: bool | None=None,
@@ -332,18 +366,21 @@ def read_tasks(limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),
 
 
 @router.post('/tasks/{task_id}/claim')
+@operation_policy("relationship_scoped")
 def claim_task(task_id: int,payload: Command,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workflow
     return _command(c,request,payload,workflow.task_command,task_id=task_id,expected_version=version,action='claim',reason_required=False)
 
 
 @router.post('/tasks/{task_id}/release')
+@operation_policy("relationship_scoped")
 def release_task(task_id: int,payload: Command,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workflow
     return _command(c,request,payload,workflow.task_command,task_id=task_id,expected_version=version,action='release')
 
 
 @router.post('/tasks/{task_id}/reassignment')
+@operation_policy("relationship_scoped")
 def reassign_task(task_id: int,payload: ReassignTask,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workflow
     return _command(c,request,payload,workflow.task_command,task_id=task_id,expected_version=version,action='reassign',assigned_user_id=payload.assigned_user_id,destination_role_id=payload.destination_role_id)
@@ -404,6 +441,7 @@ class DecideReview(Command):
 
 
 @router.post('/tasks/{task_id}/review-work')
+@operation_policy("relationship_scoped")
 def save_review(task_id: int,payload: SaveReview,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
     return _command(c,request,payload,proposals.save,audit_reason='Save destruction review work',task_id=task_id,expected_version=version,
@@ -412,6 +450,7 @@ def save_review(task_id: int,payload: SaveReview,request: Request,version: int=D
 
 
 @router.post('/tasks/{task_id}/submit-review')
+@operation_policy("relationship_scoped")
 def submit_review(task_id: int,payload: SubmitReview,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
     result = _command(c,request,payload,proposals.submit,audit_reason=payload.overall_reason or 'Submit destruction review',task_id=task_id,expected_version=version,
@@ -420,6 +459,7 @@ def submit_review(task_id: int,payload: SubmitReview,request: Request,version: i
 
 
 @router.post('/tasks/{task_id}/review-decision')
+@operation_policy("relationship_scoped")
 def decide_review(task_id: int,payload: DecideReview,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
     result = _command(c,request,payload,proposals.decide,audit_reason=payload.decision_reason.strip() or 'Complete authorized review',task_id=task_id,expected_version=version,
@@ -428,12 +468,14 @@ def decide_review(task_id: int,payload: DecideReview,request: Request,version: i
 
 
 @router.get('/tasks/{task_id}/review-work')
+@operation_policy("relationship_scoped")
 def read_review_work(task_id: int,request: Request,c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
     return proposals.work(c,task_id,language_tag=preferred_language(c,request))
 
 
 @router.get('/jobs/{job_id}/proposals')
+@operation_policy("relationship_scoped")
 def read_proposals(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),review_round: int | None=Query(None,ge=1),
                    proposal_id: int | None=Query(None,ge=1),state: Literal['active','withdrawn','executed','failed'] | None=None,root_id: int | None=Query(None,ge=1),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
@@ -441,12 +483,14 @@ def read_proposals(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100)
 
 
 @router.get('/jobs/{job_id}/review-notes')
+@operation_policy("relationship_scoped")
 def read_review_notes(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
     return proposals.notes(c,job_id,limit=limit,offset=offset)
 
 
 @router.get('/tasks/{task_id}/review-candidates/{kind}')
+@operation_policy("relationship_scoped")
 def read_review_candidates(request: Request,task_id: int,kind: Literal['holds','aggregations','records','relationship_types','security_levels'],acting_role_id: int=Query(ge=1),
                            query: str=Query('',max_length=200),selected: int | None=Query(None,ge=1),direction: Literal['outgoing','incoming']='outgoing',c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
@@ -454,18 +498,21 @@ def read_review_candidates(request: Request,task_id: int,kind: Literal['holds','
 
 
 @router.get('/jobs/{job_id}/review-rounds')
+@operation_policy("relationship_scoped")
 def read_review_rounds(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),summary: bool=False,c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
     return proposals.rounds(c,job_id,limit=limit,offset=offset,summary=summary)
 
 
 @router.get('/jobs/{job_id}/workflow-progress')
+@operation_policy("relationship_scoped")
 def read_workflow_progress(request: Request,job_id: int,limit: int=Query(25,ge=1,le=25),offset: int=Query(0,ge=0),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import progress,queries
     return progress.page(c,queries.job(c,job_id),limit=limit,offset=offset,language_tag=preferred_language(c,request))
 
 
 @router.get('/jobs/{job_id}/review-decisions')
+@operation_policy("relationship_scoped")
 def read_review_decisions(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),summary: bool=False,c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
     return proposals.rounds(c,job_id,limit=limit,offset=offset,decisions=True,summary=summary)
@@ -514,6 +561,7 @@ def _execution_report_after_commit(job_id,round_id,acting_role_id,preview=None):
 
 
 @router.get('/tasks/{task_id}/approval-preview')
+@operation_policy("relationship_scoped")
 def preview_proposal_approval(task_id: int,acting_role_id: int=Query(ge=1),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import approval
     try:
@@ -530,6 +578,7 @@ class ApprovalSummary(BaseModel):
 
 
 @router.post('/tasks/{task_id}/approval-summary')
+@operation_policy("relationship_scoped")
 def approval_summary(task_id:int,payload:ApprovalSummary,version:int=Depends(expected_version),c:Connection=Depends(get_consistent_connection,scope='function')):
     from . import approval
     try:
@@ -544,6 +593,7 @@ def approval_summary(task_id:int,payload:ApprovalSummary,version:int=Depends(exp
 
 
 @router.post('/tasks/{task_id}/approve-proposals',status_code=202)
+@operation_policy("relationship_scoped")
 def approve_proposal_set(task_id: int,payload: ApproveProposals,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import operations
     return _command(c,request,payload,operations.request_approval,audit_reason=(payload.overall_reason or '').strip() or 'Approve the complete reviewed proposal set',
@@ -552,18 +602,21 @@ def approve_proposal_set(task_id: int,payload: ApproveProposals,request: Request
 
 
 @router.get('/jobs/{job_id}/operation-progress')
+@operation_policy("relationship_scoped")
 def read_operation_progress(job_id:int,c:Connection=Depends(get_connection,scope='function')):
     from . import operations
     return operations.progress(c,job_id)
 
 
 @router.post('/jobs/{job_id}/retry-approval-documents',status_code=202)
+@operation_policy("relationship_scoped")
 def retry_approval_documents(job_id:int,payload:Command,request:Request,c:Connection=Depends(get_connection,scope='function')):
     from . import operations
     return _command(c,request,payload,operations.retry_documents,audit_reason='Retry saved approval documents',job_id=job_id)
 
 
 @router.post('/jobs/{job_id}/review-rounds/{round_id}/execution-report')
+@operation_policy("relationship_scoped")
 def retry_execution_report(job_id: int,round_id: int,payload: RetryExecutionReport,request: Request,c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import approval
     approval.execution(c,job_id,round_id,payload.acting_role_id)
@@ -572,18 +625,21 @@ def retry_execution_report(job_id: int,round_id: int,payload: RetryExecutionRepo
 
 
 @router.get('/jobs/{job_id}/proposal-effects')
+@operation_policy("relationship_scoped")
 def read_proposal_effects(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_connection,scope='function')):
     from . import approval
     return approval.effects(c,job_id,limit=limit,offset=offset)
 
 
 @router.get('/jobs/{job_id}/workspace')
+@operation_policy("relationship_scoped")
 def read_workspace(job_id: int,request: Request,task_id: int | None=Query(None,ge=1),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workspace
     return workspace.read(c,job_id,task_id,language_tag=preferred_language(c,request))
 
 
 @router.get('/tasks/{task_id}/proposal-targets/{kind}')
+@operation_policy("relationship_scoped")
 def read_proposal_targets(task_id: int,kind: Literal['aggregations','records'],root_id: int=Query(ge=1),acting_role_id: int=Query(ge=1),
                           query: str=Query('',max_length=200),selected: int | None=Query(None,ge=1),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workspace
@@ -591,12 +647,14 @@ def read_proposal_targets(task_id: int,kind: Literal['aggregations','records'],r
 
 
 @router.get('/tasks/{task_id}/assignment-candidates/{kind}')
+@operation_policy("relationship_scoped")
 def read_task_assignment_candidates(task_id: int,kind: Literal['users','roles'],acting_role_id: int=Query(ge=1),query: str=Query('',max_length=200),selected: int | None=Query(None,ge=1),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workspace
     return workspace.assignment_candidates(c,task_id,acting_role_id=acting_role_id,kind=kind,query=query,selected=selected)
 
 
 @router.get('/jobs/{job_id}/review-history/{kind}/{identity}')
+@operation_policy("relationship_scoped")
 def read_review_history(job_id: int,request: Request,kind: Literal['proposal','note'],identity: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workspace
     return workspace.review_history(c,job_id,kind=kind,identity=identity,limit=limit,offset=offset,language_tag=preferred_language(c,request))
@@ -631,6 +689,7 @@ def _request_after_commit(job_id,round_id,acting_role_id,preview=None):
 
 
 @router.post('/jobs/{job_id}/review-rounds/{round_id}/request')
+@operation_policy("relationship_scoped")
 def generate_destruction_request(job_id: int,round_id: int,payload: GenerateRequest,request: Request,c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import external
     external.require_manager(c,job_id,payload.acting_role_id)
@@ -639,6 +698,7 @@ def generate_destruction_request(job_id: int,round_id: int,payload: GenerateRequ
 
 
 @router.post('/tasks/{task_id}/external-decision')
+@operation_policy("relationship_scoped")
 def record_external_decision(task_id: int,request: Request,command_id: UUID=Form(...),acting_role_id: int=Form(...,ge=1),
         task_version: int=Form(...,ge=1),request_document_id: int=Form(...,ge=1),decision: Literal['approved','rejected']=Form(...),
         correction_notes: str | None=Form(None),destruction_number: str | None=Form(None,max_length=20),
@@ -664,6 +724,7 @@ def record_external_decision(task_id: int,request: Request,command_id: UUID=Form
 
 
 @router.post('/jobs/{job_id}/review-rounds/{round_id}/renew-review')
+@operation_policy("relationship_scoped")
 def renew_approved_review(job_id: int,round_id: int,payload: Command,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import external
     result=_command(c,request,payload,external.renew,audit_reason='Approved facts changed; renew review',job_id=job_id,round_id=round_id,expected_version=version)
@@ -671,6 +732,7 @@ def renew_approved_review(job_id: int,round_id: int,payload: Command,request: Re
 
 
 @router.get('/jobs/{job_id}/external-decisions')
+@operation_policy("relationship_scoped")
 def read_external_decisions(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),sort: Literal['recorded_at','decision','review_round','destruction_number']='recorded_at',descending: bool=True,c: Connection=Depends(get_connection,scope='function')):
     from . import external
     return external.history(c,job_id,limit=limit,offset=offset,sort=sort,descending=descending)
@@ -681,12 +743,14 @@ class EmailSend(Command):
 
 
 @router.post('/jobs/{job_id}/documents/{document_id}/email',status_code=202)
+@operation_policy("relationship_scoped")
 def send_document_email(job_id: int,document_id: int,payload: EmailSend,request: Request,c: Connection=Depends(get_connection,scope='function')):
     from . import email
     return _command(c,request,payload,email.enqueue,job_id=job_id,document_id=document_id,expected_recipient=payload.expected_recipient,audit_reason='Send saved destruction document by email')
 
 
 @router.get('/jobs/{job_id}/email-attempts')
+@operation_policy("relationship_scoped")
 def email_attempts(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),
                    sort: Literal['requested_at','status','recipient']='requested_at',descending: bool=True,
                    document_id: int|None=Query(None,ge=1),c: Connection=Depends(get_connection,scope='function')):
@@ -715,6 +779,7 @@ def _physical_after_commit(job_id,acting_role_id,external_command):
 
 
 @router.post('/jobs/{job_id}/physical-preparation-report')
+@operation_policy("relationship_scoped")
 def generate_physical_report(job_id: int,payload: GenerateRequest,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     from . import physical
     from ..application_settings import cache
@@ -722,12 +787,14 @@ def generate_physical_report(job_id: int,payload: GenerateRequest,request: Reque
 
 
 @router.post('/tasks/{task_id}/physical-work-check')
+@operation_policy("relationship_scoped")
 def check_physical_work(task_id: int,payload: PhysicalWork,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     from . import physical
     return _command(c,request,payload,physical.check_work,audit_reason='Check before physical work',task_id=task_id,expected_version=version,task_version=payload.task_version)
 
 
 @router.post('/tasks/{task_id}/physical-confirmation')
+@operation_policy("relationship_scoped")
 def confirm_physical(task_id: int,request: Request,command_id: UUID=Form(...),acting_role_id: int=Form(...,ge=1),task_version: int=Form(...,ge=1),successful: bool=Form(...),certificate_reference: str=Form(...,min_length=1),destination_token: str=Form(...,min_length=64,max_length=64),file: UploadFile=File(...),version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     from . import physical
     from ..content_storage import stage_governed_upload
@@ -752,6 +819,7 @@ class BulkPartialRecovery(Command):
 
 
 @router.get('/jobs/{job_id}/partial-recovery-preview')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def partial_recovery_preview(job_id: int,c: Connection=Depends(get_connection,scope='function')):
     from . import recovery
     try:return recovery.preview(c,job_id)
@@ -761,12 +829,14 @@ def partial_recovery_preview(job_id: int,c: Connection=Depends(get_connection,sc
 
 
 @router.post('/jobs/{job_id}/partial-recovery/{root_id}')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def resolve_partial_unit(job_id: int,root_id: int,payload: PartialRecovery,request: Request,c: Connection=Depends(get_connection,scope='function')):
     from . import recovery
     return _command(c,request,payload,recovery.resolve,job_id=job_id,root_id=root_id,target_status=payload.target_status,root_version=payload.root_version)
 
 
 @router.post('/jobs/{job_id}/partial-recovery')
+@operation_policy("globally_privileged", "disposition.jobs.manage")
 def resolve_partial_job(job_id: int,payload: BulkPartialRecovery,request: Request,c: Connection=Depends(get_connection,scope='function')):
     from . import recovery
     return _command(c,request,payload,recovery.resolve,job_id=job_id,**payload.model_dump(exclude={'command_id','acting_role_id'}))
@@ -783,18 +853,21 @@ class RetryCertificate(Command):
 
 
 @router.post('/jobs/{job_id}/complete-certificate-task')
+@operation_policy("relationship_scoped")
 def complete_certificate_task(job_id:int,payload:RetryCertificate,request:Request,version:int=Depends(expected_version),c:Connection=Depends(get_consistent_connection,scope='function')):
     from . import completion
     return _command(c,request,payload,completion.complete_task,audit_reason='Complete final certificate task',job_id=job_id,task_id=payload.task_id,task_version=payload.task_version,expected_version=version)
 
 
 @router.post('/jobs/{job_id}/retry-certificate')
+@operation_policy("relationship_scoped")
 def retry_certificate(job_id:int,payload:RetryCertificate,request:Request,version:int=Depends(expected_version),c:Connection=Depends(get_consistent_connection,scope='function')):
     from . import completion
     return _command(c,request,payload,completion.retry,job_id=job_id,task_id=payload.task_id,task_version=payload.task_version,expected_version=version)
 
 
 @router.get('/jobs/{job_id}/completion-progress')
+@operation_policy("relationship_scoped")
 def read_completion_progress(job_id:int,request:Request,c:Connection=Depends(get_consistent_connection,scope='function')):
     from . import completion
     result=completion.view(c,artifacts.require_workspace(c,job_id))
@@ -802,12 +875,14 @@ def read_completion_progress(job_id:int,request:Request,c:Connection=Depends(get
 
 
 @router.post('/tasks/{task_id}/digital-destruction')
+@operation_policy("relationship_scoped")
 def request_digital_destruction(task_id:int,payload:DigitalDestruction,request:Request,version:int=Depends(expected_version),c:Connection=Depends(get_consistent_connection,scope='function')):
     from . import destruction
     return _command(c,request,payload,destruction.request,task_id=task_id,expected_version=version,task_version=payload.task_version,confirmed=payload.confirmed)
 
 
 @router.get('/jobs/{job_id}/destruction-progress')
+@operation_policy("relationship_scoped")
 def read_destruction_progress(job_id:int,request:Request,c:Connection=Depends(get_connection,scope='function')):
     from . import destruction
     result=destruction.progress(c,job_id)
@@ -815,24 +890,28 @@ def read_destruction_progress(job_id:int,request:Request,c:Connection=Depends(ge
 
 
 @router.get('/retained/{kind}/{identity}')
+@operation_policy("relationship_scoped")
 def read_retained(kind:Literal['aggregation','record','digital_component'],identity:int,audit:bool=False,c:Connection=Depends(get_connection,scope='function')):
     from . import destruction
     return destruction.retained(c,kind,identity,audit=audit)
 
 
 @router.get('/jobs/{job_id}/retained-records')
+@operation_policy("relationship_scoped")
 def read_retained_page(job_id:int,root_id:int|None=Query(None,ge=1),limit:int=Query(25,ge=1,le=100),offset:int=Query(0,ge=0),sort:str='resource_id',descending:bool=False,c:Connection=Depends(get_connection,scope='function')):
     from . import destruction
     return destruction.retained_page(c,job_id,root_id=root_id,limit=limit,offset=offset,sort=sort,descending=descending)
 
 
 @router.get('/jobs/{job_id}/destruction-manifest')
+@operation_policy("relationship_scoped")
 def read_destruction_manifest(job_id:int,root_id:int=Query(ge=1),limit:int=Query(25,ge=1,le=100),offset:int=Query(0,ge=0),sort:str='id',descending:bool=False,c:Connection=Depends(get_connection,scope='function')):
     from . import destruction
     return destruction.manifest_page(c,job_id,root_id=root_id,limit=limit,offset=offset,sort=sort,descending=descending)
 
 
 @router.get('/tasks/{task_id}/removal-candidates/{kind}')
+@operation_policy("relationship_scoped")
 def read_removal_candidates(task_id: int,kind: Literal['aggregation','record'],request: Request,
     root_id: int=Query(ge=1),target_id: int=Query(ge=1),acting_role_id: int=Query(ge=1),language_tag: str | None=Query(None,max_length=64),
     limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),selected_id: int | None=Query(None,ge=1),exclude_proposal_id: int | None=Query(None,ge=1),

@@ -27,9 +27,26 @@ async def tasks_screen(*,api,container,active,on_error,open_task,format_timestam
                 claimant=ui.select({'':text('any'),'yes':text('yes'),'no':text('no')},label=text('has_claimant'),value=saved.get('has_claimant','')).props('outlined dense').classes('w-full')
         with ui.row().classes('w-full justify-between gap-3'):
             ui.button(text('refresh'),icon='refresh',on_click=lambda:page.load(reset=True)).tooltip(text('refresh')).props('outline no-caps')
+        draft_controls={'query':search,'min_priority':priority,'min_roots':roots}
+        immediate_controls={'state':state,'stage':stage,'task_type':kind,'indicator':indicator,'has_claimant':claimant}
+        applied={key:control.value for key,control in {**draft_controls,**immediate_controls}.items()}
+
+        async def apply_drafts():
+            applied.update({key:control.value for key,control in draft_controls.items()})
+            await page.load(reset=True)
+
+        async def apply_immediate(key, value):
+            applied[key]=value
+            await page.load(reset=True)
+
         async def fetch(p):
-            view=dict(page=p.page,size=p.size,sort=p.sort,descending=p.descending,query=search.value,state=state.value,stage=stage.value,task_type=kind.value,indicator=indicator.value,min_priority=priority.value,min_roots=roots.value,has_claimant=claimant.value)
-            result=await api.disposition_page('tasks',limit=p.size,offset=(p.page-1)*p.size,sort={'action_label':'task_type','stage_label':'workflow_stage','received_label':'received','state_label':'state','type_label':'job_type','age_days':'age','digital_label':'digital_state'}.get(p.sort,p.sort) or 'received',descending=p.descending,query=search.value,state=state.value or None,stage=stage.value or None,task_type=kind.value or None,indicator=indicator.value or None,min_priority=int(priority.value) if priority.value is not None else None,min_roots=int(roots.value) if roots.value is not None else None,has_claimant={'yes':True,'no':False}.get(claimant.value))
+            view=dict(page=p.page,size=p.size,sort=p.sort,descending=p.descending,**applied)
+            result=await api.disposition_page('tasks',limit=p.size,offset=(p.page-1)*p.size,sort={'action_label':'task_type','stage_label':'workflow_stage','received_label':'received','state_label':'state','type_label':'job_type','age_days':'age','digital_label':'digital_state'}.get(p.sort,p.sort) or 'received',descending=p.descending,
+                query=view['query'],state=view['state'] or None,stage=view['stage'] or None,
+                task_type=view['task_type'] or None,indicator=view['indicator'] or None,
+                min_priority=int(view['min_priority']) if view['min_priority'] is not None else None,
+                min_roots=int(view['min_roots']) if view['min_roots'] is not None else None,
+                has_claimant={'yes':True,'no':False}.get(view['has_claimant']))
             for row in result['items']:
                 row['action_label']=text('retry_certificate') if row.get('certificate_failed') else text('certificate_final_task') if row['task_type']=='certificate_download' else text(row['task_type']) if row['task_type'] in KEYS else text(row['workflow_stage'])
                 row['stage_label']=text(row['workflow_stage']);row['type_label']=text(row['job_type'])
@@ -56,9 +73,10 @@ async def tasks_screen(*,api,container,active,on_error,open_task,format_timestam
             row=next((r for r in page.table.rows if r['id']==event.args),None)
             if row:await open_task(row['job_id'],row['id'])
         page.table.on('open-task',opened)
-        search.on('keydown.enter',lambda:page.load(reset=True));state.on_value_change(lambda:page.load(reset=True));stage.on_value_change(lambda:page.load(reset=True))
-        for control in (kind,indicator,claimant):control.on_value_change(lambda:page.load(reset=True))
-        for control in (priority,roots):control.on('keydown.enter',lambda:page.load(reset=True))
+        for control in draft_controls.values():
+            control.on('keydown.enter',apply_drafts)
+        for key,control in immediate_controls.items():
+            control.on_value_change(lambda event, key=key:apply_immediate(key,event.value))
         async def poll():
             if not alive():timer.deactivate();return
             if any((r.get('operation_progress') or {}).get('state') in ('queued','running') or r.get('digital_state') in ('queued','running') for r in page.table.rows):

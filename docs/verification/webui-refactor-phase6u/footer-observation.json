@@ -1,0 +1,9 @@
+{
+  "observation": "Previously intermittent 20ms unit-test click helper completed before the real NiceGUI background action.",
+  "recurrence": "Arabic retry remained busy during first full 6U unit run.",
+  "reproduction": "Original helper fails both language cases when unchanged API fixture refresh is delayed 50ms; zero-delay cases pass.",
+  "correction": "Test helper awaits the task scheduled by NiceGUI event dispatch with a bounded 3-second timeout. No application change.",
+  "focused_result": "20 footer cases pass, including zero-delay and 50ms cases in both languages.",
+  "before_evidence": "footer-delay-before.xml",
+  "after_evidence": "footer-after.xml"
+}

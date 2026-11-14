@@ -1,0 +1,39 @@
+[
+  {
+    "command": [
+      "python3",
+      "tools/check_configuration_authority.py"
+    ],
+    "exit_code": 0,
+    "stdout": "Configuration authority valid: 122 settings, exactly one owner each.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/sync_api_env_template.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "All 36 API environment settings are documented in the deployment template.\nAPI environment templates agree.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "frontend/webui/.venv/bin/python",
+      "frontend/webui/scripts/check_i18n_catalogue.py"
+    ],
+    "exit_code": 0,
+    "stdout": "Internationalization catalogue references are complete and current.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "frontend/webui/.venv/bin/python",
+      "frontend/webui/scripts/check_approved_arabic_terminology.py"
+    ],
+    "exit_code": 0,
+    "stdout": "Approved Arabic terminology verified across 962 contextual uses of all 35 glossary mappings.\n",
+    "stderr": ""
+  }
+]

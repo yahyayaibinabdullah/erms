@@ -1,0 +1,430 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.46",
+  "scope": "dashboard",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9170.76
+    },
+    {
+      "name": "dashboard favourite keyboard navigation and connected detail",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 6925.32
+    },
+    {
+      "name": "warm dashboard retains content, fetches once and reflects favourite mutation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 14196.76
+    },
+    {
+      "name": "dashboard record and aggregation removal notifies and retains fresh empty state",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 21562.73
+    },
+    {
+      "name": "dialog record and aggregation removal notifies and retains fresh empty state",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 22771.77
+    },
+    {
+      "name": "dashboard favourite keyboard navigation and connected detail",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 6758.43
+    },
+    {
+      "name": "warm dashboard retains content, fetches once and reflects favourite mutation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 15831.44
+    },
+    {
+      "name": "dashboard record and aggregation removal notifies and retains fresh empty state",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 23200.91
+    },
+    {
+      "name": "dialog record and aggregation removal notifies and retains fresh empty state",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 22832.71
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "dashboard-overview-en.png",
+      "sha256": "6d8902c282f31617366b11c0029582c94b566510da13979c29fbfedcff6fae0a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-favourites-en.png",
+      "sha256": "fb374b51f894d6c2382aebc58fb067ccf2df5b6b3fd68d4170fc1ef7bbf67a0b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-fresh-en.png",
+      "sha256": "2dbdc8d34a0e6121b01f42fd57788beefa5c897573c6ee355104ea838a9fe773",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-removed-en.png",
+      "sha256": "87f11393f30b8289870abce45d306401a98e3214f73d10b16c9cac34f2a27f85",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-dashboard-records-removed-en.png",
+      "sha256": "535f3f9abbaf70eb74255142afb39a5cc4cc4a38654c106944804fa5f1af03f7",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-dashboard-aggregations-removed-en.png",
+      "sha256": "419f35faea49df8c9dad1870d3738015a258b07ac2ab3079bc2642da2d4cc572",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-dialog-aggregations-removed-en.png",
+      "sha256": "73b63498d5482cda92bcbf2bc56810a0e12257dc0403246fa8cb1321c60d519d",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-dialog-records-removed-en.png",
+      "sha256": "922c3e994bf78dc206dadba2328528617dbdd04ad9cc9a479dc64c1b71534a23",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-overview-ar.png",
+      "sha256": "4f69643c79b86cab00d97a730b31ec37a0f9f070db2f5541386363a7b53302a4",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-favourites-ar.png",
+      "sha256": "02fdc9db8985132b17b829eb532e3b6975e8fa805ea8efbf9329d0a88a1dbfa7",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-fresh-ar.png",
+      "sha256": "42f8e616d4dac86b33ad6720b8bf11358fa25387f0554160ef024fbb7f2ff53b",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-removed-ar.png",
+      "sha256": "512b1c81eafda3e787d488905b974dfd5553599b509921f69f778b62b1c27953",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-dashboard-records-removed-ar.png",
+      "sha256": "6b27669a0d05b9188c29192e047fce069a38644b0d028a99e477c5a84a1e05cc",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-dashboard-aggregations-removed-ar.png",
+      "sha256": "6b5cf74c825ad5cabedebb6474f0252e2a8108d67a26bfed03e1a1f7e5dc392d",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-dialog-aggregations-removed-ar.png",
+      "sha256": "c328639450ad60d3d297bc68828e482f042700b1f74b847c2dafd9bbc3432c28",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "dashboard-dialog-records-removed-ar.png",
+      "sha256": "730386992de4c9e1718e2e5fca0118309d1aad805f984211fdc485c7332c607f",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": true,
+  "driver_version": "Microsoft Edge WebDriver 157.0.4341.46 (a0c6bd61d7884b3c402a34c67d05100107a9e5e4)",
+  "driver_sha256": "f09f31289357de192274551f5bb7395e8e4ed40afedfee3aa9e928ca4bc9506a",
+  "focus": [
+    {
+      "language": "en",
+      "sequence": [
+        "favourites view all",
+        "favourite row"
+      ]
+    },
+    {
+      "language": "ar",
+      "sequence": [
+        "favourites view all",
+        "favourite row"
+      ]
+    }
+  ],
+  "browser_errors": [],
+  "favourite_removal": [
+    {
+      "language": "en",
+      "surface": "dashboard",
+      "resource": "records",
+      "localized_notification": true,
+      "remaining_count": 1,
+      "single_delete": true,
+      "persisted": true
+    },
+    {
+      "language": "en",
+      "surface": "dashboard",
+      "resource": "aggregations",
+      "localized_notification": true,
+      "remaining_count": 0,
+      "single_delete": true,
+      "persisted": true
+    },
+    {
+      "language": "en",
+      "surface": "dialog",
+      "resource": "aggregations",
+      "localized_notification": true,
+      "remaining_count": 1,
+      "single_delete": true,
+      "persisted": true
+    },
+    {
+      "language": "en",
+      "surface": "dialog",
+      "resource": "records",
+      "localized_notification": true,
+      "remaining_count": 0,
+      "single_delete": true,
+      "persisted": true
+    },
+    {
+      "language": "ar",
+      "surface": "dashboard",
+      "resource": "records",
+      "localized_notification": true,
+      "remaining_count": 1,
+      "single_delete": true,
+      "persisted": true
+    },
+    {
+      "language": "ar",
+      "surface": "dashboard",
+      "resource": "aggregations",
+      "localized_notification": true,
+      "remaining_count": 0,
+      "single_delete": true,
+      "persisted": true
+    },
+    {
+      "language": "ar",
+      "surface": "dialog",
+      "resource": "aggregations",
+      "localized_notification": true,
+      "remaining_count": 1,
+      "single_delete": true,
+      "persisted": true
+    },
+    {
+      "language": "ar",
+      "surface": "dialog",
+      "resource": "records",
+      "localized_notification": true,
+      "remaining_count": 0,
+      "single_delete": true,
+      "persisted": true
+    }
+  ]
+}

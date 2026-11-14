@@ -1,0 +1,241 @@
+{
+  "chrome": {
+    "before": "before-chrome-5",
+    "after": "after-chrome",
+    "checks": 15,
+    "screenshots": [
+      {
+        "file": "relationships-table-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-empty-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-required-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-create-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-edit-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-conflict-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-delete-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-error-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-table-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-empty-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-required-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-create-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-edit-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-conflict-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-delete-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-error-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-restricted-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      }
+    ],
+    "focus": [
+      {
+        "language": "en",
+        "from": "english_forward",
+        "to": "english_reverse",
+        "tag": "input"
+      },
+      {
+        "language": "ar",
+        "from": "english_forward",
+        "to": "english_reverse",
+        "tag": "input"
+      }
+    ],
+    "focus_equal": true,
+    "request_counts_and_queries_equal": true,
+    "uncontrolled_read_times_before": {
+      "median_ms": 13.95,
+      "max_ms": 86.42,
+      "count": 40
+    },
+    "uncontrolled_read_times_after": {
+      "median_ms": 16.22,
+      "max_ms": 88.35,
+      "count": 40
+    },
+    "final_sources_match": true
+  },
+  "edge": {
+    "before": "before-edge-2",
+    "after": "after-edge",
+    "checks": 15,
+    "screenshots": [
+      {
+        "file": "relationships-table-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-empty-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-required-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-create-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-edit-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-conflict-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-delete-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-error-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-table-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-empty-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-required-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-create-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-edit-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-conflict-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-delete-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-error-ar.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      },
+      {
+        "file": "relationships-restricted-en.png",
+        "identical_below_animated_header": true,
+        "difference_box_below_y72": null
+      }
+    ],
+    "focus": [
+      {
+        "language": "en",
+        "from": "english_forward",
+        "to": "english_reverse",
+        "tag": "input"
+      },
+      {
+        "language": "ar",
+        "from": "english_forward",
+        "to": "english_reverse",
+        "tag": "input"
+      }
+    ],
+    "focus_equal": true,
+    "request_counts_and_queries_equal": true,
+    "uncontrolled_read_times_before": {
+      "median_ms": 9.774999999999999,
+      "max_ms": 56.94,
+      "count": 40
+    },
+    "uncontrolled_read_times_after": {
+      "median_ms": 16.005,
+      "max_ms": 225.8,
+      "count": 40
+    },
+    "final_sources_match": true
+  },
+  "limits": "Full original screenshots retained; comparison excludes only the unchanged animated header above y72. API durations include server processing under shared local load; they are not end-to-end performance guarantees."
+}

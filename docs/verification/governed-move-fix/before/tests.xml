@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="4" skipped="0" tests="4" time="1.776" timestamp="2026-11-11T19:52:52.632325+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_dialog_opens_and_empty_search_can_recover[aggregations-en]" time="0.103"><failure message="NameError: name 'compatible_aggregations' is not defined">args = ()
+kwargs = {'language': 'en', 'resource': 'aggregations', 'user': &lt;nicegui.testing.user.User object at 0x106519ad0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_governed_move.py:61: in test_dialog_opens_and_empty_search_can_recover
+    api, saved, s = await setup_move(user, resource, language)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_governed_move.py:44: in setup_move
+    await user.open('/governed-move-contract')
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:64: in open
+    response = await self.http_client.get(path, follow_redirects=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1768: in get
+    return await self.request(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1629: in send
+    response = await self._send_handling_auth(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_transports/asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/sessions.py:88: in __call__
+    await self.app(scope, receive, send_wrapper)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/storage.py:32: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/routing.py:670: in __call__
+    await self.middleware_stack(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:2734: in app
+    await route.handle(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:1281: in handle
+    await super().handle(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/routing.py:280: in handle
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:158: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:144: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:706: in app
+    raw_response = await run_endpoint_function(
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:352: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+dec_args = (), dec_kwargs = {}
+wait_for_result = &lt;function page.__call__.&lt;locals&gt;.decorated.&lt;locals&gt;.wait_for_result at 0x106edb2e0&gt;
+task = &lt;Task finished name='unnamed task' coro=&lt;page.__call__.&lt;locals&gt;.decorated.&lt;locals&gt;.wait_for_result() done, defined at ...lib/python3.11/site-packages/nicegui/page.py:150&gt; exception=NameError("name 'compatible_aggregations' is not defined")&gt;
+task_wait_for_connection = &lt;Task pending name='unnamed task' coro=&lt;Event.wait() running at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/...e-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/nicegui/background_tasks.py:75, set.discard()]&gt;
+
+    @wraps(func)
+    async def decorated(*dec_args, **dec_kwargs) -&gt; Response:
+        request = dec_kwargs['request']
+        # NOTE cleaning up the keyword args so the signature is consistent with "func" again
+        dec_kwargs = {k: v for k, v in dec_kwargs.items() if k in parameters_of_decorated_func}
+        with Client(self, request=request) as client:
+            if any(p.name == 'client' for p in inspect.signature(func).parameters.values()):
+                dec_kwargs['client'] = client
+            try:
+                result = func(*dec_args, **dec_kwargs)
+            except Exception as e:
+                return create_error_page(e, request)
+        if helpers.is_coroutine_function(func):
+            async def wait_for_result() -&gt; Optional[Response]:
+                with client:
+                    try:
+                        return await result
+                    except Exception as e:
+                        return create_error_page(e, request)
+            task = background_tasks.create(wait_for_result())
+            task_wait_for_connection = background_tasks.create(
+                client._waiting_for_connection.wait(),  # pylint: disable=protected-access
+            )
+            try:
+                await asyncio.wait([
+                    task,
+                    task_wait_for_connection,
+                ], timeout=self.response_timeout, return_when=asyncio.FIRST_COMPLETED)
+            except asyncio.TimeoutError as e:
+                raise TimeoutError(f'Response not ready after {self.response_timeout} seconds') from e
+            if task.done():
+&gt;               result = task.result()
+                         ^^^^^^^^^^^^^
+E               NameError: name 'compatible_aggregations' is not defined
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/page.py:168: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_dialog_opens_and_empty_search_can_recover[aggregations-en]" time="0.001"><error message="failed on teardown with &quot;Failed: There were unexpected ERROR logs.&quot;">There were unexpected ERROR logs.</error></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_dialog_opens_and_empty_search_can_recover[aggregations-ar]" time="0.007"><failure message="NameError: name 'compatible_aggregations' is not defined">args = ()
+kwargs = {'language': 'ar', 'resource': 'aggregations', 'user': &lt;nicegui.testing.user.User object at 0x107197a90&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_governed_move.py:61: in test_dialog_opens_and_empty_search_can_recover
+    api, saved, s = await setup_move(user, resource, language)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_governed_move.py:44: in setup_move
+    await user.open('/governed-move-contract')
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:64: in open
+    response = await self.http_client.get(path, follow_redirects=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1768: in get
+    return await self.request(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1629: in send
+    response = await self._send_handling_auth(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_transports/asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/sessions.py:88: in __call__
+    await self.app(scope, receive, send_wrapper)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/storage.py:32: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/routing.py:670: in __call__
+    await self.middleware_stack(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:2734: in app
+    await route.handle(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:1281: in handle
+    await super().handle(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/routing.py:280: in handle
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:158: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:144: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:706: in app
+    raw_response = await run_endpoint_function(
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:352: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+dec_args = (), dec_kwargs = {}
+wait_for_result = &lt;function page.__call__.&lt;locals&gt;.decorated.&lt;locals&gt;.wait_for_result at 0x1075bbec0&gt;
+task = &lt;Task finished name='unnamed task' coro=&lt;page.__call__.&lt;locals&gt;.decorated.&lt;locals&gt;.wait_for_result() done, defined at ...lib/python3.11/site-packages/nicegui/page.py:150&gt; exception=NameError("name 'compatible_aggregations' is not defined")&gt;
+task_wait_for_connection = &lt;Task pending name='unnamed task' coro=&lt;Event.wait() running at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/...e-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/nicegui/background_tasks.py:75, set.discard()]&gt;
+
+    @wraps(func)
+    async def decorated(*dec_args, **dec_kwargs) -&gt; Response:
+        request = dec_kwargs['request']
+        # NOTE cleaning up the keyword args so the signature is consistent with "func" again
+        dec_kwargs = {k: v for k, v in dec_kwargs.items() if k in parameters_of_decorated_func}
+        with Client(self, request=request) as client:
+            if any(p.name == 'client' for p in inspect.signature(func).parameters.values()):
+                dec_kwargs['client'] = client
+            try:
+                result = func(*dec_args, **dec_kwargs)
+            except Exception as e:
+                return create_error_page(e, request)
+        if helpers.is_coroutine_function(func):
+            async def wait_for_result() -&gt; Optional[Response]:
+                with client:
+                    try:
+                        return await result
+                    except Exception as e:
+                        return create_error_page(e, request)
+            task = background_tasks.create(wait_for_result())
+            task_wait_for_connection = background_tasks.create(
+                client._waiting_for_connection.wait(),  # pylint: disable=protected-access
+            )
+            try:
+                await asyncio.wait([
+                    task,
+                    task_wait_for_connection,
+                ], timeout=self.response_timeout, return_when=asyncio.FIRST_COMPLETED)
+            except asyncio.TimeoutError as e:
+                raise TimeoutError(f'Response not ready after {self.response_timeout} seconds') from e
+            if task.done():
+&gt;               result = task.result()
+                         ^^^^^^^^^^^^^
+E               NameError: name 'compatible_aggregations' is not defined
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/page.py:168: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_dialog_opens_and_empty_search_can_recover[aggregations-ar]" time="0.001"><error message="failed on teardown with &quot;Failed: There were unexpected ERROR logs.&quot;">There were unexpected ERROR logs.</error></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_dialog_opens_and_empty_search_can_recover[records-en]" time="0.006"><failure message="NameError: name 'compatible_aggregations' is not defined">args = ()
+kwargs = {'language': 'en', 'resource': 'records', 'user': &lt;nicegui.testing.user.User object at 0x104adef50&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_governed_move.py:61: in test_dialog_opens_and_empty_search_can_recover
+    api, saved, s = await setup_move(user, resource, language)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_governed_move.py:44: in setup_move
+    await user.open('/governed-move-contract')
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:64: in open
+    response = await self.http_client.get(path, follow_redirects=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1768: in get
+    return await self.request(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1629: in send
+    response = await self._send_handling_auth(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_transports/asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/sessions.py:88: in __call__
+    await self.app(scope, receive, send_wrapper)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/storage.py:32: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/routing.py:670: in __call__
+    await self.middleware_stack(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:2734: in app
+    await route.handle(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:1281: in handle
+    await super().handle(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/routing.py:280: in handle
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:158: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:144: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:706: in app
+    raw_response = await run_endpoint_function(
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:352: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+dec_args = (), dec_kwargs = {}
+wait_for_result = &lt;function page.__call__.&lt;locals&gt;.decorated.&lt;locals&gt;.wait_for_result at 0x106d81ee0&gt;
+task = &lt;Task finished name='unnamed task' coro=&lt;page.__call__.&lt;locals&gt;.decorated.&lt;locals&gt;.wait_for_result() done, defined at ...lib/python3.11/site-packages/nicegui/page.py:150&gt; exception=NameError("name 'compatible_aggregations' is not defined")&gt;
+task_wait_for_connection = &lt;Task pending name='unnamed task' coro=&lt;Event.wait() running at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/...e-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/nicegui/background_tasks.py:75, set.discard()]&gt;
+
+    @wraps(func)
+    async def decorated(*dec_args, **dec_kwargs) -&gt; Response:
+        request = dec_kwargs['request']
+        # NOTE cleaning up the keyword args so the signature is consistent with "func" again
+        dec_kwargs = {k: v for k, v in dec_kwargs.items() if k in parameters_of_decorated_func}
+        with Client(self, request=request) as client:
+            if any(p.name == 'client' for p in inspect.signature(func).parameters.values()):
+                dec_kwargs['client'] = client
+            try:
+                result = func(*dec_args, **dec_kwargs)
+            except Exception as e:
+                return create_error_page(e, request)
+        if helpers.is_coroutine_function(func):
+            async def wait_for_result() -&gt; Optional[Response]:
+                with client:
+                    try:
+                        return await result
+                    except Exception as e:
+                        return create_error_page(e, request)
+            task = background_tasks.create(wait_for_result())
+            task_wait_for_connection = background_tasks.create(
+                client._waiting_for_connection.wait(),  # pylint: disable=protected-access
+            )
+            try:
+                await asyncio.wait([
+                    task,
+                    task_wait_for_connection,
+                ], timeout=self.response_timeout, return_when=asyncio.FIRST_COMPLETED)
+            except asyncio.TimeoutError as e:
+                raise TimeoutError(f'Response not ready after {self.response_timeout} seconds') from e
+            if task.done():
+&gt;               result = task.result()
+                         ^^^^^^^^^^^^^
+E               NameError: name 'compatible_aggregations' is not defined
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/page.py:168: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_dialog_opens_and_empty_search_can_recover[records-en]" time="0.001"><error message="failed on teardown with &quot;Failed: There were unexpected ERROR logs.&quot;">There were unexpected ERROR logs.</error></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_dialog_opens_and_empty_search_can_recover[records-ar]" time="0.007"><failure message="NameError: name 'compatible_aggregations' is not defined">args = ()
+kwargs = {'language': 'ar', 'resource': 'records', 'user': &lt;nicegui.testing.user.User object at 0x107c73e10&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_governed_move.py:61: in test_dialog_opens_and_empty_search_can_recover
+    api, saved, s = await setup_move(user, resource, language)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_governed_move.py:44: in setup_move
+    await user.open('/governed-move-contract')
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:64: in open
+    response = await self.http_client.get(path, follow_redirects=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1768: in get
+    return await self.request(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1629: in send
+    response = await self._send_handling_auth(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/httpx/_transports/asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/sessions.py:88: in __call__
+    await self.app(scope, receive, send_wrapper)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/storage.py:32: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/routing.py:670: in __call__
+    await self.middleware_stack(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:2734: in app
+    await route.handle(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:1281: in handle
+    await super().handle(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/routing.py:280: in handle
+    await self.app(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:158: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+frontend/webui/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:144: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:706: in app
+    raw_response = await run_endpoint_function(
+frontend/webui/.venv/lib/python3.11/site-packages/fastapi/routing.py:352: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+dec_args = (), dec_kwargs = {}
+wait_for_result = &lt;function page.__call__.&lt;locals&gt;.decorated.&lt;locals&gt;.wait_for_result at 0x1075cfe20&gt;
+task = &lt;Task finished name='unnamed task' coro=&lt;page.__call__.&lt;locals&gt;.decorated.&lt;locals&gt;.wait_for_result() done, defined at ...lib/python3.11/site-packages/nicegui/page.py:150&gt; exception=NameError("name 'compatible_aggregations' is not defined")&gt;
+task_wait_for_connection = &lt;Task pending name='unnamed task' coro=&lt;Event.wait() running at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/...e-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/nicegui/background_tasks.py:75, set.discard()]&gt;
+
+    @wraps(func)
+    async def decorated(*dec_args, **dec_kwargs) -&gt; Response:
+        request = dec_kwargs['request']
+        # NOTE cleaning up the keyword args so the signature is consistent with "func" again
+        dec_kwargs = {k: v for k, v in dec_kwargs.items() if k in parameters_of_decorated_func}
+        with Client(self, request=request) as client:
+            if any(p.name == 'client' for p in inspect.signature(func).parameters.values()):
+                dec_kwargs['client'] = client
+            try:
+                result = func(*dec_args, **dec_kwargs)
+            except Exception as e:
+                return create_error_page(e, request)
+        if helpers.is_coroutine_function(func):
+            async def wait_for_result() -&gt; Optional[Response]:
+                with client:
+                    try:
+                        return await result
+                    except Exception as e:
+                        return create_error_page(e, request)
+            task = background_tasks.create(wait_for_result())
+            task_wait_for_connection = background_tasks.create(
+                client._waiting_for_connection.wait(),  # pylint: disable=protected-access
+            )
+            try:
+                await asyncio.wait([
+                    task,
+                    task_wait_for_connection,
+                ], timeout=self.response_timeout, return_when=asyncio.FIRST_COMPLETED)
+            except asyncio.TimeoutError as e:
+                raise TimeoutError(f'Response not ready after {self.response_timeout} seconds') from e
+            if task.done():
+&gt;               result = task.result()
+                         ^^^^^^^^^^^^^
+E               NameError: name 'compatible_aggregations' is not defined
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/page.py:168: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_dialog_opens_and_empty_search_can_recover[records-ar]" time="0.001"><error message="failed on teardown with &quot;Failed: There were unexpected ERROR logs.&quot;">There were unexpected ERROR logs.</error></testcase></testsuite></testsuites>

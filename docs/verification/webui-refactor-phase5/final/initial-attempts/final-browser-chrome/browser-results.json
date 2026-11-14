@@ -1,0 +1,792 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "full",
+  "maildev_enabled": true,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9146.1
+    },
+    {
+      "name": "seven categories, root URL and browser history",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 910.28
+    },
+    {
+      "name": "required reason, save, current value on return and reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8356.18
+    },
+    {
+      "name": "optimistic conflict keeps draft and reason",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 5252.11
+    },
+    {
+      "name": "repeated navigation uses one Settings read per visit",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 2514.75
+    },
+    {
+      "name": "controlled error, recovery and abandoned delayed read",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8114.08
+    },
+    {
+      "name": "reload visual repeatability",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8923.45
+    },
+    {
+      "name": "category keyboard arrows and Enter preserve focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 316.18
+    },
+    {
+      "name": "custody warning and audit event Settings callers",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4807.34
+    },
+    {
+      "name": "scheme-first selector and paged scheme/branch browsing",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 21304.83
+    },
+    {
+      "name": "selected values survive cancelled browse, bounded typeahead and clear",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8732.89
+    },
+    {
+      "name": "masked secret replacement and explicit clear",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 17611.98
+    },
+    {
+      "name": "email dialog validation, keyboard, busy state and cancel",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 16873.85
+    },
+    {
+      "name": "real test email is accepted by local MailDev with verified TLS",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8824.97
+    },
+    {
+      "name": "Settings breadcrumb preserves selected category",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 1715.67
+    },
+    {
+      "name": "existing search URL restores query and empty results",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4786.44
+    },
+    {
+      "name": "saved search keeps existing unsaved-change confirmation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 17466.59
+    },
+    {
+      "name": "record parent aggregation stays visible after reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10344.22
+    },
+    {
+      "name": "existing relationship types table renders with bounded results",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 2699.11
+    },
+    {
+      "name": "ordinary Preferences changes language and direction",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 2073.25
+    },
+    {
+      "name": "seven categories, root URL and browser history",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 1156.43
+    },
+    {
+      "name": "required reason, save, current value on return and reload",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 8138.84
+    },
+    {
+      "name": "optimistic conflict keeps draft and reason",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 5387.79
+    },
+    {
+      "name": "repeated navigation uses one Settings read per visit",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 2167.07
+    },
+    {
+      "name": "controlled error, recovery and abandoned delayed read",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 7405.59
+    },
+    {
+      "name": "reload visual repeatability",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 8122.17
+    },
+    {
+      "name": "category keyboard arrows and Enter preserve focus",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 333.97
+    },
+    {
+      "name": "custody warning and audit event Settings callers",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 2665.1
+    },
+    {
+      "name": "scheme-first selector and paged scheme/branch browsing",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 15957.3
+    },
+    {
+      "name": "selected values survive cancelled browse, bounded typeahead and clear",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 7699.89
+    },
+    {
+      "name": "masked secret replacement and explicit clear",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 17313.23
+    },
+    {
+      "name": "email dialog validation, keyboard, busy state and cancel",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 16819.64
+    },
+    {
+      "name": "real test email is accepted by local MailDev with verified TLS",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 9295.04
+    },
+    {
+      "name": "Settings breadcrumb preserves selected category",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 1594.46
+    },
+    {
+      "name": "existing search URL restores query and empty results",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 4252.5
+    },
+    {
+      "name": "saved search keeps existing unsaved-change confirmation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 16649.95
+    },
+    {
+      "name": "record parent aggregation stays visible after reload",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 7987.67
+    },
+    {
+      "name": "existing relationship types table renders with bounded results",
+      "language": "ar",
+      "status": "fail",
+      "error": "Message: \nStacktrace:\n0   chromedriver                        0x0000000102a8ee44 chromedriver + 3059268\n1   chromedriver                        0x0000000102dec3f0 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 153972\n2   chromedriver                        0x0000000102df0e4c __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 173008\n3   chromedriver                        0x0000000102df2778 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 179452\n4   chromedriver                        0x0000000102df2830 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 179636\n5   chromedriver                        0x0000000102e2275c __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 376032\n6   chromedriver                        0x0000000102dd17fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n7   chromedriver                        0x0000000102dd17fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n8   chromedriver                        0x0000000102e54af4 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 581752\n9   chromedriver                        0x0000000102dd17fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n10  chromedriver                        0x0000000102e1ab18 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 344220\n11  chromedriver                        0x0000000102a5e03c chromedriver + 2859068\n12  chromedriver                        0x0000000102a6130c chromedriver + 2872076\n13  chromedriver                        0x0000000102a47dc8 chromedriver + 2768328\n14  chromedriver                        0x0000000102a61bcc chromedriver + 2874316\n15  chromedriver                        0x0000000102a3b944 chromedriver + 2718020\n16  chromedriver                        0x0000000102a7d8d8 chromedriver + 2988248\n17  chromedriver                        0x0000000102a7da38 chromedriver + 2988600\n18  chromedriver                        0x0000000102a8eaf4 chromedriver + 3058420\n19  libsystem_pthread.dylib             0x0000000192327c08 _pthread_start + 132\n20  libsystem_pthread.dylib             0x0000000192322b7c thread_start + 4\n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_navigation.py\", line 87, in check_navigation\n    page.wait.until(lambda _:len(table.find_elements('css selector','tbody tr'))>0)\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/support/wait.py\", line 121, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: \nStacktrace:\n0   chromedriver                        0x0000000102a8ee44 chromedriver + 3059268\n1   chromedriver                        0x0000000102dec3f0 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 153972\n2   chromedriver                        0x0000000102df0e4c __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 173008\n3   chromedriver                        0x0000000102df2778 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 179452\n4   chromedriver                        0x0000000102df2830 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 179636\n5   chromedriver                        0x0000000102e2275c __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 376032\n6   chromedriver                        0x0000000102dd17fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n7   chromedriver                        0x0000000102dd17fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n8   chromedriver                        0x0000000102e54af4 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 581752\n9   chromedriver                        0x0000000102dd17fc __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 44416\n10  chromedriver                        0x0000000102e1ab18 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 344220\n11  chromedriver                        0x0000000102a5e03c chromedriver + 2859068\n12  chromedriver                        0x0000000102a6130c chromedriver + 2872076\n13  chromedriver                        0x0000000102a47dc8 chromedriver + 2768328\n14  chromedriver                        0x0000000102a61bcc chromedriver + 2874316\n15  chromedriver                        0x0000000102a3b944 chromedriver + 2718020\n16  chromedriver                        0x0000000102a7d8d8 chromedriver + 2988248\n17  chromedriver                        0x0000000102a7da38 chromedriver + 2988600\n18  chromedriver                        0x0000000102a8eaf4 chromedriver + 3058420\n19  libsystem_pthread.dylib             0x0000000192327c08 _pthread_start + 132\n20  libsystem_pthread.dylib             0x0000000192322b7c thread_start + 4\n\n",
+      "recent_native_clicks": [
+        {
+          "id": "c64",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 22734.47
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "settings-error-en.png",
+      "sha256": "cacb86ae7bc8c40ead75701e1c236817ea5ec9f1f476e0b7c7ca92e71320abcf",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-loading-en.png",
+      "sha256": "fa6338304a813f5933cc458095541f043aac72d2c55d1a1b000c9cc5bcce94ed",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-en-first.png",
+      "sha256": "b33772f05e439fe46802a13672fcfa94f0731e9df5204424b7547644b38b2ba5",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-en-repeat.png",
+      "sha256": "bb64aa59e1e994f0837d82127f11f4cb0a9b3e39cb0ea1b167f0ec6cdd9ada89",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "scheme-browser-en.png",
+      "sha256": "d1bd4e6be8ec94729bfe73c6c52c4acf1e066d005590f8ad0a8d2144ac7d2f8d",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-browser-en.png",
+      "sha256": "9404c70fdfae2ab25b9294c490d12df2f313b38197a2d52eb9104ed5cd75633b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-validation-en.png",
+      "sha256": "725e39fceb8ae011e0802277f2405a1499c18293cc5bc81051cf4cc4ca3bd60b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-busy-en.png",
+      "sha256": "347bfdd13413962cc7094ef3d795372b00d3d5e63ac54ba45374b06b1763b7d6",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-accepted-en.png",
+      "sha256": "d9022a1911e33f7a49f282e5536a1342d48dd8f0ad9da19c26199f7baf597efc",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "search-empty-en.png",
+      "sha256": "50285d919457569f253a0d7d5dddaf90364e6064c4621ebe6a82d482998f1a35",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "unsaved-confirmation-en.png",
+      "sha256": "f28b3b1a053a245533aa7aed07e07df97c3f7bb4267799df6424157db597c7d4",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [
+        "Saved-search update time reflects the real run"
+      ],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "records-table-en.png",
+      "sha256": "e670d0726d33cd6f874ff40756fde08bb3999ab2aea816e2b463e660f3e93e4c",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "aggregation-restored-en.png",
+      "sha256": "6d90936fffda3a266e48e3d45011ca599a2d958cc3173872a2b048402886f2dd",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationship-types-table-en.png",
+      "sha256": "9dfaffabf29a4b09b3bb41e43fc1908cb3129aac74b4272e433cc7bbc7a49ad6",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-error-ar.png",
+      "sha256": "575091c1532a15e56c11ce89eade1f8cfc3dec97048b68efa140ace070797182",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-loading-ar.png",
+      "sha256": "6630b0308e2cc4b055e94fc4aa244282f1b0dd736678af6493e29096b4be5b80",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-ar-first.png",
+      "sha256": "d857a95fe52b98081010cf8996f68eb3af2fe45f634d7320d9737de8861107f9",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-ar-repeat.png",
+      "sha256": "aa612cd7768df2d35b854f813c0d4442a5ec332e80b09d30ce34a28ebe82024e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "scheme-browser-ar.png",
+      "sha256": "4265e5d5d159c9d1d47d66f3f2ecf4bf095e6d03ae513ec84cc00415d3148d14",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-browser-ar.png",
+      "sha256": "daeac21a3cd8b207be6f2419dda3b4d1250017d7ef122e1057fa85f6c9af0029",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-validation-ar.png",
+      "sha256": "5914dc4c21e630453508273190373d520bf5bf833b559cd0c2013e340c5d220a",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-busy-ar.png",
+      "sha256": "a594de34c6e4a764c6a1917c49864de29dc7cf024b13af1d7bfdab2512a67b2a",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-accepted-ar.png",
+      "sha256": "b4d48b325a23542cecc54ba21ee73139722a0a9d078e6406ae01bdb1bdca585a",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "search-empty-ar.png",
+      "sha256": "56f3a99ddef65a0825db8c9d33b658f63eba021dc7ba46cc7089aad4a06f7cc8",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "unsaved-confirmation-ar.png",
+      "sha256": "b2decd9adc20a53fc559df70573faa8dd1e4b73b078128686072d1535c5de66b",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [
+        "Saved-search update time reflects the real run"
+      ],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "records-table-ar.png",
+      "sha256": "f8be6d4fc637f8a8f9a3e1bd51b708445fd4a97892874e569bbd916aef0a9f38",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "aggregation-restored-ar.png",
+      "sha256": "af53b782059dd9272652bca3ed53da8cad138325c322ce23719ea6fea17795fa",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-38.png",
+      "sha256": "dddddf7061a3869d10940a349d22c727d4287d6ed2743f2f4fd097f3481eefb1",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "browser_errors": [],
+  "visual_comparisons": [
+    {
+      "images": [
+        "settings-general-en-first.png",
+        "settings-general-en-repeat.png"
+      ],
+      "region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "different_pixels": 0,
+      "excluded": "Animated header and compression margin; full images retained for review"
+    },
+    {
+      "images": [
+        "settings-general-ar-first.png",
+        "settings-general-ar-repeat.png"
+      ],
+      "region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "different_pixels": 0,
+      "excluded": "Animated header and compression margin; full images retained for review"
+    }
+  ],
+  "focus_observations": [
+    {
+      "language": "en",
+      "category_after_arrow_enter": "Content and document viewing"
+    },
+    {
+      "language": "en",
+      "email_dialog_tab": "send\nSend test email"
+    },
+    {
+      "language": "ar",
+      "category_after_arrow_enter": "المحتوى وعرض الوثائق"
+    },
+    {
+      "language": "ar",
+      "email_dialog_tab": "send\nإرسال رسالة الاختبار"
+    }
+  ],
+  "maildev_deliveries": [
+    {
+      "language": "en",
+      "recipient": "phase2-chrome-en@test.invalid",
+      "count": 1,
+      "subject": "Wathiq SMTP test / اختبار إرسال البريد من واثق",
+      "tls_certificate_validation": true
+    },
+    {
+      "language": "ar",
+      "recipient": "phase2-chrome-ar@test.invalid",
+      "count": 1,
+      "subject": "Wathiq SMTP test / اختبار إرسال البريد من واثق",
+      "tls_certificate_validation": true
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+[
+  {
+    "module": "messaging_controller",
+    "factory": "build_messaging_controller",
+    "functions": [
+      "select_messages"
+    ],
+    "dependencies": [
+      "add_button",
+      "add_record_button",
+      "aggregation_mode_bar",
+      "aggregation_state",
+      "api",
+      "bind_remote_relationship_select",
+      "collection_state",
+      "enter_messages",
+      "error_message",
+      "format_timestamp",
+      "get_principal",
+      "get_resource",
+      "guarded_page_navigation",
+      "guidance",
+      "localized_navigation",
+      "medium_label",
+      "messaging_state",
+      "open_aggregation",
+      "open_record_draft_editor",
+      "preview_record_components",
+      "refresh_message_unread",
+      "register_navigation",
+      "search_bar",
+      "select_audit_trail",
+      "select_disposition",
+      "show_authenticated_view",
+      "show_organization_structure",
+      "show_record_details",
+      "subtitle",
+      "table_container",
+      "title"
+    ],
+    "replacements": [
+      [
+        "auth_state.get(\"principal\")",
+        "get_principal()"
+      ],
+      [
+        "state.get(\"resource\")",
+        "get_resource()"
+      ],
+      [
+        "state.update(resource=key)",
+        "enter_messages(key)"
+      ]
+    ]
+  },
+  {
+    "module": "message_stream",
+    "factory": "build_message_stream",
+    "functions": [
+      "open_live_delivery",
+      "show_message_notification",
+      "stop_message_stream",
+      "refresh_message_unread",
+      "start_message_stream"
+    ],
+    "dependencies": [
+      "api",
+      "get_principal",
+      "get_resource",
+      "handle_unauthorized",
+      "message_live",
+      "message_unread_button",
+      "messaging_state",
+      "page_client",
+      "select_messages"
+    ],
+    "replacements": [
+      [
+        "auth_state.get(\"principal\")",
+        "get_principal()"
+      ],
+      [
+        "state.get(\"resource\")",
+        "get_resource()"
+      ]
+    ]
+  }
+]

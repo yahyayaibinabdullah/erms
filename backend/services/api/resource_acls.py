@@ -7,6 +7,7 @@ from typing import Any, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query
 from psycopg import Connection
 
+from .operation_policy import operation_policy
 from .authorization_policy import require_authorization_admin, require_organization_browse
 from .database import get_connection
 from .resource_authorization import governance_role_snapshot, require_global, require_resource_operation
@@ -32,6 +33,22 @@ TABLES = {
 
 
 @router.get("/{resource}/{resource_id}/acl-contextual-principals")
+@operation_policy(
+    "resource_scoped", "organization.browse",
+    conditional_resource_authorization={
+        "path_parameter": "resource",
+        "by_value": {
+            "aggregations": {
+                "global_privilege": "aggregation.acl.manage",
+                "resource_permission": "aggregation.acl.manage",
+            },
+            "records": {
+                "global_privilege": "record.acl.manage",
+                "resource_permission": "record.acl.manage",
+            },
+        },
+    },
+)
 def contextual_principal_matches(
     resource: Literal["aggregations", "records"], resource_id: int,
     principal_type: Literal["owning_and_higher_level_unit_managers", "effective_file_administrator"],
@@ -295,6 +312,18 @@ def _lock_aggregation_subtree(connection: Connection, aggregation_id: int) -> No
 
 
 @router.get("/permissions", response_model=list[PermissionRead])
+@operation_policy(
+    "relationship_scoped",
+    conditional_global_privileges={
+        "query_parameter": "resource_type",
+        "match": "any",
+        "when_omitted": ["authorization.administer"],
+        "by_value": {
+            "aggregation": ["authorization.administer", "aggregation.acl.manage"],
+            "record": ["authorization.administer", "record.acl.manage"],
+        },
+    },
+)
 def list_permissions(resource_type: Literal["aggregation", "record"] | None = None, limit: int=Query(500,ge=1,le=500), connection: Connection=Depends(get_connection,scope="function")):
     allowed = connection.execute(
         """SELECT user_has_global_privilege(current_user_id(),'authorization.administer')
@@ -314,6 +343,7 @@ def list_permissions(resource_type: Literal["aggregation", "record"] | None = No
 
 
 @router.get("/aggregations/{aggregation_id}/permissions", response_model=ResourceAclRead)
+@operation_policy("resource_scoped", "authorization.administer", "aggregation.acl.manage")
 def aggregation_permissions(aggregation_id:int, connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"aggregation",aggregation_id,"aggregation.acl.manage","aggregation.acl.manage",lock=False)
     return _aggregation_permissions(aggregation_id, connection)
@@ -329,6 +359,7 @@ def _aggregation_permissions(aggregation_id: int, connection: Connection):
 
 
 @router.put("/aggregations/{aggregation_id}/permissions", response_model=ResourceAclRead)
+@operation_policy("resource_scoped", "authorization.administer", "aggregation.acl.manage")
 def replace_aggregation_permissions(aggregation_id:int,payload:AclReplace,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"aggregation",aggregation_id,"aggregation.acl.manage","aggregation.acl.manage")
     aggregation=_resource(connection,"aggregations",aggregation_id)
@@ -346,6 +377,7 @@ def replace_aggregation_permissions(aggregation_id:int,payload:AclReplace,connec
 
 
 @router.get("/aggregations/{aggregation_id}/default-child-aggregation-permissions", response_model=ChildAggregationAclRead, dependencies=[Depends(require_authorization_admin)])
+@operation_policy("resource_scoped", "authorization.administer", "aggregation.acl.manage")
 def child_aggregation_permissions(aggregation_id:int,connection:Connection=Depends(get_connection,scope="function")):
     aggregation=_resource(connection,"aggregations",aggregation_id)
     custom=_grant_rows(connection,"child_aggregation",aggregation_id)
@@ -357,6 +389,7 @@ def child_aggregation_permissions(aggregation_id:int,connection:Connection=Depen
 
 
 @router.put("/aggregations/{aggregation_id}/default-child-aggregation-permissions", response_model=ChildAggregationAclRead, dependencies=[Depends(require_authorization_admin)])
+@operation_policy("resource_scoped", "authorization.administer", "aggregation.acl.manage")
 def replace_child_aggregation_permissions(aggregation_id:int,payload:ChildAggregationAclReplace,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"aggregation",aggregation_id,"aggregation.acl.manage","aggregation.acl.manage")
     aggregation=_resource(connection,"aggregations",aggregation_id)
@@ -373,6 +406,7 @@ def replace_child_aggregation_permissions(aggregation_id:int,payload:ChildAggreg
 
 
 @router.post("/aggregations/{aggregation_id}/default-child-aggregation-permissions/preview", response_model=ChildAggregationAclChangePreviewRead, dependencies=[Depends(require_authorization_admin)])
+@operation_policy("resource_scoped", "authorization.administer", "aggregation.acl.manage")
 def preview_child_aggregation_permissions(aggregation_id:int,payload:ChildAggregationAclReplace,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"aggregation",aggregation_id,"aggregation.acl.manage","aggregation.acl.manage",lock=False)
     aggregation=_resource(connection,"aggregations",aggregation_id)
@@ -387,6 +421,7 @@ def preview_child_aggregation_permissions(aggregation_id:int,payload:ChildAggreg
 
 
 @router.get("/aggregations/{aggregation_id}/default-child-record-permissions", response_model=ChildRecordAclRead, dependencies=[Depends(require_authorization_admin)])
+@operation_policy("resource_scoped", "authorization.administer", "aggregation.acl.manage")
 def child_record_permissions(aggregation_id:int,connection:Connection=Depends(get_connection,scope="function")):
     aggregation=_resource(connection,"aggregations",aggregation_id)
     return {"effective_acl":_group(_grant_rows(connection,"child_record",aggregation_id)),"version":aggregation["child_record_acl_version"],
@@ -394,6 +429,7 @@ def child_record_permissions(aggregation_id:int,connection:Connection=Depends(ge
 
 
 @router.put("/aggregations/{aggregation_id}/default-child-record-permissions", response_model=ChildRecordAclRead, dependencies=[Depends(require_authorization_admin)])
+@operation_policy("resource_scoped", "authorization.administer", "aggregation.acl.manage")
 def replace_child_record_permissions(aggregation_id:int,payload:ChildRecordAclReplace,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"aggregation",aggregation_id,"aggregation.acl.manage","aggregation.acl.manage")
     aggregation=_resource(connection,"aggregations",aggregation_id)
@@ -406,6 +442,7 @@ def replace_child_record_permissions(aggregation_id:int,payload:ChildRecordAclRe
 
 
 @router.post("/aggregations/{aggregation_id}/default-child-record-permissions/preview", response_model=AclChangePreviewRead, dependencies=[Depends(require_authorization_admin)])
+@operation_policy("resource_scoped", "authorization.administer", "aggregation.acl.manage")
 def preview_child_record_permissions(aggregation_id:int,payload:ChildRecordAclReplace,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"aggregation",aggregation_id,"aggregation.acl.manage","aggregation.acl.manage",lock=False)
     aggregation=_resource(connection,"aggregations",aggregation_id)
@@ -416,6 +453,7 @@ def preview_child_record_permissions(aggregation_id:int,payload:ChildRecordAclRe
 
 
 @router.get("/records/{record_id}/permissions", response_model=ResourceAclRead)
+@operation_policy("resource_scoped", "authorization.administer", "record.acl.manage")
 def record_permissions(record_id:int,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"record",record_id,"record.acl.manage","record.acl.manage",lock=False)
     return _record_permissions(record_id, connection)
@@ -429,6 +467,7 @@ def _record_permissions(record_id: int, connection: Connection):
 
 
 @router.put("/records/{record_id}/permissions", response_model=ResourceAclRead)
+@operation_policy("resource_scoped", "authorization.administer", "record.acl.manage")
 def replace_record_permissions(record_id:int,payload:AclReplace,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"record",record_id,"record.acl.manage","record.acl.manage")
     record=_resource(connection,"records",record_id)
@@ -444,6 +483,7 @@ def replace_record_permissions(record_id:int,payload:AclReplace,connection:Conne
 
 
 @router.get("/aggregations/{aggregation_id}/acl-move-preview")
+@operation_policy("resource_scoped", "aggregation.move", "aggregation.move")
 def aggregation_acl_move_preview(aggregation_id:int,destination_aggregation_id:int,keep_current_access_as_override:bool=False,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"aggregation",aggregation_id,"aggregation.move","aggregation.move",lock=False)
     require_resource_operation(connection,"aggregation",destination_aggregation_id,"aggregation.move","aggregation.receive_child",lock=False)
@@ -465,6 +505,7 @@ def aggregation_acl_move_preview(aggregation_id:int,destination_aggregation_id:i
 
 
 @router.post("/aggregations/{aggregation_id}/acl-move")
+@operation_policy("resource_scoped", "aggregation.move", "aggregation.move")
 def move_aggregation_with_acl(aggregation_id:int,payload:AclMoveRequest,connection:Connection=Depends(get_connection,scope="function")):
     connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     connection.execute("SELECT lock_hold_policy_shared()")
@@ -494,6 +535,7 @@ def move_aggregation_with_acl(aggregation_id:int,payload:AclMoveRequest,connecti
 
 
 @router.get("/records/{record_id}/acl-move-preview")
+@operation_policy("resource_scoped", "record.move", "record.move")
 def record_acl_move_preview(record_id:int,destination_aggregation_id:int,keep_current_access_as_override:bool=False,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"record",record_id,"record.move","record.move",lock=False)
     require_resource_operation(connection,"aggregation",destination_aggregation_id,"record.move","aggregation.receive_record",lock=False)
@@ -511,6 +553,7 @@ def record_acl_move_preview(record_id:int,destination_aggregation_id:int,keep_cu
 
 
 @router.post("/records/{record_id}/acl-move")
+@operation_policy("resource_scoped", "record.move", "record.move")
 def move_record_with_acl(record_id:int,payload:AclMoveRequest,connection:Connection=Depends(get_connection,scope="function")):
     require_resource_operation(connection,"record",record_id,"record.move","record.move")
     require_resource_operation(connection,"aggregation",payload.destination_aggregation_id,"record.move","aggregation.receive_record")
@@ -605,6 +648,7 @@ def _ownership_correction_preview(
 
 
 @router.get("/ownership-correction-options", response_model=list[CreationRoleOption])
+@operation_policy("governance_exception", "organization.ownership.correct")
 def ownership_correction_options(connection: Connection = Depends(get_connection, scope="function")):
     require_global(connection, "organization.ownership.correct")
     if not governance_role_snapshot(connection, [connection.execute("SELECT lowest_security_level_id() AS id").fetchone()["id"]]):
@@ -620,11 +664,13 @@ def ownership_correction_options(connection: Connection = Depends(get_connection
 
 
 @router.get("/aggregations/{aggregation_id}/ownership-correction-preview", response_model=OwnershipCorrectionPreviewRead)
+@operation_policy("governance_exception", "organization.ownership.correct")
 def ownership_correction_preview(aggregation_id:int,destination_role_id:int,connection:Connection=Depends(get_connection,scope="function")):
     return _ownership_correction_preview(connection,aggregation_id,destination_role_id)
 
 
 @router.post("/aggregations/{aggregation_id}/correct-ownership")
+@operation_policy("governance_exception", "organization.ownership.correct")
 def correct_root_ownership(aggregation_id:int,payload:OwnershipCorrectionRequest,connection:Connection=Depends(get_connection,scope="function")):
     preview=_ownership_correction_preview(connection,aggregation_id,payload.destination_role_id)
     old_role_id=preview["creator_role_id"]

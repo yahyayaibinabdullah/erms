@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query, Header
+from ..operation_policy import operation_policy
 from ..authentication import Principal, principal_from_request
 from ..entity_localization import preferred_language_for_user, localized_projection
 from ..authorization_policy import require_global_privilege
@@ -158,6 +159,7 @@ def recipients(
 
 
 @router.get("/resources/{kind}")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def resources(
     kind: Literal["aggregation", "record"],
     q: str = Query("", max_length=120),
@@ -200,6 +202,7 @@ def send_message(payload: Send, principal: Principal = Depends(principal_from_re
 
 
 @router.get("/inbox")
+@operation_policy("relationship_scoped")
 def inbox(
     limit: int = PageSize,
     cursor: str | None = Query(None, max_length=200),
@@ -231,6 +234,7 @@ def inbox(
 
 
 @router.get("/catch-up")
+@operation_policy("relationship_scoped")
 def catch_up(
     after: int = Query(0, ge=0, le=9223372036854775807),
     limit: int = PageSize,
@@ -243,6 +247,7 @@ def catch_up(
 
 
 @router.get("/unread-count")
+@operation_policy("relationship_scoped")
 def unread(principal: Principal = Depends(principal_from_request)):
     def operation(c):
         reading.person(c, principal.user_id)
@@ -256,6 +261,7 @@ def unread(principal: Principal = Depends(principal_from_request)):
 
 
 @router.get("/inbox/{delivery_id}")
+@operation_policy("relationship_scoped")
 def get_delivery(
     delivery_id: UUID, principal: Principal = Depends(principal_from_request)
 ):
@@ -265,6 +271,7 @@ def get_delivery(
 
 
 @router.post("/inbox/{delivery_id}/read")
+@operation_policy("relationship_scoped")
 def read_delivery(
     delivery_id: UUID, principal: Principal = Depends(principal_from_request)
 ):
@@ -275,6 +282,7 @@ def read_delivery(
 
 
 @router.get("/outbox")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def outbox(
     limit: int = PageSize,
     cursor: str | None = Query(None, max_length=200),
@@ -310,6 +318,7 @@ def outbox(
 
 
 @router.get("/outbox/{envelope_id}")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def get_sent(envelope_id: UUID, principal: Principal = Depends(principal_from_request)):
     return run(
         principal.user_id,
@@ -318,6 +327,7 @@ def get_sent(envelope_id: UUID, principal: Principal = Depends(principal_from_re
 
 
 @router.get("/outbox/{envelope_id}/recipients")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def get_receipts(
     envelope_id: UUID,
     limit: int = PageSize,
@@ -331,6 +341,7 @@ def get_receipts(
 
 
 @router.get("/linked/{root_id}/{target_id}")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def get_linked(
     root_id: UUID,
     target_id: UUID,
@@ -344,6 +355,7 @@ def get_linked(
 
 
 @router.post("/outbox/{envelope_id}/amendments")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def amend_action(
     envelope_id: UUID,
     payload: Amendment,
@@ -357,6 +369,7 @@ def amend_action(
 
 
 @router.get("/{envelope_id}/amendments")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def amendment_history(
     envelope_id: UUID,
     limit: int = PageSize,
@@ -373,6 +386,7 @@ def amendment_history(
 
 
 @router.get("/drafts")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def list_drafts(
     limit: int = PageSize,
     cursor: str | None = Query(None, max_length=200),
@@ -388,6 +402,7 @@ def list_drafts(
 
 
 @router.post("/drafts")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def create_draft(
     payload: Draft, principal: Principal = Depends(principal_from_request)
 ):
@@ -395,6 +410,7 @@ def create_draft(
 
 
 @router.get("/drafts/{draft_id}")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def get_draft(
     draft_id: UUID,
     deleted: bool = False,
@@ -407,6 +423,7 @@ def get_draft(
 
 
 @router.put("/drafts/{draft_id}")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def update_draft(
     draft_id: UUID,
     payload: Draft,
@@ -420,6 +437,7 @@ def update_draft(
 
 
 @router.delete("/drafts/{draft_id}")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def discard_draft(
     draft_id: UUID,
     if_match: int = Header(gt=0),
@@ -432,6 +450,7 @@ def discard_draft(
 
 
 @router.post("/drafts/{draft_id}/restore")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def restore_draft(
     draft_id: UUID,
     if_match: int = Header(gt=0),
@@ -444,6 +463,7 @@ def restore_draft(
 
 
 @router.post("/drafts/{draft_id}/send")
+@operation_policy("relationship_scoped", "messaging.user_messages.exchange")
 def send_saved_draft(
     draft_id: UUID,
     payload: DraftSend,
@@ -456,6 +476,7 @@ def send_saved_draft(
 
 
 @router.get('/recently-deleted/{mailbox}')
+@operation_policy("relationship_scoped")
 def recently_deleted(mailbox: Literal['inbox','outbox'], limit: int = PageSize,
                      cursor: str | None = Query(None,max_length=200),
                      principal: Principal = Depends(principal_from_request)):
@@ -464,6 +485,7 @@ def recently_deleted(mailbox: Literal['inbox','outbox'], limit: int = PageSize,
 
 
 @router.delete('/{mailbox}/{identity}')
+@operation_policy("relationship_scoped")
 def delete_entry(mailbox: Literal['inbox','outbox'], identity: UUID,
                  principal: Principal = Depends(principal_from_request)):
     from .retention import mailbox_change
@@ -471,6 +493,7 @@ def delete_entry(mailbox: Literal['inbox','outbox'], identity: UUID,
 
 
 @router.post('/{mailbox}/{identity}/restore')
+@operation_policy("relationship_scoped")
 def restore_entry(mailbox: Literal['inbox','outbox'], identity: UUID,
                   principal: Principal = Depends(principal_from_request)):
     from .retention import mailbox_change
@@ -478,6 +501,7 @@ def restore_entry(mailbox: Literal['inbox','outbox'], identity: UUID,
 
 
 @router.get('/{envelope_id}/capture-preview')
+@operation_policy("relationship_scoped", "record.create")
 def preview_capture(envelope_id: UUID, root_id: UUID | None = None,
                     principal: Principal = Depends(principal_from_request)):
     from .capture import preview
@@ -485,6 +509,7 @@ def preview_capture(envelope_id: UUID, root_id: UUID | None = None,
 
 
 @router.post('/{envelope_id}/capture',status_code=201)
+@operation_policy("relationship_scoped", "record.create")
 def initialize_capture(envelope_id: UUID, root_id: UUID | None = None,
                        principal: Principal = Depends(principal_from_request)):
     from .capture import initialize
@@ -492,6 +517,7 @@ def initialize_capture(envelope_id: UUID, root_id: UUID | None = None,
 
 
 @router.get('/recently-deleted/{mailbox}/{identity}')
+@operation_policy("relationship_scoped")
 def deleted_message(mailbox: Literal['inbox','outbox'], identity:UUID,
                     principal:Principal=Depends(principal_from_request)):
     from .retention import deleted_detail

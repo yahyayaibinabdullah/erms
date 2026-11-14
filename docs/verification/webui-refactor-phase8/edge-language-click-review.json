@@ -1,0 +1,21 @@
+{
+  "observation": "First current Edge translation journey passed English Inspector, then native click on the language selector internal focus input was intercepted by a span before Arabic checks.",
+  "exception": "ElementClickInterceptedException",
+  "failed_run": "translations-edge",
+  "subsequent_runs": [
+    {
+      "run": "original-translations-edge-diagnostic",
+      "variant": "original",
+      "outcome": "11 groups pass, English and Arabic"
+    },
+    {
+      "run": "translations-edge-diagnostic",
+      "variant": "current unchanged",
+      "outcome": "11 groups pass, English and Arabic"
+    }
+  ],
+  "instrumentation": "Failure-only DOM hit-test and screenshot capture added to runtime driver wrapper; did not fire in repeats.",
+  "application_or_harness_source_changed": false,
+  "cause": "Exact timing/overlay cause unproven; no persistent application failure observed.",
+  "acceptance": "Failed attempt retained separately; only the complete repeat counts toward native acceptance."
+}

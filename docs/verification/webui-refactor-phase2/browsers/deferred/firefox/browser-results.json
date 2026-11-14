@@ -1,0 +1,816 @@
+{
+  "browser": "firefox",
+  "version": "158.0.1",
+  "scope": "full",
+  "maildev_enabled": true,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10670.61
+    },
+    {
+      "name": "seven categories, root URL and browser history",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 774.19
+    },
+    {
+      "name": "required reason, save, current value on return and reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 11138.92
+    },
+    {
+      "name": "optimistic conflict keeps draft and reason",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 5694.83
+    },
+    {
+      "name": "repeated navigation uses one Settings read per visit",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4271.08
+    },
+    {
+      "name": "controlled error, recovery and abandoned delayed read",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8465.38
+    },
+    {
+      "name": "reload visual repeatability",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9581.86
+    },
+    {
+      "name": "category keyboard arrows and Enter preserve focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 315.42
+    },
+    {
+      "name": "custody warning and audit event Settings callers",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 3017.87
+    },
+    {
+      "name": "scheme-first selector and paged scheme/branch browsing",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 22379.5
+    },
+    {
+      "name": "selected values survive cancelled browse, bounded typeahead and clear",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8912.02
+    },
+    {
+      "name": "masked secret replacement and explicit clear",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 20049.95
+    },
+    {
+      "name": "email dialog validation, keyboard, busy state and cancel",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 13981.38
+    },
+    {
+      "name": "real test email is accepted by local MailDev with verified TLS",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10918.5
+    },
+    {
+      "name": "Settings breadcrumb preserves selected category",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 2956.25
+    },
+    {
+      "name": "existing search URL restores query and empty results",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 5623.45
+    },
+    {
+      "name": "saved search keeps existing unsaved-change confirmation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 16274.69
+    },
+    {
+      "name": "record parent aggregation stays visible after reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10021.47
+    },
+    {
+      "name": "existing relationship types table renders with bounded results",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 2986.4
+    },
+    {
+      "name": "ordinary Preferences changes language and direction",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4116.18
+    },
+    {
+      "name": "seven categories, root URL and browser history",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 1097.4
+    },
+    {
+      "name": "required reason, save, current value on return and reload",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 11332.86
+    },
+    {
+      "name": "optimistic conflict keeps draft and reason",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 5834.11
+    },
+    {
+      "name": "repeated navigation uses one Settings read per visit",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 3590.62
+    },
+    {
+      "name": "controlled error, recovery and abandoned delayed read",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 10274.61
+    },
+    {
+      "name": "reload visual repeatability",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 9697.51
+    },
+    {
+      "name": "category keyboard arrows and Enter preserve focus",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 320.75
+    },
+    {
+      "name": "custody warning and audit event Settings callers",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 5558.02
+    },
+    {
+      "name": "scheme-first selector and paged scheme/branch browsing",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 23937.61
+    },
+    {
+      "name": "selected values survive cancelled browse, bounded typeahead and clear",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 9370.41
+    },
+    {
+      "name": "masked secret replacement and explicit clear",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 17135.55
+    },
+    {
+      "name": "email dialog validation, keyboard, busy state and cancel",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 10779.15
+    },
+    {
+      "name": "real test email is accepted by local MailDev with verified TLS",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 9942.46
+    },
+    {
+      "name": "Settings breadcrumb preserves selected category",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 1388.46
+    },
+    {
+      "name": "existing search URL restores query and empty results",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 4949.99
+    },
+    {
+      "name": "saved search keeps existing unsaved-change confirmation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 12280.08
+    },
+    {
+      "name": "record parent aggregation stays visible after reload",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 8931.37
+    },
+    {
+      "name": "existing relationship types table renders with bounded results",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 2694.4
+    },
+    {
+      "name": "browser Back/Forward retains existing exit behavior",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 2770.98
+    },
+    {
+      "name": "ordinary sign-out clears a private Settings draft",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 22117.19
+    },
+    {
+      "name": "expired session returns to sign-in",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 1810.51
+    },
+    {
+      "name": "restricted identity has no Settings or previous private draft",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 11310.17
+    },
+    {
+      "name": "browser console and unhandled errors",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 2.29
+    },
+    {
+      "name": "failed API requests match deliberately exercised outcomes",
+      "language": "en",
+      "status": "fail",
+      "error": "[{'method': 'PUT', 'path': '/api/v1/application-settings', 'query': '', 'controlled': False, 'status': 409, 'milliseconds': 61.91, 'expected': True}, {'method': 'GET', 'path': '/api/v1/application-settings', 'query': '', 'controlled': True, 'status': 503, 'milliseconds': 10.25, 'expected': True}, {'method': 'POST', 'path': '/api/v1/application-settings/test-send', 'query': '', 'controlled': True, 'status': 503, 'milliseconds': 3080.61, 'expected': True}, {'method': 'PUT', 'path': '/api/v1/application-settings', 'query': '', 'controlled': False, 'status': 409, 'milliseconds': 65.79, 'expected': True}, {'method': 'GET', 'path': '/api/v1/application-settings', 'query': '', 'controlled': True, 'status': 503, 'milliseconds': 18.45, 'expected': True}, {'method': 'POST', 'path': '/api/v1/application-settings/test-send', 'query': '', 'controlled': True, 'status': 503, 'milliseconds': 3004.32, 'expected': True}, {'method': 'GET', 'path': '/favicon.ico', 'query': '', 'controlled': False, 'status': 404, 'milliseconds': 5.35, 'expected': False}, {'method': 'GET', 'path': '/favicon.ico', 'query': '', 'controlled': False, 'status': 404, 'milliseconds': 4.05, 'expected': False}, {'method': 'GET', 'path': '/api/v1/auth/me', 'query': '', 'controlled': False, 'status': 401, 'milliseconds': 2.76, 'expected': True}]",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 175, in check\n    'environment':self.driver.execute_script('return {width:innerWidth,height:innerHeight,scale:devicePixelRatio,zoom:visualViewport.scale,dir:document.documentElement.dir,fonts:document.fonts.status,fontFamily:getComputedStyle(document.body).fontFamily,browserTimezone:Intl.DateTimeFormat().resolvedOptions().timeZone}')})\n    ^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 518, in run\n    if language=='ar':\n           ^^^^^^^^^^^^\nAssertionError: [{'method': 'PUT', 'path': '/api/v1/application-settings', 'query': '', 'controlled': False, 'status': 409, 'milliseconds': 61.91, 'expected': True}, {'method': 'GET', 'path': '/api/v1/application-settings', 'query': '', 'controlled': True, 'status': 503, 'milliseconds': 10.25, 'expected': True}, {'method': 'POST', 'path': '/api/v1/application-settings/test-send', 'query': '', 'controlled': True, 'status': 503, 'milliseconds': 3080.61, 'expected': True}, {'method': 'PUT', 'path': '/api/v1/application-settings', 'query': '', 'controlled': False, 'status': 409, 'milliseconds': 65.79, 'expected': True}, {'method': 'GET', 'path': '/api/v1/application-settings', 'query': '', 'controlled': True, 'status': 503, 'milliseconds': 18.45, 'expected': True}, {'method': 'POST', 'path': '/api/v1/application-settings/test-send', 'query': '', 'controlled': True, 'status': 503, 'milliseconds': 3004.32, 'expected': True}, {'method': 'GET', 'path': '/favicon.ico', 'query': '', 'controlled': False, 'status': 404, 'milliseconds': 5.35, 'expected': False}, {'method': 'GET', 'path': '/favicon.ico', 'query': '', 'controlled': False, 'status': 404, 'milliseconds': 4.05, 'expected': False}, {'method': 'GET', 'path': '/api/v1/auth/me', 'query': '', 'controlled': False, 'status': 401, 'milliseconds': 2.76, 'expected': True}]\n",
+      "milliseconds": 2313.33
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "settings-error-en.png",
+      "sha256": "9c0d989121ef2590ba59a8a95d1ca9432c142615af67f407c703f3ffbcef0285",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-loading-en.png",
+      "sha256": "64d1dd288d4f0e6db162f17de90311c2e02adc069535effccf50c7f36d6cece7",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-en-first.png",
+      "sha256": "c78a48c971aba198cf0d3534b5d97b450d7e183baba0c8f365b7f03de60d72c8",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-en-repeat.png",
+      "sha256": "90516661f233e2f61587b52c256335cf53cdbb5781061a4063f63da1c24a4892",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "scheme-browser-en.png",
+      "sha256": "df7554b4434936f86d284e76a1c258b3517b1e6b82cf10d76a2f11602cd4e9b2",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-browser-en.png",
+      "sha256": "b8da7980d09d8de6a05086806f4656afb297ab7cfd6e8d334734f4ab7c77e0f9",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-validation-en.png",
+      "sha256": "06e13e50e985f9b5f40edc0fd64ba3489166befacdccc925047106fb911b01d0",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-busy-en.png",
+      "sha256": "0372be7094e114484bfe97aa0b370b349c985b7c9965337762633a344aec83b5",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-accepted-en.png",
+      "sha256": "5fe7558a0d1c98bf8bff32cb136e6c478389eb26cbc77183584025bc7c3b3708",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "search-empty-en.png",
+      "sha256": "a91976b78f594a5c6efb1fb00e7530a4638ae1335d416f54c240bec03589d07f",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "unsaved-confirmation-en.png",
+      "sha256": "a11ec2266e1c99b08bad0e50d412058f4f461b8fdd55bfe43e80c7357dc149b0",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "records-table-en.png",
+      "sha256": "b10dadbb2f626fe02c73017dda755ac130dbbb46c398674bf5512b9be712a0a6",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "aggregation-restored-en.png",
+      "sha256": "7eb0f14da47c5f7fcd44c56cdf73c14f5df0f6a7737a78d9ed4f94f0823ae1c6",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationship-types-table-en.png",
+      "sha256": "f81cdabe6493964374609d6668ae0e345a6dc2d1cbd507b52873c8d8d8965d5e",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-error-ar.png",
+      "sha256": "8e6649590510a16e5bf0be2bce71b792f4c51fa1f5b2f3c6b83c833a43196a29",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-loading-ar.png",
+      "sha256": "26f58b6d378eee0ffbd5f1f231ffe22c2cb5642572b875040ecaf9c10a29377e",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-ar-first.png",
+      "sha256": "ed61d16f64262f67df46e0c2ead68d94be8925281224330921839f22be7f1e7f",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "settings-general-ar-repeat.png",
+      "sha256": "98b378186495986d5c86c1d788703534bc0aef3bea9c38fa309516e8844783c2",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "scheme-browser-ar.png",
+      "sha256": "de2d9abbb25db6df2a65d6e9bbc1a631a1751030c291cd7828d4376f7db370b7",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "classification-browser-ar.png",
+      "sha256": "72d72a79919f3abff822ec3ff4e10e1fe57642277e08f5e6e1c9da63824e52e6",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-validation-ar.png",
+      "sha256": "327ae9a7fc0cbc66290c8cde084d7819b4343fb213d16113f00dec25320831bd",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-busy-ar.png",
+      "sha256": "6eebfcf3f7eb3308d9516a2ca071cca8c91124f8a5067ed38e9eaf93cd01309b",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "email-accepted-ar.png",
+      "sha256": "e119273700c3d436e5e0c98572ff90f8d1f882697551c20414701d411641f070",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "search-empty-ar.png",
+      "sha256": "7a8798123ff9b0586fd3c02faf3af2f0958f564804b547a0d58631c6ed81b79f",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "unsaved-confirmation-ar.png",
+      "sha256": "8fc10ab85d3d0be197f9d0bbdb6400c5dfcfa383683f4afd7ede0b9be0359bb7",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "records-table-ar.png",
+      "sha256": "cb158c3976df9c43ff3ce0c240a2c8e1ac9f1b37831f51ef1523b61b9e0d934e",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "aggregation-restored-ar.png",
+      "sha256": "14d4b1077c4c8f10d16dc26292ecb5b7290b4874ea6884b057b5c002f7f09bd6",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationship-types-table-ar.png",
+      "sha256": "1d8aa8baa5b216c9c31f85d15f78b6871ccb92fbfc4b8e0188a7987e8b103f85",
+      "language": "ar",
+      "environment": {
+        "dir": "rtl",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "restricted-dashboard.png",
+      "sha256": "b4af4734bb75976949c29448861503018f3e63506611fcc5d5cc28ec69bdf89c",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-44.png",
+      "sha256": "0b2d446fcf1b42fdd614f10c0d6864fab1d79e07f29fb4b22c814ff5ad54eef7",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "browser_errors": [],
+  "visual_comparisons": [
+    {
+      "images": [
+        "settings-general-en-first.png",
+        "settings-general-en-repeat.png"
+      ],
+      "region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "different_pixels": 0,
+      "excluded": "Animated header and compression margin; full images retained for review"
+    },
+    {
+      "images": [
+        "settings-general-ar-first.png",
+        "settings-general-ar-repeat.png"
+      ],
+      "region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "different_pixels": 0,
+      "excluded": "Animated header and compression margin; full images retained for review"
+    }
+  ],
+  "focus_observations": [
+    {
+      "language": "en",
+      "category_after_arrow_enter": "Content and document viewing"
+    },
+    {
+      "language": "en",
+      "email_dialog_tab": "send\nSend test email"
+    },
+    {
+      "language": "ar",
+      "category_after_arrow_enter": "المحتوى وعرض الوثائق"
+    },
+    {
+      "language": "ar",
+      "email_dialog_tab": "send\nإرسال رسالة الاختبار"
+    }
+  ],
+  "maildev_deliveries": [
+    {
+      "language": "en",
+      "recipient": "phase2-firefox-en-01afe682@test.invalid",
+      "count": 1,
+      "subject": "Wathiq SMTP test / اختبار إرسال البريد من واثق",
+      "tls_certificate_validation": true
+    },
+    {
+      "language": "ar",
+      "recipient": "phase2-firefox-ar-36d7911d@test.invalid",
+      "count": 1,
+      "subject": "Wathiq SMTP test / اختبار إرسال البريد من واثق",
+      "tls_certificate_validation": true
+    }
+  ],
+  "expiry_request_index": 358,
+  "failed_requests": [
+    {
+      "method": "PUT",
+      "path": "/api/v1/application-settings",
+      "query": "",
+      "controlled": false,
+      "status": 409,
+      "milliseconds": 61.91,
+      "expected": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/application-settings",
+      "query": "",
+      "controlled": true,
+      "status": 503,
+      "milliseconds": 10.25,
+      "expected": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/application-settings/test-send",
+      "query": "",
+      "controlled": true,
+      "status": 503,
+      "milliseconds": 3080.61,
+      "expected": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/application-settings",
+      "query": "",
+      "controlled": false,
+      "status": 409,
+      "milliseconds": 65.79,
+      "expected": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/application-settings",
+      "query": "",
+      "controlled": true,
+      "status": 503,
+      "milliseconds": 18.45,
+      "expected": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/application-settings/test-send",
+      "query": "",
+      "controlled": true,
+      "status": 503,
+      "milliseconds": 3004.32,
+      "expected": true
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "query": "",
+      "controlled": false,
+      "status": 404,
+      "milliseconds": 5.35,
+      "expected": false
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "query": "",
+      "controlled": false,
+      "status": 404,
+      "milliseconds": 4.05,
+      "expected": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "query": "",
+      "controlled": false,
+      "status": 401,
+      "milliseconds": 2.76,
+      "expected": true
+    }
+  ]
+}

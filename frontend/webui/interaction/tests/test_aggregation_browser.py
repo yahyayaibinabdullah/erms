@@ -1,4 +1,5 @@
 """Real NiceGUI events for the full-width browser; bounded fake API, no database."""
+from frontend.webui.personal_resources import PersonalResourceState
 import ast
 import asyncio
 from pathlib import Path
@@ -14,9 +15,8 @@ from frontend.webui.i18n_catalogue import render_message
 
 pytest_plugins = ['nicegui.testing.user_plugin']
 pytestmark = pytest.mark.asyncio
-SOURCE = Path(__file__).parents[2] / 'app.py'
-BROWSER = next(n for n in ast.walk(ast.parse(SOURCE.read_text()))
-               if isinstance(n, ast.AsyncFunctionDef) and n.name == 'select_aggregation_browser')
+from frontend.webui.aggregation_browser import build_aggregation_browser
+from frontend.webui.aggregation_state import new_aggregation_state
 
 
 class Api:
@@ -49,14 +49,14 @@ class Api:
 
 
 async def setup(user, direction='ltr'):
-    api=Api(); state={'resource':'aggregations','recent_created':[],'recent_updated':[]}; opened=[]
+    api=Api(); state={'resource':'aggregations'}; opened=[]; aggregation_state=new_aggregation_state()
     async def destination(kind,item):
         opened.append((kind,item['id'])); state['resource']=kind
     namespace={}
     @ui.page('/aggregation-test')
     async def page():
         state['resource']='aggregations'
-        namespace.update(current_direction={"value":direction},Any=Any,asyncio=asyncio,ui=ui,api=api,state=state,
+        namespace.update(current_direction={"value":direction},Any=Any,asyncio=asyncio,ui=ui,api=api,state=state,personal=PersonalResourceState(),
             auth_state={'principal':{'global_privileges':[]}},render_message=render_message,
             ApiError=ApiError,error_message=str,can_add_from_collection=lambda *_:False,
             set_aggregation_mode_controls=lambda *_:None,bind_remote_scheme_select=lambda *_:None,
@@ -64,11 +64,14 @@ async def setup(user, direction='ltr'):
             page_client=SimpleNamespace(run_javascript=AsyncMock(return_value={'page':0,'tree':70})),
             open_aggregation=lambda item:destination('aggregation-details',item),
             show_record_details=lambda item:destination('record-details',item))
-        for name in ('search_bar','guidance','add_button','add_record_button'):
+        for name in ('search_bar','guidance','add_button','add_record_button','aggregation_search_mode','aggregation_browse_mode'):
             namespace[name]=ui.label('')
         namespace['table_container']=ui.column()
-        exec(compile(ast.Module(body=[BROWSER],type_ignores=[]),str(SOURCE),'exec'),namespace)
-        await namespace['select_aggregation_browser']()
+        import inspect
+        namespace.update(aggregation_state=aggregation_state,get_resource=lambda:state['resource'],principal=lambda:namespace['auth_state']['principal'],render_table=lambda *_:None)
+        _,open_browser,_=build_aggregation_browser(**{name:namespace[name] for name in inspect.signature(build_aggregation_browser).parameters})
+        await open_browser()
+        state['aggregation_browse']=aggregation_state['aggregation_browse']
     await user.open('/aggregation-test')
     return api,state,opened
 

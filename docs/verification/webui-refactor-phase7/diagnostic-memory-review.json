@@ -1,0 +1,25 @@
+{
+  "observations": [
+    {
+      "variant": "original",
+      "samples": 236,
+      "maximum_dom_nodes": 989,
+      "final_dom_nodes": 665,
+      "maximum_style_elements": 10,
+      "maximum_script_elements": 14,
+      "maximum_observed_js_heap_bytes": 99481127,
+      "final_observed_js_heap_bytes": 40177885
+    },
+    {
+      "variant": "current",
+      "samples": 236,
+      "maximum_dom_nodes": 989,
+      "final_dom_nodes": 665,
+      "maximum_style_elements": 10,
+      "maximum_script_elements": 14,
+      "maximum_observed_js_heap_bytes": 106881083,
+      "final_observed_js_heap_bytes": 71801374
+    }
+  ],
+  "interpretation": "DOM, style and script counts have the same maxima and final node counts. Heap samples are GC-dependent, are not forced-GC retained-memory measurements and do not establish a memory-leak diagnosis or certify memory equivalence. These supplementary probes were not installed in the corrected acceptance runs."
+}

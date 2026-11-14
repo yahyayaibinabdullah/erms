@@ -1,0 +1,2245 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.42",
+  "scope": "shell",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10227.54
+    },
+    {
+      "name": "shell expanded desktop and breadcrumb overflow",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9448.96
+    },
+    {
+      "name": "desktop collapse and expand preserve current page and history",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 2944.59
+    },
+    {
+      "name": "account menu and preferences keyboard return",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9374.1
+    },
+    {
+      "name": "narrow viewport native drawer opens and closes",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9391.18
+    },
+    {
+      "name": "shell expanded desktop and breadcrumb overflow",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 8354.35
+    },
+    {
+      "name": "desktop collapse and expand preserve current page and history",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 2927.74
+    },
+    {
+      "name": "account menu and preferences keyboard return",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 9073.29
+    },
+    {
+      "name": "narrow viewport native drawer opens and closes",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 9338.77
+    },
+    {
+      "name": "restricted shell hides privileged links and diagnostics",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 12123.49
+    },
+    {
+      "name": "shell journey browser errors and API failures",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 3.04
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "shell-expanded-en.png",
+      "sha256": "040f208b8fe523a11e16b901c962d642555e85474331f0b71e485b1b9c998ced",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-overflow-en.png",
+      "sha256": "7edab71cd03d66945aef5cba73559eae1d5d5c180cf90f30b42af9270bc45f87",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-collapsed-en.png",
+      "sha256": "212f856d2e2225e907414a0b9ed5bea55f59cadfa3a79c279058190fc09a3f34",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-account-menu-en.png",
+      "sha256": "40397675dabb97d8dc81b5e2df70eb4e1ec993ad3e5d1e93e0220fe2fe4aad82",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-preferences-en.png",
+      "sha256": "0ff66e819c32c013f1213240eeab0e0e9b05de1e926c0eb8a5669c01cad0073b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-preferences-return-en.png",
+      "sha256": "23619d1319649edebb998c1f1d0bba6f9fbb4da3ef47554ea8ed387846c4195c",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-narrow-closed-en.png",
+      "sha256": "201da203d6d2a655bcc76d122cda114790b7400a3febcca15d876115e152eb94",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 844,
+        "scale": 1,
+        "width": 600,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-narrow-open-en.png",
+      "sha256": "ce290e5bb312fd67a0bb2afdd0bbdb56e25e6e141db9aa9ec76c7150bfe2777d",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 844,
+        "scale": 1,
+        "width": 600,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-wide-after-close-en.png",
+      "sha256": "969fa5f3f61a0f5497e9f09e7eb70f6df67be82375e5333b46af9d4aff3f46b1",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-expanded-ar.png",
+      "sha256": "93efd70b33e978fbd6fdf1559d9263ef6aef6d5af97098fc6f7d3fbc3588ac7a",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-overflow-ar.png",
+      "sha256": "027d5f0eeb24aa624c0d9464b348fad351718fea249ecf73ee92879287aed98e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-collapsed-ar.png",
+      "sha256": "c627d81cdc24e785aa9bbf2ada2b8c70d8cfbf946013b93e12eedb4959748e5e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-account-menu-ar.png",
+      "sha256": "9165b0c717f9a95b07b6e4aae55572a1004b17c439b677e58e22147366682fd9",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-preferences-ar.png",
+      "sha256": "2f330e004d798d8f552341c2d81f3dfe24c819be9b47bd7bdd1c1abe25f290f9",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-preferences-return-ar.png",
+      "sha256": "479e1b586be848e33cbcea2f72fca7ef54cc87de00a53cf7c66a3740a0def40a",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-narrow-closed-ar.png",
+      "sha256": "6cd21f9d7a2f66146705acba6d57090764f364e1357cb8395081680f832d2e11",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 844,
+        "scale": 1,
+        "width": 600,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-narrow-open-ar.png",
+      "sha256": "3b50ee25e4c9e495deae7547e29a82615f8241c3d06ed006731e27400c600d9f",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 844,
+        "scale": 1,
+        "width": 600,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-wide-after-close-ar.png",
+      "sha256": "a25f3e24a10d2b2a6bf06c527fa06c00f2b8b63c8ec2fd9eb78f295782f7c43e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-restricted-account-en.png",
+      "sha256": "7b5b50acb059f43184c1041c303fc0c5abb35e4b9ac025edf4d04aec19ba470f",
+      "language": "en",
+      "identity": "viewer@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": true,
+  "shell_observations": [
+    {
+      "name": "expanded",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            336,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "SPAN",
+        "text": ""
+      }
+    },
+    {
+      "name": "overflow",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            336,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BODY",
+        "text": "wathiq\nsearch\ninbox\n⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂︎︆︌︆︉︇︆︆︅︂︎︇︅︆︎︇︂︆︅︆︁︆︄⁤︁⁤︋⁤Unread: ⁨0⁩\naccount_circle\nchevron_left\ndashboard\nDashboard\nRECORDS MANAGEMENT\nmanage_search\nAdvanced Search\nfolder\nAggregations\ndescription\nRecords\naccount_tree\nClassification schemes\nlink\nRelationship Types\nDISPOSITION\ntask_alt\nMy tasks\nevent_available\nDisposition eligibility\nwork_outline\nDisposition jobs\nMESSAGES\ninbox\nInbox\noutbox\nOutbox\ndrafts\nDrafts\nmonitor_heart\nMessages Monitor\nnotifications\nNotification Administration\nORGANIZATION STRUCTURE\nlan\nBrowse\ncorporate_fare\nOrganization units\nbadge\nRoles\ngroup\nUsers\nSYSTEM ADMINISTRATION\nmanage_search\nText Indexers\nsettings\nSettings\nmanage_history\nAudit trail\ndevices\nLogin sessions\nmonitor_heart\nSecurity operations\nmanage_search\nAdminister Saved Searches\nsecurity\nSecurity levels\nadmin_panel_settings\nProfiles\ntranslate\nTranslations\nshield_person\nGovernance custody\ngavel\nHolds\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nmore_horiz\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nsettings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︃︇︅︆︂︇︄︆︉︇︄︆︌︆︅⁤︁⁤︃︀⁤Shared application settings, grouped by purpose.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︀︇︂︆️︇︀︆︁︆︇︆︁︇︄︆︉︆️︆︎⁤︁⁤︉︀⁤Saved changes can take up to 30 seconds to reach every API instance. New jobs, artifact saves and email attempts use current committed settings.\nrefresh\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︂︆︅︆︆︇︂︆︅︇︃︆︈⁤︁⁤︇⁤Refresh\nGeneral application behavior\nContent and document viewing\nAuthentication and sessions\nDashboard and selection limits\nSearch and indexing\nDisposition\nEmail\nchevron_left\nchevron_right\nDefault root aggregation medium\nMixed\nDefault root aggregation medium\narrow_drop_down\nInitial medium for a new root aggregation. Type: choice. Choices: Digital, Physical, Mixed. Initial default: Mixed. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nDefault working timezone\nDefault working timezone\narrow_drop_down\nWorking timezone used when a person has no saved timezone preference. Type: timezone identifier. Initial default: Asia/Dubai. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nReview warning window\nReview warning window\nDays before a scheduled review when the resource appears as approaching review. Type: whole number. Minimum: 0. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︁⁤︁︌⁤Reason for change (required)\nsave\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︁⁤︄⁤Save\ncloud_done\nDatabase: ⁨WebUI regression fixture⁩\nDesigned and built by Sharjah Archives\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings"
+      }
+    },
+    {
+      "name": "collapsed",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            54,
+            64,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer erms-drawer--collapsed p-0",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            100,
+            90,
+            1304,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "SPAN",
+        "text": ""
+      }
+    },
+    {
+      "name": "account-menu",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            336,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BODY",
+        "text": "wathiq\nsearch\ninbox\n⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂︎︆︌︆︉︇︆︆︅︂︎︇︅︆︎︇︂︆︅︆︁︆︄⁤︁⁤︋⁤Unread: ⁨0⁩\naccount_circle\nchevron_left\ndashboard\nDashboard\nRECORDS MANAGEMENT\nmanage_search\nAdvanced Search\nfolder\nAggregations\ndescription\nRecords\naccount_tree\nClassification schemes\nlink\nRelationship Types\nDISPOSITION\ntask_alt\nMy tasks\nevent_available\nDisposition eligibility\nwork_outline\nDisposition jobs\nMESSAGES\ninbox\nInbox\noutbox\nOutbox\ndrafts\nDrafts\nmonitor_heart\nMessages Monitor\nnotifications\nNotification Administration\nORGANIZATION STRUCTURE\nlan\nBrowse\ncorporate_fare\nOrganization units\nbadge\nRoles\ngroup\nUsers\nSYSTEM ADMINISTRATION\nmanage_search\nText Indexers\nsettings\nSettings\nmanage_history\nAudit trail\ndevices\nLogin sessions\nmonitor_heart\nSecurity operations\nmanage_search\nAdminister Saved Searches\nsecurity\nSecurity levels\nadmin_panel_settings\nProfiles\ntranslate\nTranslations\nshield_person\nGovernance custody\ngavel\nHolds\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nmore_horiz\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nsettings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︃︇︅︆︂︇︄︆︉︇︄︆︌︆︅⁤︁⁤︃︀⁤Shared application settings, grouped by purpose.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︀︇︂︆️︇︀︆︁︆︇︆︁︇︄︆︉︆️︆︎⁤︁⁤︉︀⁤Saved changes can take up to 30 seconds to reach every API instance. New jobs, artifact saves and email attempts use current committed settings.\nrefresh\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︂︆︅︆︆︇︂︆︅︇︃︆︈⁤︁⁤︇⁤Refresh\nGeneral application behavior\nContent and document viewing\nAuthentication and sessions\nDashboard and selection limits\nSearch and indexing\nDisposition\nEmail\nchevron_left\nchevron_right\nDefault root aggregation medium\nMixed\nDefault root aggregation medium\narrow_drop_down\nInitial medium for a new root aggregation. Type: choice. Choices: Digital, Physical, Mixed. Initial default: Mixed. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nDefault working timezone\nDefault working timezone\narrow_drop_down\nWorking timezone used when a person has no saved timezone preference. Type: timezone identifier. Initial default: Asia/Dubai. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nReview warning window\nReview warning window\nDays before a scheduled review when the resource appears as approaching review. Type: whole number. Minimum: 0. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︁⁤︁︌⁤Reason for change (required)\nsave\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︁⁤︄⁤Save\ncloud_done\nDatabase: ⁨WebUI regression fixture⁩\nDesigned and built by Sharjah Archives\nRecords\nTA\nTest administrator\nadmin@test.invalid\nPREVIOUS SIGN-IN\n10 Nov 2026, 07:58 AM\nASSIGNED ROLES\nbadge\nTest administrator\nWebUI test unit\nlanguage\nPreferences\nkey\nChange password\nDIAGNOSTICS\nTranslation Inspector\nlogout\nSign out"
+      }
+    },
+    {
+      "name": "preferences",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            336,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BODY",
+        "text": "wathiq\nsearch\ninbox\n⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂︎︆︌︆︉︇︆︆︅︂︎︇︅︆︎︇︂︆︅︆︁︆︄⁤︁⁤︋⁤Unread: ⁨0⁩\naccount_circle\nchevron_left\ndashboard\nDashboard\nRECORDS MANAGEMENT\nmanage_search\nAdvanced Search\nfolder\nAggregations\ndescription\nRecords\naccount_tree\nClassification schemes\nlink\nRelationship Types\nDISPOSITION\ntask_alt\nMy tasks\nevent_available\nDisposition eligibility\nwork_outline\nDisposition jobs\nMESSAGES\ninbox\nInbox\noutbox\nOutbox\ndrafts\nDrafts\nmonitor_heart\nMessages Monitor\nnotifications\nNotification Administration\nORGANIZATION STRUCTURE\nlan\nBrowse\ncorporate_fare\nOrganization units\nbadge\nRoles\ngroup\nUsers\nSYSTEM ADMINISTRATION\nmanage_search\nText Indexers\nsettings\nSettings\nmanage_history\nAudit trail\ndevices\nLogin sessions\nmonitor_heart\nSecurity operations\nmanage_search\nAdminister Saved Searches\nsecurity\nSecurity levels\nadmin_panel_settings\nProfiles\ntranslate\nTranslations\nshield_person\nGovernance custody\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nmore_horiz\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nsettings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︃︇︅︆︂︇︄︆︉︇︄︆︌︆︅⁤︁⁤︃︀⁤Shared application settings, grouped by purpose.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︀︇︂︆️︇︀︆︁︆︇︆︁︇︄︆︉︆️︆︎⁤︁⁤︉︀⁤Saved changes can take up to 30 seconds to reach every API instance. New jobs, artifact saves and email attempts use current committed settings.\nrefresh\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︂︆︅︆︆︇︂︆︅︇︃︆︈⁤︁⁤︇⁤Refresh\nGeneral application behavior\nContent and document viewing\nAuthentication and sessions\nDashboard and selection limits\nSearch and indexing\nDisposition\nEmail\nchevron_left\nchevron_right\nDefault root aggregation medium\nMixed\nDefault root aggregation medium\narrow_drop_down\nInitial medium for a new root aggregation. Type: choice. Choices: Digital, Physical, Mixed. Initial default: Mixed. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nDefault working timezone\nDefault working timezone\narrow_drop_down\nWorking timezone used when a person has no saved timezone preference. Type: timezone identifier. Initial default: Asia/Dubai. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nReview warning window\nReview warning window\nDays before a scheduled review when the resource appears as approaching review. Type: whole number. Minimum: 0. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︁⁤︁︌⁤Reason for change (required)\nsave\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︁⁤︄⁤Save\ncloud_done\nDatabase: ⁨WebUI regression fixture⁩\nDesigned and built by Sharjah Archives\nTA\nTest administrator\nadmin@test.invalid\nPREVIOUS SIGN-IN\n10 Nov 2026, 07:58 AM\nASSIGNED ROLES\nbadge\nTest administrator\nWebUI test unit\nlanguage\nPreferences\nkey\nChange password\nDIAGNOSTICS\nTranslation Inspector\nlogout\nSign out\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︈︆︅︆︁︆︄︆︉︆︎︆︇︂︎︇︀︆︅︇︂︇︃︆️︆︎︆︁︆︌⁤︁⁤︋⁤Preferences\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︇︇︅︆︉︆︄︆︁︆︎︆︃︆︅︂︎︇︀︆︅︇︂︇︃︆️︆︎︆︁︆︌⁤︁⁤︃︈⁤Choose the language and working timezone used by Wathiq.\nEnglish (en)\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︌︆︁︆︎︆︇︇︅︆︁︆︇︆︅⁤︁⁤︈⁤Language\narrow_drop_down\nUTC\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︇︆️︇︂︆︋︆︉︆︎︆︇︅️︇︄︆︉︆︍︆︅︇︊︆️︆︎︆︅⁤︁⁤︁︀⁤Working timezone\narrow_drop_down\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︇︇︅︆︉︆︄︆︁︆︎︆︃︆︅︂︎︇︇︆️︇︂︆︋︆︉︆︎︆︇︅️︇︄︆︉︆︍︆︅︇︊︆️︆︎︆︅⁤︁⁤︅︁⁤Dates and times are displayed in this timezone. Stored instants remain unchanged.\nclose\nsave"
+      }
+    },
+    {
+      "name": "preferences-return",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            336,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BUTTON",
+        "text": "key\nChange password"
+      }
+    },
+    {
+      "name": "narrow-closed",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            585,
+            97
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            63.59,
+            4.5,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            18,
+            54,
+            549,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            -300,
+            0,
+            300,
+            844
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            133,
+            513,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            810,
+            585,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "SPAN",
+        "text": ""
+      }
+    },
+    {
+      "name": "narrow-open",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            585,
+            97
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            63.59,
+            4.5,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            18,
+            54,
+            549,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            0,
+            300,
+            844
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            133,
+            513,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            810,
+            585,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "SPAN",
+        "text": ""
+      }
+    },
+    {
+      "name": "wide-after-close",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            -300,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            90,
+            1368,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "DIV",
+        "text": "wathiq\nsearch\ninbox\n⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂︎︆︌︆︉︇︆︆︅︂︎︇︅︆︎︇︂︆︅︆︁︆︄⁤︁⁤︋⁤Unread: ⁨0⁩\naccount_circle\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nmore_horiz\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nsettings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︃︇︅︆︂︇︄︆︉︇︄︆︌︆︅⁤︁⁤︃︀⁤Shared application settings, grouped by purpose.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︀︇︂︆️︇︀︆︁︆︇︆︁︇︄︆︉︆️︆︎⁤︁⁤︉︀⁤Saved changes can take up to 30 seconds to reach every API instance. New jobs, artifact saves and email attempts use current committed settings.\nrefresh\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︂︆︅︆︆︇︂︆︅︇︃︆︈⁤︁⁤︇⁤Refresh\nGeneral application behavior\nContent and document viewing\nAuthentication and sessions\nDashboard and selection limits\nSearch and indexing\nDisposition\nEmail\nDefault root aggregation medium\nMixed\nDefault root aggregation medium\narrow_drop_down\nInitial medium for a new root aggregation. Type: choice. Choices: Digital, Physical, Mixed. Initial default: Mixed. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nDefault working timezone\nDefault working timezone\narrow_drop_down\nWorking timezone used when a person has no saved timezone preference. Type: timezone identifier. Initial default: Asia/Dubai. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nReview warning window\nReview warning window\nDays before a scheduled review when the resource appears as approaching review. Type: whole number. Minimum: 0. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︁⁤︁︌⁤Reason for change (required)\nsave\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︁⁤︄⁤Save\ncloud_done\nDatabase: ⁨WebUI regression fixture⁩\nDesigned and built by Sharjah Archives"
+      }
+    },
+    {
+      "name": "expanded",
+      "language": "ar",
+      "direction": "rtl",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            1349.02,
+            10,
+            72.98,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            1140,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "SPAN",
+        "text": ""
+      }
+    },
+    {
+      "name": "overflow",
+      "language": "ar",
+      "direction": "rtl",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            1349.02,
+            10,
+            72.98,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            1140,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BODY",
+        "text": "وثق\nsearch\ninbox\n⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂︎︆︌︆︉︇︆︆︅︂︎︇︅︆︎︇︂︆︅︆︁︆︄⁤︀⁤︁︁⁤غير المقروءة: ⁨0⁩\naccount_circle\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nmore_horiz\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\nsettings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︃︇︅︆︂︇︄︆︉︇︄︆︌︆︅⁤︀⁤︂︊⁤إعدادات التطبيق المشتركة، مرتبة حسب الغرض.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︀︇︂︆️︇︀︆︁︆︇︆︁︇︄︆︉︆️︆︎⁤︀⁤︊︁⁤قد يستغرق تطبيق التغييرات المحفوظة على جميع نسخ الخدمة حتى 30 ثانية. تستخدم عمليات التصرف الجديدة وحفظ المخرجات ومحاولات إرسال البريد الإعدادات المحفوظة الحالية.\nrefresh\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︂︆︅︆︆︇︂︆︅︇︃︆︈⁤︀⁤︅⁤تحديث\nسلوك التطبيق العام\nالمحتوى وعرض الوثائق\nالمصادقة والجلسات\nحدود لوحة المعلومات والاختيار\nالبحث والفهرسة\nالتصرف النهائي\nالبريد الإلكتروني\nchevron_left\nchevron_right\nالوسيط الافتراضي للملف الرئيسي\nهجين\nالوسيط الافتراضي للملف الرئيسي\narrow_drop_down\nالوسيط الأولي عند إنشاء ملف رئيسي جديد. النوع: اختيار. الخيارات: رقمي، مادي، هجين. القيمة الافتراضية الأولية: هجين. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\nالمنطقة الزمنية الافتراضية للعمل\nالمنطقة الزمنية الافتراضية للعمل\narrow_drop_down\nالمنطقة الزمنية للعمل عند عدم وجود تفضيل محفوظ للمستخدم. النوع: معرّف منطقة زمنية. القيمة الافتراضية الأولية: دبي. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\nفترة التنبيه للمراجعة\nفترة التنبيه للمراجعة\nعدد الأيام قبل موعد المراجعة التي يظهر خلالها اقتراب مراجعة الوثيقة أو الملف. النوع: عدد صحيح. الحد الأدنى: 0. القيمة الافتراضية الأولية: 30. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︀⁤︁︃⁤سبب التغيير (مطلوب)\nsave\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︀⁤︃⁤حفظ\nchevron_right\ndashboard\nلوحة المعلومات\nإدارة الوثائق\nmanage_search\nالبحث المتقدم\nfolder\nالملفات\ndescription\nالوثائق\naccount_tree\nنظم التصنيف\nlink\nأنواع العلاقات\nالتصرف\ntask_alt\nمهامي\nevent_available\nأهلية التصرف\nwork_outline\nعمليات التصرف\nالرسائل\ninbox\nالوارد\noutbox\nالصادر\ndrafts\nالمسودات\nmonitor_heart\nمراقبة الرسائل\nnotifications\nإدارة الإشعارات\nالهيكل التنظيمي\nlan\nاستعراض\ncorporate_fare\nالوحدات التنظيمية\nbadge\nالأدوار\ngroup\nالمستخدمون\nإدارة النظام\nmanage_search\nمفهرسات النصوص\nsettings\nالإعدادات\nmanage_history\nمسار التتبع\ndevices\nجلسات تسجيل الدخول\nmonitor_heart\nالعمليات الأمنية\nmanage_search\nإدارة عمليات البحث المحفوظة\nsecurity\nدرجات السرية\nadmin_panel_settings\nملفات الصلاحيات\ntranslate\nالترجمات\nshield_person\nعهدة الحوكمة\ngavel\nتعليق قنوني\ncloud_done\nقاعدة البيانات : ⁨معاينة مؤقتة للاختبار⁩\nصُمم وطُوّر بواسطة دار الوثائق في إمارة الشارقة\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات"
+      }
+    },
+    {
+      "name": "collapsed",
+      "language": "ar",
+      "direction": "rtl",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            1349.02,
+            10,
+            72.98,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            90,
+            1304,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            1376,
+            54,
+            64,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer erms-drawer--collapsed p-0",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "SPAN",
+        "text": ""
+      }
+    },
+    {
+      "name": "account-menu",
+      "language": "ar",
+      "direction": "rtl",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            1349.02,
+            10,
+            72.98,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            1140,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BODY",
+        "text": "وثق\nsearch\ninbox\n⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂︎︆︌︆︉︇︆︆︅︂︎︇︅︆︎︇︂︆︅︆︁︆︄⁤︀⁤︁︁⁤غير المقروءة: ⁨0⁩\naccount_circle\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nmore_horiz\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\nsettings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︃︇︅︆︂︇︄︆︉︇︄︆︌︆︅⁤︀⁤︂︊⁤إعدادات التطبيق المشتركة، مرتبة حسب الغرض.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︀︇︂︆️︇︀︆︁︆︇︆︁︇︄︆︉︆️︆︎⁤︀⁤︊︁⁤قد يستغرق تطبيق التغييرات المحفوظة على جميع نسخ الخدمة حتى 30 ثانية. تستخدم عمليات التصرف الجديدة وحفظ المخرجات ومحاولات إرسال البريد الإعدادات المحفوظة الحالية.\nrefresh\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︂︆︅︆︆︇︂︆︅︇︃︆︈⁤︀⁤︅⁤تحديث\nسلوك التطبيق العام\nالمحتوى وعرض الوثائق\nالمصادقة والجلسات\nحدود لوحة المعلومات والاختيار\nالبحث والفهرسة\nالتصرف النهائي\nالبريد الإلكتروني\nchevron_left\nchevron_right\nالوسيط الافتراضي للملف الرئيسي\nهجين\nالوسيط الافتراضي للملف الرئيسي\narrow_drop_down\nالوسيط الأولي عند إنشاء ملف رئيسي جديد. النوع: اختيار. الخيارات: رقمي، مادي، هجين. القيمة الافتراضية الأولية: هجين. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\nالمنطقة الزمنية الافتراضية للعمل\nالمنطقة الزمنية الافتراضية للعمل\narrow_drop_down\nالمنطقة الزمنية للعمل عند عدم وجود تفضيل محفوظ للمستخدم. النوع: معرّف منطقة زمنية. القيمة الافتراضية الأولية: دبي. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\nفترة التنبيه للمراجعة\nفترة التنبيه للمراجعة\nعدد الأيام قبل موعد المراجعة التي يظهر خلالها اقتراب مراجعة الوثيقة أو الملف. النوع: عدد صحيح. الحد الأدنى: 0. القيمة الافتراضية الأولية: 30. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︀⁤︁︃⁤سبب التغيير (مطلوب)\nsave\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︀⁤︃⁤حفظ\nchevron_right\ndashboard\nلوحة المعلومات\nإدارة الوثائق\nmanage_search\nالبحث المتقدم\nfolder\nالملفات\ndescription\nالوثائق\naccount_tree\nنظم التصنيف\nlink\nأنواع العلاقات\nالتصرف\ntask_alt\nمهامي\nevent_available\nأهلية التصرف\nwork_outline\nعمليات التصرف\nالرسائل\ninbox\nالوارد\noutbox\nالصادر\ndrafts\nالمسودات\nmonitor_heart\nمراقبة الرسائل\nnotifications\nإدارة الإشعارات\nالهيكل التنظيمي\nlan\nاستعراض\ncorporate_fare\nالوحدات التنظيمية\nbadge\nالأدوار\ngroup\nالمستخدمون\nإدارة النظام\nmanage_search\nمفهرسات النصوص\nsettings\nالإعدادات\nmanage_history\nمسار التتبع\ndevices\nجلسات تسجيل الدخول\nmonitor_heart\nالعمليات الأمنية\nmanage_search\nإدارة عمليات البحث المحفوظة\nsecurity\nدرجات السرية\nadmin_panel_settings\nملفات الصلاحيات\ntranslate\nالترجمات\nshield_person\nعهدة الحوكمة\ngavel\nتعليق قنوني\ncloud_done\nقاعدة البيانات : ⁨معاينة مؤقتة للاختبار⁩\nصُمم وطُوّر بواسطة دار الوثائق في إمارة الشارقة\nالوثائق\nTA\nTest administrator\nadmin@test.invalid\nتسجيل الدخول السابق\n10 نوفمبر 2026, 07:58 ص\nالأدوار المسندة\nbadge\nTest administrator\nWebUI test unit\nlanguage\nالتفضيلات\nkey\nتغيير كلمة المرور\nأدوات التشخيص\nفاحص الترجمات\nlogout\nتسجيل الخروج"
+      }
+    },
+    {
+      "name": "preferences",
+      "language": "ar",
+      "direction": "rtl",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            1349.02,
+            10,
+            72.98,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            1140,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BODY",
+        "text": "وثق\nsearch\ninbox\n⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂︎︆︌︆︉︇︆︆︅︂︎︇︅︆︎︇︂︆︅︆︁︆︄⁤︀⁤︁︁⁤غير المقروءة: ⁨0⁩\naccount_circle\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nmore_horiz\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\nsettings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︃︇︅︆︂︇︄︆︉︇︄︆︌︆︅⁤︀⁤︂︊⁤إعدادات التطبيق المشتركة، مرتبة حسب الغرض.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︀︇︂︆️︇︀︆︁︆︇︆︁︇︄︆︉︆️︆︎⁤︀⁤︊︁⁤قد يستغرق تطبيق التغييرات المحفوظة على جميع نسخ الخدمة حتى 30 ثانية. تستخدم عمليات التصرف الجديدة وحفظ المخرجات ومحاولات إرسال البريد الإعدادات المحفوظة الحالية.\nrefresh\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︂︆︅︆︆︇︂︆︅︇︃︆︈⁤︀⁤︅⁤تحديث\nسلوك التطبيق العام\nالمحتوى وعرض الوثائق\nالمصادقة والجلسات\nحدود لوحة المعلومات والاختيار\nالبحث والفهرسة\nالتصرف النهائي\nالبريد الإلكتروني\nchevron_left\nchevron_right\nالوسيط الافتراضي للملف الرئيسي\nهجين\nالوسيط الافتراضي للملف الرئيسي\narrow_drop_down\nالوسيط الأولي عند إنشاء ملف رئيسي جديد. النوع: اختيار. الخيارات: رقمي، مادي، هجين. القيمة الافتراضية الأولية: هجين. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\nالمنطقة الزمنية الافتراضية للعمل\nالمنطقة الزمنية الافتراضية للعمل\narrow_drop_down\nالمنطقة الزمنية للعمل عند عدم وجود تفضيل محفوظ للمستخدم. النوع: معرّف منطقة زمنية. القيمة الافتراضية الأولية: دبي. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\nفترة التنبيه للمراجعة\nفترة التنبيه للمراجعة\nعدد الأيام قبل موعد المراجعة التي يظهر خلالها اقتراب مراجعة الوثيقة أو الملف. النوع: عدد صحيح. الحد الأدنى: 0. القيمة الافتراضية الأولية: 30. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︀⁤︁︃⁤سبب التغيير (مطلوب)\nsave\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︀⁤︃⁤حفظ\nchevron_right\ndashboard\nلوحة المعلومات\nإدارة الوثائق\nmanage_search\nالبحث المتقدم\nfolder\nالملفات\ndescription\nالوثائق\naccount_tree\nنظم التصنيف\nlink\nأنواع العلاقات\nالتصرف\ntask_alt\nمهامي\nevent_available\nأهلية التصرف\nwork_outline\nعمليات التصرف\nالرسائل\ninbox\nالوارد\noutbox\nالصادر\ndrafts\nالمسودات\nmonitor_heart\nمراقبة الرسائل\nnotifications\nإدارة الإشعارات\nالهيكل التنظيمي\nlan\nاستعراض\ncorporate_fare\nالوحدات التنظيمية\nbadge\nالأدوار\ngroup\nالمستخدمون\nإدارة النظام\nmanage_search\nمفهرسات النصوص\nsettings\nالإعدادات\nmanage_history\nمسار التتبع\ndevices\nجلسات تسجيل الدخول\nmonitor_heart\nالعمليات الأمنية\nmanage_search\nإدارة عمليات البحث المحفوظة\nsecurity\nدرجات السرية\nadmin_panel_settings\nملفات الصلاحيات\ntranslate\nالترجمات\nshield_person\nعهدة الحوكمة\ncloud_done\nقاعدة البيانات : ⁨معاينة مؤقتة للاختبار⁩\nصُمم وطُوّر بواسطة دار الوثائق في إمارة الشارقة\nTA\nTest administrator\nadmin@test.invalid\nتسجيل الدخول السابق\n10 نوفمبر 2026, 07:58 ص\nالأدوار المسندة\nbadge\nTest administrator\nWebUI test unit\nlanguage\nالتفضيلات\nkey\nتغيير كلمة المرور\nأدوات التشخيص\nفاحص الترجمات\nlogout\nتسجيل الخروج\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︈︆︅︆︁︆︄︆︉︆︎︆︇︂︎︇︀︆︅︇︂︇︃︆️︆︎︆︁︆︌⁤︀⁤︉⁤التفضيلات\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︇︇︅︆︉︆︄︆︁︆︎︆︃︆︅︂︎︇︀︆︅︇︂︇︃︆️︆︎︆︁︆︌⁤︀⁤︃︆⁤اختر اللغة والمنطقة الزمنية للعمل المستخدمتين في واثق.\nالعربية (ar)\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︌︆︁︆︎︆︇︇︅︆︁︆︇︆︅⁤︀⁤︅⁤اللغة\narrow_drop_down\nUTC\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︇︆️︇︂︆︋︆︉︆︎︆︇︅️︇︄︆︉︆︍︆︅︇︊︆️︆︎︆︅⁤︀⁤︁︅⁤المنطقة الزمنية للعمل\narrow_drop_down\n⁣︇︀︇︂︆︅︆︆︆︅︇︂︆︅︆︎︆︃︆︅︇︃︂︎︆︇︇︅︆︉︆︄︆︁︆︎︆︃︆︅︂︎︇︇︆️︇︂︆︋︆︉︆︎︆︇︅️︇︄︆︉︆︍︆︅︇︊︆️︆︎︆︅⁤︀⁤︅︆⁤تُعرض التواريخ والأوقات وفق هذه المنطقة الزمنية، من دون تغيير اللحظات الزمنية المخزنة.\nclose\nsave"
+      }
+    },
+    {
+      "name": "preferences-return",
+      "language": "ar",
+      "direction": "rtl",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            1349.02,
+            10,
+            72.98,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            1140,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BUTTON",
+        "text": "key\nتغيير كلمة المرور"
+      }
+    },
+    {
+      "name": "narrow-closed",
+      "language": "ar",
+      "direction": "rtl",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            585,
+            97
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            448.42,
+            4.5,
+            72.98,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            18,
+            54,
+            549,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            133,
+            513,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            585,
+            0,
+            300,
+            844
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            810,
+            585,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "SPAN",
+        "text": ""
+      }
+    },
+    {
+      "name": "narrow-open",
+      "language": "ar",
+      "direction": "rtl",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            585,
+            97
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            448.42,
+            4.5,
+            72.98,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            18,
+            54,
+            549,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            133,
+            513,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            285,
+            0,
+            300,
+            844
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            810,
+            585,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "SPAN",
+        "text": ""
+      }
+    },
+    {
+      "name": "wide-after-close",
+      "language": "ar",
+      "direction": "rtl",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            1349.02,
+            10,
+            72.98,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            36,
+            90,
+            1368,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            1440,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "rtl",
+          "display": "flex",
+          "font": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "DIV",
+        "text": "وثق\nsearch\ninbox\n⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂︎︆︌︆︉︇︆︆︅︂︎︇︅︆︎︇︂︆︅︆︁︆︄⁤︀⁤︁︁⁤غير المقروءة: ⁨0⁩\naccount_circle\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nmore_horiz\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︀⁤︎⁤لوحة المعلومات\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\nsettings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︀⁤︉⁤الإعدادات\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︃︇︅︆︂︇︄︆︉︇︄︆︌︆︅⁤︀⁤︂︊⁤إعدادات التطبيق المشتركة، مرتبة حسب الغرض.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︀︇︂︆️︇︀︆︁︆︇︆︁︇︄︆︉︆️︆︎⁤︀⁤︊︁⁤قد يستغرق تطبيق التغييرات المحفوظة على جميع نسخ الخدمة حتى 30 ثانية. تستخدم عمليات التصرف الجديدة وحفظ المخرجات ومحاولات إرسال البريد الإعدادات المحفوظة الحالية.\nrefresh\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︂︆︅︆︆︇︂︆︅︇︃︆︈⁤︀⁤︅⁤تحديث\nسلوك التطبيق العام\nالمحتوى وعرض الوثائق\nالمصادقة والجلسات\nحدود لوحة المعلومات والاختيار\nالبحث والفهرسة\nالتصرف النهائي\nالبريد الإلكتروني\nالوسيط الافتراضي للملف الرئيسي\nهجين\nالوسيط الافتراضي للملف الرئيسي\narrow_drop_down\nالوسيط الأولي عند إنشاء ملف رئيسي جديد. النوع: اختيار. الخيارات: رقمي، مادي، هجين. القيمة الافتراضية الأولية: هجين. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\nالمنطقة الزمنية الافتراضية للعمل\nالمنطقة الزمنية الافتراضية للعمل\narrow_drop_down\nالمنطقة الزمنية للعمل عند عدم وجود تفضيل محفوظ للمستخدم. النوع: معرّف منطقة زمنية. القيمة الافتراضية الأولية: دبي. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\nفترة التنبيه للمراجعة\nفترة التنبيه للمراجعة\nعدد الأيام قبل موعد المراجعة التي يظهر خلالها اقتراب مراجعة الوثيقة أو الملف. النوع: عدد صحيح. الحد الأدنى: 0. القيمة الافتراضية الأولية: 30. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︀⁤︁︃⁤سبب التغيير (مطلوب)\nsave\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︀⁤︃⁤حفظ\ncloud_done\nقاعدة البيانات : ⁨معاينة مؤقتة للاختبار⁩\nصُمم وطُوّر بواسطة دار الوثائق في إمارة الشارقة"
+      }
+    },
+    {
+      "name": "restricted-account",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1425,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            348.5,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            336,
+            90,
+            1053,
+            16
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1425,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BODY",
+        "text": "wathiq\nsearch\ninbox\nUnread: ⁨0⁩\naccount_circle\nchevron_left\ndashboard\nDashboard\nMESSAGES\ninbox\nInbox\nDashboard\ndashboard\nDashboard\nAn overview of your records management system\nOverview\nrefresh\nRefresh\nfolder\nAggregations\nVisible to you\n0\ninventory_2\nPhysical ⁨0⁩\ncloud\nDigital ⁨0⁩\njoin_inner\nMixed ⁨0⁩\n|\nemergency\nVital ⁨0⁩\ngavel\nHeld ⁨0⁩\nOpen ⁨0⁩\nClosed ⁨0⁩\ndescription\nRecords\nVisible to you\n0\ninventory_2\nPhysical ⁨0⁩\ncloud\nDigital ⁨0⁩\njoin_inner\nMixed ⁨0⁩\n|\nemergency\nVital ⁨0⁩\ngavel\nHeld ⁨0⁩\nattachment\n⁨0⁩ components\nstorage\n0 B\nAttention signals\nVisible vital and effectively held resources.\nVital\nOn hold\nNumber of items\n0\n0\nAggregations\n0\n0\nRecords\nfavorite_border\nFavourites\n0\nView all\nYou haven't added any favourites yet. Select the heart on an aggregation or record for quick access here.\nhistory\nRecent records activity\nView all\nNo records created, updated, or viewed during the last ⁨30⁩ days.\nHoldings by organizational unit\n⁨0⁩ organizational units\nOnly units where you have an effective role; counts respect your access.\nNo organizational-unit holdings are available for your effective roles.\nReview reminders\nUpcoming reviews fall within the next ⁨30⁩ days.\nReview urgency\n0\nneed review\nOverdue\n0\nNext ⁨30⁩ days\n0\nerror_outline\nOverdue\n0\narrow_forward\nView all\nNo overdue reviews.\nevent\nUpcoming\n0\narrow_forward\nView all\nNo reviews due soon.\nDigital storage by organizational unit\nLargest authorized storage totals among units available through your effective roles.\nTop organizational units\n⁨0⁩ of ⁨0⁩ organizational units shown individually\n0 B\nauthorized storage\nNo organizational-unit storage is available for your effective roles.\ncloud_done\nDatabase: ⁨WebUI regression fixture⁩\nDesigned and built by Sharjah Archives\nTV\nTest viewer\nviewer@test.invalid\nPREVIOUS SIGN-IN\nFirst sign-in\nASSIGNED ROLES\nNo assigned roles\nlanguage\nPreferences\nkey\nChange password\nlogout\nSign out"
+      }
+    }
+  ],
+  "baseline_resize_notifications": [
+    {
+      "eventType": "ErrorEvent",
+      "filename": "http://127.0.0.1:57302/",
+      "kind": "error",
+      "message": "ResizeObserver loop completed with undelivered notifications.",
+      "resource": null,
+      "target": null
+    },
+    {
+      "eventType": "ErrorEvent",
+      "filename": "http://127.0.0.1:57302/",
+      "kind": "error",
+      "message": "ResizeObserver loop completed with undelivered notifications.",
+      "resource": null,
+      "target": null
+    }
+  ],
+  "browser_errors": []
+}

@@ -4,9 +4,12 @@ from pathlib import Path
 import subprocess
 
 import pytest
+from fastapi import APIRouter, Depends, FastAPI
 from fastapi.testclient import TestClient
 
-from tools.generate_policy_inventory import PROJECT_ROOT, _target_policy, build_inventory
+from backend.services.api.authorization_policy import require_global_privilege
+from backend.services.api.operation_policy import operation_policy
+from tools.generate_policy_inventory import PROJECT_ROOT, api_operations, build_inventory
 
 
 REGISTRY_PATH = PROJECT_ROOT / "security" / "operation-policy-registry.json"
@@ -96,24 +99,64 @@ def test_api_operation_inventory_is_complete_and_current():
     )
 
 
-def test_unclassified_api_operation_is_rejected_instead_of_getting_a_fallback():
-    with pytest.raises(ValueError, match="has no explicit policy classification"):
-        _target_policy("POST", "/api/v1/new-unreviewed-operation")
+@pytest.mark.parametrize("include_in_schema", [True, False])
+def test_unclassified_api_operation_is_rejected(include_in_schema):
+    application = FastAPI()
+    router = APIRouter()
+
+    @router.get("/future-command", include_in_schema=include_in_schema)
+    def future_command():
+        pass
+
+    application.include_router(router, prefix="/api/v1/disposition")
+    with pytest.raises(ValueError, match="GET /api/v1/disposition/future-command has no explicit policy classification"):
+        api_operations(application)
+
+
+def test_declared_policy_must_match_its_global_dependency():
+    application = FastAPI()
+
+    @application.get("/api/v1/example", dependencies=[Depends(require_global_privilege("audit.view"))])
+    @operation_policy("globally_privileged", "authorization.administer")
+    def example():
+        pass
+
+    with pytest.raises(ValueError, match="declares a privilege absent from its dependencies"):
+        api_operations(application)
+
+
+def test_a_global_dependency_supplies_the_registry_privilege():
+    application = FastAPI()
+
+    @application.get("/api/v1/example", dependencies=[Depends(require_global_privilege("audit.view"))])
+    def example():
+        pass
+
+    entry, = api_operations(application)
+    assert entry["target_policy_class"] == "globally_privileged"
+    assert entry["global_privilege"] == "audit.view"
+
+
+def _registered_policy(method, path):
+    operation = next(item for item in api_operations()
+                     if item["method"] == method and item["path"] == path)
+    return operation["target_policy_class"], operation["global_privilege"], operation["resource_permission"]
 
 
 def test_disposition_policy_distinguishes_management_and_limited_task_scope():
-    assert _target_policy('POST', '/api/v1/disposition/jobs') == (
+    assert _registered_policy('POST', '/api/v1/disposition/jobs') == (
         'globally_privileged', 'disposition.jobs.manage', None,
     )
-    assert _target_policy('POST', '/api/v1/disposition/tasks/{task_id}/claim') == (
-        'relationship_scoped', None, None,
-    )
-    with pytest.raises(ValueError, match='has no explicit policy classification'):
-        _target_policy('POST', '/api/v1/disposition/future-unreviewed-command')
+    for method, path in [
+        ('POST', '/api/v1/disposition/tasks/{task_id}/claim'),
+        ('GET', '/api/v1/disposition/jobs/{job_id}/operation-progress'),
+        ('POST', '/api/v1/disposition/jobs/{job_id}/retry-approval-documents'),
+    ]:
+        assert _registered_policy(method, path) == ('relationship_scoped', None, None)
 
 
 def test_number_suggestions_have_explicit_relationship_scoped_policy():
-    assert _target_policy("GET", "/api/v1/number-suggestions/{resource}") == (
+    assert _registered_policy("GET", "/api/v1/number-suggestions/{resource}") == (
         "relationship_scoped",
         None,
         None,
@@ -206,7 +249,7 @@ def test_phase_zero_current_access_characterization(client: TestClient):
 
 
 def test_permission_catalogue_records_conditional_policy():
-    assert _target_policy("GET", "/api/v1/permissions") == ("relationship_scoped", None, None)
+    assert _registered_policy("GET", "/api/v1/permissions") == ("relationship_scoped", None, None)
     registry = build_inventory()
     conditional = [operation for operation in registry["api_operations"]
                    if "conditional_global_privileges" in operation]

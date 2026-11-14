@@ -1,0 +1,1126 @@
+{
+  "method": "Compare request method, route, query, status and count per measured action, with only synthetic UUIDs normalized. Existing stream/catch-up/unread polling was excluded by the timing driver; raw metadata remains.",
+  "comparisons": [
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "classification",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "classification",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "custody",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "custody",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "dashboard_fresh",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "dashboard_fresh",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "inbox",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "inbox",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "page_to_sign_in",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[]": 1
+      },
+      "current_distribution": {
+        "[]": 1
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "parent_aggregation",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "parent_aggregation",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "record_detail",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "record_detail",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "record_search",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "record_search",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "records",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "records",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "settings",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "settings",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "sign_in_to_dashboard",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1], [\"GET\", \"/api/v1/i18n/bootstrap\", \"\", 200, 1], [\"GET\", \"/api/v1/i18n/catalogues/en\", \"\", 200, 1], [\"POST\", \"/api/v1/auth/login\", \"\", 200, 1]]": 1
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1], [\"GET\", \"/api/v1/i18n/bootstrap\", \"\", 200, 1], [\"GET\", \"/api/v1/i18n/catalogues/en\", \"\", 200, 1], [\"POST\", \"/api/v1/auth/login\", \"\", 200, 1]]": 1
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "classification",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "classification",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "custody",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "custody",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "dashboard_fresh",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "dashboard_fresh",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "inbox",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "inbox",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "page_to_sign_in",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[]": 1
+      },
+      "current_distribution": {
+        "[]": 1
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "parent_aggregation",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "parent_aggregation",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "record_detail",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "record_detail",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "record_search",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "record_search",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "records",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "records",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "settings",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "settings",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "chrome",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "sign_in_to_dashboard",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1], [\"GET\", \"/api/v1/i18n/bootstrap\", \"\", 200, 1], [\"GET\", \"/api/v1/i18n/catalogues/en\", \"\", 200, 1], [\"POST\", \"/api/v1/auth/login\", \"\", 200, 1]]": 1
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1], [\"GET\", \"/api/v1/i18n/bootstrap\", \"\", 200, 1], [\"GET\", \"/api/v1/i18n/catalogues/en\", \"\", 200, 1], [\"POST\", \"/api/v1/auth/login\", \"\", 200, 1]]": 1
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "classification",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "classification",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "custody",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "custody",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "dashboard_fresh",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "dashboard_fresh",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "inbox",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "inbox",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "page_to_sign_in",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[]": 1
+      },
+      "current_distribution": {
+        "[]": 1
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "parent_aggregation",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "parent_aggregation",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "record_detail",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "record_detail",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "record_search",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "record_search",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "records",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "records",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "settings",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "settings",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 1,
+      "current_sequence": 2,
+      "workflow": "sign_in_to_dashboard",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1], [\"GET\", \"/api/v1/i18n/bootstrap\", \"\", 200, 1], [\"GET\", \"/api/v1/i18n/catalogues/en\", \"\", 200, 1], [\"POST\", \"/api/v1/auth/login\", \"\", 200, 1]]": 1
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1], [\"GET\", \"/api/v1/i18n/bootstrap\", \"\", 200, 1], [\"GET\", \"/api/v1/i18n/catalogues/en\", \"\", 200, 1], [\"POST\", \"/api/v1/auth/login\", \"\", 200, 1]]": 1
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "classification",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "classification",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/classification-schemes\", \"limit=26&sort=code&direction=asc&offset=0\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "custody",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "custody",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/authorization/governance-custody\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "dashboard_fresh",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "dashboard_fresh",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "inbox",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "inbox",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/messages/inbox\", \"limit=25\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "page_to_sign_in",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[]": 1
+      },
+      "current_distribution": {
+        "[]": 1
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "parent_aggregation",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "parent_aggregation",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 2], [\"GET\", \"/api/v1/aggregations/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/retention-rule\", \"\", 200, 1], [\"GET\", \"/api/v1/classifications/1/path\", \"\", 200, 1], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/aggregation/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/aggregations/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "record_detail",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=ar\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "record_detail",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 2], [\"GET\", \"/api/v1/org-units/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 2], [\"GET\", \"/api/v1/records/1/effective-holds\", \"\", 200, 1], [\"GET\", \"/api/v1/relationships/record/1\", \"limit=25&offset=0&sort=id&descending=false&language_tag=en\", 200, 1], [\"GET\", \"/api/v1/security-levels/1\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 2]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "record_search",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "record_search",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/aggregations/1\", \"\", 200, 1], [\"GET\", \"/api/v1/aggregations/1/effective-closure\", \"\", 200, 1], [\"GET\", \"/api/v1/records/1/capabilities\", \"\", 200, 1], [\"POST\", \"/api/v1/digital-components/search\", \"\", 200, 1], [\"POST\", \"/api/v1/records/search\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "records",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "records",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/auth/me/recent-activity\", \"limit=50\", 200, 1], [\"GET\", \"/api/v1/favourites\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "settings",
+      "language": "ar",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "settings",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/application-settings\", \"\", 200, 1]]": 12
+      }
+    },
+    {
+      "browser": "edge",
+      "original_sequence": 4,
+      "current_sequence": 3,
+      "workflow": "sign_in_to_dashboard",
+      "language": "en",
+      "equal": true,
+      "original_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1], [\"GET\", \"/api/v1/i18n/bootstrap\", \"\", 200, 1], [\"GET\", \"/api/v1/i18n/catalogues/en\", \"\", 200, 1], [\"POST\", \"/api/v1/auth/login\", \"\", 200, 1]]": 1
+      },
+      "current_distribution": {
+        "[[\"GET\", \"/api/v1/dashboard/summary\", \"recent_limit=50\", 200, 1], [\"GET\", \"/api/v1/i18n/bootstrap\", \"\", 200, 1], [\"GET\", \"/api/v1/i18n/catalogues/en\", \"\", 200, 1], [\"POST\", \"/api/v1/auth/login\", \"\", 200, 1]]": 1
+      }
+    }
+  ],
+  "differences": []
+}

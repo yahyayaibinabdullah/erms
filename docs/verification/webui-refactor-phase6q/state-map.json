@@ -1,0 +1,54 @@
+{
+  "owners": [
+    {
+      "name": "global_search_state",
+      "description": "Per-client global search queries, results, diagnostics and restoration state.",
+      "keys": [
+        "global_search_cursor",
+        "global_search_error",
+        "global_search_expanded_results",
+        "global_search_filter",
+        "global_search_items",
+        "global_search_loading",
+        "global_search_page",
+        "global_search_page_size",
+        "global_search_pending",
+        "global_search_query",
+        "global_search_return_anchor",
+        "global_search_revision",
+        "search_diagnostics_accepted",
+        "search_diagnostics_enabled",
+        "search_diagnostics_error",
+        "search_diagnostics_sent"
+      ],
+      "args": "q: str = \"\"",
+      "call_args": "q"
+    }
+  ],
+  "initial": {
+    "global_search_state": {
+      "global_search_query": "q.strip()",
+      "global_search_items": "[]",
+      "global_search_cursor": "None",
+      "global_search_filter": "'all'",
+      "global_search_page": "1",
+      "global_search_page_size": "10",
+      "global_search_return_anchor": "None",
+      "global_search_expanded_results": "set()",
+      "search_diagnostics_enabled": "False",
+      "search_diagnostics_sent": "None",
+      "search_diagnostics_accepted": "None",
+      "search_diagnostics_error": "None"
+    }
+  },
+  "updates": [
+    {
+      "original": "state.update(global_search_revision=global_search_state.get('global_search_revision', 0) + 1, global_search_query='', global_search_items=[], global_search_cursor=None, global_search_filter='all', global_search_page=1, global_search_return_anchor=None, global_search_expanded_results=set(), global_search_loading=False, global_search_error=None, global_search_pending=False, search_diagnostics_enabled=False, search_diagnostics_sent=None, search_diagnostics_accepted=None, search_diagnostics_error=None)",
+      "split": "global_search_state.update(global_search_revision=global_search_state.get('global_search_revision', 0) + 1, global_search_query='', global_search_items=[], global_search_cursor=None, global_search_filter='all', global_search_page=1, global_search_return_anchor=None, global_search_expanded_results=set(), global_search_loading=False, global_search_error=None, global_search_pending=False, search_diagnostics_enabled=False, search_diagnostics_sent=None, search_diagnostics_accepted=None, search_diagnostics_error=None)"
+    },
+    {
+      "original": "state.update(resource='full-text-search', global_search_query=query, global_search_items=[], global_search_cursor=None, global_search_filter='all', global_search_page=1, global_search_return_anchor=None, search_diagnostics_sent=None, global_search_expanded_results=set(), search_diagnostics_accepted=None, search_diagnostics_error=None)",
+      "split": "state.update(resource='full-text-search'); global_search_state.update(global_search_query=query, global_search_items=[], global_search_cursor=None, global_search_filter='all', global_search_page=1, global_search_return_anchor=None, search_diagnostics_sent=None, global_search_expanded_results=set(), search_diagnostics_accepted=None, search_diagnostics_error=None)"
+    }
+  ]
+}

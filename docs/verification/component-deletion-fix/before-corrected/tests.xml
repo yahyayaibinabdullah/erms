@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="16" skipped="0" tests="16" time="1.969" timestamp="2026-11-11T23:53:24.512876+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[success-False-en]" time="0.053"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': False, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1057fbe90&gt;, 'outcome': 'success', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x105892250&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[success-False-ar]" time="0.058"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': False, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105787f50&gt;, 'outcome': 'success', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x10583d850&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[success-True-en]" time="0.038"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': True, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1058d6d50&gt;, 'outcome': 'success', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x105b9aa10&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[success-True-ar]" time="0.058"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': True, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105d9f1d0&gt;, 'outcome': 'success', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x1058a1e50&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[delete_failure-False-en]" time="0.046"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">component = {'_indexing': {'status': 'indexed'}, 'component_order': 1, 'content_status': 'available', 'file_name': 'Fixture 1.png', ...}
+
+    async def remove_component(component: dict[str, Any]) -&gt; None:
+        previous_rows = list(current_rows)
+        current_rows[:] = [item for item in current_rows if item["id"] != component["id"]]
+        render_current_components()
+        try:
+&gt;           await api.delete_component(component["id"], component["version"])
+
+frontend/webui/components.py:173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.pyenv/versions/3.11.9/lib/python3.11/unittest/mock.py:2251: in _execute_mock_call
+    result = await effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identifier = 1, version = 3
+
+    async def delete(identifier,version):
+        # Match native event lifetime: the originating card no longer owns a live slot.
+        gc.collect()
+        await asyncio.sleep(0)
+&gt;       if outcome=='delete_failure':raise ApiError(409,'Conflict')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       frontend.webui.api_client.ApiError: Conflict
+
+frontend/webui/interaction/tests/test_components_feature.py:87: ApiError
+
+During handling of the above exception, another exception occurred:
+
+args = ()
+kwargs = {'inline': False, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105e9bd90&gt;, 'outcome': 'delete_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:179: in remove_component
+    ui.notify(error_message(error), color="negative")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x1058a2590&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[delete_failure-False-ar]" time="0.049"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">component = {'_indexing': {'status': 'indexed'}, 'component_order': 1, 'content_status': 'available', 'file_name': 'Fixture 1.png', ...}
+
+    async def remove_component(component: dict[str, Any]) -&gt; None:
+        previous_rows = list(current_rows)
+        current_rows[:] = [item for item in current_rows if item["id"] != component["id"]]
+        render_current_components()
+        try:
+&gt;           await api.delete_component(component["id"], component["version"])
+
+frontend/webui/components.py:173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.pyenv/versions/3.11.9/lib/python3.11/unittest/mock.py:2251: in _execute_mock_call
+    result = await effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identifier = 1, version = 3
+
+    async def delete(identifier,version):
+        # Match native event lifetime: the originating card no longer owns a live slot.
+        gc.collect()
+        await asyncio.sleep(0)
+&gt;       if outcome=='delete_failure':raise ApiError(409,'Conflict')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       frontend.webui.api_client.ApiError: Conflict
+
+frontend/webui/interaction/tests/test_components_feature.py:87: ApiError
+
+During handling of the above exception, another exception occurred:
+
+args = ()
+kwargs = {'inline': False, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105f615d0&gt;, 'outcome': 'delete_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:179: in remove_component
+    ui.notify(error_message(error), color="negative")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x105d9a450&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[delete_failure-True-en]" time="0.039"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">component = {'_indexing': {'status': 'indexed'}, 'component_order': 1, 'content_status': 'available', 'file_name': 'Fixture 1.png', ...}
+
+    async def remove_component(component: dict[str, Any]) -&gt; None:
+        previous_rows = list(current_rows)
+        current_rows[:] = [item for item in current_rows if item["id"] != component["id"]]
+        render_current_components()
+        try:
+&gt;           await api.delete_component(component["id"], component["version"])
+
+frontend/webui/components.py:173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.pyenv/versions/3.11.9/lib/python3.11/unittest/mock.py:2251: in _execute_mock_call
+    result = await effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identifier = 1, version = 3
+
+    async def delete(identifier,version):
+        # Match native event lifetime: the originating card no longer owns a live slot.
+        gc.collect()
+        await asyncio.sleep(0)
+&gt;       if outcome=='delete_failure':raise ApiError(409,'Conflict')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       frontend.webui.api_client.ApiError: Conflict
+
+frontend/webui/interaction/tests/test_components_feature.py:87: ApiError
+
+During handling of the above exception, another exception occurred:
+
+args = ()
+kwargs = {'inline': True, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105f60890&gt;, 'outcome': 'delete_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:179: in remove_component
+    ui.notify(error_message(error), color="negative")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x106ba4610&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[delete_failure-True-ar]" time="0.048"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">component = {'_indexing': {'status': 'indexed'}, 'component_order': 1, 'content_status': 'available', 'file_name': 'Fixture 1.png', ...}
+
+    async def remove_component(component: dict[str, Any]) -&gt; None:
+        previous_rows = list(current_rows)
+        current_rows[:] = [item for item in current_rows if item["id"] != component["id"]]
+        render_current_components()
+        try:
+&gt;           await api.delete_component(component["id"], component["version"])
+
+frontend/webui/components.py:173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.pyenv/versions/3.11.9/lib/python3.11/unittest/mock.py:2251: in _execute_mock_call
+    result = await effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identifier = 1, version = 3
+
+    async def delete(identifier,version):
+        # Match native event lifetime: the originating card no longer owns a live slot.
+        gc.collect()
+        await asyncio.sleep(0)
+&gt;       if outcome=='delete_failure':raise ApiError(409,'Conflict')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       frontend.webui.api_client.ApiError: Conflict
+
+frontend/webui/interaction/tests/test_components_feature.py:87: ApiError
+
+During handling of the above exception, another exception occurred:
+
+args = ()
+kwargs = {'inline': True, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106aefd10&gt;, 'outcome': 'delete_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:179: in remove_component
+    ui.notify(error_message(error), color="negative")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x106a5a090&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[refresh_failure-False-en]" time="0.043"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': False, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105d41c10&gt;, 'outcome': 'refresh_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x106af5090&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[refresh_failure-False-ar]" time="0.060"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': False, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1068db390&gt;, 'outcome': 'refresh_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x106a2e590&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[refresh_failure-True-en]" time="0.047"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': True, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106c1ed90&gt;, 'outcome': 'refresh_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x105dcf090&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[refresh_failure-True-ar]" time="0.046"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': True, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106eb3c50&gt;, 'outcome': 'refresh_failure', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x105f25b10&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[last_component-False-en]" time="0.035"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': False, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105d84c10&gt;, 'outcome': 'last_component', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x106eea590&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[last_component-False-ar]" time="0.046"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': False, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1069b9190&gt;, 'outcome': 'last_component', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x1069b3010&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[last_component-True-en]" time="0.035"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': True, 'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106d57350&gt;, 'outcome': 'last_component', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x106eb3cd0&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_components_feature" name="test_delete_notifies_from_surviving_context_and_refreshes[last_component-True-ar]" time="0.046"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">args = ()
+kwargs = {'inline': True, 'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106a5e0d0&gt;, 'outcome': 'last_component', ...}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_components_feature.py:96: in test_delete_notifies_from_surviving_context_and_refreshes
+    await callbacks['remove'](rows[0])
+frontend/webui/components.py:174: in remove_component
+    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+frontend/webui/interaction/tests/test_components_feature.py:80: in notify
+    real_notify(message,**kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x106f39b50&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase></testsuite></testsuites>

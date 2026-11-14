@@ -1,0 +1,1369 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="16" skipped="0" tests="32" time="1.628" timestamp="2026-11-12T00:26:37.671267+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-False-records-en]" time="0.040"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104aad8d0&gt;
+language = 'en', resource = 'records', in_dialog = False, outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104b17290&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-False-records-ar]" time="0.045"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104ad6e10&gt;
+language = 'ar', resource = 'records', in_dialog = False, outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104e38150&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-False-aggregations-en]" time="0.037"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104b740d0&gt;
+language = 'en', resource = 'aggregations', in_dialog = False
+outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x103b93890&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-False-aggregations-ar]" time="0.070"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104ad40d0&gt;
+language = 'ar', resource = 'aggregations', in_dialog = False
+outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104b4e150&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-True-records-en]" time="0.056"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104ad6950&gt;
+language = 'en', resource = 'records', in_dialog = True, outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104d9fed0&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-True-records-ar]" time="0.058"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104aaf250&gt;
+language = 'ar', resource = 'records', in_dialog = True, outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104ef0350&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-True-aggregations-en]" time="0.053"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x103ecb0d0&gt;
+language = 'en', resource = 'aggregations', in_dialog = True
+outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104e95f50&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-True-aggregations-ar]" time="0.055"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104e4ee10&gt;
+language = 'ar', resource = 'aggregations', in_dialog = True
+outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104e8e550&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-False-records-en]" time="0.045"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104ac8610&gt;
+language = 'en', resource = 'records', in_dialog = False, outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104ac4b50&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-False-records-ar]" time="0.051"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104b2b250&gt;
+language = 'ar', resource = 'records', in_dialog = False, outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104ac9590&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-False-aggregations-en]" time="0.052"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104e18e50&gt;
+language = 'en', resource = 'aggregations', in_dialog = False
+outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104ac2110&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-False-aggregations-ar]" time="0.050"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104ad71d0&gt;
+language = 'ar', resource = 'aggregations', in_dialog = False
+outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104b2b9d0&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-True-records-en]" time="0.042"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104eae310&gt;
+language = 'en', resource = 'records', in_dialog = True, outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104b68a90&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-True-records-ar]" time="0.049"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104ae0250&gt;
+language = 'ar', resource = 'records', in_dialog = True, outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104ef2d10&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-True-aggregations-en]" time="0.041"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104b4f190&gt;
+language = 'en', resource = 'aggregations', in_dialog = True
+outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x104df6650&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-True-aggregations-ar]" time="0.053"><failure message="RuntimeError: The parent element this slot belongs to has been deleted.">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x104eb8cd0&gt;
+language = 'ar', resource = 'aggregations', in_dialog = True
+outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+                _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope.get(name, Mock()) for name in inspect.signature(dashboard.build_dashboard).parameters})
+                await select()
+                if in_dialog:
+                    view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
+                                    and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
+                    with view_all.parent_slot:
+                        handler(view_all)(None)
+                    del view_all
+                    container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
+                else:
+                    container = fixture.host
+                button = buttons(container, 'favorite')[0]
+                slot, remove = button.parent_slot, handler(button)
+                del button
+    
+                def notify(message, **kwargs):
+                    # Reproduce native event lifetime after rendering deletes its row.
+                    gc.collect()
+                    real_notify(message, **kwargs)
+                    notifications.append((str(message), kwargs.get('color')))
+                monkeypatch.setattr(ui, 'notify', notify)
+    
+                async def unfavourite(kind, identifier):
+                    await asyncio.sleep(0)
+                    if outcome == 'rejected':
+                        raise ApiError(409, 'Conflict')
+                    if outcome == 'abandoned':
+                        fixture.state['resource'] = 'records'
+                        fixture.host.clear()
+                fixture.api.unfavourite.side_effect = unfavourite
+                with slot:
+&gt;                   await remove(None)
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+&lt;pre-fix-dashboard&gt;:861: in remove_dashboard_favourite
+    ???
+frontend/webui/interaction/tests/test_dashboard_favourites.py:71: in notify
+    real_notify(message, **kwargs)
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/functions/notify.py:52: in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/context.py:31: in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.slot.Slot object at 0x1040da250&gt;
+
+    @property
+    def parent(self) -&gt; Element:
+        """The parent element this slot belongs to."""
+        parent = self._parent()
+        if parent is None:
+&gt;           raise RuntimeError('The parent element this slot belongs to has been deleted.')
+E           RuntimeError: The parent element this slot belongs to has been deleted.
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/slot.py:30: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-False-records-en]" time="0.040" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-False-records-ar]" time="0.057" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-False-aggregations-en]" time="0.044" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-False-aggregations-ar]" time="0.061" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-True-records-en]" time="0.046" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-True-records-ar]" time="0.054" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-True-aggregations-en]" time="0.037" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-True-aggregations-ar]" time="0.047" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-False-records-en]" time="0.013" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-False-records-ar]" time="0.028" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-False-aggregations-en]" time="0.016" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-False-aggregations-ar]" time="0.028" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-True-records-en]" time="0.016" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-True-records-ar]" time="0.023" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-True-aggregations-en]" time="0.014" /><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-True-aggregations-ar]" time="0.025" /></testsuite></testsuites>

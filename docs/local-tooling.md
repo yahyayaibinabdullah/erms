@@ -104,7 +104,7 @@ and starts these independent backend workers for the selected database:
 | Worker | Local startup |
 | --- | --- |
 | `backend.services.api.content_cleanup` | Always; database cleanup policy defaults |
-| `backend.services.api.session_cleanup` | Always; database retention, batch and interval defaults |
+| `backend.services.api.session_cleanup` | Always; starts/stops in tandem with this local stack. One database-elected active process, or standby if another copy owns the database. Independent settings for login-history cleanup (3,600 seconds/500 sessions) and search-cache cleanup (60 seconds/5,000 lists). |
 | `backend.services.api.text_indexing_maintenance cleanup` | Enabled by default; existing `CONTENT_INDEXING_MAINTENANCE_ENABLED=false` disables it |
 | `backend.services.api.disposition.eligibility` | Always; 100-item batches, 60-second interval |
 | `backend.services.api.disposition.communications` | Always; 100-item batches, 30-second interval |
@@ -397,6 +397,15 @@ update in that database; the missing-only hook does not replace them.
 The 75 Job/Task corrections applied explicitly to demo are unreviewed drafts
 until approved/published there. Another database does not inherit that approval.
 
+When a key is absent from the checked-in English catalogue, sync marks its
+database definition as deprecated. This applies even if someone manually
+translated and published the key. The key drops out of the active UI catalogue,
+and the database retains its translation rows, published wording, and review
+and publication metadata. The definition change adds a before-and-after audit
+event and preserves the earlier translation events. Keep retired keys out of
+the checked-in catalogues. In local `demo`, retain the seven deprecated
+entries from the former Recent Items panel and Classifications table.
+
 Localized names of individual people, roles and organizational units are entity
 data, separate from UI message catalogues. Editing a person's Arabic name in
 demo does not add it to the checked-in UI catalogue or another local database.
@@ -420,3 +429,11 @@ Python environment. Migration history remains under `database/migrations`;
 `schema.sql` no longer doubles as an upgrade-test fixture. Historical upgrade
 tests read pinned commit `a476ff2dc6e96f29d8d1047ccbbc656fa5455657` from Git, so
 shallow CI checkouts must fetch that commit before running those tests.
+
+## Large-data search regression gate
+
+Run `backend/services/api/.venv/bin/python tools/check_search_performance.py`.
+It creates and drops an owned disposable database containing over 50,000
+aggregations and 150,000 records. See the
+[search performance contract](search-performance.md) for counts, criteria,
+ranking checks, per-response timing thresholds and retained evidence.

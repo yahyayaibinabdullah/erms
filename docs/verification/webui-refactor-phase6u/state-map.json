@@ -1,0 +1,16 @@
+{
+  "owners": [
+    {
+      "name": "messaging_state",
+      "description": "Per-client mailbox workspace and current view ownership token.",
+      "keys": [
+        "messaging_workspace",
+        "messaging_workspace_token"
+      ]
+    }
+  ],
+  "initial": {
+    "messaging_state": {}
+  },
+  "updates": []
+}

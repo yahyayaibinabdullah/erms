@@ -22,6 +22,7 @@
 | AS-06 pageable result cards | 2 | Advanced Search execution/result renderer in `frontend/webui/app.py` | live desktop and 390px responsive browser inspection; empty-state execution | verified | Uses Wathiq cards, not `ui.table`; First/Previous/Next/Last preserve builder state |
 | AS-07 authorized results, snippets, component preview and freshness | 2–4 | existing governed `search_rows`; matched-component attribution enriched with authorized preview metadata while retaining safe snippets; preview action reusing `preview_record_components`; index-freshness response | search authorization coverage plus 178 frontend tests including match-only rendering and governed-viewer wiring | verified | Only attributed matching components render; unmatched record components are never added; unsupported/unavailable matches show a disabled preview icon |
 | AS-09, AS-22 saved execution freshness and cap | 2 | `POST /api/v1/saved-searches/{id}/execute` | `test_execute_saved_search_uses_fresh_results_and_enforces_stored_cap`; disposable DB run | verified | Runtime may override only page size, offset and authorized debug; stored cap cannot be raised |
+| AS-22 unsaved execution cap | Server enforcement | `POST /api/v1/{records,aggregations}/advanced-search` | `test_global_and_advanced_search_caps_keep_browse_available`; authenticated permission tests in `test_full_text_search_phase3.py` | verified | Default 1,000, maximum 5,000, bounded count, shortened final page and rejected out-of-range offset |
 | AS-18 page states and accessibility | 2–3 | validation summary, loading spinner, empty/error/partial-index presentations, labelled groups and controls; saved-search dialogs and read-only presentation | helper tests; live keyboard-semantic DOM and desktop visual inspection | verified | Existing logical-layout and responsive conventions are preserved by the Phase 3 controls |
 | AS-08, AS-10–AS-13, AS-15–AS-17, AS-19 | 1 | governed saved-search model, APIs, audience rules, policy catalogue and canonical/migration SQL | 36 focused API/security tests plus schema/migration verification | verified | Fresh disposable schema and migration databases were both dropped successfully |
 | AS-14 optimistic concurrency UX | 3 | `If-Match` client methods; stale update/delete handling and latest-version reload dialog | API concurrency tests; client header unit test | verified | Winning stored definition is preserved and the client offers an explicit reload |
@@ -321,3 +322,22 @@ Evidence: `.runtime/search-verification/english-confirmed-new-search.jpg` and
 Fixture API/UI shutdown succeeded, and disposable database
 `erms_messaging_test_acl_aa146f72194447d880b9a4ae7ecddf9b` was dropped.
 No user-visible wording or maintained translation artifacts changed.
+
+## Shared tab cache extension — 13 November 2026
+
+| Requirement | Implementation | Regression evidence |
+| --- | --- | --- |
+| One slot across Global, Advanced, saved executions and record/aggregation filters | `search_cache.py`, `search.py`, shared `search_results_cache` primary key | `test_tab_search_cache.py::test_one_slot_shared_across_screens_rebuilds_expired_or_replaced_page` |
+| Never read another search type's list | User/session/tab/list IDs plus endpoint/criteria/sort/version/settings fingerprint | `test_fingerprint_blocks_reuse_with_different_criteria_sort_or_endpoint`, copied-tab/login tests |
+| Same administrator cap on collection filters | `cached_search_rows`, compact result cap notice | `test_filtered_search_uses_admin_cap_and_rechecks_permissions` |
+| Reuse submitted criteria on paging; discard abandoned responses | `advanced_search.py`, `collection_controls.py`, `global_search.py` | `test_search_session_isolation.py`, `test_collection_filter_requests.py` |
+| Framework tab identity survives reload, duplicates remain separate | NiceGUI connected `client.tab_id` | `tools/webui_browser_global_search.py` reload and opener-copy assertions, English/Arabic |
+| Preserve cache entries and lifecycle during rename | Migration 111, canonical schema and baseline; independent cleanup queries | `test_migration_111_preserves_entries_unlogged_storage_and_login_cascade`, cleanup suite |
+| Preserve results and ordered cache; measure actual changed endpoints | Candidate selection, scoring, permissions and sorting in SQL | `test_cached_search_preserves_results_sort_and_scores`; `tools/search_cache_performance.py` called by the mandatory large-fixture runner |
+
+Verification results, failed attempts, timing scope and deployment requirements
+are recorded in the [shared-cache verification report](verification/shared-search-cache-2026-11-13.md).
+The final large-fixture run passed all 876 requests across Global and shared
+Advanced/saved/filter cases (maximum 2.3503 seconds); every valid Next retained
+its list ID. The report preserves the exact timing scope, preparation interval,
+earlier failures and cleanup rather than treating this as a concurrent-load SLA.

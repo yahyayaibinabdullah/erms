@@ -1,0 +1,77 @@
+[
+  {
+    "module": "dashboard",
+    "factory": "build_dashboard",
+    "functions": [
+      "dashboard_session_key",
+      "clear_dashboard_session",
+      "select_dashboard"
+    ],
+    "dependencies": [
+      "STOP_PROPAGATION_CLICK_HANDLER",
+      "accept_application_configuration",
+      "add_button",
+      "add_record_button",
+      "aggregation_mode_bar",
+      "aggregation_state",
+      "api",
+      "collection_state",
+      "dashboard_state",
+      "decorate_for_spec",
+      "enter_dashboard",
+      "error_message",
+      "format_file_size",
+      "format_timestamp",
+      "get_configuration",
+      "get_localization",
+      "get_principal",
+      "get_resource",
+      "guidance",
+      "open_aggregation",
+      "page_client",
+      "personal",
+      "personal_dialog_list_height",
+      "register_navigation",
+      "render_table",
+      "require_principal",
+      "review_display",
+      "search_bar",
+      "select_classification_workspace",
+      "select_entity",
+      "select_holds",
+      "select_organization_unit_details",
+      "set_connection_status",
+      "show_authenticated_view",
+      "show_record_details",
+      "subtitle",
+      "table_container",
+      "title"
+    ],
+    "replacements": [
+      [
+        "auth_state.get(\"principal\")",
+        "get_principal()"
+      ],
+      [
+        "auth_state[\"principal\"]",
+        "require_principal()"
+      ],
+      [
+        "state.get(\"localization\")",
+        "get_localization()"
+      ],
+      [
+        "state.get(\"resource\")",
+        "get_resource()"
+      ],
+      [
+        "state.update(resource='dashboard')",
+        "enter_dashboard()"
+      ],
+      [
+        "state[\"application_configuration\"]",
+        "get_configuration()"
+      ]
+    ]
+  }
+]

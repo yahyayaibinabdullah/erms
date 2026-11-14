@@ -1,0 +1,195 @@
+{
+  "status": "Dashboard favourite notification fixed and locally verified",
+  "date": "2026-11-12",
+  "branch": "refactor-API-python-file",
+  "head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "git_mutations": false,
+  "tests": {
+    "unit": 28,
+    "interaction": 36
+  },
+  "browsers": {
+    "chrome": {
+      "version": "157.0.8103.40",
+      "checks": 9,
+      "screenshots": 16,
+      "favourite_removal": [
+        {
+          "language": "en",
+          "surface": "dashboard",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "en",
+          "surface": "dashboard",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "en",
+          "surface": "dialog",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "en",
+          "surface": "dialog",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "ar",
+          "surface": "dashboard",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "ar",
+          "surface": "dashboard",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "ar",
+          "surface": "dialog",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "ar",
+          "surface": "dialog",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true
+        }
+      ],
+      "successful_deletes": 12,
+      "ui_deletes": 10,
+      "fixture_api_deletes": 2,
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    },
+    "edge": {
+      "version": "157.0.4341.46",
+      "checks": 9,
+      "screenshots": 16,
+      "favourite_removal": [
+        {
+          "language": "en",
+          "surface": "dashboard",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "en",
+          "surface": "dashboard",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "en",
+          "surface": "dialog",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "en",
+          "surface": "dialog",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "ar",
+          "surface": "dashboard",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "ar",
+          "surface": "dashboard",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "ar",
+          "surface": "dialog",
+          "resource": "aggregations",
+          "localized_notification": true,
+          "remaining_count": 1,
+          "single_delete": true,
+          "persisted": true
+        },
+        {
+          "language": "ar",
+          "surface": "dialog",
+          "resource": "records",
+          "localized_notification": true,
+          "remaining_count": 0,
+          "single_delete": true,
+          "persisted": true
+        }
+      ],
+      "successful_deletes": 12,
+      "ui_deletes": 10,
+      "fixture_api_deletes": 2,
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    }
+  },
+  "disposable_databases_removed": 6,
+  "catalogues_unchanged": true,
+  "excluded_attempts": {
+    "before": "Fixture lacked unused factory dependencies",
+    "before-corrected": "View-all button wrapper needed its event argument",
+    "native-selector-attempts": "Both initial browser runs assumed record numbers in favourite labels; changed harness to exact unique titles after inspecting existing parent-aggregation number display",
+    "native-dialog-attempts": "Tests expected View all to stay open; native evidence shows existing panel redraw deletes it. Corrected test to verify reopening and final empty state.",
+    "before-final": "Initial regression before native opening context correction",
+    "before-event-context": "16 expected successful-removal failures, 16 rejection/abandonment passes"
+  },
+  "test_source_sha256": {
+    "frontend/webui/interaction/tests/test_dashboard_favourites.py": "8bd32688e49eda9c8097ce11548e419b4194e89d6cbb5bce3feb55fc2772365c",
+    "tools/webui_browser_dashboard.py": "df272458fb50161c6cd733bcbc810015f9f14f2c2f25e0d240167d744d976c90"
+  }
+}

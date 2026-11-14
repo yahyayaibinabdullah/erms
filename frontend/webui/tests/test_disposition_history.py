@@ -70,18 +70,19 @@ def test_event_families_have_readable_facts(language,data):
     assert not any(v in ('null','running','sent','blocking_security','unit_manager_review') for _,items in result for _,v in items)
 
 
-def test_global_audit_keeps_shell_and_uses_shared_fields(language):
-    import ast
-    from frontend.webui.capabilities import can_navigate
-    tree=ast.parse((Path(__file__).parents[1]/'app.py').read_text())
-    function=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='show_event_detail')
-    env={'__package__':'frontend.webui','Any':object,'ui':ui,'json':json,'event_entity_identity':lambda e:('Disposition Job','DT-2026-1'),
-         'event_actor_identity':lambda e:('Shyma',None),'event_label':event_labels.event_label,'format_timestamp':str,
-         'can_open_event_entity':lambda e:False,'render_message':messages.render_message_plain,
-         'disposition_text':messages.text,'can_navigate':can_navigate,'auth_state':{'principal':{'global_privileges':['audit.view']}},'event_value':str}
-    exec(compile(ast.fix_missing_locations(ast.Module(body=[function],type_ignores=[])),'audit-dialog','exec'),env)
+def test_global_audit_keeps_shell_and_uses_shared_fields(language,monkeypatch):
+    from frontend.webui import audit_workspace as feature
+    from unittest.mock import Mock, AsyncMock
+    monkeypatch.setattr(feature,'render_message',messages.render_message_plain)
+    monkeypatch.setattr(feature,'event_entity_identity',lambda e:('Disposition','DT-2026-1'))
+    workspace=feature.build_audit_workspace(
+        api=Mock(),table_container=None,principal=lambda:{'global_privileges':['audit.view']},
+        selected=lambda:True,enter=Mock(),error_message=str,format_timestamp=str,
+        set_connection_status=Mock(),can_open_settings=lambda:False,
+        open_settings=AsyncMock(),open_destination=AsyncMock(),
+    )
     with ui.column() as host:
-        env['show_event_detail']({'id':1,'operation':'MEMBERSHIP_ADD','display_presentation':'disposition','occurred_at':'2026-10-22','source':'web_ui','metadata':{'after':{'root_aggregation_id':426}},'display_references':{'aggregation:426':'1141/DEMO/011/2026 · Meetings'}})
+        workspace.show_event_detail({'id':1,'operation':'MEMBERSHIP_ADD','display_presentation':'disposition','occurred_at':'2026-10-22','source':'web_ui','metadata':{'after':{'root_aggregation_id':426}},'display_references':{'aggregation:426':'1141/DEMO/011/2026 · Meetings'}})
         assert any(isinstance(e,ui.label) and e.text=='1141/DEMO/011/2026 · Meetings' for e in host.descendants())
         assert any(isinstance(e,ui.label) and e.text=='DT-2026-1' for e in host.descendants())
         assert not any(isinstance(e,ui.table) for e in host.descendants())
@@ -89,22 +90,23 @@ def test_global_audit_keeps_shell_and_uses_shared_fields(language):
     host.delete()
 
 
-def test_completion_dialogs_share_the_same_contextual_title(language):
-    import ast
-    from frontend.webui.capabilities import can_navigate
+def test_completion_dialogs_share_the_same_contextual_title(language,monkeypatch):
     row={'id':143910,'entity_type':'disposition_task','entity_id':7,'operation':'FINAL_COMPLETE',
          'display_presentation':'disposition','occurred_at':'2026-10-27T10:24:30Z','source':'web_ui',
          'metadata':{'before':{'task_type':'certificate_download','task_state':'open'},'after':{'task_type':'certificate_download','task_state':'completed'}},
          'can_view_technical_details':True}
     expected=event_labels.event_label(row['operation'],event=row)
-    tree=ast.parse((Path(__file__).parents[1]/'app.py').read_text())
-    function=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='show_event_detail')
-    env={'__package__':'frontend.webui','Any':object,'ui':ui,'json':json,'event_entity_identity':lambda e:('Disposition task','DT-2026-1'),
-         'event_actor_identity':lambda e:('Fathiya',None),'event_label':event_labels.event_label,'format_timestamp':str,
-         'can_open_event_entity':lambda e:False,'render_message':messages.render_message_plain,
-         'disposition_text':messages.text,'can_navigate':can_navigate,'auth_state':{'principal':{'global_privileges':['audit.view']}},'event_value':str}
-    exec(compile(ast.fix_missing_locations(ast.Module(body=[function],type_ignores=[])),'audit-dialog','exec'),env)
-    for display in (lambda:event_details(row,str),lambda:env['show_event_detail'](row)):
+    from frontend.webui import audit_workspace as feature
+    from unittest.mock import Mock, AsyncMock
+    monkeypatch.setattr(feature,'render_message',messages.render_message_plain)
+    monkeypatch.setattr(feature,'event_entity_identity',lambda e:('Disposition','DT-2026-1'))
+    workspace=feature.build_audit_workspace(
+        api=Mock(),table_container=None,principal=lambda:{'global_privileges':['audit.view']},
+        selected=lambda:True,enter=Mock(),error_message=str,format_timestamp=str,
+        set_connection_status=Mock(),can_open_settings=lambda:False,
+        open_settings=AsyncMock(),open_destination=AsyncMock(),
+    )
+    for display in (lambda:event_details(row,str),lambda:workspace.show_event_detail(row)):
         with ui.column() as host:
             display()
             assert any(isinstance(e,ui.label) and e.text==expected for e in host.descendants())
