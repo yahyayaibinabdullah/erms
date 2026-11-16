@@ -614,19 +614,19 @@ def index(q: str = "") -> None:
         html[dir="rtl"] .detail-action-row,
         html[dir="rtl"] :is(.record-command-controls, .identity-command-actions,
             .aggregation-actions-panel, .aggregation-hold-controls,
-            .hold-command-actions, .detail-action-row) .q-btn__content {
+            .hold-command-actions, .detail-action-row, .resource-metadata-actions) .q-btn__content {
             flex-direction: row;
         }
         /* Quasar's on-left/on-right icon spacing is physical in this build.
            Preserve its 6px separation at the logical end/start after mirroring. */
         html[dir="rtl"] :is(.record-command-controls, .identity-command-actions,
             .aggregation-actions-panel, .aggregation-hold-controls,
-            .hold-command-actions, .detail-action-row) .q-btn__content > .q-icon.on-left {
+            .hold-command-actions, .detail-action-row, .resource-metadata-actions) .q-btn__content > .q-icon.on-left {
             margin-right: 0; margin-left: 6px;
         }
         html[dir="rtl"] :is(.record-command-controls, .identity-command-actions,
             .aggregation-actions-panel, .aggregation-hold-controls,
-            .hold-command-actions, .detail-action-row) .q-btn__content > .q-icon.on-right {
+            .hold-command-actions, .detail-action-row, .resource-metadata-actions) .q-btn__content > .q-icon.on-right {
             margin-left: 0; margin-right: 6px;
         }
         html[dir="rtl"] .erms-nav-link { justify-content: flex-start; text-align: right; }
@@ -967,6 +967,18 @@ def index(q: str = "") -> None:
             flex-direction: row !important;
         }
         html[dir="rtl"] .compact-result-title .q-label { text-align: right; }
+        /* The shared result row uses an explicit grid in both directions.
+           Let the title use the full section width on a phone. */
+        @media (max-width: 480px) {
+            .resource-contents-section .compact-result-row,
+            html[dir="rtl"] .resource-contents-section .compact-result-row {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-areas: "identity" "actions";
+                row-gap: 2px;
+            }
+            .resource-contents-section .compact-result-actions { justify-self: end; }
+            html[dir="rtl"] .resource-contents-section .compact-result-actions { justify-self: start; }
+        }
         .global-search-highlight { background: #fff0a8; color: #573f00; border-radius: 3px;
             padding: 0 2px; font-weight: 600; }
         .global-search-json { max-height: 280px; overflow: auto; white-space: pre-wrap;
@@ -1467,10 +1479,6 @@ def index(q: str = "") -> None:
         }
         .aggregation-hold-controls, .aggregation-actions-panel { min-width: 0; width: 100%; }
         .aggregation-actions-panel .q-btn { justify-content: flex-start; }
-        .aggregation-action-group-label {
-            color: #64748b; font-size: .68rem; font-weight: 750;
-            letter-spacing: .07em; text-transform: uppercase;
-        }
         .aggregation-retention-compact {
             grid-column: 1 / -1; grid-row: 2; min-width: 0; width: 100%; margin-top: 4px;
         }
@@ -1489,7 +1497,6 @@ def index(q: str = "") -> None:
         }
         .aggregation-child-preview-grid {
             display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
-            max-height: 146px; overflow-y: auto; padding-inline-end: 3px;
         }
         .aggregation-child-preview {
             min-width: 0; min-height: 64px; border: 1px solid #e2e8f0;
@@ -1513,16 +1520,16 @@ def index(q: str = "") -> None:
         html[dir="rtl"] .aggregation-retention-stage:not(:last-child)::after {
             content: "←";
         }
-        html[dir="rtl"] .aggregation-retention-stage,
-        html[dir="rtl"] .aggregation-retention-chip { text-align: right; }
+        html[dir="rtl"] .aggregation-retention-stage { text-align: right; }
         .aggregation-retention-footer {
             display: flex; align-items: center; gap: 8px; min-width: 0;
             padding-top: 9px; border-top: 1px solid #d5eaf8;
         }
-        .aggregation-retention-chip {
-            min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis;
-            white-space: nowrap; border-radius: 8px; background: rgba(255,255,255,.62);
-            padding: 7px 9px; color: #536b7f; font-size: .75rem;
+        /* The existing stage arrows are horizontal. Remove them when the
+           Details dialog stacks its stages at narrow widths. */
+        @media (max-width: 520px) {
+            .resource-retention-stages { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+            .resource-retention-stages .aggregation-retention-stage:not(:last-child)::after { display: none; }
         }
         .record-command-layout {
             display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(330px, .72fr);
@@ -1620,6 +1627,26 @@ def index(q: str = "") -> None:
         .timestamp-time { font-size: .72rem; color: #94a3b8; line-height: 1.2; }
         .component-grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding-inline-end: 8px; }
         .component-list { container-type: inline-size; overflow: visible; padding: 2px 0; }
+        .record-file-list { padding: 0; }
+        .record-file-row:last-child { border-bottom: 0; }
+        .record-file-name { overflow-wrap: anywhere; text-align: start; }
+        .record-file-summary { flex: 0 0 16rem; }
+        html[dir="rtl"] .record-file-disclosure[aria-expanded="false"] .record-file-chevron { transform: scaleX(-1); }
+        @container (max-width: 430px) {
+            .record-file-disclosure { flex: 1 0 100%; }
+            .record-file-summary { flex: 1 1 auto; padding-inline-start: 2rem; }
+        }
+        .record-component-uploader { width: auto; max-width: 100%; box-shadow: none; background: transparent; }
+        .record-component-uploader .q-uploader__header { background: transparent; color: inherit; }
+        .record-component-uploader .q-uploader__list { display: none; }
+        .record-component-drop-target {
+            position: fixed; inset: 0; z-index: 5000; display: grid; place-items: center;
+            padding: 1.5rem; pointer-events: none; background: rgb(15 32 58 / 47%);
+        }
+        .record-component-drop-target::before {
+            content: ""; position: absolute; inset: 1rem;
+            border: 2px dashed #acd6fd; border-radius: 12px;
+        }
         @container (min-width: 760px) { .component-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         .component-card { border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: none; overflow: hidden; }
         .component-card:hover { border-color: #a8bdd8; background: #fafdff; }
@@ -2384,6 +2411,7 @@ def index(q: str = "") -> None:
         }
 
     global_search_payload, render_safe_snippet, copy_diagnostic_json, render_search_diagnostics, render_global_search_results, change_global_search_page, remember_global_result, set_global_result_expansion, open_global_record_from_result, open_global_aggregation_from_result, open_global_record, open_global_aggregation, run_global_search, clear_global_search_session = build_global_search(
+        get_configuration=lambda: state["application_configuration"],
         add_button=add_button,
         add_record_button=add_record_button,
         aggregation_mode_bar=aggregation_mode_bar,
@@ -2619,7 +2647,7 @@ def index(q: str = "") -> None:
         elif page == "text-indexer-details" and entity_id is not None:
             await select_text_indexer_details(entity_id)
         elif page == "aggregation-details" and entity_id is not None:
-            await open_aggregation(await api.get("aggregations", entity_id))
+            await open_aggregation(await api.get("aggregations", entity_id), from_authorized_read=True)
         elif page == "record-details" and entity_id is not None:
             await select_record_details(entity_id)
         elif page == "org-unit-details" and entity_id is not None:
@@ -2700,6 +2728,8 @@ def index(q: str = "") -> None:
         message_unread_button.set_visibility(False)
         clear_global_search_session()
         clear_dashboard_session()
+        aggregation_state.pop("aggregation_contents", None)
+        aggregation_state.pop("aggregation_children_page", None)
         classification_controller.reset()
         api.cancel_pending_reads()
         drawer.hide()
@@ -2745,7 +2775,7 @@ def index(q: str = "") -> None:
             app.storage.user["localization_context"] = localization
 
 
-    def restore_compact_result_anchor(anchor_id: str | None) -> None:
+    def restore_compact_result_anchor(anchor_id: str | None, *, fallback_id: str | None = None) -> None:
         if not anchor_id:
             return
         async def restore() -> None:
@@ -2753,6 +2783,8 @@ def index(q: str = "") -> None:
                 "requestAnimationFrame(() => requestAnimationFrame(() => {"
                 f"const result = document.getElementById({json.dumps(anchor_id)});"
                 "if (result) result.scrollIntoView({block:'center'});"
+                + (f"const target = result?.querySelector('.compact-result-open') ?? document.getElementById({json.dumps(fallback_id)});"
+                   "if (target) target.focus();" if fallback_id else "") +
                 "}));"
             )
         background_tasks.create(restore())
@@ -2805,6 +2837,10 @@ def index(q: str = "") -> None:
         error_message=error_message,
     )
 
+    def invalidate_contained_records(aggregation_id: int | None) -> None:
+        page = aggregation_state.get("aggregation_contents", {}).get(aggregation_id)
+        if page:
+            page.pop("search_id", None)
 
     show_record_details, select_record_details = build_record_details(
         add_button=add_button,
@@ -2817,7 +2853,6 @@ def index(q: str = "") -> None:
         browse_advanced_aggregation=lambda *args, **kwargs: browse_advanced_aggregation(*args, **kwargs),
         clear_collection=lambda: collection_state.update(rows=[], searched=True),
         current_direction=current_direction,
-        decorate_for_spec=lambda *args, **kwargs: decorate_for_spec(*args, **kwargs),
         enter_record_details=lambda: state.update(resource="record-details"),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
         favourite_button=lambda *args, **kwargs: favourite_button(*args, **kwargs),
@@ -2827,6 +2862,7 @@ def index(q: str = "") -> None:
         get_resource=lambda: state.get("resource"),
         guidance=guidance,
         hold_reason_dialog=lambda *args, **kwargs: hold_reason_dialog(*args, **kwargs),
+        invalidate_contained_records=invalidate_contained_records,
         load_recent=lambda *args, **kwargs: load_recent(*args, **kwargs),
         medium_label=lambda *args, **kwargs: medium_label(*args, **kwargs),
         open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
@@ -2847,7 +2883,7 @@ def index(q: str = "") -> None:
         show_acl_editor=lambda *args, **kwargs: show_acl_editor(*args, **kwargs),
         show_authenticated_view=lambda *args, **kwargs: show_authenticated_view(*args, **kwargs),
         show_components=lambda *args, **kwargs: show_components(*args, **kwargs),
-        show_effective_holds_dialog=lambda *args, **kwargs: show_effective_holds_dialog(*args, **kwargs),
+        render_effective_holds=lambda *args, **kwargs: render_effective_holds(*args, **kwargs),
         show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
         show_governed_move=lambda *args, **kwargs: show_governed_move(*args, **kwargs),
         show_security_level_change=lambda *args, **kwargs: show_security_level_change(*args, **kwargs),
@@ -2919,10 +2955,13 @@ def index(q: str = "") -> None:
     open_aggregation = build_aggregation_details(
         add_button=add_button,
         add_record_button=add_record_button,
+        add_child=lambda: add_for_current_context(),
+        add_record=lambda: add_record_for_current_aggregation(),
         add_resource_to_hold_dialog=lambda *args, **kwargs: add_resource_to_hold_dialog(*args, **kwargs),
         aggregation_mode_bar=aggregation_mode_bar,
         aggregation_state=aggregation_state,
         api=api,
+        get_configuration=lambda: state["application_configuration"],
         bind_remote_relationship_select=lambda *args, **kwargs: bind_remote_relationship_select(*args, **kwargs),
         breadcrumb_back=lambda *args, **kwargs: breadcrumb_back(*args, **kwargs),
         browse_advanced_aggregation=lambda *args, **kwargs: browse_advanced_aggregation(*args, **kwargs),
@@ -2956,7 +2995,7 @@ def index(q: str = "") -> None:
         show_access_explanation=lambda *args, **kwargs: show_access_explanation(*args, **kwargs),
         show_acl_editor=lambda *args, **kwargs: show_acl_editor(*args, **kwargs),
         show_authenticated_view=lambda *args, **kwargs: show_authenticated_view(*args, **kwargs),
-        show_effective_holds_dialog=lambda *args, **kwargs: show_effective_holds_dialog(*args, **kwargs),
+        render_effective_holds=lambda *args, **kwargs: render_effective_holds(*args, **kwargs),
         show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
         show_governed_move=lambda *args, **kwargs: show_governed_move(*args, **kwargs),
         show_ownership_correction=lambda *args, **kwargs: show_ownership_correction(*args, **kwargs),
@@ -3190,6 +3229,7 @@ def index(q: str = "") -> None:
     )
 
     select_advanced_search = build_advanced_search(
+        get_configuration=lambda: state["application_configuration"],
         add_button=add_button,
         add_record_button=add_record_button,
         advanced_search_state=advanced_search_state,
@@ -3228,7 +3268,7 @@ def index(q: str = "") -> None:
         if kind == "record":
             await select_record_details(identity)
         else:
-            await open_aggregation(await api.get("aggregations", identity))
+            await open_aggregation(await api.get("aggregations", identity), from_authorized_read=True)
 
     def enter_application_settings() -> None:
         """Adapt the Settings feature to the existing shared shell."""
@@ -3384,7 +3424,7 @@ def index(q: str = "") -> None:
     )
 
 
-    add_resource_to_hold_dialog, show_effective_holds_dialog = build_hold_resources(
+    add_resource_to_hold_dialog, show_effective_holds_dialog, render_effective_holds = build_hold_resources(
         api=api,
         select_hold_details=lambda *args, **kwargs: select_hold_details(*args, **kwargs),
         open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
@@ -3475,6 +3515,7 @@ def index(q: str = "") -> None:
 
     load_rows = build_collection_loader(
         api, get_resource=lambda: state["resource"], get_query=lambda: search_input.value,
+        get_configuration=lambda: state["application_configuration"],
         pages=collection_state["collection_pages"], accept_results=accept_collection_results,
         compact_states=collection_state.setdefault("entity_result_states", {}),
         decorate_for_spec=decorate_for_spec,

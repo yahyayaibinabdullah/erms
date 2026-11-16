@@ -8,6 +8,8 @@ from nicegui import ui
 from frontend.webui import app as host
 from frontend.webui import hold_editor, hold_resources, holds_people
 from frontend.webui.api_client import ApiError
+from frontend.webui.i18n_catalogue import render_message_plain
+from frontend.webui.resource_detail_header import render_resource_detail_header
 
 pytest_plugins=['nicegui.testing.user_plugin']
 pytestmark=pytest.mark.asyncio
@@ -18,7 +20,7 @@ def build(values):
     reason, editor = hold_editor.build_hold_editor(**{
         key: scope[key] for key in ('api', 'bind_remote_people_select', 'select_hold_details', 'error_message')
     })
-    attach, effective = hold_resources.build_hold_resources(
+    attach, effective, _ = hold_resources.build_hold_resources(
         api=scope['api'], select_hold_details=scope['select_hold_details'],
         open_aggregation=scope['open_aggregation'], hold_reason_dialog=reason,
         error_message=scope['error_message'],
@@ -132,6 +134,69 @@ async def test_effective_hold_authority_links_and_direct_removal(user,kind):
     with user:next(e for e in reason.descendants() if isinstance(e,ui.textarea)).value=' Remove reason '
     click(user,buttons(reason,'check')[0]);await settle()
     api.remove_hold_held_item.assert_awaited_once_with(7,'record',11,4,'Remove reason');refresh.assert_awaited_once();assert not d.value
+
+
+async def test_status_summary_shows_vital_descendants_and_restricted_holds(user):
+    await setup(user)
+    holds = AsyncMock(return_value=[{'source': 'inherited'}, {'name': 'Visible fixture'}])
+    with user:
+        render_resource_detail_header(
+            {'id': 10, 'aggregation_number': 'FIX', 'title': 'Fixture',
+             'is_vital': False, 'has_vital_descendants': True},
+            kind='aggregation', closure={'restricted': True}, closure_known=True,
+            hold_count=2, get_holds=holds, open_details=AsyncMock(), set_default_trigger=Mock(),
+            format_timestamp=Mock(), render_actions=lambda: None,
+        )
+    for label, messages in (
+        ('webui.open_aggregation.button.vital_status_69064d77', [
+            'resource_details.not_marked_vital', 'webui.open_aggregation.label.contains_vital_resources_006b2b72',
+        ]),
+        ('resource_details.closure', ['resource_details.closure_source_restricted']),
+        ('navigation.item.holds', ['webui.show_effective_holds_dialog.label.effective_hold_details_restricted_6e99756d']),
+    ):
+        button = next(b for b in user.find(ui.button).elements if b.props.get('aria-label') == render_message_plain(label))
+        if label == 'webui.open_aggregation.button.vital_status_69064d77':
+            assert button.props['icon'] == 'o_emergency'
+            assert button.props['color'] == 'red-8'
+            assert button.props['flat'] and not button.props.get('outline')
+            expected = ' · '.join(render_message_plain(message) for message in messages)
+            assert button.props['aria-description'] == expected
+        elif label == 'navigation.item.holds':
+            assert button.props['aria-description'] == render_message_plain(
+                'webui.open_aggregation.label.protected_by_hold_count_effective_value_065566e7', hold_count=2,
+            )
+        menu = next(e for e in button.descendants() if isinstance(e, ui.menu))
+        show = next(listener.handler for listener in menu._event_listeners.values() if listener.type == 'show')
+        with user:
+            menu.open()
+            await show()
+        texts = {e.text for e in menu.descendants() if isinstance(e, ui.label)}
+        assert {render_message_plain(message) for message in messages} <= texts
+    assert 'Visible fixture' in texts
+    assert '…' not in texts
+    holds.assert_awaited_once()
+
+
+async def test_record_header_reports_current_and_unconfirmed_statuses_without_reading_hold_names(user):
+    await setup(user)
+    holds = AsyncMock()
+    with user:
+        render_resource_detail_header(
+            {'id': 11, 'record_number': 'FIX', 'title': 'Fixture', 'is_vital': False},
+            kind='record', closure=None, closure_known=False,
+            hold_count=None, get_holds=holds, open_details=AsyncMock(), set_default_trigger=Mock(),
+            format_timestamp=Mock(), render_actions=lambda: None,
+        )
+    for category, status, icon in (
+        ('webui.open_aggregation.button.vital_status_69064d77', 'resource_details.not_marked_vital', 'emergency'),
+        ('resource_details.closure', 'resource_details.unavailable', 'help_outline'),
+        ('navigation.item.holds', 'resource_details.unavailable', 'help_outline'),
+    ):
+        button = next(b for b in user.find(ui.button).elements if b.props.get('aria-label') == render_message_plain(category))
+        assert button.props['aria-description'] == render_message_plain(status)
+        assert button.props['icon'] == icon
+    holds.assert_not_awaited()
+
 
 def bind_people(values, control, **kwargs):
     bind = holds_people.build_people_select(api=values['api'], error_message=host.error_message)

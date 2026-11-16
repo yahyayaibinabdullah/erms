@@ -99,15 +99,19 @@ with psycopg.connect(url) as c:
             capture('detail')
             assert not page.visible('.q-dialog pre')
             page.click(page.t('webui.show_event_detail.button.open_entity_ef774537'),page.one('.q-dialog__inner > .q-card'))
-            page.one('button.detail-linked-entity')
+            page.one('button.resource-detail-parent')
             page.see('Test record')
             history_label=page.t('webui.show_entity_history.label.event_history_670b1156')
+            if not page.visible('.q-dialog__inner > .q-card'):
+                page.click(page.t('resource_details.details'),page.one('.resource-detail-header'))
             page.click(page.t('webui.select_record_details.button.event_history_89d2205e'))
             page.see(history_label);page.see('Audit fixture 54')
             capture('entity-history')
             detail();capture('nested-detail');close();close()
         with page.check('record Event History pages past the former 200-event cutoff'):
             start = len(page.events())
+            if not page.visible('.q-dialog__inner > .q-card'):
+                page.click(page.t('resource_details.details'),page.one('.resource-detail-header'))
             page.click(page.t('webui.select_record_details.button.event_history_89d2205e'))
             page.see(page.t('webui.show_entity_history.label.event_history_670b1156'))
             page.see('Audit fixture 54')
@@ -129,7 +133,7 @@ with psycopg.connect(url) as c:
             assert [parse_qs(e['query']) for e in reads] == [
                 {'limit': ['26'], 'offset': [str(offset)]} for offset in [*range(0, 251, 25), 225]
             ]
-            close()
+            close();close()
         with page.check('audit empty search, read errors, abandoned responses and restoration'):
             page.drawer('audit_trail');loaded()
             page.fill(correlation(),'77777777-7777-4777-8777-777777777777');page.click(apply())

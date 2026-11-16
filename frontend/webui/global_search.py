@@ -9,7 +9,7 @@ from .i18n_catalogue import render_message_plain
 from nicegui import ui
 
 def build_global_search(
-    *, add_button, add_record_button, aggregation_mode_bar, api, clear_advanced_workspace, clear_collection_results, discard_navigation_guard, enter_global_search, error_message, get_principal, get_resource, global_search_input, global_search_state, invalidate_advanced_session, open_aggregation, register_navigation, render_compact_resource_result, restore_compact_result_anchor, search_bar, select_record_details, show_authenticated_view, subtitle, table_container, title,
+    *, add_button, add_record_button, aggregation_mode_bar, api, clear_advanced_workspace, clear_collection_results, discard_navigation_guard, enter_global_search, error_message, get_configuration, get_principal, get_resource, global_search_input, global_search_state, invalidate_advanced_session, open_aggregation, register_navigation, render_compact_resource_result, restore_compact_result_anchor, search_bar, select_record_details, show_authenticated_view, subtitle, table_container, title,
 ):
     page_client = table_container.client
 
@@ -301,6 +301,7 @@ def build_global_search(
             enter_global_search()
             global_search_state.update(
                 new_global_search_state(query, tab_id=global_search_state["global_search_tab_id"]),
+                global_search_page_size=get_configuration()["SEARCH_RESULTS_PAGE_SIZE"],
                 search_diagnostics_enabled=diagnostics,
             )
             tokens = global_search_state["global_search_page_tokens"]

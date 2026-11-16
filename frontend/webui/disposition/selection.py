@@ -6,6 +6,7 @@ An uncertain mutation retains its exact command UUID/payload for safe retry.
 """
 from uuid import uuid4
 from nicegui import ui
+from ..creator_labels import creator_text
 from ..api_client import ApiError
 from ..locale_services import current_locale_context
 from ..resource_relationships import PageTable
@@ -53,6 +54,7 @@ async def add_aggregations_dialog(*,api,job,context,active,on_error,format_times
                     sort={'identity':'id','owner_label':'owner','due_label':'due','status_label':'status'}.get(p.sort,p.sort) or 'due',descending=p.descending)
                 for row in result['items']:
                     row['identity']=row['aggregation_number']+' · '+row['title']
+                    row['creator_label']=creator_text(row)
                     row['owner_label']=row.get('owner') or '—'
                     row['due_label']=format_timestamp(row['calculated_disposition_at']) if row.get('calculated_disposition_at') else text('no_date')
                     row['status_label']=status_label(row['disposition_status'])
@@ -74,8 +76,9 @@ async def add_aggregations_dialog(*,api,job,context,active,on_error,format_times
                 wrap_cells=True,selection='multiple',on_loaded=loaded)
             selection.attach(page)
             page.table.add_slot('body-cell-relationship_label','''<q-td :props="props"><span :class="props.row.relationships_block_final ? 'text-amber-900' : ''">{{ props.row.relationship_label }}</span></q-td>''')
-            for field in ('identity','owner_label'):
-                page.table.add_slot('body-cell-'+field,'<q-td :props="props"><span dir="auto">{{ props.row.'+field+' }}</span></q-td>')
+            page.table.add_slot('body-cell-identity','''<q-td :props="props"><span dir="auto">{{ props.row.identity }}</span>
+                <div v-if="props.row.creator_label" dir="auto" class="text-xs text-slate-600">{{ props.row.creator_label }}</div></q-td>''')
+            page.table.add_slot('body-cell-owner_label','<q-td :props="props"><span dir="auto">{{ props.row.owner_label }}</span></q-td>')
         feedback=ui.label('').classes('text-negative whitespace-pre-wrap').props('role=alert')
         results=ui.column().classes('w-full gap-2')
         results.set_visibility(False)

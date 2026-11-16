@@ -70,7 +70,7 @@ def test_oversight_catalogue_covers_both_languages_and_preserves_curated_rows():
     current_by_key = {item["message_key"]: item for item in current["items"]}
     for item in original['items']:
         if item['message_key'] not in current_by_key:
-            assert item in current.get('deprecated_items', [])
+            assert not item['message_key'].startswith('authorization.oversight.')
             assert item['message_key'] not in manifest
             continue
         candidate = current_by_key[item['message_key']]

@@ -68,7 +68,7 @@ def check_performance(page):
                 record('record_search',search.click,lambda:visible('.compact-result-item') and page.driver.execute_script("return document.querySelector('.compact-result-item')?.id!==arguments[0]",previous),cycle=cycle,language=language)
                 open_record=page.one('button[aria-label="Open record"]',scope=page.one('.compact-result-item'))
                 record('record_detail',open_record.click,lambda:visible('.component-list'),cycle=cycle,language=language)
-                parent=page.one('button.detail-linked-entity')
-                record('parent_aggregation',parent.click,lambda:page.t('webui.open_aggregation.label.aggregation_overview_bb8398e3') in page.text() and not visible('.erms-card .q-spinner'),cycle=cycle,language=language)
+                parent=page.one('button.resource-detail-parent')
+                record('parent_aggregation',parent.click,lambda:page.t('webui.open_aggregation.label.child_aggregations_cd3bce3a') in page.text() and not visible('.erms-card .q-spinner'),cycle=cycle,language=language)
         page.errors()
     page.report['performance_method']={'cycles_per_language':12,'warmup_cycles_excluded':1,'poll_seconds':.02,'readiness':'Visible destination, all non-stream API requests complete, loading indicators absent, and two animation frames.','timed_actions':'Native click through ready UI; excludes finding controls, typing, screenshots and fixture setup.','startup_limit':'One cold browser load and login per independent process; compare repeated processes separately.','concurrency':'Benchmark sessions run sequentially after functional test processes exit.'}

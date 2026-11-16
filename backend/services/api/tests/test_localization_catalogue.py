@@ -1,4 +1,5 @@
 import json
+from hashlib import sha256
 import os
 from pathlib import Path
 import re
@@ -15,14 +16,14 @@ MESSAGE_KEY = "preferences.validation.language.unsupported"
 
 def test_generated_arabic_artifact_is_complete_contextual_and_placeholder_safe():
     root = Path(__file__).parents[4]
-    definitions = json.loads((root / "frontend/webui/i18n/messages.en.json").read_text())
+    catalogue = (root / "frontend/webui/i18n/messages.en.json").read_bytes()
+    definitions = json.loads(catalogue)
     artifact = json.loads((root / "frontend/webui/i18n/messages.ar.generated.json").read_text())
     candidates = artifact["items"]
     definition_keys = [item["message_key"] for item in definitions]
     assert definition_keys == sorted(definition_keys)
-    assert artifact["generator"] == "Wathiq Translation Administration"
-    assert artifact["model"] == "database-reviewed-translations"
-    assert artifact["prompt_version"] == "manual-admin-export-v1"
+    assert artifact["catalogue_sha256"] == sha256(catalogue).hexdigest()
+    assert artifact["artifact_type"] == "wathiq_translation_administration_export"
     assert [item["message_key"] for item in candidates] == definition_keys
     assert len({item["message_key"] for item in candidates}) == len(definitions)
 
@@ -33,6 +34,11 @@ def test_generated_arabic_artifact_is_complete_contextual_and_placeholder_safe()
             placeholder.findall(definition["default_text"])
         )
         assert isinstance(candidate["quality_flags"], list)
+        provenance = candidate.get("provenance", {})
+        if provenance.get("kind") == "generated_draft":
+            assert provenance["source_origin"] == "generated"
+            assert provenance["source_status"] == "draft"
+            assert provenance["generator"]
         if candidate["quality_flags"]:
             provenance = candidate.get("provenance")
             if provenance:

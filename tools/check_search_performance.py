@@ -74,7 +74,8 @@ def seed(c, *, include_chunks=True):
         WHERE key IN ('FULL_TEXT_SEARCH_ENABLED','SEARCH_RESULT_LIMIT','SEARCH_RATE_LIMIT_PER_MINUTE')""")
     for table, number, count, divisor in [('aggregations','aggregation_number',AGGREGATIONS,3),('records','record_number',RECORDS,1)]:
         parent = ",aggregation_id" if table == 'records' else ',inherit_acl_from_parent,classification_id'
-        values = ",(n-1)/3+1" if table == 'records' else f',false,{classification}'
+        # Keep a populated branch whose contents exceed the filtered search cap.
+        values = ",CASE WHEN n<=1100 THEN 1 ELSE (n-1)/3+1 END" if table == 'records' else f',false,{classification}'
         c.execute(sql.SQL("""INSERT INTO {} (id,{},title,description,owning_org_unit_id,security_level_id,medium{})
             SELECT n, 'PERF-' || n, repeat('common ',1+n%%3) ||
                 CASE WHEN n<=%s THEN 'needle ' ELSE '' END ||
@@ -86,6 +87,14 @@ def seed(c, *, include_chunks=True):
             FROM generate_series(1,%s) n""").format(sql.Identifier(table),sql.Identifier(number),sql.SQL(parent),sql.SQL(values)),
             (37 if divisor==1 else 13, 120//divisor, 420//divisor,120//divisor,60//divisor,150//divisor,unit,level,count))
         kind = 'record' if table=='records' else 'aggregation'
+        c.execute(sql.SQL("""INSERT INTO event_history(entity_type,entity_id,operation,occurred_at,
+              actor_user_id,actor_name,actor_type,source,after_state)
+            SELECT %s,resource.id,'CREATE','2024-01-01T00:00:00Z',
+                   CASE WHEN resource.id%%13<>0 THEN creator.id END,'Creator at the time of filing',
+                   CASE WHEN resource.id%%13<>0 THEN 'user' ELSE 'automated_process' END,'seeding',jsonb_build_object('id',{})
+              FROM {} resource
+              CROSS JOIN (SELECT users.id FROM users WHERE email='reader@performance.invalid') creator
+             WHERE resource.id%%7<>0""").format(sql.Identifier('resource', 'id'), sql.Identifier(table)), (kind,))
         c.execute(sql.SQL("""INSERT INTO {} ({},search_vector,text_search_config,index_config_version)
             SELECT id,setweight(to_tsvector('simple',{}),'A') || setweight(to_tsvector('simple',title),'A')
                 || setweight(to_tsvector('simple',description),'B'), 'simple','perf-v1' FROM {}""").format(
@@ -262,8 +271,13 @@ def exercise(output, repeats):
                             assert 'component_search_chunks_vector_gin' in used
                     c.commit()
             from tools.search_cache_performance import exercise as exercise_tab_cache
+            from tools.search_cache_performance import exercise_contained_records
+            from tools.search_cache_performance import exercise_global_ui_pages
             failures.extend(exercise_tab_cache(client, c, output, repeats, identity, oracle))
-        assert not failures, f'{len(failures)} responses exceeded 3 seconds; see {output}/results.json'
+            failures.extend(exercise_contained_records(client, c, output, repeats, identity))
+            failures.extend(exercise_global_ui_pages(client, output, repeats, identity))
+        (output/'results.json').write_text(json.dumps({'results':results,'failures':failures},indent=2))
+        assert not failures, f'{len(failures)} responses exceeded their time limit; see {output}/results.json'
 
 
 def main():
@@ -288,6 +302,7 @@ def main():
         'backend/services/api/authentication.py',
         'backend/services/api/main.py',
         'backend/services/api/dashboard_visibility.py', 'database/schema.sql',
+        'backend/services/api/creator_attribution.py', 'backend/services/api/application_settings_registry.py',
         'database/seeds/000_required_reference_data.sql')}
     config={**dotenv_values(ROOT/'.env'),**os.environ}
     name='erms_search_perf_'+uuid4().hex

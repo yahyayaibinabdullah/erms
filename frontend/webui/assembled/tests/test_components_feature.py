@@ -27,10 +27,16 @@ async def test_saved_component_upload_move_preview_download_and_delete(assembled
     await eventually(lambda:current_page(user)=='record-details' and any(isinstance(e,ui.upload) for e in user.find(ui.upload).elements))
     upload=next(e for e in user.find(ui.upload).elements)
     with user:upload._multi_upload_handlers[0](SimpleNamespace(contents=[BytesIO(PNG),BytesIO(PNG)],names=['a.png','b.png'],types=['image/png','image/png']))
-    def cards():return sorted([e for e in user.find(ui.card).elements if 'component-card' in e.classes],key=lambda c:c.id)
+    def cards():return sorted([e for e in user.find(ui.column).elements if 'record-file-row' in e.classes],key=lambda c:c.id)
     await eventually(lambda:len(cards())==2 and user.pending_requests==0)
     original=(await api.component_page(record['id']))['items'];assert [r['file_name'] for r in original]==['a.png','b.png']
     def button(card,icon):return next(b for b in card.descendants() if isinstance(b,ui.button) and b.props.get('icon')==icon)
+    def expand(row):
+        control=next(b for b in row.descendants() if isinstance(b,ui.button) and 'record-file-disclosure' in b.classes)
+        if control.props['aria-expanded']=='false':
+            click_one(user,[control])
+        return control
+    control=expand(cards()[0]);await eventually(lambda:control.props['aria-expanded']=='true')
     old=cards()[0].id;click_one(user,[button(cards()[0],'arrow_downward')])
     await eventually(lambda:len(cards())==2 and cards()[0].id!=old and user.pending_requests==0)
     assert [r['file_name'] for r in (await api.component_page(record['id']))['items']]==['b.png','a.png']
@@ -41,6 +47,7 @@ async def test_saved_component_upload_move_preview_download_and_delete(assembled
     download=Mock();monkeypatch.setattr(user,'download',download)
     click_one(user,[button(cards()[0],'download')]);await eventually(lambda:download.called)
     assert download.call_args.args==(PNG,'b.png','image/png')
+    control=expand(cards()[0]);await eventually(lambda:control.props['aria-expanded']=='true')
     click_one(user,[button(cards()[0],'delete_outline')])
     await eventually(lambda:len(cards())==1 and user.pending_requests==0 and any(r['method']=='DELETE' and '/digital-components/' in r['path'] for r in user.api_requests))
     assert [r['file_name'] for r in (await api.component_page(record['id']))['items']]==['a.png']

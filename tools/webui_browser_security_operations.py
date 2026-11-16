@@ -115,7 +115,7 @@ with psycopg.connect(url) as c:
             ], pages
         with page.check('security event destination, refresh and empty period'):
             target=next(e for e in cards()[0].find_elements('css selector','.cursor-pointer') if 'TEST-REC' in e.text);page.activate(target)
-            page.see(page.t('webui.select_record_details.button.edit_metadata_d7742b94'));page.one('.component-list');capture('record')
+            page.one('.resource-detail-header');page.one('.component-list');capture('record')
             enter();choose_custom();dates('2030-01-01','2030-01-02');expect_page(0)
             old = cards()[0]
             page.click(key('button.refresh_aa2c487e'))

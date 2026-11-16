@@ -19,6 +19,7 @@ NAMES=['global_search_payload','render_safe_snippet','copy_diagnostic_json','ren
 def build(scope):
     from frontend.webui.global_search import build_global_search
     scope.update(global_search_state=scope['state'],
+        get_configuration=lambda: {'SEARCH_RESULTS_PAGE_SIZE': 25},
         get_principal=lambda:scope['auth_state'].get('principal'),
         get_resource=lambda:scope['state']['resource'],
         enter_global_search=lambda:scope['state'].update(resource='full-text-search'),
@@ -61,7 +62,7 @@ async def test_next_and_previous_read_the_saved_search_from_the_server(user):
     search.return_value={'items':[item(10)],'search_id':'saved-search','next_cursor':None}
     with user:await s['change_global_search_page'](2)
     assert s['state']['global_search_page']==2
-    assert search.await_args.args[0]['limit']==10
+    assert search.await_args.args[0]['limit']==25
     assert search.await_args.args[0]['cursor']=='next'
     assert search.await_args.args[0]['search_id']=='saved-search'
     assert search.await_args.args[0]['tab_id']==s['state']['global_search_tab_id']

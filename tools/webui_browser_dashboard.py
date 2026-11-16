@@ -33,7 +33,9 @@ def check_dashboard(page):
             all_button=page.button(page.t('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'),favourites());all_button.send_keys(Keys.TAB);active=page.driver.switch_to.active_element
             assert active.get_attribute('role')=='button' and 'dashboard-personal-item' in active.get_attribute('class')
             page.report.setdefault('focus',[]).append({'language':language,'sequence':['favourites view all','favourite row']})
-            active.send_keys(Keys.ENTER);page.one('.component-list');enter();page.wait.until(lambda _:len(rows())==1)
+            active.send_keys(Keys.ENTER)
+            assert record['record_number'] in page.one('.resource-detail-header').text
+            enter();page.wait.until(lambda _:len(rows())==1)
             page.click(page.t('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'),favourites());d=page.one('.dashboard-personal-dialog');capture('favourites')
             close=next(b for b in page.visible('button',d) if any(i.text=='close' for i in b.find_elements('css selector','.q-icon')));page.activate(close);page.wait.until(lambda _:not page.visible('.dashboard-personal-dialog'))
             assert page.driver.current_url==url and page.driver.execute_script('return history.length')==history
@@ -62,6 +64,7 @@ def check_dashboard(page):
                 if surface=='dialog':
                     page.click(page.t('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'),favourites())
                     d=page.one('.dashboard-personal-dialog');dialog_id=d.get_attribute('id')
+                    page.wait.until(lambda _:len(page.visible('.dashboard-personal-item',d))==len(entities))
                     verify_identities(d,entities)
                 order=('records','aggregations') if surface=='dashboard' else ('aggregations','records')
                 for position,resource in enumerate(order):

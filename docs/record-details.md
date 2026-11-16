@@ -3,17 +3,24 @@
 Records open in a dedicated page from record search, aggregation contents, the
 aggregation browser, Dashboard links, and audit history.
 
-The page combines the record's identity, description, dates, containing
-aggregation, favourite state, and available actions. The containing aggregation
-is a link to its aggregation page. Edit and Delete are hidden when an ancestor
-aggregation has closed the record; Event history remains available.
+The header shows the record identity and status icons, plus a link to the
+containing aggregation when the user may see it. The Details dialog's Metadata
+tab shows the description, dates, containing aggregation, and authorized
+actions. Edit metadata and Event history sit beside the metadata. Specialist
+actions are under Advanced. Closure restricts edits and deletion. Event
+history remains available.
 
-The Digital Components section is embedded directly below the metadata. It
-loads the record's files automatically and provides upload, preview, download,
-ordering, removal, and component-history controls. Closed records keep preview,
-download, and history available but make component mutations read-only.
-Records without files show the upload interface and an explicit empty state.
-That empty state spans the component area and is centered on the page.
+The Digital components section loads directly below the header. Each row
+shows the filename, size, availability, and eligible preview and download
+actions. Expand the row to see metadata and other authorized file actions.
+The **Add digital components** button opens the file chooser. Dragging files
+over an eligible record page also shows a drop target. Both use the same
+batch upload flow.
+
+Closed records keep authorized preview, download, and history available. An
+empty digital record shows an empty state after its files finish loading. A
+physical record shows its physical-record notice. Paging controls appear when
+the list spans more than one page.
 
 The list-level Digital Components shortcut still opens the standalone component
 dialog when an administrator wants to work with files without first opening the

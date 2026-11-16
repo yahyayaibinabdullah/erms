@@ -6,10 +6,12 @@ from tools.check_webui_browser import plain
 
 def check_security(page):
     def capture(name):page.capture('security-'+name+'-'+page.language)
-    def dialog():return page.one('.q-dialog__inner > .q-card')
+    def dialog():
+        return page.wait.until(lambda _: (page.visible('.q-dialog__inner > .q-card') or [False])[-1])
     def close(key):
+        count=len(page.visible('.q-dialog__inner > .q-card'))
         page.click(page.t(key),dialog())
-        page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
+        page.wait.until(lambda _:len(page.visible('.q-dialog__inner > .q-card'))<count)
     def verify_contextual_acl():
         for key in (
             'webui.show_acl_editor.text.access_control_list_d8401318',
@@ -43,6 +45,8 @@ def check_security(page):
             page.fill(page.t('webui.index.input.search_by_number_title_or_description_e21ed520'),'TEST-REC')
             page.click(page.t('webui.index.button.search_4d02b714'),page.one('.erms-card'))
             page.one('button[aria-label="Open record"]',scope=page.one('.compact-result-item')).click()
+            page.click(page.t('resource_details.details'),page.one('.resource-detail-header'))
+            page.activate(page.one('.resource-advanced-actions .q-item__label',scope=dialog()))
             page.see(page.t('webui.select_record_details.button.why_this_access_a28abcce'))
             url=page.driver.current_url;history=page.driver.execute_script('return history.length')
             for scene,entry,cancel in [
@@ -50,27 +54,29 @@ def check_security(page):
                 ('record-explanation','webui.select_record_details.button.why_this_access_a28abcce','webui.show_access_explanation.accessible_name.close_access_explanation_347ccd8f'),
                 ('record-level','webui.select_record_details.button.security_level_2f483a84','webui.show_security_level_change.button.cancel_d37961e9'),
             ]:
-                page.click(page.t(entry));dialog()
+                page.click(page.t(entry));page.wait.until(lambda _:len(page.visible('.q-dialog__inner > .q-card'))==2);dialog()
                 if scene == 'record-acl': verify_contextual_acl()
                 if scene.endswith('explanation'):page.see(page.t('webui.load_explanation.label.decision_gates_1847ec0e'))
                 focus(scene);capture(scene);close(cancel)
             assert page.driver.current_url==url and page.driver.execute_script('return history.length')==history
         with page.check('aggregation access with contextual ACL entries and default ACLs'):
-            page.one('button.detail-linked-entity').click()
-            page.see(page.t('webui.open_aggregation.label.aggregation_overview_bb8398e3'))
+            close('webui.show_effective_holds_dialog.button.close_7cfb3209')
+            page.one('button.resource-detail-parent').click()
+            page.see(page.t('webui.open_aggregation.label.child_aggregations_cd3bce3a'))
+            page.click(page.t('resource_details.details'),page.one('.resource-detail-header'))
+            page.activate(page.one('.resource-advanced-actions .q-item__label',scope=dialog()))
             for scene,entry,cancel in [
                 ('aggregation-acl','webui.open_aggregation.button.access_2361cbee','webui.show_acl_editor.button.cancel_256f9c91'),
                 ('aggregation-explanation','webui.open_aggregation.button.why_this_access_bb85ae4d','webui.show_access_explanation.accessible_name.close_access_explanation_347ccd8f'),
                 ('aggregation-level','webui.open_aggregation.button.security_level_5d0b4408','webui.show_security_level_change.button.cancel_d37961e9'),
             ]:
-                page.click(page.t(entry));dialog()
+                page.click(page.t(entry));page.wait.until(lambda _:len(page.visible('.q-dialog__inner > .q-card'))==2);dialog()
                 if scene == 'aggregation-acl': verify_contextual_acl()
                 if scene.endswith('explanation'):page.see(page.t('webui.load_explanation.label.decision_gates_1847ec0e'))
                 capture(scene);close(cancel)
-            page.activate(page.one('.q-expansion-item .q-item__label',page.t('webui.open_aggregation.expansion.advanced_2d1fcc81')))
             for scene,entry in [('child-defaults','webui.open_aggregation.button.child_defaults_8ac3012b'),('record-defaults','webui.open_aggregation.button.record_defaults_3e8c0414')]:
-                page.click(page.t(entry));dialog();capture(scene);close('webui.show_acl_editor.button.cancel_256f9c91')
-            page.reload();page.see(page.t('webui.open_aggregation.label.aggregation_overview_bb8398e3'))
+                page.click(page.t(entry));page.wait.until(lambda _:len(page.visible('.q-dialog__inner > .q-card'))==2);dialog();capture(scene);close('webui.show_acl_editor.button.cancel_256f9c91')
+            page.reload();page.see(page.t('webui.open_aggregation.label.child_aggregations_cd3bce3a'))
         with page.check('security dialog browser errors and no cancelled writes'):
             page.errors()
     writes=[e for e in page.events() if e['method'] in {'PUT','PATCH','POST','DELETE'} and (('/acl' in e['path'] or '/permissions' in e['path']) or '/privileges' in e['path'] or 'security-level-change' in e['path'])]

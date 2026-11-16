@@ -12,7 +12,7 @@ def build_aggregation_toolbar(
             return
 
         async def refresh_parent(_: dict[str, Any]) -> None:
-            await open_aggregation(current)
+            await open_aggregation(current, refresh_contents=True)
 
         await open_editor(
             initial_values={"parent_aggregation_id": current["id"]},
@@ -27,7 +27,7 @@ def build_aggregation_toolbar(
             return
 
         async def refresh_parent(_: dict[str, Any]) -> None:
-            await open_aggregation(current)
+            await open_aggregation(current, refresh_contents=True)
 
         await open_record_draft_editor(
             target_aggregation_id=current["id"], on_committed=refresh_parent,

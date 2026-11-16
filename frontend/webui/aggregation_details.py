@@ -1,7 +1,6 @@
 """Existing aggregation behavior with explicit view dependencies."""
 from __future__ import annotations
-from typing import Any, Callable
-from .aggregation_presentation import AGGREGATION_SUMMARY_LAYOUT_CLASSES
+from typing import Any
 from .api_client import ApiError
 from .entities import ENTITIES
 from frontend.webui.disposition.screens import accelerate_dialog
@@ -18,11 +17,14 @@ from .i18n_catalogue import render_message_plain
 from .retention_timeline import render_retention_stages
 from datetime import timezone
 from nicegui import ui
+from .creator_labels import render_creator_name
+from .resource_detail_header import detail_action_group, detail_read, metadata_layout, open_details_dialog, read_closure, render_resource_detail_header
 
 def build_aggregation_details(
-    *, add_button, add_record_button, add_resource_to_hold_dialog, aggregation_mode_bar, aggregation_state, api, bind_remote_relationship_select, breadcrumb_back, browse_advanced_aggregation, current_direction, enter_details, error_message, favourite_button, format_timestamp, get_record_detail_id, get_relationship_page_token, get_resource, guidance, hold_reason_dialog, load_recent, localized_disposition_value, medium_label, open_editor, open_related_resource, principal, register_navigation, render_compact_resource_result, restore_compact_result_anchor, review_datetime_input_minimum, review_datetime_input_value, review_datetime_payload, review_display, search_bar, select_classification_workspace, select_entity, set_relationship_page_token, show_access_explanation, show_acl_editor, show_authenticated_view, show_effective_holds_dialog, show_entity_history, show_governed_move, show_ownership_correction, show_record_details, show_reopen_aggregation, show_security_level_change, subtitle, table_container, title,
+    *, add_button, add_record_button, add_child, add_record, add_resource_to_hold_dialog, aggregation_mode_bar, aggregation_state, api, bind_remote_relationship_select, breadcrumb_back, browse_advanced_aggregation, current_direction, enter_details, error_message, favourite_button, format_timestamp, get_configuration, get_record_detail_id, get_relationship_page_token, get_resource, guidance, hold_reason_dialog, load_recent, localized_disposition_value, medium_label, open_editor, open_related_resource, principal, register_navigation, render_compact_resource_result, restore_compact_result_anchor, review_datetime_input_minimum, review_datetime_input_value, review_datetime_payload, review_display, search_bar, select_classification_workspace, select_entity, set_relationship_page_token, show_access_explanation, show_acl_editor, show_authenticated_view, render_effective_holds, show_entity_history, show_governed_move, show_ownership_correction, show_record_details, show_reopen_aggregation, show_security_level_change, subtitle, table_container, title,
 ):
-    async def open_aggregation(aggregation: dict[str, Any]) -> None:
+    async def open_aggregation(aggregation: dict[str, Any], *, details_tab: str | None = None,
+                               from_authorized_read: bool = False, refresh_contents: bool = False) -> None:
         show_authenticated_view()
         relationship_token = object()
         relationship_principal = principal()
@@ -39,107 +41,56 @@ def build_aggregation_details(
             aggregation_state["aggregation_detail_return_resource"] = previous_resource
             aggregation_state["aggregation_detail_return_record_id"] = get_record_detail_id()
         enter_details()
-        try:
-            current = await api.get("aggregations", aggregation["id"])
-            security_level, owning_org_unit, capabilities, effective_holds, closure = await asyncio.gather(
-                api.get("security-levels", current["security_level_id"]),
-                api.get("org-units", current["owning_org_unit_id"]),
-                api.resource_capabilities("aggregations", current["id"]),
-                api.effective_holds("aggregation", current["id"]),
-                api.effective_aggregation_closure(current["id"]),
-            )
-            ancestors = []
-            seen = {current["id"]}
-            parent_id = current.get("parent_aggregation_id")
-            while parent_id and parent_id not in seen:
-                parent = await api.get("aggregations", int(parent_id))
-                ancestors.append(parent)
-                seen.add(parent_id)
-                parent_id = parent.get("parent_aggregation_id")
-            ancestors.reverse()
-            aggregation_context_by_id = {
-                int(item["id"]): item for item in [*ancestors, current]
-            }
-            child_page_state = aggregation_state.setdefault("aggregation_children_page", {})
-            child_page_number = max(1, int(child_page_state.get(current["id"], 1)))
-            child_page = await api.relationship_page(
-                "aggregations", ("aggregation_number", "title"), limit=25,
-                offset=(child_page_number - 1) * 25,
-                filters={"parent_aggregation_id": current["id"]},
-            )
-            children = child_page["items"]
-            child_total = int(child_page["total"])
-            child_return = aggregation_state.get("aggregation_child_return") or {}
-            if int(child_return.get("aggregation_id") or 0) != int(current["id"]):
-                child_return = {}
-            record_page_number = max(1, int(child_return.get("page") or 1))
-            record_query = str(child_return.get("filter") or "").strip()
-            record_conditions: list[dict[str, Any]] = [{
-                "field": "aggregation_id", "operator": "eq", "value": current["id"],
-            }]
-            if record_query:
-                record_conditions.append({"or": [
-                    {"field": field, "operator": "contains_ci", "value": record_query}
-                    for field in ("record_number", "title")
-                ]})
-            record_page_result = await api.search_request("records", {
-                "where": {"and": record_conditions},
-                "sort": [{"field": "record_number", "direction": "asc"}],
-                "limit": 10, "offset": (record_page_number - 1) * 10,
-            })
-            records = record_page_result["items"]
-            record_total = int(record_page_result["total"])
-            async def load_record_result_context(
-                record: dict[str, Any],
-            ) -> dict[str, Any]:
-                try:
-                    return await api.resource_capabilities("records", record["id"])
-                except ApiError:
-                    return {}
+        def active():
+            return (get_resource() == "aggregation-details"
+                    and get_relationship_page_token() is relationship_token
+                    and principal() is relationship_principal)
 
-            record_contexts = await asyncio.gather(*[
-                load_record_result_context(record) for record in records
-            ])
-            for record, record_capabilities in zip(records, record_contexts):
-                record["_component_count"] = int(record_capabilities.get("component_count", 0))
-                record["_can_preview"] = bool(record_capabilities.get("has_previewable_component"))
-                record["on_effective_hold"] = bool(
-                    record.get("on_effective_hold")
-                    or record_capabilities.get("is_on_effective_hold")
+        def notify_error(error):
+            if active():
+                ui.notify(error_message(error), color="negative", close_button=True)
+
+        search_bar.set_visibility(False)
+        aggregation_mode_bar.set_visibility(False)
+        add_button.set_visibility(False)
+        add_record_button.set_visibility(False)
+        title.text = ""
+        subtitle.text = ""
+        guidance.text = ""
+        table_container.clear()
+        try:
+            current = aggregation if from_authorized_read else await api.get("aggregations", aggregation["id"])
+            if not active():
+                return
+            if current.get("title") != aggregation.get("title"):
+                register_navigation(
+                    "aggregation-details", current["title"], entity_id=current["id"],
+                    accessible_label=f"{current['title']} — {current['aggregation_number']}",
                 )
-            effective_rule = None
-            local_retention_rule = None
-            classification_path = []
-            try:
-                effective_rule = await api.effective_retention_rule(current["id"])
-                if current.get("parent_aggregation_id") is None:
-                    local_retention_rule = await api.aggregation_retention_rule(current["id"])
-                if effective_rule.get("classification_id"):
-                    classification_path = await api.classification_path(
-                        effective_rule["classification_id"]
-                    )
-            except ApiError as error:
-                if error.status_code != 404:
-                    raise
-            for record in records:
-                record["_effectively_closed"] = closure is not None
+            identifier = int(current["id"])
             aggregation_state["aggregation_detail"] = current
-            if closure is None and capabilities.get("add_child"):
-                add_button.text = render_message("webui.open_aggregation.text.add_child_aggregation_13879ca9")
-                add_button.update()
-                add_button.set_visibility(True)
-            else:
-                add_button.set_visibility(False)
-            if closure is None and capabilities.get("add_record"):
-                add_record_button.set_visibility(True)
-            else:
-                add_record_button.set_visibility(False)
-            search_bar.set_visibility(False)
-            aggregation_mode_bar.set_visibility(False)
-            guidance.text = ""
-            title.text = current["title"]
-            subtitle.text = current["aggregation_number"]
-            table_container.clear()
+            client = table_container.client
+            capabilities = {}
+            closure = None
+            closure_known = False
+            hold_count = None
+            child_total = None
+            all_record_total = None
+            classification_path = []
+            # Paths are authorized for this mounted page. Refreshing or leaving
+            # the page discards them with the other detail data.
+            classification_paths = {}
+            local_retention_rule = None
+            aggregation_context_by_id = {identifier: current}
+            is_root = not current.get("parent_aggregation_id") and current.get("parent_aggregation_state") != "redacted"
+
+            async def get_holds():
+                return await api.effective_holds("aggregation", identifier)
+
+            async def refresh(saved=None, *, section="metadata"):
+                if active():
+                    await open_aggregation(saved or current, details_tab=section, refresh_contents=True)
+
             with table_container:
                 async def leave_aggregation_page() -> None:
                     await breadcrumb_back(lambda: select_entity("aggregations"))
@@ -147,12 +98,15 @@ def build_aggregation_details(
                 async def open_parent_aggregation() -> None:
                     parent = aggregation_context_by_id.get(current.get("parent_aggregation_id"))
                     if parent:
+                        close_details()
                         await open_aggregation(parent)
 
                 async def open_parent_classification() -> None:
-                    if not classification_path:
+                    path = await metadata_classification_path()
+                    if not path or not active():
                         return
-                    classification = classification_path[-1]
+                    close_details()
+                    classification = path[-1]
                     await select_classification_workspace(
                         initial_scheme_id=classification["classification_scheme_id"],
                         initial_classification_id=classification["id"],
@@ -162,7 +116,7 @@ def build_aggregation_details(
                     async def remove(reason: str) -> None:
                         await api.remove_all_direct_holds("aggregation", current["id"], reason)
                         ui.notify(render_message("webui.remove.notify.aggregation_removed_from_all_directly_assi_dfa06ec9"), color="positive")
-                        await open_aggregation(current)
+                        await refresh(section="holds")
 
                     await hold_reason_dialog(
                         render_message("webui.hold_reason_dialog.remove_all_confirmation"),
@@ -173,7 +127,7 @@ def build_aggregation_details(
                 async def reopen_current() -> None:
                     async def reopened(saved: dict[str, Any]) -> None:
                         await load_recent(ENTITIES["aggregations"])
-                        await open_aggregation(saved)
+                        await refresh(saved)
 
                     await show_reopen_aggregation(current, reopened)
 
@@ -185,7 +139,7 @@ def build_aggregation_details(
                         )
                         ui.notify(render_message("webui.close_current.notify.aggregation_closed_cf4843ed"), color="positive")
                         await load_recent(ENTITIES["aggregations"])
-                        await open_aggregation(closed)
+                        await refresh(closed)
                     except ApiError as error:
                         ui.notify(error_message(error), color="negative", close_button=True)
 
@@ -239,7 +193,7 @@ def build_aggregation_details(
                                 )
                                 dialog.close()
                                 ui.notify(render_message("webui.save_rule.notify.local_retention_override_saved_0fd4260d"), color="positive")
-                                await open_aggregation(current)
+                                await refresh(section="retention")
                             except ApiError as error:
                                 ui.notify(error_message(error), color="negative", close_button=True)
 
@@ -252,7 +206,7 @@ def build_aggregation_details(
                                 await api.delete_aggregation_retention_rule(current["id"], existing["version"], reason)
                                 dialog.close()
                                 ui.notify(render_message("webui.remove_rule.notify.local_retention_override_removed_3ca4941f"), color="positive")
-                                await open_aggregation(current)
+                                await refresh(section="retention")
                             except ApiError as error:
                                 ui.notify(error_message(error), color="negative", close_button=True)
 
@@ -298,51 +252,37 @@ def build_aggregation_details(
                             ).props("unelevated no-caps")
                     confirmation.open()
 
-                with ui.row().classes("w-full items-center px-5 pt-4 gap-1 text-sm"):
-                    ui.button(render_message("webui.open_aggregation.button.aggregations_8a85acd2"), icon="folder", on_click=lambda: select_entity("aggregations")).props("flat dense no-caps").classes("breadcrumb-link")
-                    for ancestor in ancestors:
-                        ui.icon("chevron_right").classes("text-slate-400")
-                        ui.button(
-                            ancestor["title"],
-                            on_click=lambda _, item=ancestor: open_aggregation(item),
-                        ).props("flat dense no-caps").classes("breadcrumb-link")
-                    ui.icon("chevron_right").classes("text-slate-400")
-                    ui.label(current["title"]).classes("font-semibold text-slate-800")
+                async def load_metadata():
+                    nonlocal all_record_total
+                    async def count_unfiltered_records():
+                        if not record_query or all_record_total is not None:
+                            return all_record_total
+                        try:
+                            unfiltered = await api.search_request("records", {
+                                "where": {"field": "aggregation_id", "operator": "eq", "value": identifier},
+                                "limit": 1,
+                            })
+                            return int(unfiltered["total"])
+                        except ApiError:
+                            return None
 
-                with ui.element("div").classes("aggregation-command-layout w-full p-5"):
-                    with ui.column().classes("aggregation-command-controls"):
-                        aggregation_hold_host = ui.card().classes(
-                            "detail-surface aggregation-hold-controls shadow-none p-4 gap-3"
-                        )
-                        aggregation_actions_host = ui.card().classes(
-                            "detail-surface aggregation-actions-panel shadow-none p-4 gap-3"
-                        )
-                    with ui.card().classes(
-                        AGGREGATION_SUMMARY_LAYOUT_CLASSES
-                    ):
-                        with ui.row().classes("aggregation-panel-heading w-full items-center"):
-                            ui.label(render_message("webui.open_aggregation.label.aggregation_overview_bb8398e3"))
-                            ui.space()
-                            ui.badge(render_message("webui.open_aggregation.badge.closed_30c24826") if closure else render_message("webui.open_aggregation.badge.open_88407b0f"), color="amber-8" if closure else "positive").props("outline")
-                        with ui.grid(columns="auto minmax(0, 1fr) auto").classes(
-                            "aggregation-detail-identity-header w-full items-center gap-3"
-                        ):
-                            ui.avatar(icon="folder", color="primary", text_color="white")
-                            with ui.column().classes("gap-0 grow min-w-0"):
-                                ui.label(current["aggregation_number"]).classes("text-xs text-primary font-semibold")
-                                ui.label(current["title"]).classes("text-lg font-semibold break-words")
-                            with ui.grid(columns="repeat(2, max-content)").classes(
-                                "aggregation-detail-header-actions items-center gap-2"
-                            ):
-                                favourite_button("aggregations", current["id"])
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.back_4d496e53"),
-                                    icon=None if current_direction["value"] == "rtl" else "arrow_back",
-                                    on_click=leave_aggregation_page,
-                                ).props(
-                                    "flat dense no-caps"
-                                    + (" icon-right=arrow_forward" if current_direction["value"] == "rtl" else "")
-                                )
+                    security_level, owning_org_unit, metadata_path, unfiltered_count = await asyncio.gather(
+                        api.get("security-levels", current["security_level_id"]),
+                        api.get("org-units", current["owning_org_unit_id"]),
+                        metadata_classification_path(),
+                        count_unfiltered_records(),
+                    )
+                    if not active():
+                        return
+                    if unfiltered_count is not None:
+                        all_record_total = unfiltered_count
+                    parent_id = current.get("parent_aggregation_id")
+                    if parent_id and parent_id not in aggregation_context_by_id:
+                        await load_ancestors(parent_id)
+                    if not active():
+                        return
+                    facts, actions = metadata_layout()
+                    with facts:
                         if closure:
                             with ui.row().classes(
                                 "detail-status-notice w-full items-center gap-3 rounded-xl border border-amber-200 "
@@ -350,7 +290,7 @@ def build_aggregation_details(
                             ):
                                 ui.icon("lock", color="amber-8").classes("shrink-0")
                                 with ui.column().classes("detail-status-notice-copy gap-0 grow min-w-0"):
-                                    if closure["id"] == current["id"]:
+                                    if closure.get("id") == current["id"]:
                                         ui.label(render_message("webui.open_aggregation.label.closed_directly_77d7dcfc")).classes(
                                             "text-sm font-semibold text-amber-900"
                                         )
@@ -358,13 +298,16 @@ def build_aggregation_details(
                                         ui.label(render_message("webui.open_aggregation.label.closed_by_an_ancestor_aggregation_dab7c6d7")).classes(
                                             "text-sm font-semibold text-amber-900"
                                         )
+                                        if closure.get("restricted"):
+                                            ui.label(render_message("resource_details.closure_source_restricted"))
+                                    if not closure.get("restricted"):
                                         ui.label(
                                             render_message("webui.open_aggregation.label.aggregation_number_title_a5ebf4f9", aggregation_number=closure['aggregation_number'], title=closure['title'])
-                                        ).classes("text-xs text-amber-800 truncate")
-                                    ui.label(
-                                        format_timestamp(closure.get("date_closed"))
-                                    ).classes("text-xs text-amber-700")
-                                if closure["id"] == current["id"] and capabilities.get("reopen"):
+                                        ).classes("text-xs text-amber-800 break-words")
+                                        ui.label(
+                                            format_timestamp(closure.get("date_closed"))
+                                        ).classes("text-xs text-amber-700")
+                                if closure.get("id") == current["id"] and capabilities.get("reopen"):
                                     ui.button(
                                         render_message("webui.open_aggregation.button.reopen_96cb2ac2"), icon="lock_open", on_click=reopen_current,
                                     ).props("flat dense no-caps color=primary").tooltip(
@@ -372,7 +315,7 @@ def build_aggregation_details(
                                     )
                         if current.get("is_vital") or current.get("has_vital_descendants"):
                             with ui.row().classes("detail-status-notice w-full items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3"):
-                                ui.icon("emergency", color="red-8")
+                                ui.icon("emergency" if current.get("is_vital") else "o_emergency", color="red-8")
                                 ui.label(render_message("webui.open_aggregation.label.vital_1334921b") if current.get("is_vital") else render_message("webui.open_aggregation.label.contains_vital_resources_006b2b72")).classes("text-sm font-semibold text-red-900")
                                 ui.label(render_message("webui.open_aggregation.label.this_aggregation_cannot_be_deleted_while_v_e9204a66")).classes("text-xs text-red-800")
                         if current.get("parent_aggregation_state") == "redacted":
@@ -386,29 +329,13 @@ def build_aggregation_details(
                                 ui.label(render_message("webui.open_aggregation.label.parent_aggregation_restricted_684099c8")).classes(
                                     "text-sm font-semibold text-slate-700"
                                 )
-                        if effective_holds:
-                            with ui.row().classes(
-                                "detail-status-notice w-fit max-w-full items-center gap-2 flex-wrap rounded-xl "
-                                "border border-amber-200 bg-amber-50 px-3 py-2"
-                            ):
-                                ui.icon("gavel", color="warning").classes("shrink-0")
-                                hold_count = len(effective_holds)
-                                ui.label(
-                                    render_message("webui.open_aggregation.label.protected_by_hold_count_effective_value_065566e7", hold_count=hold_count)
-                                ).classes("text-sm font-semibold text-amber-900")
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.view_holds_b4a3f017"), icon="visibility",
-                                    on_click=lambda: show_effective_holds_dialog(
-                                        effective_holds, "aggregation", current["id"],
-                                        lambda: open_aggregation(current),
-                                    ),
-                                ).props("flat dense no-caps color=warning")
-                        with ui.grid(columns=2).classes("w-full gap-x-8 gap-y-0"):
+                        with ui.grid(columns=2).classes("w-full gap-x-4 gap-y-0"):
                             aggregation_metadata = [
                                 (
                                     "status", render_message("entity_metadata.field.status"),
                                     render_message("webui.open_aggregation.badge.closed_30c24826")
-                                    if closure else render_message("webui.open_aggregation.badge.open_88407b0f"),
+                                    if closure else render_message("webui.open_aggregation.badge.open_88407b0f")
+                                    if closure_known else render_message("resource_details.unavailable"),
                                 ),
                                 (
                                     "security_level", render_message("entity_metadata.field.security_level"),
@@ -440,7 +367,7 @@ def build_aggregation_details(
                                         current.get("effective_current_location") or render_message("webui.render_detail_content.text.unknown_d3c1ce73"),
                                     ),
                                 ])
-                            direct_classification = classification_path[-1] if classification_path else None
+                            direct_classification = metadata_path[-1] if metadata_path else None
                             parent_aggregation = aggregation_context_by_id.get(
                                 current.get("parent_aggregation_id")
                             )
@@ -449,70 +376,77 @@ def build_aggregation_details(
                                     "parent_aggregation", render_message("entity_metadata.field.parent_aggregation"),
                                     parent_aggregation or render_message("webui.open_aggregation.label.parent_aggregation_restricted_684099c8"),
                                 )
-                                if current.get("parent_aggregation_id") is not None
+                                if not is_root
                                 else (
                                     "parent_classification", render_message("entity_metadata.field.parent_classification"),
-                                    direct_classification or direct_classification_label(classification_path),
+                                    direct_classification or direct_classification_label(metadata_path),
                                 )
                             )
                             aggregation_metadata.extend([
                                 ("disposition_status", disposition_text("status"), disposition_status_label(current.get("disposition_status", 1))),
                                 ("review", render_message("entity_metadata.field.review"), review_display(current.get("date_of_next_review"))),
                                 governing_relationship,
-                                (
-                                    "contains", render_message("webui.render_governance_cards.text.assigned_content_6b3ceaf7"),
-                                    render_message(
-                                        "webui.render_governance_cards.text.get_aggregations_get_2_records_5bb78a16",
-                                        get=child_total, get_2=record_total,
-                                    ),
-                                ),
+                                ("contains", render_message("webui.render_governance_cards.text.assigned_content_6b3ceaf7"),
+                                 (child_total, all_record_total)),
                             ])
-                            for field_key, label, value in aggregation_metadata:
-                                with ui.column().classes("detail-field gap-1"):
-                                    ui.label(label).classes("detail-field-label")
-                                    if field_key == "status":
-                                        ui.badge(
-                                            str(value), color="amber-8" if closure else "positive",
-                                        ).props("outline")
-                                    elif field_key == "vital_status":
-                                        ui.badge(
-                                            str(value),
-                                            color="red-8" if current.get("is_vital") else "blue-grey-7",
-                                        ).props("outline")
-                                    elif field_key == "parent_classification" and isinstance(value, dict):
-                                        with ui.button(on_click=open_parent_classification).props(
-                                            "flat dense no-caps color=primary"
-                                        ).classes("detail-linked-entity self-start -m-2 p-2"):
-                                            with ui.column().classes("detail-linked-entity-content"):
-                                                ui.label(value.get("title") or "—").classes(
-                                                    "detail-linked-entity-title"
-                                                )
-                                                if value.get("code"):
-                                                    ui.label(value["code"]).classes(
-                                                        "detail-linked-entity-identifier"
+                            def render_fields(fields):
+                                for field_key, label, value in fields:
+                                    with ui.column().classes("detail-field gap-1"):
+                                        ui.label(label).classes("detail-field-label")
+                                        if field_key == "status":
+                                            ui.badge(
+                                                str(value), color="amber-8" if closure else "positive",
+                                            ).props("outline")
+                                        elif field_key == "vital_status":
+                                            ui.badge(
+                                                str(value),
+                                                color="red-8" if current.get("is_vital") else "blue-grey-7",
+                                            ).props("outline")
+                                        elif field_key == "contains":
+                                            children, records = value
+                                            for caption, count in (
+                                                (render_message("webui.open_aggregation.label.child_aggregations_cd3bce3a"), children),
+                                                (render_message("navigation.item.records"), records),
+                                            ):
+                                                with ui.row().classes("items-baseline gap-1", remove="row"):
+                                                    ui.label(caption).classes("text-xs text-slate-600")
+                                                    ui.label(str(count) if count is not None else "—").classes("text-xs font-semibold")
+                                        elif field_key == "parent_classification" and isinstance(value, dict):
+                                            with ui.button(on_click=open_parent_classification).props(
+                                                "flat dense no-caps color=primary"
+                                            ).classes("detail-linked-entity self-start -m-2 p-2"):
+                                                with ui.column().classes("detail-linked-entity-content"):
+                                                    ui.label(value.get("title") or "—").classes(
+                                                        "detail-linked-entity-title"
                                                     )
-                                    elif field_key == "parent_aggregation" and isinstance(value, dict):
-                                        with ui.button(on_click=open_parent_aggregation).props(
-                                            "flat dense no-caps color=primary"
-                                        ).classes("detail-linked-entity self-start -m-2 p-2"):
-                                            with ui.column().classes("detail-linked-entity-content"):
-                                                ui.label(value.get("title") or "—").classes(
-                                                    "detail-linked-entity-title"
-                                                )
-                                                if value.get("aggregation_number"):
-                                                    ui.label(value["aggregation_number"]).classes(
-                                                        "detail-linked-entity-identifier"
+                                                    if value.get("code"):
+                                                        ui.label(value["code"]).classes(
+                                                            "detail-linked-entity-identifier"
+                                                        )
+                                        elif field_key == "parent_aggregation" and isinstance(value, dict):
+                                            with ui.button(on_click=open_parent_aggregation).props(
+                                                "flat dense no-caps color=primary"
+                                            ).classes("detail-linked-entity self-start -m-2 p-2"):
+                                                with ui.column().classes("detail-linked-entity-content"):
+                                                    ui.label(value.get("title") or "—").classes(
+                                                        "detail-linked-entity-title"
                                                     )
-                                    else:
-                                        ui.label(str(value or "—")).classes("detail-field-value")
-                                        if field_key in {"assigned_location", "current_location"}:
-                                            source_key = "effective_assigned_location_source_aggregation_id" if field_key == "assigned_location" else "effective_current_location_source_aggregation_id"
-                                            source_id = current.get(source_key)
-                                            source = aggregation_context_by_id.get(source_id)
-                                            if source_id == current["id"]:
-                                                ui.label(render_message("webui.open_aggregation.label.set_on_this_aggregation_85415ad9")).classes("text-xs text-slate-500")
-                                            elif source:
-                                                ui.label(render_message("webui.open_aggregation.label.inherited_from_aggregation_number_title_fdcc3805", aggregation_number=source['aggregation_number'], title=source['title'])).classes("text-xs text-slate-500")
+                                                    if value.get("aggregation_number"):
+                                                        ui.label(value["aggregation_number"]).classes(
+                                                            "detail-linked-entity-identifier"
+                                                        )
+                                        else:
+                                            ui.label(str(value or "—")).classes("detail-field-value")
+                                            if field_key in {"assigned_location", "current_location"}:
+                                                source_key = "effective_assigned_location_source_aggregation_id" if field_key == "assigned_location" else "effective_current_location_source_aggregation_id"
+                                                source_id = current.get(source_key)
+                                                source = aggregation_context_by_id.get(source_id)
+                                                if source_id == current["id"]:
+                                                    ui.label(render_message("webui.open_aggregation.label.set_on_this_aggregation_85415ad9")).classes("text-xs text-slate-500")
+                                                elif source:
+                                                    ui.label(render_message("webui.open_aggregation.label.inherited_from_aggregation_number_title_fdcc3805", aggregation_number=source['aggregation_number'], title=source['title'])).classes("text-xs text-slate-500")
+                            secondary = {"security_level", "date_opened", "assigned_location", "current_location"}
+                            render_fields(field for field in aggregation_metadata if field[0] not in secondary)
                             if current.get("description"):
                                 with ui.column().classes("detail-field col-span-full gap-1"):
                                     ui.label(
@@ -521,10 +455,15 @@ def build_aggregation_details(
                                     ui.label(current["description"]).props("dir=auto").classes(
                                         "detail-field-value whitespace-pre-wrap break-words leading-6"
                                     )
-                        aggregation_actions_host.__enter__()
-                        ui.label(render_message("webui.open_aggregation.label.aggregation_actions_ef188212")).classes("aggregation-panel-heading w-full")
-                        ui.label(render_message("webui.open_aggregation.label.metadata_and_review_8b297ce3")).classes("aggregation-action-group-label")
-                        with ui.row().classes("aggregation-overview-actions w-full"):
+                            with ui.expansion(render_message("resource_details.advanced_metadata")).classes("w-full col-span-full"):
+                                with ui.grid(columns=2).classes("w-full gap-x-4"):
+                                    render_fields(field for field in aggregation_metadata if field[0] in secondary)
+
+                    def render_advanced_actions():
+                        with detail_action_group(render_message("webui.open_aggregation.label.metadata_and_review_8b297ce3")) as metadata_review:
+                            metadata_review.set_visibility(any(
+                                capabilities.get(action) for action in ("change_location", "change_vital_status", "change_review_date")
+                            ))
                             if capabilities.get("change_location"):
                                 async def change_location() -> None:
                                     dialog = ui.dialog()
@@ -579,13 +518,14 @@ def build_aggregation_details(
                                                 ui.notify(render_message("webui.submit.notify.no_location_changes_have_been_entered_3a447a79"), color="warning"); return
                                             try:
                                                 saved = await api.change_aggregation_location(current["id"], current["version"], {"assigned_location": assigned.value.strip() or None, "current_location": current_location.value.strip() or None, "reason": reason.value.strip()})
-                                                dialog.close(); await open_aggregation(saved)
+                                                dialog.close()
+                                                await refresh(saved)
                                             except ApiError as error: ui.notify(error_message(error), color="negative", close_button=True)
                                         ui.button(render_message("webui.change_location.button.save_b8a2bd1a"), on_click=submit).props("unelevated")
                                     dialog.open()
                                 ui.button(
                                     render_message("webui.open_aggregation.button.location_5c67a431"), icon="location_on", on_click=change_location,
-                                ).props("flat dense no-caps").tooltip(
+                                ).props("flat dense no-caps align=start").classes("w-full text-start").tooltip(
                                     render_message("webui.open_aggregation.tooltip.change_this_aggregation_s_assigned_or_curr_2b6fc205")
                                 )
                             if capabilities.get("change_vital_status"):
@@ -599,13 +539,13 @@ def build_aggregation_details(
                                             if not (reason.value or "").strip(): ui.notify(render_message("webui.submit.notify.enter_a_reason_f7e81e79"), color="warning"); return
                                             try:
                                                 saved = await api.change_vital_status("aggregations", current["id"], current["version"], bool(value.value), reason.value.strip())
-                                                dialog.close(); await open_aggregation(saved)
+                                                dialog.close(); await refresh(saved)
                                             except ApiError as error: ui.notify(error_message(error), color="negative", close_button=True)
                                         ui.button(render_message("webui.change_vital_aggregation.button.save_7cfd22dd"), on_click=submit).props("unelevated")
                                     dialog.open()
                                 ui.button(
                                     render_message("webui.open_aggregation.button.vital_status_69064d77"), icon="emergency", on_click=change_vital_aggregation,
-                                ).props("flat dense no-caps").tooltip(
+                                ).props("flat dense no-caps align=start").classes("w-full text-start").tooltip(
                                     render_message("webui.open_aggregation.tooltip.change_whether_this_aggregation_is_protect_1b3beacd")
                                 )
                             if capabilities.get("change_review_date"):
@@ -621,70 +561,35 @@ def build_aggregation_details(
                                             value = review_datetime_payload(review_date.value)
                                             try:
                                                 saved = await api.change_review_date("aggregations", current["id"], current["version"], value, reason.value.strip())
-                                                dialog.close(); await open_aggregation(saved)
+                                                dialog.close(); await refresh(saved)
                                             except (ApiError, ValueError) as error: ui.notify(error_message(error) if isinstance(error, ApiError) else render_message("webui.submit.notify.choose_a_valid_future_date_d0f7285f"), color="negative", close_button=True)
                                         ui.button(render_message("webui.change_aggregation_review_date.button.save_3a2dff2e"), on_click=submit).props("unelevated")
                                     dialog.open()
-                                ui.button(render_message("webui.open_aggregation.button.next_review_699d407b"), icon="event", on_click=change_aggregation_review_date).props("flat dense no-caps").tooltip(render_message("webui.open_aggregation.tooltip.schedule_or_clear_this_aggregation_s_next_4f66006e"))
-                            if closure is None and (
-                                capabilities.get("close") or capabilities.get("delete")
-                            ):
-                                ui.label(render_message("webui.open_aggregation.label.lifecycle_118239ec")).classes("aggregation-action-group-label w-full")
-                            if closure is None and capabilities.get("close"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.close_5dfd4eee"), icon="lock",
-                                    on_click=close_current,
-                                ).props("flat dense no-caps").tooltip(
-                                    render_message("webui.open_aggregation.tooltip.close_this_aggregation_using_the_current_d_a8421be4")
-                                )
-                            if closure is None and capabilities.get("delete"):
-                                delete_button = ui.button(
-                                    render_message("webui.open_aggregation.button.delete_dad73ebe"), icon="delete_outline", color="negative",
-                                    on_click=confirm_delete_current,
-                                ).props("flat dense no-caps")
-                                if children or records:
-                                    delete_button.disable()
-                                    delete_button.tooltip(
-                                        render_message("webui.open_aggregation.tooltip.remove_or_move_all_child_aggregations_and_19f76f7b")
-                                    )
-                            ui.label(render_message("webui.open_aggregation.label.security_access_and_audit_503e702e")).classes(
-                                "aggregation-action-group-label w-full"
-                            )
+                                ui.button(render_message("webui.open_aggregation.button.next_review_699d407b"), icon="event", on_click=change_aggregation_review_date).props("flat dense no-caps align=start").classes("w-full text-start").tooltip(render_message("webui.open_aggregation.tooltip.schedule_or_clear_this_aggregation_s_next_4f66006e"))
+                        with detail_action_group(render_message("webui.open_aggregation.label.security_access_and_audit_503e702e")):
                             if capabilities.get("change_security_level"):
                                 ui.button(
                                     render_message("webui.open_aggregation.button.security_level_5d0b4408"), icon="security",
                                     on_click=lambda: show_security_level_change(
                                         "aggregation", current,
-                                        lambda saved: open_aggregation(saved),
+                                        refresh,
                                     ),
-                                ).props("flat dense no-caps").tooltip(
+                                ).props("flat dense no-caps align=start").classes("w-full text-start").tooltip(
                                     render_message("webui.open_aggregation.tooltip.change_the_aggregation_security_level_00937d90")
                                 )
-                            if closure is None and capabilities.get("modify_metadata"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.edit_metadata_3ee4d255"), icon="edit",
-                                    on_click=lambda: open_editor(
-                                        current, on_saved=open_aggregation,
-                                        resource_key="aggregations",
-                                    ),
-                                ).props("flat dense no-caps")
-                            ui.button(
-                                render_message("webui.open_aggregation.button.event_history_77f15b1e"), icon="history",
-                                on_click=lambda: show_entity_history("aggregations", current),
-                            ).props("flat dense no-caps")
                             ui.button(
                                 render_message("webui.open_aggregation.button.why_this_access_bb85ae4d"), icon="fact_check",
                                 on_click=lambda: show_access_explanation("aggregation", current["id"]),
-                            ).props("flat dense no-caps").tooltip(
+                            ).props("flat dense no-caps align=start").classes("w-full text-start").tooltip(
                                 render_message("webui.open_aggregation.tooltip.explain_the_authorization_decision_gate_by_231294dc")
                             )
                             if capabilities.get("manage_acl"):
                                 ui.button(
                                     render_message("webui.open_aggregation.button.access_2361cbee"), icon="policy",
                                     on_click=lambda: show_acl_editor(
-                                        "aggregations", current["id"], on_saved=lambda: open_aggregation(current),
+                                        "aggregations", current["id"], on_saved=refresh,
                                     ),
-                                ).props("flat dense no-caps")
+                                ).props("flat dense no-caps align=start").classes("w-full text-start")
                         show_aggregation_move = (
                             closure is None
                             and current.get("parent_aggregation_id") is not None
@@ -701,70 +606,155 @@ def build_aggregation_details(
                                 (principal() or {}).get("global_privileges", [])
                             )
                         )
-                        if (
-                            show_aggregation_move
-                            or show_ownership_correction_action
-                            or show_acl_defaults
-                        ):
-                            with ui.expansion(
-                                render_message("webui.open_aggregation.expansion.advanced_2d1fcc81"), caption=render_message("aggregation_details.guidance.specialist_actions"),
-                                icon="tune", value=False,
-                            ).classes(
-                                "w-full border-t border-slate-100"
-                            ):
-                                with ui.row().classes("w-full justify-start gap-2 pb-2"):
-                                    if show_aggregation_move:
-                                        ui.button(
-                                            render_message("webui.open_aggregation.button.move_aeafbea8"), icon="drive_file_move",
-                                            on_click=lambda: show_governed_move(
-                                                "aggregations", current, open_aggregation,
-                                            ),
-                                        ).props("flat dense no-caps")
-                                    if show_ownership_correction_action:
-                                        ui.button(
-                                            render_message("webui.open_aggregation.button.correct_ownership_07b940fe"), icon="published_with_changes",
-                                            on_click=lambda: show_ownership_correction(
-                                                current, open_aggregation,
-                                            ),
-                                        ).props("flat dense no-caps color=negative")
-                                    if show_acl_defaults:
-                                        ui.button(
-                                            render_message("webui.open_aggregation.button.child_defaults_8ac3012b"), icon="account_tree",
-                                        ).props("flat dense no-caps").on(
-                                            "click", lambda: show_acl_editor(
-                                                "aggregations", current["id"], scope="aggregation"
-                                            )
+                        show_delete = closure_known and closure is None and capabilities.get("delete")
+                        if show_aggregation_move or show_ownership_correction_action or show_acl_defaults or show_delete:
+                            with detail_action_group(render_message("resource_details.aggregation_management")):
+                                if show_aggregation_move:
+                                    ui.button(
+                                        render_message("webui.open_aggregation.button.move_aeafbea8"), icon="drive_file_move",
+                                        on_click=lambda: show_governed_move(
+                                            "aggregations", current, open_aggregation,
+                                        ),
+                                    ).props("flat dense no-caps align=start").classes("w-full text-start")
+                                if show_ownership_correction_action:
+                                    ui.button(
+                                        render_message("webui.open_aggregation.button.correct_ownership_07b940fe"), icon="published_with_changes",
+                                        on_click=lambda: show_ownership_correction(
+                                            current, open_aggregation,
+                                        ),
+                                    ).props("flat dense no-caps color=negative align=start").classes("w-full text-start")
+                                if show_acl_defaults:
+                                    ui.button(
+                                        render_message("webui.open_aggregation.button.child_defaults_8ac3012b"), icon="account_tree",
+                                    ).props("flat dense no-caps align=start").classes("w-full text-start").on(
+                                        "click", lambda: show_acl_editor(
+                                            "aggregations", current["id"], scope="aggregation"
                                         )
-                                        ui.button(
-                                            render_message("webui.open_aggregation.button.record_defaults_3e8c0414"), icon="description",
-                                        ).props("flat dense no-caps").on(
-                                            "click", lambda: show_acl_editor(
-                                                "aggregations", current["id"], scope="record"
-                                            )
+                                    )
+                                    ui.button(
+                                        render_message("webui.open_aggregation.button.record_defaults_3e8c0414"), icon="description",
+                                    ).props("flat dense no-caps align=start").classes("w-full text-start").on(
+                                        "click", lambda: show_acl_editor(
+                                            "aggregations", current["id"], scope="record"
                                         )
-                        aggregation_actions_host.__exit__(None, None, None)
-                    aggregation_command_side = ui.column().classes("aggregation-command-side")
-                    aggregation_command_side.__enter__()
+                                    )
+                                if show_delete:
+                                    delete_button = ui.button(
+                                        render_message("webui.open_aggregation.button.delete_dad73ebe"), icon="delete_outline", color="negative",
+                                        on_click=confirm_delete_current,
+                                    ).props("flat dense no-caps align=start").classes("w-full text-start")
+                                    if child_total is None or all_record_total is None or child_total or all_record_total:
+                                        delete_button.disable()
+                                        delete_button.tooltip(
+                                            render_message("webui.open_aggregation.tooltip.remove_or_move_all_child_aggregations_and_19f76f7b")
+                                        )
+
+                    with actions:
+                        ui.label(render_message("webui.open_aggregation.label.aggregation_actions_ef188212")).classes("text-xs font-semibold text-slate-600 px-2")
+                        if closure_known and closure is None and capabilities.get("modify_metadata"):
+                            ui.button(
+                                render_message("webui.open_aggregation.button.edit_metadata_3ee4d255"), icon="edit",
+                                on_click=lambda: open_editor(current, on_saved=refresh, resource_key="aggregations"),
+                            ).props("flat dense no-caps align=start").classes("w-full")
+                        ui.button(
+                            render_message("webui.open_aggregation.button.event_history_77f15b1e"), icon="history",
+                            on_click=lambda: show_entity_history("aggregations", current),
+                        ).props("flat dense no-caps align=start").classes("w-full")
+                        if closure_known and closure is None and capabilities.get("close"):
+                            ui.button(
+                                render_message("webui.open_aggregation.button.close_5dfd4eee"), icon="lock",
+                                on_click=close_current,
+                            ).props("flat dense no-caps align=start").classes("w-full").tooltip(
+                                render_message("webui.open_aggregation.tooltip.close_this_aggregation_using_the_current_d_a8421be4")
+                            )
+                        with ui.expansion(render_message("webui.open_aggregation.expansion.advanced_2d1fcc81"),
+                                          value=False).props("dense").classes("resource-advanced-actions w-full"):
+                            with ui.column().classes("w-full gap-3 pb-2"):
+                                render_advanced_actions()
+
+
+                async def load_classification_path(classification_id):
+                    if classification_id not in classification_paths:
+                        classification_paths[classification_id] = await api.classification_path(classification_id)
+                    return classification_paths[classification_id]
+
+                async def metadata_classification_path():
+                    classification_id = current.get("classification_id")
+                    if is_root and classification_id:
+                        return await load_classification_path(classification_id)
+                    return []
+
+                async def fetch_rule():
+                    nonlocal classification_path
+                    classification_path = []
+                    try:
+                        rule = await api.effective_retention_rule(identifier)
+                    except ApiError as error:
+                        if error.status_code != 404:
+                            raise
+                        return None
+                    if rule.get("classification_id"):
+                        try:
+                            classification_path = await load_classification_path(rule["classification_id"])
+                        except ApiError as error:
+                            if error.status_code not in {403, 404}:
+                                raise
+                    return rule
+
+                async def load_ancestors(parent_id):
+                    seen = {identifier}
+                    while parent_id and parent_id not in seen and active():
+                        seen.add(parent_id)
+                        try:
+                            parent = await api.get("aggregations", parent_id)
+                        except ApiError as error:
+                            if error.status_code not in {403, 404}:
+                                raise
+                            return
+                        aggregation_context_by_id[parent_id] = parent
+                        parent_id = parent.get("parent_aggregation_id")
+
+                async def load_retention():
+                    nonlocal local_retention_rule
+                    effective_rule = await fetch_rule()
+                    if not active():
+                        return
                     if effective_rule:
+                        async def get_override():
+                            try:
+                                return await api.aggregation_retention_rule(identifier)
+                            except ApiError as error:
+                                if error.status_code != 404:
+                                    raise
+                                return None
+
+                        governing_root_id = effective_rule["governing_root_aggregation_id"]
+                        if governing_root_id not in aggregation_context_by_id:
+                            await load_ancestors(current.get("parent_aggregation_id"))
+                        can_override = (is_root and closure_known and closure is None
+                                        and "classifications.administer" in (principal() or {}).get("global_privileges", ()))
+                        if can_override:
+                            local_retention_rule = await get_override()
+                        if not active():
+                            return
                         with ui.card().classes(
-                            "retention-card aggregation-retention-compact shadow-none p-4 gap-3"
+                            "aggregation-retention-compact w-full min-w-0 shadow-none p-0 gap-3"
                         ):
-                            with ui.row().classes("detail-action-row w-full items-center gap-3"):
-                                ui.avatar(icon="schedule", color="blue-1", text_color="primary", size="38px")
-                                with ui.column().classes("gap-0 grow"):
-                                    ui.label(render_message("webui.open_aggregation.label.effective_retention_rule_4dce9765")).classes("text-base font-semibold text-slate-900")
+                            with ui.row().classes("detail-action-row w-full items-center gap-2 p-3 bg-blue-50 rounded-lg", remove="row"):
+                                ui.icon("schedule", color="primary", size="20px").classes("shrink-0")
+                                with ui.column().classes("gap-0 grow min-w-0"):
                                     if effective_rule["rule_source"] == "aggregation":
                                         source_text = render_message("webui.open_aggregation.text.specified_locally_for_the_governing_root_a_e8018e53")
                                     elif effective_rule.get("inheritance_depth", 0) == 0:
                                         source_text = render_message("webui.open_aggregation.text.specified_by_its_classification_11387963")
                                     else:
                                         source_text = render_message("webui.open_aggregation.text.inherited_from_an_ancestor_classification_297425fa")
-                                    if current.get("parent_aggregation_id") is not None:
+                                    if not is_root:
                                         governing_root_id = effective_rule["governing_root_aggregation_id"]
                                         governing_root = aggregation_context_by_id.get(governing_root_id)
                                         root_reference = (
                                             f"{governing_root['aggregation_number']} — {governing_root['title']}"
-                                            if governing_root else f"#{governing_root_id}"
+                                            if governing_root else render_message("webui.open_aggregation.label.parent_aggregation_restricted_684099c8")
                                         )
                                         source_text = render_message(
                                             "webui.open_aggregation.text.governed_by_root_aggregation",
@@ -777,32 +767,37 @@ def build_aggregation_details(
                                             ),
                                             root_reference=root_reference,
                                         )
-                                    ui.label(source_text).classes("text-xs text-sky-700")
-                                ui.badge(render_message("webui.open_aggregation.badge.effective_a28f890c"), color="primary").props("outline")
-                                if current.get("parent_aggregation_id") is None and current.get("disposition_status",1)==1 and (principal() or {}).get("can_manage_disposition"):
-                                    async def accelerated(result):await open_aggregation(await api.get("aggregations",current["id"]))
-                                    ui.button(disposition_text("accelerate"),icon="event_available",on_click=lambda:accelerate_dialog(
-                                        api=api,root=current,active=lambda:get_resource()=="aggregation-details" and (aggregation_state.get("aggregation_detail") or {}).get("id")==current["id"],
-                                        on_error=error_message,after=accelerated)).props("outline dense no-caps")
-                            render_retention_stages(effective_rule, localized_disposition_value)
+                                    ui.label(source_text).classes("text-sm font-medium text-slate-800 break-words w-full")
+                            render_retention_stages(effective_rule, localized_disposition_value, compact=True)
                             render_disposition_date(
                                 effective_rule,
                                 aggregation_context_by_id.get(effective_rule["governing_root_aggregation_id"]),
                                 *current_locale_context(),
                             )
-                            with ui.element("div").classes("aggregation-retention-footer detail-action-row w-full"):
-                                if classification_path:
-                                    classification_text = " › ".join(
-                                        f"{item['code']} — {item['title']}" for item in classification_path
-                                    )
-                                    ui.label(render_message("webui.open_aggregation.label.classification_classification_text_6200f5a0", classification_text=classification_text)).classes(
-                                        "aggregation-retention-chip"
-                                    ).tooltip(classification_text)
-                                if effective_rule.get("instructions"):
-                                    ui.label(render_message("webui.open_aggregation.label.instructions_instructions_a62c4c64", instructions=effective_rule['instructions'])).classes(
-                                        "aggregation-retention-chip"
-                                    ).tooltip(effective_rule["instructions"])
-                                if current.get("parent_aggregation_id") is None and closure is None:
+                            with ui.expansion(render_message("resource_details.rule_details")).classes("w-full border-t border-slate-200"):
+                                with ui.column().classes("resource-retention-details w-full min-w-0 gap-3 px-3 pb-3"):
+                                    if classification_path:
+                                        with ui.column().classes("w-full gap-1 min-w-0"):
+                                            ui.label(render_message("entity_metadata.field.classification")).classes("text-xs font-semibold text-slate-600")
+                                            with ui.column().classes("w-full gap-1 ps-2 border-s border-slate-200"):
+                                                for item in classification_path:
+                                                    with ui.row().classes("w-full items-baseline no-wrap gap-2", remove="row"):
+                                                        ui.label(item['code']).classes("text-xs text-slate-600 break-all max-w-[40%]").props("dir=ltr")
+                                                        ui.label(item['title']).classes("text-sm text-slate-800 min-w-0 break-words").props("dir=auto")
+                                    instructions = effective_rule.get("instructions") or ""
+                                    with ui.column().classes("retention-rule-instructions w-full gap-1 min-w-0"):
+                                        ui.label(render_message("entity_metadata.field.retention_disposal_instructions")).classes("text-xs font-semibold text-slate-600")
+                                        ui.label(instructions if instructions.strip() else "—").classes(
+                                            "text-sm text-slate-800 w-full whitespace-pre-wrap break-words",
+                                        ).props("dir=auto")
+                            with ui.row().classes("detail-action-row w-full items-center gap-2", remove="row"):
+                                if is_root and current.get("disposition_status",1)==1 and (principal() or {}).get("can_manage_disposition"):
+                                    async def accelerated(result):
+                                        await refresh(section="retention")
+                                    ui.button(disposition_text("accelerate"),icon="event_available",on_click=lambda:accelerate_dialog(
+                                        api=api,root=current,active=lambda:get_resource()=="aggregation-details" and (aggregation_state.get("aggregation_detail") or {}).get("id")==current["id"],
+                                        on_error=error_message,after=accelerated)).props("outline dense no-caps")
+                                if can_override:
                                     ui.button(
                                         render_message("webui.open_aggregation.button.edit_override_c8b224ea") if local_retention_rule else render_message("webui.open_aggregation.button.set_override_76c53fa2"),
                                         icon="tune", on_click=manage_local_retention_rule,
@@ -817,166 +812,296 @@ def build_aggregation_details(
                                     ui.label(render_message("webui.open_aggregation.label.effective_retention_rule_4dce9765")).classes("text-lg font-semibold")
                                     ui.label(render_message("webui.open_aggregation.label.no_effective_retention_rule_is_available_67150eb4")).classes("text-sm text-slate-500")
 
-                    with aggregation_hold_host:
-                        ui.label(render_message("webui.open_aggregation.label.hold_controls_e01cb162")).classes("aggregation-panel-heading w-full")
-                        with ui.row().classes("w-full gap-2 flex-wrap"):
-                            if effective_holds:
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.view_holds_b4a3f017"), icon="visibility",
-                                    on_click=lambda: show_effective_holds_dialog(
-                                        effective_holds, "aggregation", current["id"],
-                                        lambda: open_aggregation(current),
-                                    ),
-                                ).props("outline dense no-caps color=primary")
-                            if capabilities.get("add_to_hold"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.add_to_hold_8e80a4dc"), icon="add_link",
-                                    on_click=lambda: add_resource_to_hold_dialog(
-                                        "aggregation", current["id"], lambda: open_aggregation(current),
-                                    ),
-                                ).props("outline dense no-caps color=primary")
-                            if capabilities.get("remove_all_direct_hold_assignments"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.remove_direct_holds_d5ecb7ae"), icon="link_off",
-                                    on_click=remove_aggregation_from_all_holds,
-                                ).props("outline dense no-caps color=negative")
-                            if not effective_holds and not capabilities.get("add_to_hold"):
-                                ui.label(render_message("webui.open_aggregation.label.no_hold_actions_are_available_c0a40db4")).classes("text-xs text-slate-500")
-                    aggregation_command_side.__exit__(None, None, None)
+                async def load_holds():
+                    holds = await get_holds()
+                    if not active():
+                        return
+                    if holds:
+                        render_effective_holds(holds, "aggregation", identifier,
+                                               lambda: refresh(section="holds"), close_details)
+                    else:
+                        ui.label(render_message("resource_details.no_active_holds"))
+                    with ui.row().classes("w-full gap-2 flex-wrap"):
+                        if capabilities.get("add_to_hold"):
+                            ui.button(
+                                render_message("webui.open_aggregation.button.add_to_hold_8e80a4dc"), icon="add_link",
+                                on_click=lambda: add_resource_to_hold_dialog(
+                                    "aggregation", identifier, lambda: refresh(section="holds"),
+                                ),
+                            ).props("flat dense no-caps")
+                        if capabilities.get("remove_all_direct_hold_assignments"):
+                            ui.button(
+                                render_message("webui.open_aggregation.button.remove_direct_holds_d5ecb7ae"),
+                                icon="link_off", color="negative", on_click=remove_aggregation_from_all_holds,
+                            ).props("flat dense no-caps")
 
-                await relationship_panel(
-                    api=api, kind="aggregation", identity=current["id"],
-                    source_label=" · ".join(filter(None, (current.get("aggregation_number"), current.get("title")))),
-                    can_link="relationships.link" in (principal() or {}).get("global_privileges", []),
-                    active=lambda: principal() is relationship_principal and get_resource() == "aggregation-details" and get_relationship_page_token() is relationship_token,
-                    open_target=open_related_resource, bind_remote=bind_remote_relationship_select, on_error=error_message,
-                browse_resource=browse_advanced_aggregation,
-                )
-                with ui.row().classes(
-                    "aggregation-child-section-heading w-full items-center px-5 pt-1"
-                ):
-                    ui.label(render_message("webui.open_aggregation.label.child_aggregations_cd3bce3a")).classes("text-base font-semibold text-slate-800")
-                    ui.space()
-                    ui.label(render_message("webui.open_aggregation.label.children_count_children_0b322dbd", children_count=child_total)).classes("text-xs text-slate-500")
-                if children:
-                    with ui.element("div").classes("aggregation-child-preview-grid mx-5 mb-3"):
-                        for child in children:
-                            child_closure = child.get("date_closed")
-                            with ui.element("button").classes(
-                                "aggregation-child-preview cursor-pointer text-left"
-                            ).on("click", lambda _, item=child: open_aggregation(item)):
-                                with ui.row().classes("items-start no-wrap gap-2"):
-                                    ui.icon("folder", color="primary", size="19px").classes("mt-0.5")
-                                    with ui.column().classes("gap-0 min-w-0"):
-                                        ui.label(child["title"]).classes("text-xs font-semibold line-clamp-2")
-                                        child_status = "Closed" if child_closure else (
-                                            "Vital" if child.get("is_vital") else "Open"
-                                        )
-                                        ui.label(
-                                            render_message("webui.open_aggregation.label.aggregation_number_child_status_20b87630", aggregation_number=child['aggregation_number'], child_status=child_status)
-                                        ).classes("text-[10px] text-slate-500 truncate")
-                    if child_total > 25:
-                        child_pagination = ui.pagination(
-                            1, max(1, (child_total + 24) // 25), value=child_page_number,
-                        ).props("direction-links boundary-links color=primary").classes("self-center mb-3")
+                async def follow_relationship(kind, target):
+                    close_details()
+                    await open_related_resource(kind, target)
 
-                        async def reload_child_aggregations() -> None:
-                            child_page_state[current["id"]] = int(child_pagination.value or 1)
-                            await open_aggregation(current)
-
-                        child_pagination.on_value_change(lambda _: reload_child_aggregations())
-                else:
-                    ui.label(render_message("webui.open_aggregation.label.no_child_aggregations_7e6e2073")).classes("px-5 pb-3 text-sm text-slate-400")
-
-                ui.label(render_message("webui.open_aggregation.label.records_in_this_aggregation_db111558")).classes("px-5 pt-2 text-base font-semibold")
-                if not records and not record_query:
-                    ui.label(render_message("webui.open_aggregation.label.this_aggregation_does_not_contain_any_reco_4b0da9c6")).classes("px-5 pb-6 text-slate-500")
-                else:
-                    expanded_child_records = set(
-                        int(value) for value in child_return.get("expanded_records", [])
+                async def load_relationships():
+                    await relationship_panel(
+                        api=api, kind="aggregation", identity=identifier,
+                        source_label=f"{current['aggregation_number']} · {current['title']}",
+                        can_link="relationships.link" in (principal() or {}).get("global_privileges", []),
+                        active=active, open_target=follow_relationship,
+                        bind_remote=bind_remote_relationship_select, on_error=error_message,
+                        browse_resource=browse_advanced_aggregation,
                     )
-                    with ui.row().classes("w-full items-center px-5 pt-2 gap-3"):
-                        contained_record_filter = ui.input(
-                            render_message("webui.open_aggregation.input.filter_records_d5ad0981"),
-                            placeholder=render_message("webui.open_aggregation.input.number_title_or_date_6fab14e9"),
-                            value=str(child_return.get("filter_draft", record_query)),
-                        ).props("outlined dense clearable debounce=250").classes("w-80 max-w-full")
-                        ui.space()
-                        ui.label(render_message("webui.open_aggregation.label.record_count_records_ca93489a", record_count=record_total)).classes("text-sm text-slate-500")
-                    contained_records_host = ui.column().classes("w-full px-5 pt-2 gap-2")
-                    contained_record_page = ui.pagination(
-                        1, max(1, (record_total + 9) // 10),
-                        value=max(1, int(child_return.get("page") or 1)),
-                    ).props("direction-links boundary-links color=primary")
 
-                    async def open_contained_record(record: dict[str, Any]) -> None:
-                        aggregation_state["aggregation_child_return"] = {
-                            "aggregation_id": int(current["id"]),
-                            "page": int(contained_record_page.value or 1),
-                            "filter": record_query,
-                            "filter_draft": str(contained_record_filter.value or ""),
-                            "anchor": f"compact-result-records-{int(record['id'])}",
-                            "expanded_records": sorted(expanded_child_records),
-                        }
-                        await show_record_details(record)
+                show_details, close_details, set_details_trigger = open_details_dialog(
+                    current, current["aggregation_number"],
+                    {"metadata": load_metadata, "retention": load_retention,
+                     "relationships": load_relationships, "holds": load_holds}, active,
+                )
 
-                    def set_child_record_expansion(identifier: int, expanded: bool) -> None:
-                        (expanded_child_records.add if expanded else expanded_child_records.discard)(
-                            int(identifier)
+                def render_actions():
+                    favourite_button("aggregations", identifier)
+                    ui.button(
+                        render_message("webui.open_aggregation.button.back_4d496e53"),
+                        icon=None if current_direction["value"] == "rtl" else "arrow_back",
+                        on_click=leave_aggregation_page,
+                    ).props("flat dense no-caps" + (" icon-right=arrow_forward" if current_direction["value"] == "rtl" else ""))
+
+                header = ui.column().classes("w-full gap-0")
+                child_page_state = aggregation_state.setdefault("aggregation_children_page", {})
+                page_state = aggregation_state.setdefault("aggregation_contents", {}).setdefault(identifier, {})
+                if refresh_contents:
+                    page_state.pop("search_id", None)
+                record_query = page_state.get("filter", "")
+                expanded = set(page_state.get("expanded_records", ()))
+                anchor = page_state.pop("anchor", None)
+                records_heading = f"aggregation-records-{identifier}"
+                with ui.column().classes("w-full px-4 pb-4 gap-3"):
+                    with ui.column().classes("resource-contents-section w-full gap-0 rounded-lg border border-slate-200"):
+                        with ui.row().classes("w-full items-center justify-between gap-2 px-3 py-1 bg-blue-50 rounded-t-lg", remove="row").style("flex-wrap: wrap"):
+                            with ui.row().classes("items-center gap-2", remove="row"):
+                                ui.label(render_message("webui.open_aggregation.label.child_aggregations_cd3bce3a")).classes("text-sm font-semibold")
+                                child_count = ui.badge(color="blue-2", text_color="blue-10").props("rounded")
+                                child_count.set_visibility(False)
+                            add_child_control = ui.button(render_message("webui.open_aggregation.text.add_child_aggregation_13879ca9"),
+                                                          icon="add", on_click=add_child).props("flat dense no-caps").classes("max-w-full text-start")
+                            add_child_control.set_visibility(False)
+                        child_host = ui.column().classes("w-full px-3 py-2 gap-2")
+                    with ui.column().classes("resource-contents-section w-full gap-0 rounded-lg border border-slate-200"):
+                        with ui.row().classes("w-full items-center justify-between gap-2 px-3 py-1 bg-blue-50 rounded-t-lg", remove="row").style("flex-wrap: wrap"):
+                            with ui.row().classes("items-center gap-2", remove="row"):
+                                ui.label(render_message("webui.open_aggregation.label.records_in_this_aggregation_db111558")).props(
+                                    f"id={records_heading} tabindex=-1",
+                                ).classes("text-sm font-semibold")
+                                record_count = ui.badge(color="blue-2", text_color="blue-10").props("rounded")
+                                record_count.set_visibility(False)
+                            add_record_control = ui.button(render_message("webui.index.button.add_record_fc8125c4"),
+                                                           icon="note_add", on_click=add_record).props("flat dense no-caps").classes("max-w-full text-start")
+                            add_record_control.set_visibility(False)
+                        with ui.row().classes("items-center w-full px-3 pt-2 gap-2", remove="row").style("flex-wrap: wrap"):
+                            record_filter = ui.input(
+                                render_message("webui.open_aggregation.input.filter_records_d5ad0981"),
+                                value=page_state.get("filter_draft", record_query),
+                            ).props("outlined dense clearable").classes("grow min-w-0").style("flex-basis: 10rem; max-width: 16rem")
+                            ui.button(render_message("webui.open_saved_search_dialog.button.apply_filters_63a71659"),
+                                      on_click=lambda: load_records(1, submit=True)).props("flat dense no-caps")
+                        records_host = ui.column().classes("w-full px-3 py-2 gap-2")
+
+                configuration = get_configuration()
+                child_limit = configuration["CHILD_AGGREGATION_PAGE_SIZE"]
+                record_limit = configuration["CONTAINED_RECORD_PAGE_SIZE"]
+                if page_state.get("child_limit", child_limit) != child_limit:
+                    child_page_state.pop(identifier, None)
+                if page_state.get("record_limit", record_limit) != record_limit:
+                    page_state.pop("page", None)
+                page_state.update(child_limit=child_limit, record_limit=record_limit)
+                request_serial = {"children": 0, "records": 0}
+
+                async def open_record(record):
+                    page_state.update(filter_draft=record_filter.value or "",
+                                      expanded_records=sorted(expanded),
+                                      anchor=f"compact-result-records-{int(record['id'])}")
+                    await show_record_details(record)
+
+                def set_expanded(record_id, value):
+                    (expanded.add if value else expanded.discard)(record_id)
+                    page_state["expanded_records"] = sorted(expanded)
+
+                def pager(total, page, limit, on_change):
+                    if total > limit:
+                        ui.pagination(1, (total + limit - 1) // limit, value=page,
+                                      on_change=lambda event: on_change(int(event.value))).props(
+                            "direction-links boundary-links color=primary",
                         )
 
-                    def render_contained_records() -> None:
-                        matching_records = records
-                        contained_record_page.set_visibility(record_total > 10)
-                        contained_record_page.update()
-                        contained_records_host.clear()
-                        with contained_records_host:
-                            if not matching_records:
-                                ui.label(render_message("webui.render_contained_records.label.no_records_match_this_filter_1041b4b7")).classes(
-                                    "w-full py-6 text-center text-sm text-slate-500"
-                                )
+                def show_failure(retry):
+                    ui.label(render_message("resource_details.list_unavailable"))
+                    ui.button(render_message("resource_details.retry"), on_click=retry).props("flat no-caps")
+
+                async def load_children(page):
+                    nonlocal child_total
+                    request_serial["children"] += 1
+                    serial = request_serial["children"]
+                    with child_host:
+                        spinner = ui.spinner()
+                    try:
+                        result = await api.relationship_page(
+                            "aggregations", ("aggregation_number", "title"), limit=child_limit,
+                            offset=(page - 1) * child_limit, filters={"parent_aggregation_id": identifier},
+                        )
+                    except ApiError:
+                        if active() and serial == request_serial["children"]:
+                            child_count.set_visibility(False)
+                            child_host.clear()
+                            with child_host:
+                                show_failure(lambda: load_children(page))
+                        return
+                    finally:
+                        if not spinner.is_deleted:
+                            spinner.delete()
+                    if not active() or serial != request_serial["children"]:
+                        return
+                    child_total = int(result["total"])
+                    last = max(1, (child_total + child_limit - 1) // child_limit)
+                    if page > last:
+                        await load_children(last)
+                        return
+                    child_page_state[identifier] = page
+                    child_host.clear()
+                    child_count.set_text(str(child_total))
+                    child_count.set_visibility(True)
+                    with child_host:
+                        if not result["items"]:
+                            ui.label(render_message("webui.open_aggregation.label.no_child_aggregations_7e6e2073")).classes("text-sm text-slate-500")
+                        else:
+                            with ui.element("div").classes("aggregation-child-preview-grid w-full"):
+                                for child in result["items"]:
+                                    with ui.element("button").classes("aggregation-child-preview cursor-pointer text-start").on(
+                                        "click", lambda _, item=child: open_aggregation(item),
+                                    ):
+                                        with ui.row().classes("items-start no-wrap gap-2", remove="row"):
+                                            ui.icon("folder", color="primary", size="19px")
+                                            with ui.column().classes("gap-0 min-w-0"):
+                                                ui.label(child["title"]).classes("text-sm font-semibold line-clamp-2").props("dir=auto")
+                                                ui.label(child["aggregation_number"]).classes("text-xs text-slate-500").props("dir=ltr")
+                                                render_creator_name(child)
+                                                if child.get("date_closed"):
+                                                    ui.label(render_message("webui.open_aggregation.badge.closed_30c24826")).classes("text-xs text-slate-600")
+                                                elif child.get("is_vital"):
+                                                    ui.label(render_message("webui.open_aggregation.label.vital_1334921b")).classes("text-xs text-slate-600")
+                                                else:
+                                                    ui.label(render_message("webui.open_aggregation.badge.open_88407b0f")).classes("text-xs text-slate-600")
+                        pager(child_total, page, child_limit, load_children)
+
+                async def load_records(page, *, submit=False):
+                    nonlocal record_query, all_record_total, anchor
+                    request_serial["records"] += 1
+                    serial = request_serial["records"]
+                    if submit:
+                        record_query = str(record_filter.value or "").strip()
+                        page_state.update(filter=record_query, filter_draft=record_filter.value or "",
+                                          search_id=None, page=1)
+                    query = record_query
+                    conditions = [{"field": "aggregation_id", "operator": "eq", "value": identifier}]
+                    payload = {"where": {"and": conditions}, "limit": record_limit,
+                               "offset": (page - 1) * record_limit,
+                               "include": ["record_capabilities"],
+                               "sort": [{"field": "record_number", "direction": "asc"}]}
+                    if query:
+                        conditions.append({"or": [
+                            {"field": field, "operator": "contains_ci", "value": query}
+                            for field in ("record_number", "title")
+                        ]})
+                    with records_host:
+                        spinner = ui.spinner()
+                    try:
+                        if query:
+                            await client.connected()
+                            if not active() or serial != request_serial["records"]:
                                 return
+                            payload["tab_id"] = client.tab_id
+                            if page_state.get("search_id"):
+                                payload["search_id"] = page_state["search_id"]
+                        result = await api.search_request("records", payload)
+                    except ApiError:
+                        if active() and serial == request_serial["records"]:
+                            record_count.set_visibility(False)
+                            records_host.clear()
+                            with records_host:
+                                show_failure(lambda: load_records(page))
+                            if anchor:
+                                restore_compact_result_anchor(anchor, fallback_id=records_heading)
+                                anchor = None
+                        return
+                    finally:
+                        if not spinner.is_deleted:
+                            spinner.delete()
+                    if not active() or serial != request_serial["records"]:
+                        return
+                    record_total = int(result["total"])
+                    if not query:
+                        all_record_total = record_total
+                    page_state["search_id"] = result.get("search_id")
+                    last = max(1, (record_total + record_limit - 1) // record_limit)
+                    if not query and page > last:
+                        await load_records(last)
+                        return
+                    page = int(result["offset"]) // record_limit + 1
+                    page_state["page"] = page
+                    records_host.clear()
+                    record_count.set_text(str(record_total))
+                    record_count.set_visibility(True)
+                    with records_host:
+                        if result.get("truncated"):
+                            ui.label(render_message("resource_details.filtered_cap", limit=result["result_cap"]))
+                        if not result["items"]:
+                            ui.label(
+                                render_message("webui.render_contained_records.label.no_records_match_this_filter_1041b4b7")
+                                if query else render_message("webui.open_aggregation.label.this_aggregation_does_not_contain_any_reco_4b0da9c6")
+                            ).classes("text-sm text-slate-500")
+                        else:
                             with ui.column().classes("compact-result-list w-full gap-0"):
-                                for record in matching_records:
+                                for record in result["items"]:
+                                    flags = record.get("_capabilities") or {}
+                                    count = int(flags.get("component_count", 0))
                                     render_compact_resource_result(
-                                        "records", record,
-                                        on_open=open_contained_record,
-                                        component_total=record["_component_count"],
-                                        can_preview=bool(record.get("_can_preview")),
-                                        can_expand_components=bool(record["_component_count"]),
-                                        initially_expanded=int(record["id"]) in expanded_child_records,
-                                        on_expansion_changed=lambda expanded, identifier=int(record["id"]):
-                                            set_child_record_expansion(identifier, expanded),
+                                        "records", record, on_open=open_record, component_total=count,
+                                        contained_record=True,
+                                        can_preview=bool(flags.get("has_previewable_component")),
+                                        can_expand_components=bool(count),
+                                        initially_expanded=int(record["id"]) in expanded,
+                                        on_expansion_changed=lambda value, rid=int(record["id"]): set_expanded(rid, value),
                                     )
+                        pager(record_total, page, record_limit, load_records)
+                    if anchor:
+                        restore_compact_result_anchor(anchor, fallback_id=records_heading)
+                        anchor = None
 
-                    records_loading = False
+                record_filter.on("keydown.enter", lambda: load_records(1, submit=True))
+                record_filter.on_value_change(lambda event: page_state.update(filter_draft=event.value or ""))
 
-                    async def reload_contained_records(*, submit_filter: bool = False) -> None:
-                        nonlocal records_loading
-                        if records_loading or contained_record_page.is_deleted:
-                            return
-                        records_loading = True
-                        draft = str(contained_record_filter.value or "")
-                        aggregation_state["aggregation_child_return"] = {
-                            "aggregation_id": int(current["id"]),
-                            "page": 1 if submit_filter else int(contained_record_page.value or 1),
-                            "filter": draft.strip() if submit_filter else record_query,
-                            "filter_draft": draft,
-                            "expanded_records": sorted(expanded_child_records),
-                        }
-                        try:
-                            await open_aggregation(current)
-                        finally:
-                            records_loading = False
+                async def load_header():
+                    nonlocal capabilities, closure, closure_known, hold_count
+                    capability_result, closure_result = await asyncio.gather(
+                        detail_read(api.resource_capabilities("aggregations", identifier), notify_error),
+                        read_closure(api.effective_aggregation_closure(identifier), notify_error),
+                    )
+                    if not active():
+                        return
+                    capabilities = capability_result or {}
+                    hold_count = capabilities.get("effective_hold_count")
+                    closure_known, closure = closure_result
+                    add_child_control.set_visibility(closure_known and closure is None and bool(capabilities.get("add_child")))
+                    add_record_control.set_visibility(closure_known and closure is None and bool(capabilities.get("add_record")))
+                    with header:
+                        render_resource_detail_header(
+                            current, kind="aggregation", closure=closure, closure_known=closure_known,
+                            hold_count=hold_count, get_holds=get_holds, open_details=show_details,
+                            set_default_trigger=set_details_trigger,
+                            format_timestamp=format_timestamp, render_actions=render_actions,
+                        )
 
-                    contained_record_filter.on("keydown.enter", lambda: reload_contained_records(submit_filter=True))
-                    contained_record_page.on_value_change(lambda _: reload_contained_records())
-                    render_contained_records()
-                    restore_compact_result_anchor(child_return.get("anchor"))
-                    if child_return:
-                        aggregation_state.pop("aggregation_child_return", None)
+                await asyncio.gather(load_header(), load_children(child_page_state.get(identifier, 1)),
+                                     load_records(page_state.get("page", 1)))
+                if details_tab and active():
+                    await show_details(details_tab)
         except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-
+            notify_error(error)
 
     return open_aggregation

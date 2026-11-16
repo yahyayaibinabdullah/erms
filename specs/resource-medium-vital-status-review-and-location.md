@@ -620,8 +620,9 @@ without additional per-resource requests.
 
 ### 13.2 Resource detail and lists
 
-Medium and vital status are visible metadata. Vital resources receive a text
-label as well as an icon so status is not communicated by color alone. Due and
+Medium and vital status are visible in the Details dialog. The Vital icon
+opens a text summary, including **Contains vital resources** when applicable.
+See the [approved amendment](aggregation-and-record-page-amendment.md#2-header-and-status-summaries). Due and
 overdue review indicators must be accessible and must display the exact date.
 An aggregation with a vital descendant at any depth displays **Contains vital
 resources** on its detail page and, where supported, in browse trees and lists.

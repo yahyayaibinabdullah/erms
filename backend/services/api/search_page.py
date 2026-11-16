@@ -1,10 +1,69 @@
 """Statement-local permissions and enrichment for a Global Search page."""
 
-from psycopg import sql
+import logging
+
+from psycopg import Error, sql
 from psycopg.types.json import Jsonb
 
 from .component_pages import PREVIEWABLE
 from .dashboard_visibility import visibility_ctes
+from .creator_attribution import add_resource_page_creators
+from .crud import redact_hidden_relationships
+from .search_execution import interactive_search
+
+logger = logging.getLogger(__name__)
+
+
+def contained_record_page_statement(*, number_order: bool):
+    order = sql.SQL("record_number,id" if number_order else "id")
+    return sql.SQL("""WITH RECURSIVE candidate_ids AS MATERIALIZED (
+            SELECT id FROM records WHERE aggregation_id=%s
+        ), {visibility}, page AS MATERIALIZED (
+            SELECT records.id,records.record_number FROM records JOIN authorized_records USING(id)
+            ORDER BY {order} LIMIT %s OFFSET %s
+        ), total AS (SELECT count(*) AS matching FROM authorized_records)
+        SELECT resource.*,total.matching FROM total LEFT JOIN page ON true
+        LEFT JOIN authorized_records_for_search resource ON resource.id=page.id
+        ORDER BY page.{first},page.id
+        """).format(
+        visibility=sql.SQL(visibility_ctes(candidate_resource="records")),
+        order=order, first=sql.Identifier("record_number" if number_order else "id"),
+    )
+
+
+@interactive_search
+def browse_contained_records(connection, aggregation_id, request, *, number_order: bool):
+    """An exact parent browse is uncapped and uses one authorization set."""
+    rows = connection.execute(
+        contained_record_page_statement(number_order=number_order),
+        (aggregation_id, request.limit, request.offset),
+    ).fetchall()
+    total = rows[0]["matching"]
+    items = redact_hidden_relationships(connection, "records", [row for row in rows if row["id"] is not None])
+    for item in items:
+        item.pop("matching")
+        item.pop("effective_hold_ids", None)
+    add_resource_page_creators(connection, "records", items)
+    add_record_page_capabilities(connection, items)
+    return {"items": items, "total": total, "limit": request.limit,
+            "offset": request.offset, "returned": len(items)}
+
+
+def add_record_page_capabilities(connection, items):
+    if not items:
+        return
+    try:
+        with connection.transaction():
+            details = page_details(connection, [("record", item) for item in items], {})
+    except Error:
+        logger.warning("Record page capabilities are unavailable", exc_info=True)
+        return
+    for item in items:
+        detail = details["record", item["id"]]
+        item["_capabilities"] = {
+            key: detail[key]
+            for key in ("list_components", "has_previewable_component", "component_count")
+        }
 
 
 def page_permission_ctes():

@@ -1,6 +1,7 @@
 """Existing aggregation behavior with explicit view dependencies."""
 from __future__ import annotations
 from typing import Any, Callable
+from .creator_labels import render_creator_name
 from .api_client import ApiError
 from .entities import ENTITIES
 import asyncio
@@ -343,6 +344,7 @@ def build_aggregation_browser(
                 ).classes("aggregation-browser-node-link grow min-w-0"):
                     with ui.column().classes("min-w-0 gap-0 text-start"):
                         ui.label(item["title"]).classes("text-sm font-semibold whitespace-normal break-words")
+                        render_creator_name(item)
                         ui.label(item["aggregation_number"]).classes("text-xs text-slate-400")
                 ui.label(render_message(
                     "webui.render_aggregation.label.heading_count_6ad646b7",
@@ -390,6 +392,7 @@ def build_aggregation_browser(
                 ).classes("aggregation-browser-node-link grow min-w-0"):
                     with ui.column().classes("min-w-0 gap-0 text-start"):
                         ui.label(item["title"]).classes("text-sm font-semibold whitespace-normal break-words")
+                        render_creator_name(item)
                         ui.label(item["record_number"]).classes("text-xs text-slate-400")
                 if item["digital_component_count"]:
                     ui.badge(str(item["digital_component_count"]), color="blue-grey").props("outline")
@@ -497,6 +500,7 @@ def build_aggregation_browser(
                                     ui.icon("folder", color="primary", size="18px")
                                     with ui.column().classes("grow min-w-0 gap-0"):
                                         ui.label(recent["title"]).classes("text-sm font-semibold truncate")
+                                        render_creator_name(recent)
                                         ui.label(recent["aggregation_number"]).classes("text-xs text-slate-400")
 
         try:

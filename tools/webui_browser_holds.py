@@ -60,8 +60,12 @@ def check_holds(page):
             page.fill(page.t('webui.index.input.search_by_number_title_or_description_e21ed520'),'TEST-REC')
             page.click(page.t('webui.index.button.search_4d02b714'),page.one('.erms-card'))
             page.activate(page.one('button[aria-label="Open record"]',scope=page.one('.compact-result-item')))
-            page.click(page.t('webui.select_record_details.button.add_to_hold_e811b460'))
-            d=dialog()
+            page.click(page.t('resource_details.details'),page.one('.resource-detail-header'))
+            details=dialog()
+            page.activate(page.one('[role="tab"]',page.t('navigation.item.holds'),scope=details))
+            page.click(page.t('webui.select_record_details.button.add_to_hold_e811b460'),details)
+            d=page.wait.until(lambda _:page.visible('.q-dialog__inner > .q-card')[-1]
+                              if len(page.visible('.q-dialog__inner > .q-card'))==2 else False)
             label=page.t('webui.select_holds.input.search_code_or_name_79d187ac')
             range_text=page.t('webui.load_hold_page.text.start_end_total_42ef8de2')
             page.see(range_text.format(start=1,end=25,total=27))
@@ -89,7 +93,8 @@ def check_holds(page):
             check_read(submit_filter,query=draft,offset=0,end=1,total=1)
             assert not icon('chevron_left',d).is_enabled()
             page.click(page.t('webui.add_resource_to_hold_dialog.button.cancel_b8201f0b'),d)
-            closed();page.errors()
+            page.wait.until(lambda _:len(page.visible('.q-dialog__inner > .q-card'))==1)
+            page.activate(details.find_element('css selector','button'));closed();page.errors()
     searches=[e for e in page.events() if e['path']=='/api/v1/holds' and e['method']=='GET']
     assert searches and all(parse_qs(e['query']).get('limit') in (['25'],['1']) for e in searches)
     writes=[e for e in page.events() if e['path'].startswith('/api/v1/holds') and e['method'] in {'POST','PATCH','PUT','DELETE'}]

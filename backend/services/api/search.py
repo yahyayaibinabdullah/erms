@@ -15,10 +15,11 @@ from pydantic import TypeAdapter, ValidationError
 
 from .schemas import GlobalSearchRequest, SearchExpression, SearchRequest
 from .crud import redact_hidden_relationships
+from .creator_attribution import add_creator_names, add_resource_page_creators
 from .application_settings import cache as settings_cache
 from .application_settings_registry import SEARCH_RESULT_LIMIT_MAXIMUM
 from .dashboard_visibility import visibility_ctes
-from .search_page import page_details, page_permission_ctes
+from .search_page import add_record_page_capabilities, browse_contained_records, page_details, page_permission_ctes
 from .search_execution import interactive_search
 
 
@@ -651,7 +652,7 @@ def canonicalize_search_request(
     positive_leaves = _full_text_leaves(request.where)
     all_leaves = positive_leaves + _full_text_leaves(request.where, positive=False)
     _validate_indexable(connection, all_leaves)
-    if request.include and not positive_leaves:
+    if "full_text_matches" in request.include and not positive_leaves:
         raise _invalid("full_text_matches requires a positive full_text expression")
     if request.where is not None:
         _compile_expression(
@@ -865,15 +866,29 @@ def search_rows(
     cache_version: int | None = None,
 ) -> dict[str, Any]:
     settings = settings_cache.for_connection(connection)
+    if (table == "records" and request.tab_id is None and request.include == ["record_capabilities"]
+            and not display_filter and max_results is None and not request.debug):
+        parent = request.where
+        if parent and parent.and_ and len(parent.and_) == 1:
+            parent = parent.and_[0]
+        sort = [(item.field, item.direction) for item in request.sort]
+        if (parent and parent.field == "aggregation_id" and parent.operator == "eq"
+                and type(parent.value) is int and 0 < parent.value <= 9223372036854775807
+                and sort in ([], [("id", "asc")], [("record_number", "asc")],
+                             [("record_number", "asc"), ("id", "asc")])):
+            return browse_contained_records(connection, parent.value, request,
+                                            number_order=bool(sort and sort[0][0] == "record_number"))
     if request.tab_id is not None:
         from .search_cache import cached_search_rows
         if table not in {"records", "aggregations"} or record_creation:
             raise _invalid("tab result caching is only supported for record and aggregation searches")
-        return cached_search_rows(
+        result = cached_search_rows(
             connection, table, request, session_id=session_id, user_id=user_id,
             endpoint=endpoint, display_filter=display_filter, max_results=max_results,
             cache_version=cache_version,
         )
+        add_resource_page_creators(connection, table, result["items"])
+        return result
     audit_cap = settings["AUDIT_TRAIL_SEARCH_RESULT_LIMIT"]
     result_cap = audit_cap if table == "event_history" else max_results
     if table == "event_history" and request.offset >= audit_cap:
@@ -916,7 +931,7 @@ def search_rows(
     positive_leaves = _full_text_leaves(request.where)
     all_leaves = _full_text_leaves(request.where, positive=True) + _full_text_leaves(request.where, positive=False)
     _validate_indexable(connection, all_leaves)
-    if request.include and not positive_leaves:
+    if "full_text_matches" in request.include and not positive_leaves:
         raise _invalid("full_text_matches requires a positive full_text expression")
     if request.where is not None:
         expression, parameters = _compile_expression(
@@ -1037,6 +1052,9 @@ def search_rows(
         ).fetchall()
     )
     items = redact_hidden_relationships(connection, table, items)
+    add_resource_page_creators(connection, table, items)
+    if table == "records" and "record_capabilities" in request.include:
+        add_record_page_capabilities(connection, items)
     for item in items:
         # This internal array enables effective_hold_id filtering but must not
         # disclose hold identities through ordinary resource search results.
@@ -1681,6 +1699,7 @@ def global_search_rows(
         kind: _full_text_leaves(expression) for kind, (_, expression) in branches.items()
     }) if page else {}
     items = [_global_search_item(kind, row, details[kind, row["id"]]) for kind, row in page]
+    add_creator_names(connection, ((item["type"], item[item["type"]]) for item in items))
     next_cursor = _cursor_encode({
         "search_id": str(search_id), "tab_id": str(tab_id), "position": next_position, "filter": result_filter,
     }) if next_position is not None else None

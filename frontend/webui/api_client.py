@@ -546,8 +546,11 @@ class ErmsApiClient:
     async def get(self, resource: str, entity_id: int) -> dict[str, Any]:
         return await self.request("GET", f"/api/v1/{resource}/{entity_id}")
 
-    async def favourites(self) -> dict[str, list[dict[str, Any]]]:
-        return await self.request("GET", "/api/v1/favourites")
+    async def favourites(self, *, preview=None, kind=None, limit=None, offset=0) -> dict[str, Any]:
+        params = {key: value for key, value in dict(preview=preview, kind=kind, limit=limit).items() if value is not None}
+        if limit is not None:
+            params["offset"] = offset
+        return await self.request("GET", "/api/v1/favourites", **({"params": params} if params else {}))
 
     async def favourite(self, resource: str, entity_id: int) -> None:
         if resource not in {"aggregations", "records"}:
@@ -1031,6 +1034,10 @@ class ErmsApiClient:
         )
         return result.get("closure")
 
+    async def effective_record_closure(self, record_id: int) -> dict[str, Any] | None:
+        result = await self.request("GET", f"/api/v1/records/{record_id}/effective-closure")
+        return result.get("closure")
+
     async def dashboard_summary(
         self, *, recent_limit: int | None = None, recent_since: datetime | None = None,
     ) -> dict[str, Any]:
@@ -1047,7 +1054,7 @@ class ErmsApiClient:
             "GET", "/api/v1/dashboard/reviews",
             # Fetch one look-ahead row so the UI can enable Next without a
             # separate count query or downloading every review.
-            params={"state": state, "limit": limit + 1, "offset": offset},
+            params={"state": state, "limit": limit, "offset": offset, "lookahead": True},
         )
 
     async def _recent_entities_from_events(
@@ -1147,6 +1154,7 @@ class ErmsApiClient:
                 "id": entry["entity_id"],
                 "title": entry["title"],
                 f"{entity_type}_number": entry["number"],
+                "created_by": entry.get("created_by"),
                 "_activity_at": entry["occurred_at"],
                 "_operation": entry["operation"],
             }

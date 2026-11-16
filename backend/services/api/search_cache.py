@@ -16,7 +16,7 @@ from psycopg.types.json import Jsonb
 from . import search as engine
 from .application_settings import cache as settings_cache
 from .crud import redact_hidden_relationships
-from .search_page import page_details
+from .search_page import add_record_page_capabilities, page_details
 from .search_execution import interactive_search
 from .dashboard_visibility import visibility_ctes
 from .search_projections import HOLD_FIELDS, LOCATION_FIELDS, requested_fields, projection_ctes
@@ -408,11 +408,19 @@ def cached_search_rows(connection, resource, request, *, session_id, user_id, en
         for key in ('_cache_hits', '_cache_total', '_cache_truncated', '_cache_offset'):
             item.pop(key, None)
     kind = resource[:-1]
-    details = page_details(connection, [(kind, item) for item in items], {kind: leaves}) if items else {}
+    capabilities_only = (
+        resource == 'records' and 'record_capabilities' in request.include
+        and 'full_text_matches' not in request.include
+    )
+    details = page_details(connection, [(kind, item) for item in items], {kind: leaves}) if items and not capabilities_only else {}
+    if capabilities_only:
+        add_record_page_capabilities(connection, items)
     for item in items:
         item.pop('effective_hold_ids', None)
         item.pop('ordinal', None)
         score = item.pop('_fts_relevance', 0.0)
+        if capabilities_only:
+            continue
         detail = details[kind, item['id']]
         if resource == 'records':
             item['_capabilities'] = {key: detail[key] for key in ('list_components', 'has_previewable_component', 'component_count')}

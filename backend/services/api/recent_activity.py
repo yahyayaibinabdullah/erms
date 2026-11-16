@@ -6,6 +6,7 @@ from psycopg import Connection
 from psycopg.types.json import Jsonb
 
 from .dashboard_visibility import visibility_ctes
+from .creator_attribution import add_creator_names
 from .resource_authorization import governance_role_snapshot
 from .search_execution import interactive_search
 
@@ -95,6 +96,8 @@ def recent_activity(
     ).fetchall()
     if entity_type is None:
         return rows
+
+    add_creator_names(connection, ((entity_type, row) for row in rows), id_key="entity_id")
 
     # The old card loader opened each distinct resource through the detail
     # route, which audited governance bypass when ordinary ACL access was absent.

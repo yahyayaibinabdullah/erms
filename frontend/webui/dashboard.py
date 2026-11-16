@@ -1,6 +1,8 @@
 """Dashboard overview, personal resources, review reminders and retained refresh."""
 from __future__ import annotations
 from typing import Any
+from .creator_labels import render_creator_name
+from .personal_resource_views import favourite_pages
 from .api_client import ApiError
 import asyncio
 from nicegui import background_tasks
@@ -182,6 +184,7 @@ def build_dashboard(
                                     with ui.column().classes("gap-0 grow min-w-0"):
                                         ui.label(item["title"]).classes("font-semibold")
                                         ui.label(render_message("webui.show_all_reviews.label.number_review_display_82a23fd9", number=number, review_display=review_display(item['date_of_next_review']))).classes("text-xs text-slate-500")
+                                        render_creator_name(item)
                     page_number = page["offset"] // page["limit"] + 1
                     page_badge.text = str(len(items))
                     page_label.text = render_message(
@@ -284,6 +287,7 @@ def build_dashboard(
                             "id": item["entity_id"],
                             "title": item["title"],
                             "record_number": item.get("record_number"),
+                            "created_by": item.get("created_by"),
                             "_activity_at": item["occurred_at"],
                             "_operation": item["operation"],
                         }
@@ -738,6 +742,7 @@ def build_dashboard(
                                             ui.label(
                                                 render_message("dashboard.resource.identity",type=dashboard_resource_type(resource),number=number)
                                             ).classes("text-xs text-slate-500 truncate w-full")
+                                            render_creator_name(item)
                                         ui.label(
                                             format_timestamp(item["date_of_next_review"])
                                         ).classes(
@@ -813,6 +818,7 @@ def build_dashboard(
                             ui.label(render_message("dashboard.resource.identity",type=resource_label,number=number)).classes(
                                 "text-xs text-slate-500 truncate w-full"
                             )
+                            render_creator_name(item)
                         remove_button = ui.button(
                             icon="favorite", color="red",
                         ).props('flat round dense aria-label=' + repr(render_message("webui.render_favourite_entry.accessible_name.remove_from_favourites_40670952")))
@@ -839,8 +845,14 @@ def build_dashboard(
                         personal.favourites = favourites
                         personal.favourite_ids[resource].discard(int(item["id"]))
                         render_favourites_dashboard()
+                        if sum(map(len, favourites.values())) >= favourite_limit:
+                            refreshed = await api.favourites(preview="combined")
+                            if not dashboard_view_is_current():
+                                return
+                            favourites.update({key: refreshed[key] for key in ("aggregations", "records")})
+                            render_favourites_dashboard()
                         if dialog_refresh is not None:
-                            dialog_refresh()
+                            await dialog_refresh()
                         # Both lists may have removed the originating event's row.
                         with favourites_area:
                             ui.notify(render_message("webui.remove_dashboard_favourite.notify.removed_from_favourites_6953809b"), color="positive")
@@ -849,44 +861,29 @@ def build_dashboard(
                             return
                         ui.notify(error_message(error), color="negative", close_button=True)
 
-                def show_all_favourites() -> None:
+                async def show_all_favourites() -> None:
                     if not dashboard_view_is_current():
                         return
-                    # Keep the dialog outside the panel rebuilt after each removal.
                     with dashboard_content:
                         dialog = ui.dialog()
-                    with dialog, ui.card().classes(
-                        "dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"
-                    ):
+                    with dialog, ui.card().classes("dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"):
                         with ui.row().classes("w-full items-center"):
                             ui.label(render_message("webui.show_all_favourites.label.favourites_f9033752")).classes("text-xl font-semibold")
                             ui.space()
                             ui.button(icon="close", on_click=dialog.close).props("flat round")
-                        complete_list = (
-                            ui.scroll_area()
-                            .classes("dashboard-personal-dialog-list")
-                            .props("visible")
-                            .style(
-                                f"height:min(65vh,{personal_dialog_list_height(len(combined_favourites()))}px)"
-                            )
+                        host = ui.column().classes("w-full")
+                        load = favourite_pages(
+                            api, dialog, host, kind=None, error_message=error_message,
+                            empty_text=lambda: render_message("webui.render_complete_list.label.no_favourites_8952ca8c"),
+                            active=dashboard_view_is_current,
+                            render_row=lambda kind, item: render_favourite_entry(
+                                kind, item, after_remove=lambda resource, selected: remove_dashboard_favourite(
+                                    resource, selected, dialog_refresh=load,
+                                ),
+                            ),
                         )
-
-                    def render_complete_list() -> None:
-                        complete_list.clear()
-                        with complete_list:
-                            all_favourites = combined_favourites()
-                            if not all_favourites:
-                                ui.label(render_message("webui.render_complete_list.label.no_favourites_8952ca8c")).classes("text-sm text-slate-400 p-4")
-                            for item in all_favourites:
-                                render_favourite_entry(
-                                    item["_resource"], item,
-                                    after_remove=lambda kind, selected: remove_dashboard_favourite(
-                                        kind, selected, dialog_refresh=render_complete_list,
-                                    ),
-                                )
-
-                    render_complete_list()
                     dialog.open()
+                    await load()
 
                 def render_favourites_dashboard() -> None:
                     favourites_area.clear()
@@ -937,6 +934,7 @@ def build_dashboard(
                             ui.label(
                                 render_message("webui.render_recent_record_entry.label.value_format_timestamp_a3b124e0", value=item.get('record_number') or '—', format_timestamp=format_timestamp(item['_activity_at']))
                             ).classes("text-xs text-slate-500 truncate w-full")
+                            render_creator_name(item)
                         with ui.element("div").classes(
                             f"dashboard-activity-badge {activity_class}"
                         ):

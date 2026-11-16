@@ -1061,20 +1061,6 @@
     "is_html": false
   },
   {
-    "message_key": "aggregation_details.guidance.specialist_actions",
-    "context_group": "aggregation_details.guidance",
-    "default_text": "Specialist aggregation actions",
-    "semantic_meaning": "Guidance describing the specialized actions collapsed below this heading.",
-    "common_locations": [
-      "resource detail action panels"
-    ],
-    "translator_guidance": "Translate as concise guidance for advanced specialist actions.",
-    "grammatical_role": "caption",
-    "parameter_schema": {},
-    "rendered_example": "Specialist aggregation actions",
-    "is_html": false
-  },
-  {
     "message_key": "audit.entity.application_setting",
     "context_group": "audit.entities",
     "default_text": "Application Setting",
@@ -6126,6 +6112,104 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Storage backend",
+    "is_html": false
+  },
+  {
+    "message_key": "components.record.add",
+    "context_group": "components.record",
+    "default_text": "Add digital components",
+    "semantic_meaning": "Opens the chooser to attach one or more files to the current record.",
+    "common_locations": [
+      "Record detail page"
+    ],
+    "translator_guidance": "Use concise wording suited to the record page. Follow Wathiq terminology for files and digital components.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Add digital components",
+    "is_html": false
+  },
+  {
+    "message_key": "components.record.containing_aggregation",
+    "context_group": "components.record",
+    "default_text": "Containing aggregation",
+    "semantic_meaning": "Labels the link to the aggregation that contains the current record.",
+    "common_locations": [
+      "Record detail page"
+    ],
+    "translator_guidance": "Use concise wording suited to the record page. Follow Wathiq terminology for files and digital components.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Containing aggregation",
+    "is_html": false
+  },
+  {
+    "message_key": "components.record.drop",
+    "context_group": "components.record",
+    "default_text": "Drop digital components here",
+    "semantic_meaning": "Instructs users to release the files they are dragging to attach them to the current record.",
+    "common_locations": [
+      "Record detail page"
+    ],
+    "translator_guidance": "Use concise wording suited to the record page. Follow Wathiq terminology for files and digital components.",
+    "grammatical_role": "imperative sentence",
+    "parameter_schema": {},
+    "rendered_example": "Drop digital components here",
+    "is_html": false
+  },
+  {
+    "message_key": "components.record.file_type",
+    "context_group": "components.record",
+    "default_text": "File type",
+    "semantic_meaning": "Labels the media type of a digital component in its expanded row.",
+    "common_locations": [
+      "Record detail page"
+    ],
+    "translator_guidance": "Use concise wording suited to the record page. Follow Wathiq terminology for files and digital components.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "File type",
+    "is_html": false
+  },
+  {
+    "message_key": "components.record.index_status",
+    "context_group": "components.record",
+    "default_text": "Index status",
+    "semantic_meaning": "Labels the current status of content indexing for a digital component.",
+    "common_locations": [
+      "Record detail page"
+    ],
+    "translator_guidance": "Use concise wording suited to the record page. Follow Wathiq terminology for files and digital components.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Index status",
+    "is_html": false
+  },
+  {
+    "message_key": "components.record.last_indexed",
+    "context_group": "components.record",
+    "default_text": "Last indexed",
+    "semantic_meaning": "Labels the time at which a digital component was last indexed.",
+    "common_locations": [
+      "Record detail page"
+    ],
+    "translator_guidance": "Use concise wording suited to the record page. Follow Wathiq terminology for files and digital components.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Last indexed",
+    "is_html": false
+  },
+  {
+    "message_key": "components.record.position",
+    "context_group": "components.record",
+    "default_text": "Position",
+    "semantic_meaning": "Labels the component's numeric position in the record's ordered file list.",
+    "common_locations": [
+      "Record detail page"
+    ],
+    "translator_guidance": "Use concise wording suited to the record page. Follow Wathiq terminology for files and digital components.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Position",
     "is_html": false
   },
   {
@@ -27835,20 +27919,6 @@
     "is_html": false
   },
   {
-    "message_key": "record_details.guidance.specialist_actions",
-    "context_group": "record_details.guidance",
-    "default_text": "Specialist record actions",
-    "semantic_meaning": "Guidance describing the specialized actions collapsed below this heading.",
-    "common_locations": [
-      "resource detail action panels"
-    ],
-    "translator_guidance": "Translate as concise guidance for advanced specialist actions.",
-    "grammatical_role": "caption",
-    "parameter_schema": {},
-    "rendered_example": "Specialist record actions",
-    "is_html": false
-  },
-  {
     "message_key": "relationships.error.access_denied",
     "context_group": "relationships.error",
     "default_text": "You are not authorized to change this relationship.",
@@ -28654,6 +28724,306 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Relationship type",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.advanced_metadata",
+    "context_group": "resource_details",
+    "default_text": "Advanced metadata",
+    "semantic_meaning": "Collapsed section for secondary metadata.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Advanced metadata",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.aggregation_management",
+    "context_group": "resource_details",
+    "default_text": "Aggregation management",
+    "semantic_meaning": "Heading for actions that manage an aggregation or the defaults for its children.",
+    "common_locations": [
+      "WebUI: aggregation details, Metadata tab, Advanced actions"
+    ],
+    "translator_guidance": "Use a concise heading and the approved term for aggregation.",
+    "grammatical_role": "section heading",
+    "parameter_schema": {},
+    "rendered_example": "Aggregation management",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.closed_by_aggregation",
+    "context_group": "resource_details",
+    "default_text": "Closed by an aggregation",
+    "semantic_meaning": "The item inherits closure from its containing aggregation or an ancestor.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Closed by an aggregation",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.closure",
+    "context_group": "resource_details",
+    "default_text": "Closure",
+    "semantic_meaning": "Label for the closure status icon.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Closure",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.closure_source_restricted",
+    "context_group": "resource_details",
+    "default_text": "Closure source is restricted",
+    "semantic_meaning": "The item inherits closure but the user cannot view the source.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Closure source is restricted",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.contained_record_originated",
+    "context_group": "resource_details",
+    "default_text": "Originated {date}",
+    "semantic_meaning": "Labels the date when the record originated.",
+    "common_locations": [
+      "Aggregation page, below the title of a record in the aggregation"
+    ],
+    "translator_guidance": "Use the short label for date originated (تاريخ النشأة). The date is localized. Preserve the named placeholder.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "date": "date"
+    },
+    "rendered_example": "Originated 5 Apr 2024",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.created_by",
+    "context_group": "resource_details",
+    "default_text": "Created by {name}",
+    "semantic_meaning": "Identifies the named creator of a record or aggregation.",
+    "common_locations": [
+      "WebUI: record and aggregation listings"
+    ],
+    "translator_guidance": "Preserve named placeholders and approved records terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "name": "text"
+    },
+    "rendered_example": "Created by Mariam",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.current_retention",
+    "context_group": "resource_details",
+    "default_text": "Current retention",
+    "semantic_meaning": "The first stage of the retention timeline. The number of years is displayed separately.",
+    "common_locations": [
+      "Aggregation Details dialog"
+    ],
+    "translator_guidance": "Use the approved Wathiq records-management terminology. Keep the label short.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current retention",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.details",
+    "context_group": "resource_details",
+    "default_text": "Details",
+    "semantic_meaning": "Button that opens the details dialog.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Details",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.filtered_cap",
+    "context_group": "resource_details",
+    "default_text": "Showing the first {limit} matches",
+    "semantic_meaning": "Indicates that the submitted filter exceeded the result cap.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "limit": "integer"
+    },
+    "rendered_example": "Showing the first 1000 matches",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.intermediate_retention",
+    "context_group": "resource_details",
+    "default_text": "Intermediate retention",
+    "semantic_meaning": "The second stage of the retention timeline. The number of years is displayed separately.",
+    "common_locations": [
+      "Aggregation Details dialog"
+    ],
+    "translator_guidance": "Use the approved Wathiq records-management terminology. Keep the label short.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Intermediate retention",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.list_unavailable",
+    "context_group": "resource_details",
+    "default_text": "Could not load this list",
+    "semantic_meaning": "Error shown in an aggregation content list.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Could not load this list",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.marked_vital",
+    "context_group": "resource_details",
+    "default_text": "Marked vital",
+    "semantic_meaning": "The item is marked as vital.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Marked vital",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.metadata",
+    "context_group": "resource_details",
+    "default_text": "Metadata",
+    "semantic_meaning": "Details tab for descriptive metadata and actions.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Metadata",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.no_active_holds",
+    "context_group": "resource_details",
+    "default_text": "No active holds",
+    "semantic_meaning": "The server confirms no effective legal holds.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No active holds",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.not_marked_vital",
+    "context_group": "resource_details",
+    "default_text": "Not marked vital",
+    "semantic_meaning": "The item itself is not marked as vital.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Not marked vital",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.record_management",
+    "context_group": "resource_details",
+    "default_text": "Record management",
+    "semantic_meaning": "Heading for actions that move or delete a record or reindex its digital components.",
+    "common_locations": [
+      "WebUI: record details, Metadata tab, Advanced actions"
+    ],
+    "translator_guidance": "Use the approved term for an individual record, not records management as a discipline.",
+    "grammatical_role": "section heading",
+    "parameter_schema": {},
+    "rendered_example": "Record management",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.retention_rule",
+    "context_group": "resource_details",
+    "default_text": "Retention rule",
+    "semantic_meaning": "Tab containing the effective retention rule for an aggregation.",
+    "common_locations": [
+      "Aggregation Details dialog"
+    ],
+    "translator_guidance": "Use the approved Wathiq records-management terminology. Keep the label short.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retention rule",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.retry",
+    "context_group": "resource_details",
+    "default_text": "Retry",
+    "semantic_meaning": "Button that retries loading the affected list.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retry",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.rule_details",
+    "context_group": "resource_details",
+    "default_text": "Rule details",
+    "semantic_meaning": "Disclosure for secondary retention rule information.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Rule details",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_details.unavailable",
+    "context_group": "resource_details",
+    "default_text": "Could not confirm this information",
+    "semantic_meaning": "A status or details read failed.",
+    "common_locations": [
+      "WebUI: aggregation and record pages"
+    ],
+    "translator_guidance": "Keep the label short and preserve any named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Could not confirm this information",
     "is_html": false
   },
   {
@@ -29953,6 +30323,34 @@
     "is_html": false
   },
   {
+    "message_key": "settings.field.child_aggregation_page_size.description",
+    "context_group": "application_settings",
+    "default_text": "Number of child aggregations shown per page in aggregation details.",
+    "semantic_meaning": "Help text for the child aggregation page size.",
+    "common_locations": [
+      "WebUI: Application Settings"
+    ],
+    "translator_guidance": "Preserve named placeholders and approved records terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Number of child aggregations shown per page in aggregation details.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.child_aggregation_page_size.label",
+    "context_group": "application_settings",
+    "default_text": "Child aggregations per page",
+    "semantic_meaning": "Name of the child aggregation page size setting.",
+    "common_locations": [
+      "WebUI: Application Settings"
+    ],
+    "translator_guidance": "Preserve named placeholders and approved records terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Child aggregations per page",
+    "is_html": false
+  },
+  {
     "message_key": "settings.field.classification_recent_selection_limit.description",
     "context_group": "settings.field.classification_recent_selection_limit",
     "default_text": "Maximum recent classification selections shown. Type: whole number. Minimum: 1. Initial default: 4. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
@@ -29978,6 +30376,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Recent classification selection limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.contained_record_page_size.description",
+    "context_group": "application_settings",
+    "default_text": "Number of records shown per page in aggregation details.",
+    "semantic_meaning": "Help text for the contained record page size.",
+    "common_locations": [
+      "WebUI: Application Settings"
+    ],
+    "translator_guidance": "Preserve named placeholders and approved records terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Number of records shown per page in aggregation details.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.contained_record_page_size.label",
+    "context_group": "application_settings",
+    "default_text": "Contained records per page",
+    "semantic_meaning": "Name of the contained record page size setting.",
+    "common_locations": [
+      "WebUI: Application Settings"
+    ],
+    "translator_guidance": "Preserve named placeholders and approved records terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Contained records per page",
     "is_html": false
   },
   {
@@ -31000,6 +31426,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Search result limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.search_results_page_size.description",
+    "context_group": "application_settings",
+    "default_text": "Default page size for Global Search, Advanced Search, and aggregation and record filters.",
+    "semantic_meaning": "Application setting for the shared default search page size.",
+    "common_locations": [
+      "WebUI: Application Settings"
+    ],
+    "translator_guidance": "Use the approved terminology for records and aggregations.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Default page size for Global Search, Advanced Search, and aggregation and record filters.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.search_results_page_size.label",
+    "context_group": "application_settings",
+    "default_text": "Search results per page",
+    "semantic_meaning": "Application setting for the shared default search page size.",
+    "common_locations": [
+      "WebUI: Application Settings"
+    ],
+    "translator_guidance": "Use the approved terminology for records and aggregations.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Search results per page",
     "is_html": false
   },
   {
@@ -38514,20 +38968,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.open_aggregation.badge.effective_a28f890c",
-    "context_group": "webui.open_aggregation",
-    "default_text": "Effective",
-    "semantic_meaning": "Interface text in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Effective",
-    "is_html": false
-  },
-  {
     "message_key": "webui.open_aggregation.badge.open_88407b0f",
     "context_group": "webui.open_aggregation",
     "default_text": "Open",
@@ -38567,20 +39007,6 @@
     "grammatical_role": "action label",
     "parameter_schema": {},
     "rendered_example": "Add to hold",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.open_aggregation.button.aggregations_8a85acd2",
-    "context_group": "webui.open_aggregation",
-    "default_text": "Aggregations",
-    "semantic_meaning": "Action label in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate as a concise action label; preserve the intent used in this workflow.",
-    "grammatical_role": "action label",
-    "parameter_schema": {},
-    "rendered_example": "Aggregations",
     "is_html": false
   },
   {
@@ -38878,20 +39304,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.open_aggregation.input.number_title_or_date_6fab14e9",
-    "context_group": "webui.open_aggregation",
-    "default_text": "Number, title, or date",
-    "semantic_meaning": "Field label in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate as a concise field label; preserve the intent used in this workflow.",
-    "grammatical_role": "field label",
-    "parameter_schema": {},
-    "rendered_example": "Number, title, or date",
-    "is_html": false
-  },
-  {
     "message_key": "webui.open_aggregation.label.aggregation_actions_ef188212",
     "context_group": "webui.open_aggregation",
     "default_text": "Aggregation actions",
@@ -38903,23 +39315,6 @@
     "grammatical_role": "interface text",
     "parameter_schema": {},
     "rendered_example": "Aggregation actions",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.open_aggregation.label.aggregation_number_child_status_20b87630",
-    "context_group": "webui.open_aggregation",
-    "default_text": "{aggregation_number} · {child_status}",
-    "semantic_meaning": "Interpolated interface text in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate the complete message naturally and preserve every named placeholder exactly.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {
-      "aggregation_number": "text",
-      "child_status": "text"
-    },
-    "rendered_example": "<aggregation_number> · <child_status>",
     "is_html": false
   },
   {
@@ -38940,20 +39335,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.open_aggregation.label.aggregation_overview_bb8398e3",
-    "context_group": "webui.open_aggregation",
-    "default_text": "Aggregation overview",
-    "semantic_meaning": "Interface text in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Aggregation overview",
-    "is_html": false
-  },
-  {
     "message_key": "webui.open_aggregation.label.child_aggregations_cd3bce3a",
     "context_group": "webui.open_aggregation",
     "default_text": "Child aggregations",
@@ -38965,38 +39346,6 @@
     "grammatical_role": "interface text",
     "parameter_schema": {},
     "rendered_example": "Child aggregations",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.open_aggregation.label.children_count_children_0b322dbd",
-    "context_group": "webui.open_aggregation",
-    "default_text": "{children_count} children",
-    "semantic_meaning": "Interpolated interface text in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate the complete message naturally and preserve every named placeholder exactly.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {
-      "children_count": "text"
-    },
-    "rendered_example": "<children_count> children",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.open_aggregation.label.classification_classification_text_6200f5a0",
-    "context_group": "webui.open_aggregation",
-    "default_text": "CLASSIFICATION · {classification_text}",
-    "semantic_meaning": "Interpolated interface text in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate the complete message naturally and preserve every named placeholder exactly.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {
-      "classification_text": "text"
-    },
-    "rendered_example": "CLASSIFICATION · <classification_text>",
     "is_html": false
   },
   {
@@ -39070,20 +39419,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.open_aggregation.label.hold_controls_e01cb162",
-    "context_group": "webui.open_aggregation",
-    "default_text": "Hold controls",
-    "semantic_meaning": "Interface text in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Hold controls",
-    "is_html": false
-  },
-  {
     "message_key": "webui.open_aggregation.label.inherited_from_aggregation_number_title_fdcc3805",
     "context_group": "webui.open_aggregation",
     "default_text": "Inherited from {aggregation_number} — {title}",
@@ -39098,22 +39433,6 @@
       "title": "text"
     },
     "rendered_example": "Inherited from <aggregation_number> — <title>",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.open_aggregation.label.instructions_instructions_a62c4c64",
-    "context_group": "webui.open_aggregation",
-    "default_text": "INSTRUCTIONS · {instructions}",
-    "semantic_meaning": "Interpolated interface text in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate the complete message naturally and preserve every named placeholder exactly.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {
-      "instructions": "text"
-    },
-    "rendered_example": "INSTRUCTIONS · <instructions>",
     "is_html": false
   },
   {
@@ -39136,7 +39455,8 @@
     "default_text": "Metadata and review",
     "semantic_meaning": "Interface text in the open aggregation workflow.",
     "common_locations": [
-      "WebUI: open aggregation"
+      "WebUI: open aggregation",
+      "WebUI: record details, Metadata tab, Advanced actions"
     ],
     "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
     "grammatical_role": "interface text",
@@ -39173,20 +39493,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.open_aggregation.label.no_hold_actions_are_available_c0a40db4",
-    "context_group": "webui.open_aggregation",
-    "default_text": "No hold actions are available.",
-    "semantic_meaning": "Interface text in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "No hold actions are available.",
-    "is_html": false
-  },
-  {
     "message_key": "webui.open_aggregation.label.parent_aggregation_restricted_684099c8",
     "context_group": "webui.open_aggregation",
     "default_text": "Parent aggregation restricted",
@@ -39217,22 +39523,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.open_aggregation.label.record_count_records_ca93489a",
-    "context_group": "webui.open_aggregation",
-    "default_text": "{record_count} records",
-    "semantic_meaning": "Interpolated interface text in the open aggregation workflow.",
-    "common_locations": [
-      "WebUI: open aggregation"
-    ],
-    "translator_guidance": "Translate the complete message naturally and preserve every named placeholder exactly.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {
-      "record_count": "text"
-    },
-    "rendered_example": "<record_count> records",
-    "is_html": false
-  },
-  {
     "message_key": "webui.open_aggregation.label.records_in_this_aggregation_db111558",
     "context_group": "webui.open_aggregation",
     "default_text": "Records in this aggregation",
@@ -39252,7 +39542,8 @@
     "default_text": "Security, access and audit",
     "semantic_meaning": "Interface text in the open aggregation workflow.",
     "common_locations": [
-      "WebUI: open aggregation"
+      "WebUI: open aggregation",
+      "WebUI: record details, Metadata tab, Advanced actions"
     ],
     "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
     "grammatical_role": "interface text",
@@ -52680,20 +52971,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.select_record_details.button.view_holds_73f90e5b",
-    "context_group": "webui.select_record_details",
-    "default_text": "View holds",
-    "semantic_meaning": "Action label in the select record details workflow.",
-    "common_locations": [
-      "WebUI: select record details"
-    ],
-    "translator_guidance": "Translate as a concise action label; preserve the intent used in this workflow.",
-    "grammatical_role": "action label",
-    "parameter_schema": {},
-    "rendered_example": "View holds",
-    "is_html": false
-  },
-  {
     "message_key": "webui.select_record_details.button.vital_status_e3b08bfe",
     "context_group": "webui.select_record_details",
     "default_text": "Vital status",
@@ -52778,20 +53055,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.select_record_details.label.hold_controls_c055620a",
-    "context_group": "webui.select_record_details",
-    "default_text": "Hold controls",
-    "semantic_meaning": "Interface text in the select record details workflow.",
-    "common_locations": [
-      "WebUI: select record details"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Hold controls",
-    "is_html": false
-  },
-  {
     "message_key": "webui.select_record_details.label.inherited_from_aggregation_number_title_ab7fbcfd",
     "context_group": "webui.select_record_details",
     "default_text": "Inherited from {aggregation_number} — {title}",
@@ -52809,64 +53072,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.select_record_details.label.lifecycle_0a37135c",
-    "context_group": "webui.select_record_details",
-    "default_text": "Lifecycle",
-    "semantic_meaning": "Interface text in the select record details workflow.",
-    "common_locations": [
-      "WebUI: select record details"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Lifecycle",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.select_record_details.label.metadata_and_review_185a8164",
-    "context_group": "webui.select_record_details",
-    "default_text": "Metadata and review",
-    "semantic_meaning": "Interface text in the select record details workflow.",
-    "common_locations": [
-      "WebUI: select record details"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Metadata and review",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.select_record_details.label.no_hold_actions_are_available_41ed8e8a",
-    "context_group": "webui.select_record_details",
-    "default_text": "No hold actions are available.",
-    "semantic_meaning": "Interface text in the select record details workflow.",
-    "common_locations": [
-      "WebUI: select record details"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "No hold actions are available.",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.select_record_details.label.protected_by_hold_count_effective_value_fdfb1fe2",
-    "context_group": "webui.select_record_details",
-    "default_text": "Protected by effective holds ({hold_count})",
-    "semantic_meaning": "Interpolated interface text in the select record details workflow.",
-    "common_locations": [
-      "WebUI: select record details"
-    ],
-    "translator_guidance": "Translate the complete message naturally and preserve every named placeholder exactly.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {
-      "hold_count": "text"
-    },
-    "rendered_example": "Protected by effective holds (<hold_count>)",
-    "is_html": false
-  },
-  {
     "message_key": "webui.select_record_details.label.record_actions_ae672368",
     "context_group": "webui.select_record_details",
     "default_text": "Record actions",
@@ -52878,34 +53083,6 @@
     "grammatical_role": "interface text",
     "parameter_schema": {},
     "rendered_example": "Record actions",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.select_record_details.label.record_details_4a7ba94d",
-    "context_group": "webui.select_record_details",
-    "default_text": "Record details",
-    "semantic_meaning": "Interface text in the select record details workflow.",
-    "common_locations": [
-      "WebUI: select record details"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Record details",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.select_record_details.label.security_access_and_audit_355a3bbe",
-    "context_group": "webui.select_record_details",
-    "default_text": "Security, access and audit",
-    "semantic_meaning": "Interface text in the select record details workflow.",
-    "common_locations": [
-      "WebUI: select record details"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Security, access and audit",
     "is_html": false
   },
   {
@@ -52948,22 +53125,6 @@
     "grammatical_role": "interface text",
     "parameter_schema": {},
     "rendered_example": "Vital record",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.select_record_details.text.record_record_number_6c5c5dcc",
-    "context_group": "webui.select_record_details",
-    "default_text": "Record {record_number}",
-    "semantic_meaning": "Interpolated interface text in the select record details workflow.",
-    "common_locations": [
-      "WebUI: select record details"
-    ],
-    "translator_guidance": "Translate the complete message naturally and preserve every named placeholder exactly.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {
-      "record_number": "text"
-    },
-    "rendered_example": "Record <record_number>",
     "is_html": false
   },
   {

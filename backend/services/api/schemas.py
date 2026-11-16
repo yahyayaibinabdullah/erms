@@ -549,6 +549,7 @@ class AggregationUpdate(ApiModel):
 
 
 class AggregationRead(ApiModel):
+    created_by: str | None = None
     model_config = ConfigDict(extra="ignore")
 
     id: int
@@ -661,6 +662,7 @@ class BrowseClassificationNode(ApiModel):
 
 
 class BrowseAggregationNode(ApiModel):
+    created_by: str | None = None
     id: int
     parent_aggregation_id: int | None
     classification_id: int | None
@@ -694,6 +696,7 @@ class BrowseAggregationNode(ApiModel):
 
 
 class BrowseRecordNode(ApiModel):
+    created_by: str | None = None
     id: int
     aggregation_id: int | None
     aggregation_number: str | None
@@ -721,6 +724,7 @@ class BrowseRecordNode(ApiModel):
 
 
 class FavouriteAggregationRead(ApiModel):
+    created_by: str | None = None
     id: int
     aggregation_number: str
     title: str
@@ -729,6 +733,7 @@ class FavouriteAggregationRead(ApiModel):
 
 
 class FavouriteRecordRead(ApiModel):
+    created_by: str | None = None
     id: int
     record_number: str
     title: str
@@ -745,6 +750,7 @@ class FavouritesRead(ApiModel):
 
 class FavouritesPageRead(FavouritesRead):
     application_configuration: dict[str, Any]
+    total: int | None = None
 
 
 BrowseNode = TypeVar("BrowseNode")
@@ -945,6 +951,7 @@ class AggregationLocationPreviewRead(ApiModel):
 
 
 class RecordRead(ApiModel):
+    created_by: str | None = None
     model_config = ConfigDict(extra="ignore")
 
     id: int
@@ -1122,6 +1129,7 @@ class EventHistoryRead(ApiModel):
 
 
 class SelfRecentActivityRead(ApiModel):
+    created_by: str | None = None
     """A deliberately small, self-only view of a person's own recent work."""
 
     entity_type: Literal["aggregation", "record"]
@@ -1162,6 +1170,7 @@ class DashboardClassificationMetrics(ApiModel):
 
 
 class DashboardRecentItem(ApiModel):
+    created_by: str | None = None
     entity_type: Literal["aggregation", "record"]
     entity_id: int
     operation: Literal["CREATE", "UPDATE", "CONTENT_VIEWED"]
@@ -1172,6 +1181,7 @@ class DashboardRecentItem(ApiModel):
 
 
 class DashboardReviewItem(ApiModel):
+    created_by: str | None = None
     entity_type: Literal["aggregation", "record"]
     entity_id: int
     date_of_next_review: datetime
@@ -1569,7 +1579,7 @@ class SearchRequest(ApiModel):
     sort: list[SearchSort] = Field(default_factory=list, max_length=10)
     limit: int = Field(default=100, ge=1, le=500)
     offset: int = Field(default=0, ge=0)
-    include: list[Literal["full_text_matches"]] = Field(default_factory=list, max_length=1)
+    include: list[Literal["full_text_matches", "record_capabilities"]] = Field(default_factory=list, max_length=2)
     debug: bool = False
 
 

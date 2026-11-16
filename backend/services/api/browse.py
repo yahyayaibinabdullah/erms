@@ -13,6 +13,7 @@ from .search import record_destination_clause
 from .database import get_connection
 from .entity_localization import localized_projection, preferred_language
 from .authorization_policy import require_organization_browse
+from .creator_attribution import add_creator_names
 from .schemas import (
     AggregationRead,
     BrowseAggregationNode,
@@ -138,6 +139,7 @@ def _page(
     query_columns: tuple[str, ...],
     limit: int,
     cursor: str | None,
+    resource_kind: Literal["aggregation", "record"] | None = None,
 ) -> dict[str, Any]:
     normalized_query = query.strip()
     filters: list[str] = []
@@ -168,6 +170,8 @@ def _page(
     ).fetchall())
     has_more = len(rows) > limit
     items = rows[:limit]
+    if resource_kind is not None:
+        add_creator_names(connection, ((resource_kind, item) for item in items))
     next_cursor = None
     if has_more and items:
         last = items[-1]
@@ -337,7 +341,7 @@ def browse_classification_aggregations(
         connection, scope=f"classification:{classification_id}:aggregations:owner:{owning_org_unit_id}:create:{record_creation}:digital:{digital_only}",
         source_sql=AGGREGATION_SOURCE + " AND a.classification_id=%s AND a.parent_aggregation_id IS NULL" + owner_sql + destination_sql,
         parameters=[classification_id, *([owning_org_unit_id] if owning_org_unit_id is not None else [])], key_column="aggregation_number", query=query,
-        query_columns=("aggregation_number", "title"), limit=limit, cursor=cursor,
+        query_columns=("aggregation_number", "title"), limit=limit, cursor=cursor, resource_kind="aggregation",
     )
 
 
@@ -362,7 +366,7 @@ def browse_aggregation_children(
         connection, scope=f"aggregation:{aggregation_id}:children:owner:{owning_org_unit_id}:create:{record_creation}:digital:{digital_only}",
         source_sql=AGGREGATION_SOURCE + " AND a.parent_aggregation_id=%s" + owner_sql + destination_sql,
         parameters=[aggregation_id, *([owning_org_unit_id] if owning_org_unit_id is not None else [])], key_column="aggregation_number", query=query,
-        query_columns=("aggregation_number", "title"), limit=limit, cursor=cursor,
+        query_columns=("aggregation_number", "title"), limit=limit, cursor=cursor, resource_kind="aggregation",
     )
 
 
@@ -384,7 +388,7 @@ def browse_aggregation_records(
         connection, scope=f"aggregation:{aggregation_id}:records:owner:{owning_org_unit_id}",
         source_sql=RECORD_SOURCE + " AND r.aggregation_id=%s" + owner_sql,
         parameters=[aggregation_id, *([owning_org_unit_id] if owning_org_unit_id is not None else [])], key_column="record_number", query=query,
-        query_columns=("record_number", "title"), limit=limit, cursor=cursor,
+        query_columns=("record_number", "title"), limit=limit, cursor=cursor, resource_kind="record",
     )
 
 

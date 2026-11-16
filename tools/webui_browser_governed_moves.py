@@ -37,7 +37,7 @@ def check_governed_moves(page):
         'medium': 'digital', 'date_opened': '2026-01-01T00:00:00Z'})
 
     def dialog():
-        return page.one('.q-dialog__inner > .q-card')
+        return page.wait.until(lambda _: (page.visible('.q-dialog__inner > .q-card') or [False])[-1])
 
     def closed():
         page.wait.until(lambda _: not page.visible('.q-dialog__inner > .q-card'))
@@ -53,6 +53,8 @@ def check_governed_moves(page):
         page.wait.until(lambda _:item['title'] in page.one('.erms-breadcrumb-row [aria-current=page]').text)
 
     def open_move(resource):
+        if not page.visible('.q-dialog__inner > .q-card'):
+            page.click(page.t('resource_details.details'),page.one('.resource-detail-header'))
         advanced_key = ('webui.open_aggregation.expansion.advanced_2d1fcc81' if resource == 'aggregations'
                         else 'webui.select_record_details.expansion.advanced_73101adb')
         header = page.wait.until(lambda _:next((e for e in page.visible('.q-expansion-item__container > .q-item')
@@ -62,6 +64,7 @@ def check_governed_moves(page):
         key = ('webui.open_aggregation.button.move_aeafbea8' if resource == 'aggregations'
                else 'webui.select_record_details.button.move_d812404c')
         page.click(page.t(key))
+        page.wait.until(lambda _:len(page.visible('.q-dialog__inner > .q-card'))==2)
         expected = {
             ('en', 'aggregations'): 'Move aggregation', ('en', 'records'): 'Move record',
             ('ar', 'aggregations'): 'نقل ملف', ('ar', 'records'): 'نقل وثيقة',

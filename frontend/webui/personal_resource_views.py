@@ -6,8 +6,56 @@ from nicegui import ui
 from .api_client import ApiError
 from .entities import EntitySpec
 from .config import dashboard_favourite_item_limit
+from .creator_labels import render_creator_name
 from .i18n_catalogue import render_message
 from .personal_resources import PersonalResourceState, STOP_PROPAGATION_CLICK_HANDLER
+
+
+def favourite_pages(api, dialog, host, *, kind, render_row, empty_text, error_message, active):
+    """Mount server pages under an open favourites dialog."""
+    size = 25
+    revision = 0
+    current_page = 1
+
+    async def load(page=None):
+        nonlocal revision, current_page
+        revision += 1
+        request = revision
+        page = current_page if page is None else page
+        try:
+            result = await api.favourites(kind=kind, limit=size, offset=(page - 1) * size)
+        except ApiError as error:
+            if active() and dialog.value and request == revision:
+                with host:
+                    ui.notify(error_message(error), color="negative", close_button=True)
+            return
+        if not active() or not dialog.value or request != revision:
+            return
+        last = max(1, (result["total"] + size - 1) // size)
+        if page > last:
+            await load(last)
+            return
+        current_page = page
+        rows = sorted(
+            [(key, row) for key in ("aggregations", "records") for row in result[key]],
+            key=lambda item: item[1]["date_favourited"], reverse=True,
+        )
+        host.clear()
+        with host:
+            if not rows:
+                ui.label(empty_text()).classes("text-sm text-slate-500 p-4")
+            else:
+                with ui.scroll_area().classes("dashboard-personal-dialog-list w-full").style(
+                    f"height:min(58vh,{len(rows) * 74}px)"
+                ):
+                    for resource, row in rows:
+                        render_row(resource, row)
+                if last > 1:
+                    ui.pagination(1, last, value=page, on_change=lambda event: load(int(event.value))).props(
+                        "direction-links boundary-links color=primary",
+                    )
+
+    return load
 
 @dataclass(frozen=True)
 class PersonalResourceViews:
@@ -18,6 +66,19 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
     get_configuration: Callable, render_table: Callable, open_aggregation: Callable,
     show_record_details: Callable, toggle_favourite: Callable,
     error_message: Callable, format_timestamp: Callable, personal_dialog_list_height: Callable):
+    async def refresh_favourite_preview(resource):
+        if len(personal.favourites[resource]) < dashboard_favourite_item_limit(get_configuration()):
+            return
+        revision = personal.navigation_revision
+        try:
+            favourites = await api.favourites(preview=resource[:-1])
+        except ApiError as error:
+            if personal.navigation_revision == revision:
+                ui.notify(error_message(error), color="negative", close_button=True)
+            return
+        if personal.navigation_revision == revision:
+            personal.favourites[resource] = favourites[resource]
+
     def render_entity_favourites_section(spec: EntitySpec) -> None:
         preview_host = ui.column().classes("w-full px-5 pt-5")
         limit = dashboard_favourite_item_limit(get_configuration())
@@ -59,6 +120,7 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
                     ui.label(render_message("webui.render_entry.label.title_value_32d79d0d", title=localized_singular, value=number or '—')).classes(
                         "text-xs text-slate-500 truncate w-full"
                     )
+                    render_creator_name(item)
                 remove_button = ui.button(icon="favorite", color="red").props(
                     'flat round dense aria-label=' + repr(render_message("webui.render_entry.accessible_name.remove_from_favourites_5fa138ab"))
                 )
@@ -68,40 +130,23 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
                     js_handler=STOP_PROPAGATION_CLICK_HANDLER,
                 )
 
-        def show_all() -> None:
+        async def show_all() -> None:
+            revision = personal.navigation_revision
             dialog = ui.dialog()
-            with dialog, ui.card().classes(
-                "dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"
-            ):
+            with dialog, ui.card().classes("dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"):
                 with ui.row().classes("w-full items-center"):
                     ui.label(heading).classes("text-xl font-semibold")
                     ui.space()
                     ui.button(icon="close", on_click=dialog.close).props("flat round")
-                complete_host = (
-                    ui.scroll_area()
-                    .classes("dashboard-personal-dialog-list")
-                    .props("visible")
-                    .style(
-                        f"height:min(65vh,{personal_dialog_list_height(len(personal.favourites[resource]))}px)"
-                    )
+                host = ui.column().classes("w-full")
+                load = favourite_pages(
+                    api, dialog, host, kind=singular, error_message=error_message,
+                    empty_text=lambda: render_message("webui.render_complete.label.no_favourite_resource_5a366cf8", resource=localized_plural),
+                    active=lambda: personal.navigation_revision == revision,
+                    render_row=lambda _, item: render_entry(item, after_remove=lambda selected: remove_favourite(selected, refresh_dialog=load)),
                 )
-
-            def render_complete() -> None:
-                complete_host.clear()
-                with complete_host:
-                    items = personal.favourites[resource]
-                    if not items:
-                        ui.label(render_message("webui.render_complete.label.no_favourite_resource_5a366cf8", resource=localized_plural)).classes("text-sm text-slate-400 py-4")
-                    for item in items:
-                        render_entry(
-                            item,
-                            after_remove=lambda selected: remove_favourite(
-                                selected, refresh_dialog=render_complete,
-                            ),
-                        )
-
-            render_complete()
             dialog.open()
+            await load()
 
         async def remove_favourite(
             item: dict[str, Any], *, refresh_dialog: Any | None = None,
@@ -113,9 +158,10 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
                 row for row in personal.favourites[resource]
                 if int(row["id"]) != int(item["id"])
             ]
+            await refresh_favourite_preview(resource)
             render_table(spec)
             if refresh_dialog is not None:
-                refresh_dialog()
+                await refresh_dialog()
 
         def render_preview() -> None:
             preview_host.clear()
@@ -164,7 +210,7 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
             except ApiError as error:
                 ui.notify(error_message(error), color="negative", close_button=True)
 
-        def render_favourite_item(item: dict[str, Any]) -> None:
+        def render_favourite_item(item: dict[str, Any], *, refresh_dialog=None) -> None:
             row = ui.element("div").classes("dashboard-personal-item").props(
                 "role=button tabindex=0"
             ).on(
@@ -182,12 +228,13 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
                     ui.label(
                         render_message("webui.render_favourite_item.label.title_value_e1a0d09d", title=localized_singular, value=item.get(number_field) or '—')
                     ).classes("text-xs text-slate-500 truncate w-full")
+                    render_creator_name(item)
                 remove_button = ui.button(icon="favorite", color="red").props(
                     'flat round dense aria-label=' + repr(render_message("webui.render_favourite_item.accessible_name.remove_from_favourites_89be972a"))
                 )
                 remove_button.tooltip(render_message("webui.render_favourite_item.tooltip.remove_from_favourites_96304e80"))
                 remove_button.on(
-                    "click", lambda _, selected=item: remove_favourite(selected),
+                    "click", lambda _, selected=item: remove_favourite(selected, refresh_dialog=refresh_dialog),
                     js_handler=STOP_PROPAGATION_CLICK_HANDLER,
                 )
 
@@ -215,13 +262,14 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
                     ui.label(
                         render_message("webui.render_recent_item.label.value_format_timestamp_2d04c976", value=item.get(number_field) or '—', format_timestamp=format_timestamp(item.get('_activity_at')))
                     ).classes("text-xs text-slate-500 truncate w-full")
+                    render_creator_name(item)
                 with ui.element("div").classes(
                     f"dashboard-activity-badge {activity_class}"
                 ):
                     ui.icon(activity_icon, size="13px")
                     ui.label(activity_label)
 
-        async def remove_favourite(item: dict[str, Any]) -> None:
+        async def remove_favourite(item: dict[str, Any], *, refresh_dialog=None) -> None:
             selected = await toggle_favourite(resource, item["id"])
             if selected:
                 return
@@ -229,28 +277,28 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
                 row for row in personal.favourites[resource]
                 if int(row["id"]) != int(item["id"])
             ]
+            await refresh_favourite_preview(resource)
             render_table(spec)
+            if refresh_dialog is not None:
+                await refresh_dialog()
 
-        def show_all_favourites() -> None:
+        async def show_all_favourites() -> None:
+            revision = personal.navigation_revision
             dialog = ui.dialog()
-            with dialog, ui.card().classes(
-                "dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"
-            ):
+            with dialog, ui.card().classes("dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"):
                 with ui.row().classes("w-full items-center"):
                     ui.label(render_message("webui.show_all_favourites.label.favourite_resource_e9e7ec57", resource=localized_plural)).classes("text-xl font-semibold")
                     ui.space()
                     ui.button(icon="close", on_click=dialog.close).props("flat round")
-                with (
-                    ui.scroll_area()
-                    .classes("dashboard-personal-dialog-list")
-                    .props("visible")
-                    .style(f"height:min(65vh,{personal_dialog_list_height(len(favourite_items))}px)")
-                ):
-                    if not favourite_items:
-                        ui.label(render_message("webui.show_all_favourites.label.no_favourite_resource_6427b546", resource=localized_plural)).classes("text-sm text-slate-400 p-4")
-                    for item in favourite_items:
-                        render_favourite_item(item)
+                host = ui.column().classes("w-full")
+                load = favourite_pages(
+                    api, dialog, host, kind=resource[:-1], error_message=error_message,
+                    empty_text=lambda: render_message("webui.show_all_favourites.label.no_favourite_resource_6427b546", resource=localized_plural),
+                    active=lambda: personal.navigation_revision == revision,
+                    render_row=lambda _, item: render_favourite_item(item, refresh_dialog=load),
+                )
             dialog.open()
+            await load()
 
         def show_all_recent() -> None:
             dialog = ui.dialog()

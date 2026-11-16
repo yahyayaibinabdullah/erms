@@ -64,6 +64,26 @@ def test_favourite_missing_targets_return_not_found(client: TestClient):
     assert client.delete("/api/v1/favourites/records/999999").status_code == 204
 
 
+def test_favourite_pages_include_creator_for_only_the_returned_items(
+    client: TestClient, aggregation: dict, record: dict,
+):
+    assert client.put(f"/api/v1/favourites/aggregations/{aggregation['id']}").status_code == 204
+    assert client.put(f"/api/v1/favourites/records/{record['id']}").status_code == 204
+    first = client.get('/api/v1/favourites', params={'limit': 1}).json()
+    second = client.get('/api/v1/favourites', params={'limit': 1, 'offset': 1}).json()
+    assert first['total'] == second['total'] == 2
+    assert not first['aggregations'] and not second['records']
+    assert first['records'][0]['id'] == record['id'] and first['records'][0]['created_by']
+    assert second['aggregations'][0]['id'] == aggregation['id'] and second['aggregations'][0]['created_by']
+    records = client.get('/api/v1/favourites', params={'kind': 'record', 'limit': 1}).json()
+    assert records['total'] == 1 and records['records'][0]['id'] == record['id']
+    empty = client.get('/api/v1/favourites', params={'limit': 1, 'offset': 2}).json()
+    assert empty['total'] == 2 and not empty['records'] and not empty['aggregations']
+    dashboard = client.get('/api/v1/dashboard/summary').json()['favourites']
+    assert dashboard['records'][0]['created_by'] == first['records'][0]['created_by']
+    assert dashboard['aggregations'][0]['created_by'] == second['aggregations'][0]['created_by']
+
+
 def test_favourites_are_isolated_by_authenticated_user(
     client: TestClient, aggregation: dict,
 ):
@@ -88,6 +108,9 @@ def test_favourites_are_isolated_by_authenticated_user(
     client.headers["X-CSRF-Token"] = client.cookies.get("erms_csrf")
     assert favourite_data(client.get("/api/v1/favourites")) == {
         "aggregations": [], "records": [],
+    }
+    assert favourite_data(client.get("/api/v1/favourites", params={"limit": 1})) == {
+        "aggregations": [], "records": [], "total": 0,
     }
     assert client.delete(
         f"/api/v1/favourites/aggregations/{aggregation['id']}"

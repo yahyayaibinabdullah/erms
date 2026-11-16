@@ -70,7 +70,7 @@ def render_disposition_date(
                 ui.label(format_local_date(closed, language))
 
 
-def render_retention_stages(rule: dict[str, Any], disposition_label: Callable) -> None:
+def render_retention_stages(rule: dict[str, Any], disposition_label: Callable, *, compact: bool = False) -> None:
     # Reuse the aggregation page's established stage layout and RTL rules.
     stages = (
         (render_message("entity_metadata.field.current_retention_years"),
@@ -83,11 +83,22 @@ def render_retention_stages(rule: dict[str, Any], disposition_label: Callable) -
          disposition_label(rule["final_disposition"]),
          render_message("entity_metadata.field.final_disposition")),
     )
-    with ui.element("div").classes("aggregation-retention-stages w-full"):
-        for label, value, help_text in stages:
-            with ui.column().classes("aggregation-retention-stage gap-0"):
-                ui.label(render_message(
-                    "webui.open_aggregation.label.stage_label_stage_value_026d5c3a",
-                    stage_label=label, stage_value=value,
-                )).classes("w-full text-sm font-semibold text-slate-800")
-                ui.label(help_text).classes("w-full text-xs text-slate-500")
+    compact_labels = (
+        render_message("resource_details.current_retention"),
+        render_message("resource_details.intermediate_retention"),
+        stages[2][0],
+    ) if compact else ()
+    with ui.element("div").classes("aggregation-retention-stages w-full" + (" resource-retention-stages" if compact else "")):
+        for index, (label, value, help_text) in enumerate(stages):
+            with ui.column().classes("aggregation-retention-stage gap-0" + (" bg-slate-50" if compact else "")):
+                if compact:
+                    ui.label(compact_labels[index]).classes("w-full text-xs text-slate-600")
+                    ui.label(value).classes("w-full text-sm font-semibold text-slate-800 break-words")
+                    if index < 2:
+                        ui.label(help_text).classes("w-full text-xs text-slate-500")
+                else:
+                    ui.label(render_message(
+                        "webui.open_aggregation.label.stage_label_stage_value_026d5c3a",
+                        stage_label=label, stage_value=value,
+                    )).classes("w-full text-sm font-semibold text-slate-800")
+                    ui.label(help_text).classes("w-full text-xs text-slate-500")

@@ -51,7 +51,7 @@ def build_personal_resources(api: Any, personal: PersonalResourceState, *,
         principal = get_principal()
         resource = get_resource()
         revision = personal.navigation_revision
-        favourites = await api.favourites()
+        favourites = await api.favourites(preview=resource[:-1]) if resource in {"aggregations", "records"} else await api.favourites()
         if (get_principal() is not principal or get_resource() != resource
                 or personal.navigation_revision != revision):
             return favourites

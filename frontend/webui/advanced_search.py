@@ -25,7 +25,7 @@ from .relationship_select_styles import style_relationship_chip_select
 from nicegui import ui
 
 def build_advanced_search(
-    *, add_button, add_record_button, advanced_search_state, aggregation_mode_bar, aggregation_state, api, bind_remote_relationship_select, bind_remote_saved_audience_select, browse_advanced_aggregation, browse_advanced_classification, collection_state, discard_navigation_guard, enter_advanced_search, error_message, format_timestamp, get_principal, get_resource, guidance, localized_editor_entity, open_aggregation, register_navigation, render_compact_resource_result, restore_compact_result_anchor, search_bar, select_record_details, set_navigation_guard, show_authenticated_view, show_organization_structure, style_status_chip_select, subtitle, table_container, title,
+    *, add_button, add_record_button, advanced_search_state, aggregation_mode_bar, aggregation_state, api, bind_remote_relationship_select, bind_remote_saved_audience_select, browse_advanced_aggregation, browse_advanced_classification, collection_state, discard_navigation_guard, enter_advanced_search, error_message, format_timestamp, get_configuration, get_principal, get_resource, guidance, localized_editor_entity, open_aggregation, register_navigation, render_compact_resource_result, restore_compact_result_anchor, search_bar, select_record_details, set_navigation_guard, show_authenticated_view, show_organization_structure, style_status_chip_select, subtitle, table_container, title,
 ):
     page_client = table_container.client
 
@@ -79,12 +79,13 @@ def build_advanced_search(
         guidance.text = ""
         table_container.clear()
 
+        default_limit = get_configuration()["SEARCH_RESULTS_PAGE_SIZE"]
         default_workspace: dict[str, Any] = {
             "resource": next(iter(targets)),
             "root": {"type": "group", "operator": "and", "children": [
                 {"type": "condition", "kind": "structured", "field": "title", "operator": "contains_ci", "value": ""},
             ]},
-            "sort_field": "id", "sort_direction": "asc", "limit": 25,
+            "sort_field": "id", "sort_direction": "asc", "limit": default_limit,
             "offset": 0, "total": 0, "searched": False,
             "busy": False, "error": None, "saved": None, "baseline": None,
             "audience_mode": "private", "role_ids": [], "org_unit_ids": [],
@@ -136,7 +137,7 @@ def build_advanced_search(
                     with ui.row().classes("advanced-search-sort-row w-full items-end gap-3 flex-wrap mt-2"):
                         sort_field = ui.select({}, label=render_message("webui.select_advanced_search.select.sort_by_ead29b06")).props("outlined dense options-dense").classes("w-60")
                         sort_direction = ui.select({"asc": render_message("webui.select_advanced_search.select.ascending_7ac56d5e"), "desc": render_message("webui.select_advanced_search.select.descending_b4342bd5")}, value=workspace["sort_direction"], label=render_message("webui.select_advanced_search.select.direction_c0ccf4a5")).props("outlined dense options-dense").classes("w-40")
-                        page_size = ui.select({25: render_message("webui.select_advanced_search.select.page_size_25_3ce9d53c"), 50: render_message("webui.select_advanced_search.select.page_size_50_34f8a03e"), 100: render_message("webui.select_advanced_search.select.page_size_100_ac5cc8df")}, value=workspace["limit"], label=render_message("webui.select_advanced_search.select.page_size_cafb2ebd")).props("outlined dense options-dense").classes("w-40")
+                        page_size = ui.select({default_limit: str(default_limit), workspace["limit"]: str(workspace["limit"]), 25: render_message("webui.select_advanced_search.select.page_size_25_3ce9d53c"), 50: render_message("webui.select_advanced_search.select.page_size_50_34f8a03e"), 100: render_message("webui.select_advanced_search.select.page_size_100_ac5cc8df")}, value=workspace["limit"], label=render_message("webui.select_advanced_search.select.page_size_cafb2ebd")).props("outlined dense options-dense").classes("w-40")
                     with ui.row().classes("advanced-search-submit-row w-full items-center gap-2 mt-2"):
                         search_advanced = ui.button(render_message("webui.select_advanced_search.button.search_97989f23"), icon="search").props("unelevated no-caps")
                         reset_advanced = ui.button(render_message("webui.select_advanced_search.button.reset_507afbb7"), icon="restart_alt").props("flat no-caps")
@@ -327,7 +328,7 @@ def build_advanced_search(
             visible_sort = next((item for item in request.get("sort", []) if item["field"] != "id"), None)
             workspace["sort_field"] = (visible_sort or {"field": "id"})["field"]
             workspace["sort_direction"] = (visible_sort or {"direction": "asc"})["direction"]
-            workspace["limit"] = int(request.get("limit", 25))
+            workspace["limit"] = int(request.get("limit", default_limit))
             # A newly loaded definition has no execution results. Do not let
             # navigation restore cards belonging to the previous target/query.
             workspace.update(
@@ -351,6 +352,8 @@ def build_advanced_search(
             search_category.value = saved.get("category")
             search_description.value = saved.get("description")
             target.value = workspace["resource"]
+            if workspace["limit"] not in page_size.options:
+                page_size.set_options({**page_size.options, workspace["limit"]: str(workspace["limit"])})
             page_size.value = workspace["limit"]
             sort_direction.value = workspace["sort_direction"]
             results_host.clear(); freshness_host.clear(); pagination.set_visibility(False)
@@ -1210,7 +1213,7 @@ def build_advanced_search(
             reset_search(clear_metadata=True)
 
         def reset_search(*, clear_metadata: bool = False) -> None:
-            workspace.update(root={"type": "group", "operator": "and", "children": [new_condition()]}, sort_field="id", sort_direction="asc", limit=25, offset=0, total=0, searched=False, last_result=None)
+            workspace.update(root={"type": "group", "operator": "and", "children": [new_condition()]}, sort_field="id", sort_direction="asc", limit=default_limit, offset=0, total=0, searched=False, last_result=None)
             workspace.update(execution=None, execution_revision=workspace["execution_revision"] + 1, busy=False)
             workspace.update(expanded_results=[], record_capabilities={})
             workspace.pop("return_anchor", None)
@@ -1220,7 +1223,7 @@ def build_advanced_search(
                     search_name="", search_category=None, search_description="",
                 )
                 search_name.value = ""; search_category.value = None; search_description.value = ""
-            page_size.value = 25
+            page_size.value = default_limit
             sort_direction.value = "asc"
             results_host.clear()
             freshness_host.clear()

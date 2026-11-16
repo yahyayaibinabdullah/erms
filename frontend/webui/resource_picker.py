@@ -5,6 +5,7 @@ fetch fresh data. Revision guards discard responses after a new search or close.
 Selections retain only identity/title until the caller revalidates confirmation.
 """
 from nicegui import ui
+from .creator_labels import render_creator_name
 from .api_client import ApiError
 from .i18n_catalogue import render_message_plain as message
 
@@ -162,6 +163,7 @@ async def resource_picker(*, search, eligible, on_confirm, remaining, active, on
                                 with ui.grid(columns='auto auto').classes('self-start items-center gap-2'):
                                     ui.badge(message('messaging.field.' + row_kind)).props('outline')
                                     ui.label(row.get(row_kind + '_number') or '').props('dir=ltr').classes('text-sm text-slate-500')
+                                render_creator_name(row)
                                 if row.get('description'):
                                     ui.label(row['description']).classes('text-sm text-slate-600 whitespace-pre-line')
                                 if reason:
