@@ -25,18 +25,19 @@ aggregation's dedicated page.
 
 ## Record metadata and actions
 
-The page header shows the record title, record number, icon, Favourite, Preview
-when an eligible component exists, and Back controls. The identity icon stays
+The page header shows the record title, number, type icon, Favourite, eligible
+Preview, Back, and Details. See the [approved amendment](aggregation-and-record-page-amendment.md)
+for the status icons and Details dialog. The identity icon stays
 beside the title at the reading start; Favourite, Preview, and Back form the
 opposite-side action group. In Arabic, the header mirrors this placement and
-Back uses a right-pointing arrow after its label. It exposes the existing Edit,
-Delete, and Event history actions.
+Back uses a right-pointing arrow after its label. The Metadata tab exposes the
+existing Edit, Delete, and Event history actions.
 Edit and Delete are unavailable when the containing aggregation hierarchy makes
 the record read-only. The page explains that inherited closure explicitly.
 
 The metadata area shows at least the description, originated timestamp, created
-timestamp, and containing aggregation. It is designed to accept additional
-record metadata without returning to a dialog layout.
+timestamp, and containing aggregation. Secondary fields are in Advanced
+metadata. Relationships and Holds have their own tabs.
 
 Permanent deletion retains its confirmation. The confirmation states that all
 digital components and stored content are deleted with the record while
@@ -45,7 +46,7 @@ immutable event history remains.
 ## Digital components
 
 The complete Digital Components interface appears immediately below the record
-metadata. Viewing the component list requires no additional click or dialog.
+header. Viewing the component list requires no additional click or dialog.
 It includes:
 
 - multiple-file upload and drag-and-drop;
@@ -70,8 +71,8 @@ shortcut, but it is not used inside the Record Detail page.
 
 1. Opening a record from every supported entry point displays a page, not the
    former record-details dialog.
-2. Metadata and record actions are visible without opening another interface.
-3. Digital components load below the metadata automatically.
+2. The title and Details button open the Metadata tab with authorized actions.
+3. Digital components load below the header automatically.
 4. Component management retains the same closure and audit behavior as the
    standalone interface.
 5. Editing refreshes the page and deletion returns to the appropriate parent

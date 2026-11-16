@@ -15,11 +15,8 @@ from types import SimpleNamespace
 import pytest
 
 from frontend.webui.app import CLASSIFICATION_SELECTOR_SEARCH_FIELDS, RELATIONSHIP_DISPLAY_FIELDS, LAST_CUSTODIAN_MESSAGE, LAST_CUSTODIAN_TITLE, STOP_PROPAGATION_CLICK_HANDLER, buffer_upload_batch, component_is_previewable, deletion_blocked_report, deletion_identity, display_value, error_message, show_api_error, format_file_size, format_timestamp, index, medium_label, user_avatar, render_component_cards, visible_navigation_indices
-from frontend.webui.aggregation_presentation import AGGREGATION_SUMMARY_LAYOUT_CLASSES
 from frontend.webui.aggregation_presentation import CHILD_AGGREGATION_CLASSIFICATION_HELP
 from frontend.webui.record_presentation import RECORD_UPLOAD_WAIT_MESSAGE
-from frontend.webui.record_presentation import RECORD_DETAIL_HEADER_CLASSES
-from frontend.webui.record_presentation import RECORD_DETAIL_TITLE_CLASSES
 from frontend.webui.organization_table import LIFECYCLE_ACTION_BUTTONS
 from frontend.webui.navigation_data import NAVIGATION_TRAIL_LIMIT
 from frontend.webui.navigation_data import NAVIGATION_VISIBLE_LIMIT
@@ -136,7 +133,7 @@ def test_component_surfaces_use_bounded_server_pages_and_cross_page_moves():
     assert 'component_page = {"limit": 25, "offset": 0, "total": 0}' in source
     assert 'api.component_page(' in source
     assert 'await api.move_component(record["id"], component["id"], direction)' in source
-    assert 'first_position = int(component_page["total"]) + 1' in source
+    assert 'first_position = await api.component_count(record["id"]) + 1' in source
     assert 'component_total = await api.component_count(record["id"])' in source
     assert 'preview_page = {"limit": 50, "offset": 0, "total": 0}' in source
 
@@ -610,49 +607,16 @@ def test_contextual_form_help_explains_disabled_controls():
     assert RECORD_UPLOAD_WAIT_MESSAGE == "Please wait until all files have finished uploading."
 
 
-def test_aggregation_summary_has_command_centre_layout():
-    assert "flex-1" in AGGREGATION_SUMMARY_LAYOUT_CLASSES
-    assert "aggregation-command-summary" in AGGREGATION_SUMMARY_LAYOUT_CLASSES
-    assert "min-w-[520px]" in AGGREGATION_SUMMARY_LAYOUT_CLASSES
-
-
-def test_resource_detail_headers_mirror_identity_and_actions_in_rtl():
-    assert "items-center" in RECORD_DETAIL_HEADER_CLASSES
-    assert "no-wrap" in RECORD_DETAIL_HEADER_CLASSES
-    assert "flex-wrap" not in RECORD_DETAIL_HEADER_CLASSES
-    assert "grow" in RECORD_DETAIL_TITLE_CLASSES
-    assert "min-w-0" in RECORD_DETAIL_TITLE_CLASSES
-    source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())))
-    assert 'ui.label(record["record_number"]).classes("text-xs text-primary font-semibold")' in source
-    assert 'ui.label(record["title"]).classes("text-lg font-semibold break-words")' in source
-    assert '"record-detail-identity-header w-full' in source
-    assert '"record-detail-header-actions items-center gap-2"' in source
-    assert '"aggregation-detail-identity-header w-full items-center gap-3"' in source
-    assert '"aggregation-detail-header-actions items-center gap-2"' in source
+def test_resource_details_reuse_the_shared_header_and_keep_back_direction():
+    source = aggregation_sources() + record_sources()
+    assert source.count("render_resource_detail_header(") == 2
     assert source.count('" icon-right=arrow_forward" if current_direction["value"] == "rtl"') >= 2
-    assert 'ui.icon("description", color="primary", size="18px").classes("w-6")' in source
 
 
-def test_child_aggregation_section_heading_stays_at_rtl_reading_start():
-    source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())))
-    assert '"aggregation-child-section-heading w-full items-center px-5 pt-1"' in source
-    rtl_rule = source.split(
-        'html[dir="rtl"] .aggregation-child-section-heading {', 1
-    )[1].split("}", 1)[0]
-    assert "flex-direction: row;" in rtl_rule
-
-
-def test_record_details_uses_the_approved_right_hand_control_column():
-    source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())))
-    assert '"record-command-layout w-full"' in source
-    assert '"record-command-controls"' in source
-    assert '"detail-surface record-command-overview' in source
-    assert 'ui.label("Hold controls").classes("aggregation-panel-heading w-full")' in source
-    assert 'ui.label("Record actions").classes("aggregation-panel-heading w-full")' in source
-    assert 'ui.label("Metadata and review").classes("record-action-group-label")' in source
-    assert 'ui.label("Security, access and audit").classes("record-action-group-label")' in source
-    assert 'ui.label("Lifecycle").classes("record-action-group-label")' in source
-    assert '"Remove direct holds"' in source
+def test_record_details_keeps_components_outside_the_details_dialog():
+    source = record_sources()
+    assert '{"metadata": load_metadata, "relationships": load_relationships, "holds": load_holds}' in source
+    assert 'show_components(record, container=components_host' in source
 
 
 def test_record_detail_long_values_are_aligned_and_bounded():
@@ -990,7 +954,8 @@ def test_detail_pages_use_light_blue_metadata_and_retention_visual_system():
     assert 'disposition_label(rule["final_disposition"])' in TIMELINE_SOURCE
     assert 'grid-template-columns: repeat(3, minmax(0, 1fr))' in source
     assert 'ui.label(str(len(children))).classes("text-2xl font-bold text-primary")' not in source
-    assert '"retention-card aggregation-retention-compact shadow-none p-4 gap-3"' in source
+    assert 'render_retention_stages(effective_rule, localized_disposition_value, compact=True)' in source
+    assert '"resource-retention-details w-full min-w-0 gap-3 px-3 pb-3"' in source
 
 
 def test_application_shell_is_flat_and_uses_one_background():
@@ -1041,28 +1006,13 @@ def test_application_shell_is_flat_and_uses_one_background():
     assert 'not key.endswith("_display") or key in sortable_relationships' in source
 
 
-def test_aggregation_records_use_compact_authorized_expandable_rows():
-    source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())))
-    assert 'load_record_result_context(' in source
-    assert 'record["_component_count"] = int(record_capabilities.get("component_count", 0))' in source
-    assert 'record["_can_preview"] = bool(' in source
-    assert 'record_capabilities.get("has_previewable_component")' in source
+def test_aggregation_records_use_compact_rows_with_page_capabilities():
+    source = aggregation_sources()
+    assert 'child_limit, record_limit = 10, 25' in source
+    assert '"include": ["record_capabilities"]' in source
     assert 'render_compact_resource_result(' in source
-    assert 'component_total=record["_component_count"]' in source
-    assert 'can_expand_components=bool(record["_component_count"])' in source
-    assert '"Search code, name, or parent unit"' in source
-    assert '"Search code, name, or organization unit"' in source
-    assert '"Search name or email"' in source
-    assert '"All account types"' in source
-    assert '"w-full items-center gap-3 px-5 pt-2 pb-1 mb-2"' in source
-    assert ':rows-per-page-options="[10,25,50,100]"' in source
-    assert '"Filter records"' in source
-    assert 'record_page_result = await api.search_request("records", {' in source
-    assert '"limit": 10, "offset": (record_page_number - 1) * 10' in source
-    assert 'contained_record_page = ui.pagination(' in source
-    assert 'state["aggregation_child_return"] = {' in source
-    assert '"expanded_records": sorted(expanded_child_records)' in source
-    assert 'restore_compact_result_anchor(child_return.get("anchor"))' in source
+    assert 'can_expand_components=bool(count)' in source
+    assert 'restore_compact_result_anchor(anchor, fallback_id=records_heading)' in source
 
 
 def test_brand_assets_are_exposed_through_the_frontend_static_route():
@@ -1154,7 +1104,7 @@ def test_aggregation_detail_relationship_context_does_not_use_removed_global_cac
 def test_detail_page_editors_resolve_api_entity_resources_explicitly():
     source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())))
     assert 'record, on_saved=refresh_record_view, resource_key="records"' in source
-    assert 'current, on_saved=open_aggregation,\n                                        resource_key="aggregations"' in source
+    assert 'current, on_saved=refresh, resource_key="aggregations"' in source
     assert '"aggregation-details": "aggregations"' in source
     assert '"record-details": "records"' in source
 
@@ -1766,8 +1716,8 @@ def test_required_fields_are_visually_marked_and_explained():
 
 def test_governed_move_and_root_ownership_correction_are_exposed():
     source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())))
-    assert source.count('"Advanced", caption="Specialist') == 2
-    assert source.count('icon="tune", value=False') == 2
+    assert source.count('classes("resource-advanced-actions w-full")') == 2
+    assert source.count('value=False).props("dense").classes("resource-advanced-actions w-full")') == 2
     assert "show_aggregation_move" in source
     assert "show_ownership_correction_action" in source
     assert "show_acl_defaults" in source

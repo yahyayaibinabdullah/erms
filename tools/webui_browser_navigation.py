@@ -74,10 +74,10 @@ def check_navigation(page):
         page.capture('records-table-' + page.language)
         row = page.one('.compact-result-item')
         page.one('button[aria-label="Open record"]', scope=row).click()
-        parent = page.one('button.detail-linked-entity')
+        parent = page.one('button.resource-detail-parent')
         assert 'Test aggregation' in parent.text
         parent.click()
-        heading = page.t('webui.open_aggregation.label.aggregation_overview_bb8398e3')
+        heading = page.t('webui.open_aggregation.label.child_aggregations_cd3bce3a')
         page.see(heading)
         page.reload()
         page.see(heading)

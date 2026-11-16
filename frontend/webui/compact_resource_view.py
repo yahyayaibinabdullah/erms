@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Any, Callable
 from nicegui import ui
 from .api_client import ApiError
-from .i18n_catalogue import render_message
+from .creator_labels import render_creator_name
+from .i18n_catalogue import render_message, strip_diagnostic_metadata
 from .disposition.messages import text as disposition_text, status_label as disposition_status_label
 from .personal_resources import STOP_PROPAGATION_CLICK_HANDLER
 
@@ -11,6 +12,10 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
     render_safe_snippet: Callable, preview_record_components: Callable,
     format_date: Callable, medium_label: Callable, component_is_previewable: Callable,
     api, direction: Callable, error_message: Callable):
+    def medium_icon(medium: str):
+        icon = {"physical": "inventory_2", "digital": "computer", "mixed": "layers"}.get(medium, "category")
+        return ui.icon(icon, color="blue-grey-7", size="18px").classes("compact-result-indicator")
+
     def render_compact_resource_result(
         resource: str,
         item: dict[str, Any],
@@ -21,6 +26,7 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
         metadata_matched: bool = False,
         content_matched: bool = False,
         show_medium: bool = False,
+        contained_record: bool = False,
         can_favourite: bool = True,
         can_preview: bool = False,
         can_expand_components: bool = False,
@@ -32,6 +38,7 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
         is_record = resource == "records"
         number = item.get("record_number" if is_record else "aggregation_number") or render_message("webui.render_compact_resource_result.text.id_8f7a97fe", id=item['id'])
         date_value = item.get("date_originated" if is_record else "date_opened")
+        medium = str(item.get("medium") or "").lower()
         component_rows = list(components or []) if is_record and can_expand_components else []
         component_count = (len(component_rows) if components_are_matches else component_total) if can_expand_components else 0
         result_id = f"compact-result-{resource}-{int(item['id'])}"
@@ -49,12 +56,28 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                             ui.label(item.get("title") or render_message("webui.render_compact_resource_result.label.untitled_84d7d2e0")).classes(
                                 "text-sm font-semibold text-slate-800 truncate"
                             ).tooltip(item.get("title") or render_message("webui.render_compact_resource_result.tooltip.untitled_72cde12a"))
-                        with ui.row().classes("compact-result-meta w-full items-center no-wrap gap-1"):
-                            ui.label(disposition_status_label(item.get("disposition_status", 1))).classes("text-xs text-slate-600").tooltip(disposition_text("status"))
-                            ui.label(format_date(date_value)).classes(
-                                "compact-result-date"
-                            ).tooltip(render_message("webui.render_compact_resource_result.tooltip.originated_d00c8b65") if is_record else render_message("webui.render_compact_resource_result.tooltip.opened_4b8fc56f"))
-                            with ui.row().classes("compact-result-indicators items-center no-wrap"):
+                        with ui.row(wrap=contained_record, align_items="center").classes("compact-result-meta w-full gap-1"):
+                            if contained_record:
+                                with ui.row(wrap=False, align_items="center").classes("min-w-0 max-w-full gap-1", remove="row"):
+                                    ui.label(render_message(
+                                        "resource_details.contained_record_originated",
+                                        date=format_date(date_value),
+                                    )).classes("contained-record-metadata w-36 min-w-0 break-words text-xs text-slate-600")
+                                    if medium:
+                                        label = medium_label(medium)
+                                        with ui.element("span").classes("contained-record-medium inline-flex shrink-0").props("role=img") as indicator:
+                                            indicator.props["aria-label"] = strip_diagnostic_metadata(label)
+                                            medium_icon(medium).tooltip(label)
+                            else:
+                                ui.label(disposition_status_label(item.get("disposition_status", 1))).classes("text-xs text-slate-600").tooltip(disposition_text("status"))
+                                ui.label(format_date(date_value)).classes(
+                                    "compact-result-date"
+                                ).tooltip(render_message("webui.render_compact_resource_result.tooltip.originated_d00c8b65") if is_record else render_message("webui.render_compact_resource_result.tooltip.opened_4b8fc56f"))
+                            if contained_record:
+                                indicators = ui.row(wrap=False, align_items="center").classes("shrink-0 gap-0 empty:hidden", remove="row")
+                            else:
+                                indicators = ui.row().classes("compact-result-indicators items-center no-wrap")
+                            with indicators:
                                 if item.get("is_vital"):
                                     ui.icon("emergency", color="red-8", size="18px").classes(
                                         "compact-result-indicator"
@@ -71,14 +94,12 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                                     ui.icon("text_snippet", color="blue-grey-7", size="18px").classes(
                                         "compact-result-indicator"
                                     ).tooltip(render_message("webui.render_compact_resource_result.tooltip.digital_component_content_matched_35625a16"))
-                                if show_medium and item.get("medium"):
-                                    medium = str(item["medium"]).lower()
-                                    medium_icon = {
-                                        "physical": "inventory_2", "digital": "computer", "mixed": "layers",
-                                    }.get(medium, "category")
-                                    ui.icon(medium_icon, color="blue-grey-7", size="18px").classes(
-                                        "compact-result-indicator"
-                                    ).tooltip(render_message("webui.render_compact_resource_result.tooltip.medium_medium_label_f8be324f", medium_label=medium_label(medium)))
+                                if show_medium and not contained_record and medium:
+                                    medium_icon(medium).tooltip(render_message(
+                                        "webui.render_compact_resource_result.tooltip.medium_medium_label_f8be324f",
+                                        medium_label=medium_label(medium),
+                                    ))
+                        render_creator_name(item)
                 with ui.row().classes("compact-result-actions items-center no-wrap"):
                     component_host = None
                     expand_button = None
@@ -104,7 +125,7 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                             icon="open_in_new", on_click=lambda _, selected=item: on_open(selected),
                         ).props(
                             f"flat round dense color=primary aria-label='Open {'record' if is_record else 'aggregation'}'"
-                        ).tooltip(render_message("webui.render_compact_resource_result.tooltip.open_record_3e4dcd53") if is_record else render_message("webui.render_compact_resource_result.tooltip.open_aggregation_2f0f3e73"))
+                        ).classes("compact-result-open").tooltip(render_message("webui.render_compact_resource_result.tooltip.open_record_3e4dcd53") if is_record else render_message("webui.render_compact_resource_result.tooltip.open_aggregation_2f0f3e73"))
             if component_count:
                 component_host = ui.column().classes("compact-result-components w-full gap-0")
                 component_host.set_visibility(initially_expanded)

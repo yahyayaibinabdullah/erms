@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing import Any
 from nicegui import ui
+from .creator_labels import render_creator_name
 from .api_client import ApiError
 from .i18n_catalogue import render_message
 from .identity_presentation import render_user_avatar, user_avatar
@@ -189,6 +190,7 @@ def build_hold_details(
                                     with ui.column().classes("gap-0 min-w-0 grow"):
                                         ui.label(row.get("title") or render_message("webui.load_held_items.label.untitled_9d476a3c")).classes("font-semibold text-base leading-tight")
                                         ui.label(row.get("number") or "—").classes("text-xs font-medium text-primary")
+                                        render_creator_name(row)
                                         ui.label(row.get("description") or render_message("webui.load_held_items.label.no_description_provided_db263706")).classes("text-xs text-slate-500 mt-1 leading-5")
                                     ui.badge(render_message("webui.load_held_items.badge.aggregation_4d7e0b4c") if row["resource_type"] == "aggregation" else render_message("webui.load_held_items.badge.record_58fed782"), color="blue-grey").props("outline")
                                 with ui.element("div").classes("governance-list-facts w-full"):
@@ -289,6 +291,7 @@ def build_hold_details(
                                                 with ui.column().classes("gap-0 min-w-0 grow"):
                                                     ui.label(row.get("title") or render_message("webui.load_candidates.label.untitled_9322bbb9")).classes("font-semibold leading-tight")
                                                     ui.label(row.get("number") or "—").classes("text-xs font-medium text-primary")
+                                                    render_creator_name(row)
                                                     ui.label(row.get("description") or render_message("webui.load_candidates.label.no_description_provided_bf7f8283")).classes("text-xs text-slate-500 mt-1 leading-5")
                                                 ui.badge(render_message("webui.load_candidates.badge.aggregation_de7a9bf8") if row["resource_type"] == "aggregation" else render_message("webui.load_candidates.badge.record_4970f2fc"), color="blue-grey").props("outline")
                         start=picker["offset"]+1 if result["total"] else 0

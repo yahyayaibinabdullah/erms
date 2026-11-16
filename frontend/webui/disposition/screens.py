@@ -4,6 +4,7 @@ from datetime import datetime
 from html import escape
 from uuid import uuid4
 from nicegui import ui
+from ..creator_labels import creator_text
 from ..api_client import ApiError
 from ..locale_services import current_locale_context, working_datetime_to_utc, LocalizedTimezoneError, format_local_date, utc_instant_to_working
 from ..remote_select import RemoteSelect
@@ -411,6 +412,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
                     job_label=row.get('job_number') or '—',
                     admission_label=text('in_active_job') if row.get('job_id') else text('blocked') if row['blocked'] else text('closed_required') if not row['date_closed'] else text('ready'),
                     _group_start=bool(current['group_owner'] and row['owning_org_unit_id']!=previous_owner))
+                row['creator_label']=creator_text(row)
                 row['unavailable']=bool(row['blocked'] or row.get('job_id'))
                 row['unavailable_reason']=' · '.join(([text('in_active_job')+': '+row['job_label']] if row.get('job_id') else [])+reasons)
                 acceleration=row.get('acceleration')
@@ -463,7 +465,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
            <q-btn v-if="!props.row.redacted && !props.row.destroyed" flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-root',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn>
            <q-btn v-if="!props.row.redacted" flat dense icon="info" aria-label="'''+escape(text('blockers'))+'''" @click="$parent.$emit('blockers',props.row.id)"><q-tooltip>'''+escape(text('blockers'))+'''</q-tooltip></q-btn></div></template>
           <template v-else-if="col.name === 'job_label' && props.row.job_id"><q-btn flat dense no-caps :label="props.row.job_label" @click="$parent.$emit('open-job',props.row.job_id)" /></template>
-          <span v-else dir="auto">{{ col.value }}</span>
+          <span v-else dir="auto">{{ col.value }}<small v-if="col.name === 'identity' && props.row.creator_label" class="block text-slate-600">{{ props.row.creator_label }}</small></span>
         </q-td></q-tr>''')
         def selected_aggregations():
             return [r for r in page.table.selected if r.get('selectable') and not r.get('redacted')]
@@ -816,6 +818,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                     row['local_label']=text('local_override') if source=='aggregation' else text('no_local_override') if source=='classification' else '—'
                     row['medium_label']=text(row['medium']) if row.get('medium') in KEYS else '—'
                     row['identity']=text('restricted') if row['redacted'] else text('retained_unit',id=row['root_aggregation_id']) if row.get('destroyed') else row['aggregation_number']+' · '+row['title']
+                    row['creator_label']=creator_text(row)
                     row['status_label']=status_label(row['disposition_status']) if not row['redacted'] else '—'
                     row['removal_label']=text('removal_proposed') if row.get('removal_proposed') and row['membership_state']=='active' else ''
                     row['notice']=text(row['removal_required_reason']) if row['membership_state']=='active' and row.get('removal_required_reason') in KEYS else ''
@@ -847,6 +850,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
             members.table.add_slot('body-cell-proposal_count','''<q-td :props="props"><div class="row no-wrap items-center"><q-btn v-if="!props.row.redacted && props.row.proposal_count > 0" flat dense no-caps color="primary" class="underline" :label="String(props.row.proposal_count)" :aria-label="props.row.proposals_label" @click="$parent.$emit('show-proposals',props.row.id)"/><span v-else>{{ props.row.proposal_count == null ? '—' : props.row.proposal_count }}</span></div></q-td>''')
             members.table.add_slot('body-cell-identity', '''<q-td :props="props" :class="props.row.last_viewed ? 'bg-blue-50' : ''">
               <span :id="'disposition-member-' + props.row.id" tabindex="-1">{{ props.row.identity }}</span>
+              <div v-if="props.row.creator_label" dir="auto" class="text-xs text-slate-600">{{ props.row.creator_label }}</div>
               <div v-if="props.row.last_viewed" class="text-primary text-weight-medium"><q-icon name="visibility"/> '''+escape(text('last_viewed'))+'''</div></q-td>''')
             members.table.add_slot('body-cell-status_label','''<q-td :props="props">{{ props.row.status_label }}<div v-if="props.row.partial_label" class="text-amber-900 whitespace-normal">{{ props.row.partial_label }}</div><div class="text-amber-900 whitespace-normal">{{ props.row.notice }}</div><div v-if="props.row.removal_label" class="text-amber-900 whitespace-normal"><q-icon name="remove_circle_outline"/> {{ props.row.removal_label }}</div><div v-if="props.row.blocked" class="text-amber-900 whitespace-normal">{{ props.row.blocker_label }}</div></q-td>''')
             members.table.add_slot('body-cell-actions','''<q-td :props="props"><div class="row no-wrap gap-1">

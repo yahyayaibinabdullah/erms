@@ -112,8 +112,8 @@ with psycopg.connect(url) as connection:
             # section finishes. Wait for the empty fixture's completed load so
             # before/after request counts do not depend on navigation timing.
             page.see(page.t('webui.render_current_components.label.no_digital_components_have_been_uploaded_y_3f61a29a'))
-            page.one('button.detail-linked-entity').click()
-            page.see(page.t('webui.open_aggregation.label.aggregation_overview_bb8398e3'))
+            page.one('button.resource-detail-parent').click()
+            page.see(page.t('webui.open_aggregation.label.child_aggregations_cd3bce3a'))
             capture('aggregation-detail')
     with page.check('shared controls browser errors'):
         page.errors()

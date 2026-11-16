@@ -5,6 +5,7 @@ only a page-local envelope; hidden blockers never expose resource/hold IDs.
 These reads are advisory; membership commands independently lock and recheck.
 """
 from fastapi import HTTPException
+from ..creator_attribution import add_creator_names
 from ..entity_localization import localized_projection
 from . import blockers, observations
 from .acceleration import current_accelerations
@@ -116,6 +117,7 @@ def eligibility(c, *, limit, offset, sort='due', descending=False, owner=None,
     # not prevent admission; outside-job links can prevent final disposition.
     projection = '*,EXISTS(SELECT 1 FROM disposition_private.relationship_scope(facts.id) WHERE blocks_final) AS relationships_block_final' if job_id is not None else '*'
     rows = c.execute(ELIGIBILITY + 'SELECT '+projection+' FROM facts' + where + ' ORDER BY ' + order + ' LIMIT %s OFFSET %s', [*values, limit, offset]).fetchall()
+    add_creator_names(c, (('aggregation', row) for row in rows if row['visible']))
     # Enrich only the visible roots on this server page, never the whole result
     # set or a separate request per row. Share episode rules with details.
     accelerations = current_accelerations(c, [row['id'] for row in rows if row['visible']], language_tag)
@@ -264,6 +266,7 @@ def members(c, identity, *, limit, offset, query='', sort='id', descending=True,
       a.disposition_status NOT IN (10,11,12) AND disposition_private.unit_has_digital(a.id) AND EXISTS(SELECT 1 FROM disposition_private.unit_ids(a.id) u(id) WHERE NOT disposition_private.physical_item_remaining('aggregations',u.id) OR EXISTS(SELECT 1 FROM records r WHERE r.aggregation_id=u.id AND NOT disposition_private.physical_item_remaining('records',r.id))) AS partially_destroyed,
       EXISTS(SELECT 1 FROM disposition_private.recovery_roots(m.job_id) rr WHERE rr.root_id=a.id) AND disposition_private.recovery_unit_visible(a.id) AND disposition_private.can_manage() AS can_recover
       '''+row_source+' ORDER BY '+orders[sort]+(' DESC' if descending else ' ASC')+',m.id LIMIT %s OFFSET %s',(*params,limit,offset)).fetchall()
+    add_creator_names(c, (('aggregation', row) for row in rows if row['visible']), id_key='root_aggregation_id')
     for r in rows:
         r['owning_org_unit_name']=localized_projection({'name':r['owning_org_unit_name'],'translations':r.pop('owner_translations')},language_tag,'name')['name']
         if r['membership_state']=='active':observations.detect(c,identity,r['root_aggregation_id'])

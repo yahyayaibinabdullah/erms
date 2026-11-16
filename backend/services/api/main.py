@@ -1390,6 +1390,25 @@ def _effective_closure(connection: Connection, aggregation_id: int) -> dict | No
     ).fetchone()
 
 
+def _closure_details(connection: Connection, aggregation_id: int) -> dict | None:
+    closure = _effective_closure(connection, aggregation_id)
+    if closure is None:
+        return None
+    source = connection.execute(
+        """SELECT id, aggregation_number, title, date_closed FROM aggregations
+           WHERE id=%s AND current_user_can_view_aggregation(id)""",
+        (closure["id"],),
+    ).fetchone()
+    return source if source else {"restricted": True}
+
+
+@app.get("/api/v1/records/{record_id}/effective-closure", tags=["records"])
+@operation_policy("resource_scoped", "record.view", "record.view")
+def get_effective_record_closure(record_id: int, connection: Connection = Depends(get_connection, scope="function")):
+    record = require_resource_operation(connection, "record", record_id, "record.view", "record.view", lock=False)
+    return {"closure": _closure_details(connection, record["aggregation_id"])}
+
+
 @app.get("/api/v1/aggregations/{aggregation_id}/effective-closure", tags=["aggregations"])
 @operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def get_effective_aggregation_closure(
@@ -1406,13 +1425,7 @@ def get_effective_aggregation_closure(
         "aggregation.view", "aggregation.view",
         lock=False,
     )
-    closure = _effective_closure(connection, aggregation_id)
-    if closure is not None:
-        closure = connection.execute(
-            "SELECT id, aggregation_number, title, date_closed FROM aggregations WHERE id=%s",
-            (closure["id"],),
-        ).fetchone()
-    return {"closure": closure}
+    return {"closure": _closure_details(connection, aggregation_id)}
 
 
 def _governance_basis(connection: Connection, security_level_ids: list[int]) -> list[dict]:

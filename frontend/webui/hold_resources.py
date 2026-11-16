@@ -4,7 +4,7 @@ import asyncio
 from typing import Any
 from nicegui import background_tasks, ui
 from .api_client import ApiError
-from .i18n_catalogue import render_message
+from .i18n_catalogue import render_message, render_message_plain
 
 
 def build_hold_resources(
@@ -86,6 +86,42 @@ def build_hold_resources(
         background_tasks.create(load_hold_page(0, None))
 
 
+    def render_effective_holds(effective_holds, resource_type, resource_id, refresh_page, close):
+        direct = render_message_plain("webui.render_workspace_right.badge.direct_5942e4ad")
+        inherited = render_message_plain("webui.render_workspace_right.badge.inherited_47a9f6bf")
+        sources = {"direct": direct, "inherited": inherited, "both": f"{direct} · {inherited}"}
+        for item in effective_holds:
+            with ui.card().classes("w-full shadow-none border border-amber-200 bg-amber-50 p-4"):
+                if item.get("code"):
+                    with ui.row().classes("w-full items-center gap-2"):
+                        ui.badge(item["code"],color="amber").props("outline")
+                        ui.label(item["name"]).classes("font-semibold text-slate-900")
+                    ui.label(render_message("webui.show_effective_holds_dialog.label.protection_source_title_902b3795", title=sources[item['source']])).classes("text-sm text-slate-600")
+                    if item.get("preserve_resource_state"):
+                        ui.label(render_message("webui.show_effective_holds_dialog.label.also_preserves_metadata_and_governed_state_36554881")).classes("text-sm text-amber-900")
+                    with ui.row().classes("w-full justify-end gap-2"):
+                        async def open_this_hold(selected_id: int = item["hold_id"]) -> None:
+                            close(); await select_hold_details(selected_id)
+                        ui.button(render_message("webui.show_effective_holds_dialog.button.open_hold_c0eed5f4"), icon="open_in_new", on_click=open_this_hold).props("flat no-caps")
+                        if item.get("is_inherited") and item.get("nearest_assigned_aggregation_id"):
+                            async def open_source(source_id: int = item["nearest_assigned_aggregation_id"]) -> None:
+                                close(); await open_aggregation(await api.get("aggregations", source_id))
+                            ui.button(render_message("webui.show_effective_holds_dialog.button.open_assigning_aggregation_e0b07cd2"), icon="account_tree", on_click=open_source).props("flat no-caps")
+                        if (resource_type and resource_id is not None and item.get("is_direct")
+                                and item.get("can_manage_held_items") and item.get("direct_assignment_version") is not None):
+                            async def remove_this(selected: dict[str, Any] = item) -> None:
+                                async def remove(reason: str) -> None:
+                                    await api.remove_hold_held_item(selected["hold_id"],resource_type,resource_id,selected["direct_assignment_version"],reason)
+                                    close(); ui.notify(render_message("webui.remove.notify.direct_hold_assignment_removed_bd41d0bd"),color="positive")
+                                    if refresh_page:
+                                        result=refresh_page()
+                                        if asyncio.iscoroutine(result): await result
+                                await hold_reason_dialog("Reason for removing this direct assignment","Remove",remove)
+                            ui.button(render_message("webui.show_effective_holds_dialog.button.remove_from_this_hold_bf33546c"),icon="link_off",color="negative",on_click=remove_this).props("flat no-caps")
+                else:
+                    ui.label(render_message("webui.show_effective_holds_dialog.label.effective_hold_details_restricted_6e99756d")).classes("font-semibold text-amber-900")
+                    ui.label(render_message("webui.show_effective_holds_dialog.label.protection_source_title_902b3795", title=sources[item['source']])).classes("text-sm text-slate-600")
+
     def show_effective_holds_dialog(
         effective_holds: list[dict[str, Any]], resource_type: str | None = None,
         resource_id: int | None = None, refresh_page: Any = None,
@@ -99,39 +135,9 @@ def build_hold_resources(
                     ui.label(render_message("webui.show_effective_holds_dialog.label.these_holds_currently_restrict_deletion_di_b25c7cfe")).classes("text-sm text-slate-600")
             ui.separator()
             with ui.column().classes("w-full gap-3 overflow-y-auto"):
-                for item in effective_holds:
-                    with ui.card().classes("w-full shadow-none border border-amber-200 bg-amber-50 p-4"):
-                        if item.get("code"):
-                            with ui.row().classes("w-full items-center gap-2"):
-                                ui.badge(item["code"],color="amber").props("outline")
-                                ui.label(item["name"]).classes("font-semibold text-slate-900")
-                            ui.label(render_message("webui.show_effective_holds_dialog.label.protection_source_title_902b3795", title=item['source'].title())).classes("text-sm text-slate-600")
-                            if item.get("preserve_resource_state"):
-                                ui.label(render_message("webui.show_effective_holds_dialog.label.also_preserves_metadata_and_governed_state_36554881")).classes("text-sm text-amber-900")
-                            with ui.row().classes("w-full justify-end gap-2"):
-                                async def open_this_hold(selected_id: int = item["hold_id"]) -> None:
-                                    dialog.close(); await select_hold_details(selected_id)
-                                ui.button(render_message("webui.show_effective_holds_dialog.button.open_hold_c0eed5f4"), icon="open_in_new", on_click=open_this_hold).props("flat no-caps")
-                                if item.get("is_inherited") and item.get("nearest_assigned_aggregation_id"):
-                                    async def open_source(source_id: int = item["nearest_assigned_aggregation_id"]) -> None:
-                                        dialog.close(); await open_aggregation(await api.get("aggregations", source_id))
-                                    ui.button(render_message("webui.show_effective_holds_dialog.button.open_assigning_aggregation_e0b07cd2"), icon="account_tree", on_click=open_source).props("flat no-caps")
-                                if (resource_type and resource_id is not None and item.get("is_direct")
-                                        and item.get("can_manage_held_items") and item.get("direct_assignment_version") is not None):
-                                    async def remove_this(selected: dict[str, Any] = item) -> None:
-                                        async def remove(reason: str) -> None:
-                                            await api.remove_hold_held_item(selected["hold_id"],resource_type,resource_id,selected["direct_assignment_version"],reason)
-                                            dialog.close(); ui.notify(render_message("webui.remove.notify.direct_hold_assignment_removed_bd41d0bd"),color="positive")
-                                            if refresh_page:
-                                                result=refresh_page()
-                                                if asyncio.iscoroutine(result): await result
-                                        await hold_reason_dialog("Reason for removing this direct assignment","Remove",remove)
-                                    ui.button(render_message("webui.show_effective_holds_dialog.button.remove_from_this_hold_bf33546c"),icon="link_off",color="negative",on_click=remove_this).props("flat no-caps")
-                        else:
-                            ui.label(render_message("webui.show_effective_holds_dialog.label.effective_hold_details_restricted_6e99756d")).classes("font-semibold text-amber-900")
-                            ui.label(render_message("webui.show_effective_holds_dialog.label.protection_source_title_902b3795", title=item['source'].title())).classes("text-sm text-slate-600")
+                render_effective_holds(effective_holds, resource_type, resource_id, refresh_page, dialog.close)
             ui.button(render_message("webui.show_effective_holds_dialog.button.close_7cfb3209"),on_click=dialog.close).props("flat no-caps").classes("self-end")
         dialog.open()
 
 
-    return add_resource_to_hold_dialog, show_effective_holds_dialog
+    return add_resource_to_hold_dialog, show_effective_holds_dialog, render_effective_holds

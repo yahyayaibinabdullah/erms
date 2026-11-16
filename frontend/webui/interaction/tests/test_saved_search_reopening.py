@@ -42,6 +42,7 @@ async def test_reopen_canonical_definition_is_editable_clean_and_semantically_pr
         update_saved_search=AsyncMock())
     deps={name:Mock() for name in inspect.signature(build_advanced_search).parameters}
     deps.update(api=api,advanced_search_state=state,collection_state={},aggregation_state={},
+        get_configuration=lambda: {'SEARCH_RESULTS_PAGE_SIZE': 25},
         get_principal=lambda:principal,get_resource=lambda:'advanced-search',
         error_message=str,format_timestamp=lambda _:'Fixed date')
     @ui.page('/saved-reopen')
@@ -104,6 +105,7 @@ async def test_saved_search_chooser_pages_applied_filters_and_scope_changes_only
     principal = {'user': {'id': 1}, 'global_privileges': ['record.view']}
     deps = {name: Mock() for name in inspect.signature(build_advanced_search).parameters}
     deps.update(api=api, advanced_search_state={}, collection_state={}, aggregation_state={},
+                get_configuration=lambda: {'SEARCH_RESULTS_PAGE_SIZE': 25},
                 get_principal=lambda: principal,
                 get_resource=lambda: 'advanced-search', error_message=str,
                 format_timestamp=lambda _: 'Fixed date', localized_editor_entity=lambda _, key: key)

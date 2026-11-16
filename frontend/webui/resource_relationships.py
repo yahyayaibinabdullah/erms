@@ -2,6 +2,7 @@
 import asyncio
 from html import escape
 from nicegui import ui, context
+from .creator_labels import creator_text
 from .api_client import ApiError
 from .i18n_catalogue import render_message_plain
 from .locale_services import current_locale_context
@@ -44,6 +45,7 @@ def link_row(item, can_link):
     target = item['related']
     return {**item, 'target_label': text('redacted') if target['redacted'] else
             ' · '.join(str(part) for part in (target['number'], target['title']) if part),
+            'creator_label': '' if target['redacted'] else creator_text(target),
             'status': text('active' if item['is_active'] else 'deactivated'),
             'can_open': not target['redacted'], 'can_remove': can_link and not target['redacted']}
 
@@ -178,7 +180,8 @@ async def relationship_panel(*, api, kind, identity, source_label, can_link, act
                                   column('status', 'status'), column('actions', 'actions')],
                          fetch=fetch, active=alive, on_error=on_error, empty='empty')
         page.table.add_slot('body-cell-target_label', '''
-            <q-td :props="props"><span dir="auto">{{ props.row.target_label }}</span></q-td>''')
+            <q-td :props="props"><span dir="auto">{{ props.row.target_label }}</span>
+            <div v-if="props.row.creator_label" dir="auto" class="text-xs text-slate-600">{{ props.row.creator_label }}</div></q-td>''')
         page.table.add_slot('body-cell-actions', '''
             <q-td :props="props"><div class="row items-center no-wrap gap-1">
             <q-btn v-if="props.row.can_open" flat dense icon="open_in_new" aria-label="''' + escape(text('open')) + '''"
@@ -205,6 +208,8 @@ async def relationship_panel(*, api, kind, identity, source_label, can_link, act
                 ui.label(source_label).props('dir=auto')
                 ui.label(row['label'])
                 ui.label(row['target_label']).props('dir=auto')
+                if row.get('creator_label'):
+                    ui.label(row['creator_label']).classes('text-xs text-slate-600').props('dir=auto')
                 feedback = ui.label('').classes('text-negative').props('role=alert')
                 async def commit():
                     if not alive() or not dialog.value:

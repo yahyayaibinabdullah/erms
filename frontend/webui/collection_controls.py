@@ -31,7 +31,7 @@ def compact_search_payload(spec, view: dict) -> dict:
 
 
 def build_collection_loader(
-    api: Any, *, get_resource: Callable[[], str], get_query: Callable,
+    api: Any, *, get_configuration, get_resource: Callable[[], str], get_query: Callable,
     pages: dict, compact_states: dict, accept_results: Callable,
     decorate_for_spec: Callable, decorate_record_search_components: Callable,
     page_client: Any, set_connection_status: Callable, render_table: Callable,
@@ -55,7 +55,8 @@ def build_collection_loader(
         try:
             if spec.key in {"aggregations", "records"}:
                 previous = compact_states.get(spec.key, {})
-                view = {"filter": "", "sort": "number", "page": 1, "page_size": 10,
+                default_size = get_configuration()["SEARCH_RESULTS_PAGE_SIZE"]
+                view = {"filter": "", "sort": "number", "page": 1, "page_size": default_size,
                         **previous, **(compact_state or {})}
                 if compact_state is None and (not repeat_search or not previous):
                     view.update(query=(get_query() or "").strip(), page=1, unclassified_roots=False)

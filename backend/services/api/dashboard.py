@@ -12,6 +12,8 @@ from .application_settings import cache
 from .application_configuration import ui_configuration, recent_since_default
 from .entity_localization import localized_projection, preferred_language
 from .dashboard_visibility import VISIBILITY_CTES
+from .creator_attribution import add_creator_names
+from .favourites import favourite_preview
 
 
 router = APIRouter(prefix="/api/v1/dashboard", tags=["dashboard"])
@@ -29,6 +31,7 @@ def dashboard_reviews(
     state: Literal["overdue", "upcoming"] = Query(...),
     limit: int = Query(500, ge=1, le=500),
     offset: int = Query(0, ge=0),
+    lookahead: bool = False,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     comparison = (
@@ -36,8 +39,9 @@ def dashboard_reviews(
         f"date_of_next_review>CURRENT_TIMESTAMP AND date_of_next_review<=({REVIEW_WINDOW_END_SQL})"
     )
     settings = cache.for_connection(connection)
-    parameters = (settings["REVIEW_WARNING_WINDOW_DAYS"], settings["REVIEW_WARNING_WINDOW_DAYS"], limit, offset) if state == "upcoming" else (limit, offset)
-    return list(connection.execute(
+    fetch_limit = limit + int(lookahead)
+    parameters = (settings["REVIEW_WARNING_WINDOW_DAYS"], settings["REVIEW_WARNING_WINDOW_DAYS"], fetch_limit, offset) if state == "upcoming" else (fetch_limit, offset)
+    items = list(connection.execute(
         f"""WITH RECURSIVE {VISIBILITY_CTES}, reviewable AS (
           SELECT 'aggregation'::text entity_type,id entity_id,date_of_next_review,title,aggregation_number,NULL::text record_number
           FROM authorized_aggregations WHERE date_of_next_review IS NOT NULL
@@ -49,6 +53,8 @@ def dashboard_reviews(
         ) SELECT * FROM reviewable WHERE {comparison} ORDER BY date_of_next_review ASC,entity_type,entity_id LIMIT %s OFFSET %s""",
         parameters,
     ).fetchall())
+    add_creator_names(connection, ((row["entity_type"], row) for row in items[:limit]), id_key="entity_id")
+    return items
 
 
 def _resource_metrics(connection: Connection, review_window_days: int, review_preview_limit: int,
@@ -267,6 +273,18 @@ def dashboard_summary(
     DASHBOARD_REVIEW_PREVIEW_LIMIT = min(settings["DASHBOARD_REVIEW_PREVIEW_LIMIT"], 50)
     resource_metrics = _resource_metrics(connection, REVIEW_WARNING_WINDOW_DAYS, DASHBOARD_REVIEW_PREVIEW_LIMIT,
                                          recent_limit, recent_since)
+    favourite_rows = favourite_preview(resource_metrics["favourite_aggregations"], resource_metrics["favourite_records"],
+                                       settings["DASHBOARD_FAVOURITE_ITEM_LIMIT"])
+    for _, favourite in favourite_rows:
+        favourite["entity_id"] = favourite["id"]
+    # Reuse one batch for the returned dashboard lists and only the visible favourite preview.
+    activity_rows = [
+        (row["entity_type"], row) for section in ("recent_activity", "overdue_reviews", "upcoming_reviews")
+        for row in resource_metrics[section]
+    ]
+    add_creator_names(connection, favourite_rows + activity_rows, id_key="entity_id")
+    for _, favourite in favourite_rows:
+        favourite.pop("entity_id")
     privileges = set(resource_metrics["privileges"])
     overview_counts = {
         resource: sum(row["total"] for row in resource_metrics[resource])

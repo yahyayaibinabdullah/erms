@@ -6,6 +6,7 @@ from typing import Any, Callable
 from nicegui import background_tasks, ui
 from .api_client import ApiError
 from .i18n_catalogue import render_message_plain
+from .creator_labels import creator_text
 
 def relationship_options(
     rows: list[dict[str, Any]], label_fields: tuple[str, ...], *,
@@ -88,6 +89,11 @@ def build_relationship_selector(api: Any, *, error_message: Callable[[ApiError],
                 include_level_number=resource == "security-levels",
                 level_label=security_level_label,
             )
+            named_rows = [row for row in rows if row.get("created_by")]
+            if named_rows:
+                with control:
+                    for row in named_rows:
+                        options[row["id"]] += " · " + creator_text(row)
             if option_reason is not None:
                 disabled = request_state.setdefault("disabled", {})
                 for row in rows:

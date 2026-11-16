@@ -15,8 +15,10 @@ def click(user,label,root=None):
     choices=list(root.descendants()) if root else user.find(ui.button).elements
     click_one(user,[b for b in choices if isinstance(b,ui.button) and plain(b)==label and 'erms-nav-link' not in b.classes])
 async def opened(user):
-    await eventually(lambda:any(d.value for d in user.find(ui.dialog).elements) and user.pending_requests==0)
-    return max((d for d in user.find(ui.dialog).elements if d.value),key=lambda d:d.id)
+    def editor_dialogs():
+        return [d for d in user.find(ui.dialog).elements if d.value and 'resource-details-dialog' not in d.classes]
+    await eventually(lambda:bool(editor_dialogs()) and user.pending_requests==0)
+    return max(editor_dialogs(),key=lambda d:d.id)
 async def saved(user,d):await eventually(lambda:not d.value and user.pending_requests==0)
 
 
@@ -49,8 +51,13 @@ async def test_record_acl_write_reopens_fresh_and_explains_access(assembled):
     click_one(user,[b for b in user.find(ui.button).elements if plain(b)==t('webui.index.button.search_4d02b714') and 'unelevated' in b.props and 'dense' not in b.props])
     await eventually(lambda:any(b.props.get('aria-label')=='Open record' for b in user.find(ui.button).elements))
     click_one(user,[b for b in user.find(ui.button).elements if b.props.get('aria-label')=='Open record'])
-    await eventually(lambda:current_page(user)=='record-details' and user.pending_requests==0)
+    await eventually(lambda:current_page(user)=='record-details' and user.pending_requests==0
+                     and any('resource-detail-header' in e.classes for e in user.client.elements.values()))
+    click(user,t('resource_details.details'))
+    def advanced_actions():
+        return next(e for e in user.client.elements.values() if 'resource-advanced-actions' in e.classes)
     await eventually(lambda:any(plain(b)==t('webui.select_record_details.button.access_489ef75d') for b in user.find(ui.button).elements))
+    with user:advanced_actions().open()
     original_access=next(b.id for b in user.find(ui.button).elements if plain(b)==t('webui.select_record_details.button.access_489ef75d'))
     click(user,t('webui.select_record_details.button.access_489ef75d'))
     d=await opened(user)
@@ -66,6 +73,7 @@ async def test_record_acl_write_reopens_fresh_and_explains_access(assembled):
     await eventually(lambda:any(b.id!=original_access and plain(b)==t('webui.select_record_details.button.access_489ef75d') for b in user.find(ui.button).elements))
     acl=await api.resource_acl('records',identifier)
     assert not acl['inherit_acl_from_parent']
+    with user:advanced_actions().open()
     click(user,t('webui.select_record_details.button.access_489ef75d'))
     d=await opened(user)
     assert not next(e for e in d.descendants() if isinstance(e,ui.switch)).value

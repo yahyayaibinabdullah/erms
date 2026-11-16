@@ -8,11 +8,6 @@ CHILD_AGGREGATION_CLASSIFICATION_HELP = (
 )
 
 
-AGGREGATION_SUMMARY_LAYOUT_CLASSES = (
-    "detail-surface aggregation-command-summary shadow-none flex-1 min-w-[520px] p-5 gap-4"
-)
-
-
 def direct_classification_label(classification_path: list[dict[str, Any]]) -> str:
     """Format only the classification directly assigned to the aggregation."""
     if not classification_path:

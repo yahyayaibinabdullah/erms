@@ -6154,6 +6154,23 @@
       "phase_12_enforced": false
     },
     {
+      "id": "GET:/api/v1/records/{record_id}/effective-closure",
+      "method": "GET",
+      "path": "/api/v1/records/{record_id}/effective-closure",
+      "current_access_class": "authenticated_only",
+      "target_policy_class": "resource_scoped",
+      "global_privilege": "record.view",
+      "resource_permission": "record.view",
+      "phase_0_enforced": false,
+      "phase_4_enforced": false,
+      "phase_5_enforced": false,
+      "phase_7_enforced": false,
+      "phase_8_enforced": false,
+      "phase_9_enforced": false,
+      "phase_11_enforced": false,
+      "phase_12_enforced": false
+    },
+    {
       "id": "GET:/api/v1/records/{record_id}/history",
       "method": "GET",
       "path": "/api/v1/records/{record_id}/history",

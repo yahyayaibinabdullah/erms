@@ -25,21 +25,28 @@ def check_components(page):
     parent=page.api.post('/api/v1/aggregations/search',json={'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,'offset':0}).json()['items'][0]
     response=page.api.post('/api/v1/aggregations',json={'aggregation_number':'COMP-AGG','title':'Component fixture','classification_id':parent['classification_id'],'medium':'digital'});response.raise_for_status();aggregation=response.json()
     def icon(name,scope=None):return page.wait.until(lambda _:next((b for b in page.visible('button',scope) if any(i.text==name for i in b.find_elements('css selector','.q-icon'))),False))
-    def cards():return page.visible('.component-card')
-    def capture(name):page.capture('components-'+name+'-'+page.language,target=page.one('.component-list') if name in {'empty','cards','reordered','removed','removed-last'} else None)
+    def cards():return page.visible('.record-file-row')
+    def capture(name):page.capture('components-'+name+'-'+page.language,target=page.one('.record-file-list') if name in {'empty','rows','reordered','removed','removed-last'} else None)
+    def expand(row):
+        control=page.one('.record-file-disclosure',scope=row)
+        if control.get_attribute('aria-expanded')=='false':
+            page.activate(control)
+            page.wait.until(lambda _:control.get_attribute('aria-expanded')=='true')
     def enter(number):
         page.drawer('records');page.wait.until(lambda _:len(page.visible('.dashboard-personal-panel'))==2)
         page.fill(page.t('webui.index.input.search_by_number_title_or_description_e21ed520'),number)
         page.click(page.t('webui.index.button.search_4d02b714'),page.one('.erms-card'))
         page.one('button[aria-label="Open record"]',scope=page.one('.compact-result-item')).click()
-        page.one('.record-uploader')
+        page.one('.record-component-uploader')
+        page.one('.resource-detail-header .resource-detail-parent')
     for language in ('en','ar'):
         if language=='ar':page.settings();page.language_change('ar')
         number='COMP-'+language.upper()
         response=page.api.post('/api/v1/records',json={'aggregation_id':aggregation['id'],'record_number':number,'title':'Component fixture record','medium':'digital'});response.raise_for_status();record=response.json()
         with page.check('native saved-file upload and repeated component entry'):
-            enter(number);page.one('.component-grid .col-span-full');capture('empty')
-            page.driver.find_element('css selector','.record-uploader input[type=file]').send_keys(str((fixture/'image.png').resolve())+'\n'+str((fixture/'document.pdf').resolve()))
+            enter(number);page.one('.record-file-list .col-span-full');capture('empty')
+            page.see(page.t('components.record.add'))
+            page.driver.find_element('css selector','.record-component-uploader input[type=file]').send_keys(str((fixture/'image.png').resolve())+'\n'+str((fixture/'document.pdf').resolve()))
             page.wait.until(lambda _:len(cards())==2)
             # Stabilize fixture dates only; application writes remain unmodified.
             subprocess.run([page.args.api_python,'-c','''
@@ -50,7 +57,88 @@ with psycopg.connect(url) as c:
  c.execute("SELECT set_config('app.event_source','seeding',true)")
  c.execute("UPDATE digital_components SET date_created='2026-01-01',date_originated='2026-01-01'")
 '''],check=True,timeout=30)
-            page.settings();enter(number);page.wait.until(lambda _:len(cards())==2);capture('cards')
+            page.settings();enter(number);page.wait.until(lambda _:len(cards())==2);capture('rows')
+            assert not page.visible('.record-file-list .col-span-full')
+            assert not page.visible('.record-component-drop-target')
+        with page.check('the containing aggregation opens from the record header'):
+            page.activate(page.one('.resource-detail-header .resource-detail-parent'))
+            result=page.wait.until(lambda _:next((row for row in page.visible('.compact-result-row') if number in row.text),False))
+            page.activate(page.one('button[aria-label="Open record"]',scope=result))
+            page.one('.record-component-uploader')
+            page.wait.until(lambda _:len(cards())==2)
+        with page.check('file drags show a page target and save through the chooser upload path'):
+            target=page.one('.record-file-list')
+            def drag(kind, files=True):
+                page.driver.execute_script("""
+                    const transfer = new DataTransfer();
+                    if (arguments[2]) {
+                        transfer.items.add(new File(['Component fixture'], 'dropped.txt', {type: 'text/plain'}));
+                        transfer.items.add(new File(['Second fixture'], 'second-drop.txt', {type: 'text/plain'}));
+                    } else {
+                        transfer.setData('text/plain', 'Component fixture');
+                    }
+                    arguments[0].dispatchEvent(new DragEvent(arguments[1], {bubbles: true, cancelable: true, dataTransfer: transfer}));
+                """,target,kind,files)
+            drag('dragenter',False)
+            assert not page.visible('.record-component-drop-target')
+            drag('dragenter')
+            page.one('.record-component-drop-target')
+            drag('dragleave')
+            page.wait.until(lambda _:not page.visible('.record-component-drop-target'))
+            drag('dragenter')
+            drag('drop')
+            page.wait.until(lambda _:len(cards())==4 and not page.visible('.record-component-drop-target'))
+            for name in ('second-drop.txt','dropped.txt'):
+                row=page.one('.record-file-name',name).find_element('xpath',"ancestor::*[contains(@class, 'record-file-row')][1]")
+                expand(row)
+                started=len(page.events())
+                page.activate(icon('delete_outline',row))
+                page.wait.until(EC.staleness_of(row))
+                page.wait.until(lambda _:not any(name in new_row.text for new_row in cards()))
+                page.wait.until(lambda _:any(e['method']=='DELETE' and e['status']==204 for e in page.events()[started:]))
+            assert len(cards())==2
+        if page.args.browser in {'chrome','edge'}:
+            with page.check('narrow file rows and disclosure fit the reading direction'):
+                page.errors()
+                page.driver.execute_cdp_cmd('Emulation.setDeviceMetricsOverride',
+                                            {'width':390,'height':820,'deviceScaleFactor':1,'mobile':False})
+                try:
+                    page.wait.until(lambda _:page.driver.execute_script("""
+                        return innerWidth === 390 && document.querySelector('.record-file-list').clientWidth > 280
+                    """))
+                    row=cards()[0]
+                    control=page.one('.record-file-disclosure',scope=row)
+                    control.send_keys(Keys.ENTER)
+                    page.wait.until(lambda _:control.get_attribute('aria-expanded')=='true')
+                    assert page.driver.execute_script("""
+                        const fits = [...document.querySelectorAll('.record-file-list,.record-file-row,.resource-detail-header')]
+                            .every(node => node.scrollWidth <= node.clientWidth + 1);
+                        const row = document.querySelector('.record-file-row');
+                        const name = row.querySelector('.record-file-disclosure').getBoundingClientRect();
+                        const actions = row.querySelector('.record-file-summary').getBoundingClientRect();
+                        return fits && name.width >= row.clientWidth * .9 && actions.top >= name.bottom;
+                    """)
+                    capture('narrow-expanded')
+                    page.activate(page.one('.record-file-disclosure',scope=row))
+                finally:
+                    page.driver.execute_cdp_cmd('Emulation.clearDeviceMetricsOverride',{})
+                    page.driver.execute_async_script("""
+                        const done = arguments[0];
+                        requestAnimationFrame(() => requestAnimationFrame(() => done()));
+                    """)
+                    # Chrome reports deferred ResizeObserver work when the
+                    # viewport changes. Keep that diagnostic in the report
+                    # and continue to fail on every other browser error.
+                    deferred=page.driver.execute_script("""
+                        const errors = window.__webuiTestErrors || [];
+                        const isDeferredResize = error => error.eventType === 'ErrorEvent'
+                            && error.message === 'ResizeObserver loop completed with undelivered notifications.';
+                        window.__webuiTestErrors = errors.filter(error => !isDeferredResize(error));
+                        return errors.filter(isDeferredResize);
+                    """)
+                    if deferred:
+                        page.report.setdefault('viewport_resize_diagnostics',[]).extend(deferred)
+                    page.errors()
         with page.check('image/PDF switching, viewer keyboard focus, zoom and cleanup'):
             url=page.driver.current_url;history=page.driver.execute_script('return history.length')
             page.activate(icon('visibility',cards()[0]));d=page.one('.q-dialog__inner > .q-card')
@@ -64,25 +152,27 @@ with psycopg.connect(url) as c:
             page.activate(icon('close',d));page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
             assert page.driver.current_url==url and page.driver.execute_script('return history.length')==history
         with page.check('component ordering and removal refresh through the real API'):
-            page.activate(icon('arrow_downward',cards()[0]));page.wait.until(lambda _:page.visible('.component-filename')[0].text=='document.pdf')
+            expand(cards()[0])
+            page.activate(icon('arrow_downward',cards()[0]));page.wait.until(lambda _:page.visible('.record-file-name')[0].text=='document.pdf')
+            expand(cards()[0])
             capture('reordered');started=len(page.events());page.activate(icon('delete_outline',cards()[0]))
             page.wait.until(lambda _:len(cards())==1 and any(e['method']=='DELETE' and e['path'].startswith('/api/v1/digital-components/') and e['status']==204 for e in page.events()[started:]))
-            assert page.visible('.component-filename')[0].text=='image.png'
+            page.one('.record-file-name', 'image.png')
             result=page.api.post('/api/v1/digital-components/search',json={'where':{'field':'record_id','operator':'eq','value':record['id']},'limit':25,'offset':0});result.raise_for_status()
             assert result.json()['total']==1
             page.see(page.t('webui.remove_component.notify.digital_component_removed_3af94a83'))
-            # The optimistic redraw retains the old total; only the automatic API
-            # refresh can update this pager to the authoritative remaining count.
-            page.wait.until(lambda _:any(plain(e.text)=='1–1 / 1' for e in page.visible('.component-grid .q-badge')))
+            page.wait.until(lambda _:any(e['method']=='POST' and e['path']=='/api/v1/digital-components/search'
+                                         and e['status']==200 for e in page.events()[started:]))
+            assert not page.visible('.record-file-list .justify-center.pt-3 button')
             deletion_events=page.events()[started:]
             assert len([e for e in deletion_events if e['method']=='DELETE'])==1
             capture('removed')
-            started=len(page.events());page.activate(icon('delete_outline',cards()[0]))
+            started=len(page.events());expand(cards()[0]);page.activate(icon('delete_outline',cards()[0]))
             page.see(page.t('webui.remove_component.notify.digital_component_removed_3af94a83'))
             page.wait.until(lambda _:not cards() and any(e['method']=='DELETE' and e['status']==204 for e in page.events()[started:]))
             page.wait.until(lambda _:any(e['method']=='POST' and e['path']=='/api/v1/digital-components/search' and e['status']==200 for e in page.events()[started:]))
             page.see(page.t('webui.render_current_components.label.no_digital_components_have_been_uploaded_y_3f61a29a'))
-            assert not page.visible('.component-grid button')
+            assert not page.visible('.record-file-list button')
             assert len([e for e in page.events()[started:] if e['method']=='DELETE'])==1
             capture('removed-last')
             page.report.setdefault('deletion_refresh',[]).append({'language':language,
@@ -247,7 +337,11 @@ with psycopg.connect(disposable_url()) as c:
             page_files()
             row = compact('records', record_id)
             page.activate(page.one('button[aria-label="Open record"]', scope=row))
-            page.one('.component-list')
+            rows = page.one('.record-file-list')
+            page.wait.until(lambda _:len(page.visible('.record-file-row', rows)) == 25)
+            page.click(page.t('webui.render_entity_compact_results.accessible_name.next_page_66adc3fc'), rows)
+            page.one('.record-file-name', 'Pending fixture 26.pdf', scope=rows)
+            assert 'Pending fixture 1.pdf' not in rows.text
             dialog, _ = open_viewer(
                 lambda:page.click(page.t('webui.select_record_details.accessible_name.preview_digital_components_d68f8cab')),
                 'Preview fixture 52.pdf', 1,

@@ -78,16 +78,16 @@ def check_collection_paging(page):
         for resource, prefix in (('records', 'PAGING-REC-'), ('aggregations', 'PAGING-AGG-')):
             with page.check(f'{resource} search reaches matches after 100'):
                 search(resource, prefix)
-                see_range(1, 10, 103)
+                see_range(1, 25, 103)
                 page.fill(page.t(primary), 'Unsubmitted primary search')
                 page_click(last)
                 see_range(101, 103, 103)
                 page.see(prefix + '102')
                 assert page.field(page.t(primary)).get_attribute('value') == 'Unsubmitted primary search'
                 open_label, detail_header, back = (
-                    ('Open record', '.record-detail-header-actions', 'webui.select_record_details.button.back_f6cea7ff')
+                    ('Open record', '.resource-detail-header', 'webui.select_record_details.button.back_f6cea7ff')
                     if resource == 'records' else
-                    ('Open aggregation', '.aggregation-detail-header-actions', 'webui.open_aggregation.button.back_4d496e53')
+                    ('Open aggregation', '.resource-detail-header', 'webui.open_aggregation.button.back_4d496e53')
                 )
                 row = page.wait.until(lambda _:next((item for item in page.visible('.compact-result-item')
                                                     if prefix + '102' in plain(item.text)), False))
@@ -139,7 +139,7 @@ def check_collection_paging(page):
             page.see(label)
             card = page.wait.until(lambda _:next((e for e in page.visible('.q-card.cursor-pointer') if label in plain(e.text)), False))
             page.activate(card)
-            see_range(1, 10, 103)
+            see_range(1, 25, 103)
             page_click(last)
             see_range(101, 103, 103)
             page.see('PAGING-ROOT-102')

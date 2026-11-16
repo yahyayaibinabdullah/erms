@@ -3,6 +3,8 @@ from typing import Any
 from fastapi import HTTPException
 from psycopg import Connection, sql
 
+from .creator_attribution import add_resource_page_creators
+
 
 READ_VISIBILITY = {
     "aggregations": sql.SQL("current_user_can_view_aggregation(id)"),
@@ -141,7 +143,9 @@ def list_rows(
     query += sql.SQL(" LIMIT %s OFFSET %s")
     parameters.extend((limit, offset))
     rows = list(connection.execute(query, parameters).fetchall())
-    return redact_hidden_relationships(connection, table, rows)
+    items = redact_hidden_relationships(connection, table, rows)
+    add_resource_page_creators(connection, table, items)
+    return items
 
 
 def create_row(connection: Connection, table: str, values: dict[str, Any]) -> dict[str, Any]:

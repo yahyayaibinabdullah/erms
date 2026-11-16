@@ -160,7 +160,7 @@ def test_dashboard_reviews_fetches_one_small_page_with_lookahead():
     assert asyncio.run(exercise()) == []
     assert captured == {
         "path": "/api/v1/dashboard/reviews",
-        "params": {"state": "overdue", "limit": "26", "offset": "50"},
+        "params": {"state": "overdue", "limit": "25", "offset": "50", "lookahead": "true"},
     }
 
 

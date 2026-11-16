@@ -75,5 +75,6 @@ INSERT INTO schema_migrations(version) VALUES
  ('109_search_candidate_indexes'),
  ('110_search_cache_cleanup_settings'),
  ('111_shared_search_results_cache'),
- ('112_search_vector_storage');
+ ('112_search_vector_storage'),
+ ('113_aggregation_listing_page_sizes');
 COMMIT;

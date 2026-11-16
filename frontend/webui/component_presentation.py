@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 from html import escape as html_escape
 from nicegui import ui
+from nicegui.element import Element
 from backend.services.component_formats import CONVERTIBLE_EXTENSIONS as CONVERTIBLE_PREVIEW_EXTENSIONS
 from backend.services.component_formats import native_preview_kind
 from .i18n_catalogue import render_message
@@ -72,7 +73,30 @@ def component_is_previewable(component: dict[str, Any], *, staged: bool = False)
     )
 
 
-def component_uploader(on_multi_upload, *, label: str | None = None):
+class RecordComponentDropTarget(Element, component="record_component_drop_target.js"):
+    def __init__(self, uploader, page):
+        super().__init__()
+        self._props["uploaderId"] = uploader.id
+        self._props["pageId"] = page.id
+        with self, ui.card().classes("items-center gap-2 px-6 py-5 text-center"):
+            ui.avatar(icon="cloud_upload", color="blue-1", text_color="primary").props("rounded")
+            ui.label(render_message("components.record.drop")).classes("font-semibold")
+
+
+def component_uploader(on_multi_upload, *, label: str | None = None, compact: bool = False):
+    if compact:
+        add_label = render_message("components.record.add")
+        uploader = ui.upload(
+            on_multi_upload=on_multi_upload, label=add_label, auto_upload=True, multiple=True,
+        ).props("no-thumbnails").classes("record-component-uploader")
+        uploader.add_slot("header", f"""
+            <q-btn outline dense no-caps color="primary" icon="add"
+                :loading="props.isUploading" @click="props.pickFiles" label="{html_escape(add_label)}">
+              <q-uploader-add-trigger />
+            </q-btn>
+        """)
+        return uploader
+
     component_label = label or render_message("webui.open_record_draft_editor.label.digital_components_21c9474b")
     component_guidance = render_message("webui.select_record_details.label.files_belonging_to_this_record_can_be_mana_7c78350c")
     browse_label = render_message("navigation.item.organization_browser")

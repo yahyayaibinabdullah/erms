@@ -7,6 +7,7 @@ from psycopg.errors import CheckViolation, ForeignKeyViolation, InsufficientPriv
 from psycopg.types.json import Jsonb
 from pydantic import BaseModel, ConfigDict, Field
 
+from .creator_attribution import add_creator_names
 from .operation_policy import operation_policy
 from .authentication import principal_from_request
 from .authorization_policy import require_global_privilege
@@ -204,11 +205,13 @@ def targets(kind: Kind, resource_id: int, q: str = Query('', max_length=200),
     if selected_id is None and len(q.strip()) < 2:
         return {'items': []}
     query = '%' + q.strip().replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_') + '%'
-    return {'items': c.execute(f'''SELECT id,{number} AS number,title FROM {table}
+    items = c.execute(f'''SELECT id,{number} AS number,title FROM {table}
         WHERE id<>%s AND current_user_can_view_{kind}(id)
         AND ((%s::bigint IS NOT NULL AND id=%s) OR (%s::bigint IS NULL AND (title ILIKE %s OR {number} ILIKE %s OR description ILIKE %s)))
         ORDER BY {number},id LIMIT %s''',
-        (resource_id, selected_id, selected_id, selected_id, query, query, query, limit)).fetchall()}
+        (resource_id, selected_id, selected_id, selected_id, query, query, query, limit)).fetchall()
+    add_creator_names(c, ((kind, item) for item in items))
+    return {'items': items}
 
 
 @router.post('/{kind}/{resource_id}', status_code=201,
@@ -281,4 +284,5 @@ def list_links(kind: Kind, resource_id: int, language_tag: Language = 'en',
                       'is_active': row['is_active'], 'date_created': row['link_created_at'],
                       'related': {'id': row['related_id'], 'number': row['related_number'], 'title': row['related_title'],
                                   'redacted': row['related_id'] is None}})
+    add_creator_names(c, ((kind, item['related']) for item in items))
     return {'items': items, 'total': total, 'limit': limit, 'offset': offset}

@@ -394,10 +394,13 @@ service identity, legal hold, or similarly consequential resource.
 - At narrower widths, the command column moves below the overview without
   hiding actions or changing their order.
 
-Record details retain the complete Digital Components interface immediately
-after the record overview/metadata region. Do not move components into a
-separate primary destination or require an additional dialog merely to reach
-the list.
+Aggregation details place Child aggregations and Records in this aggregation
+immediately below a compact header. Each section shows its count and creation
+action together. Record details place the complete Digital Components interface
+immediately below the header. Both pages use the
+[Details dialog](../specs/aggregation-and-record-page-amendment.md) for metadata
+and governed actions. Metadata comes first in reading order. Its action column
+shows common actions and keeps specialist actions under Advanced.
 
 Do not turn a detail page into a vertical sequence of unrelated full-width
 panels when a compact overview and command rail communicate the task better.
@@ -517,8 +520,8 @@ with isolated statistic cards or a decorative chart.
 
 The stages mean Current (active), Intermediate (semi-active), and Final
 disposition. The vertical blue line and stage markers express sequence. On an
-aggregation detail page, the retention panel sits beside the primary metadata
-surface and wraps below it on narrower viewports. Child-aggregation and record
+aggregation detail page, the retention panel is in the Retention rule tab of
+the Details dialog. Child-aggregation and record
 totals appear once in the metadata field named **Contains** and are not repeated
 as oversized statistics.
 
@@ -862,6 +865,17 @@ or documented style surface rather than duplicating them.
 
 ### 19.1 NiceGUI-first layout and RTL troubleshooting
 
+The record page uses native NiceGUI rows, disclosure buttons, and upload
+controls for digital components. Inspection of the old layout showed that the
+upload queue displayed its own empty state even when the separate list held
+files, and the card grid limited each file to part of the available width.
+The record page now puts the native upload trigger in the section header and
+uses the file list for the empty state. NiceGUI Upload handles the chooser,
+multiple selection, and transport. Its native drop area is limited to the
+uploader, so the record page uses a scoped overlay that passes dropped files
+to the same Quasar uploader. A container query wraps row actions at narrow
+widths, and the closed disclosure chevron mirrors in RTL.
+
 The sign-in page restores document and dialog direction before authentication,
 using the remembered localization context. Previously the direction script
 ran during authenticated bootstrap, leaving signed-out portal content without
@@ -954,6 +968,21 @@ See [RTL desktop evidence](verification/retention-rtl/arabic.png) and
 
 The shared action-panel correction and verification are documented in
 [detail action RTL verification](detail-action-rtl-verification.md).
+
+The Aggregation Details dialog previously put single-line retention summaries
+directly in an expansion. Browser inspection showed that the expansion stayed
+502 px wide while its unwrapped children grew past 900 px. The expansion now
+uses a bounded NiceGUI column, one row per classification level, and wrapping
+labels for titles and instructions. The existing timeline's horizontal arrows
+are hidden at narrow dialog widths, where the stages stack in reading order.
+The metadata action column reuses the scoped button icon treatment. The
+row-direction rule stays on rows, so Arabic buttons stack in the same order as
+English with leading icons at the reading start.
+At phone widths the identity and actions wrap onto separate rows when they
+cannot fit side by side. Explicit flex bases reserve space for the identity
+and filter field because this NiceGUI build does not bundle the corresponding
+Tailwind utilities. Contained record rows reuse the existing result grid. At
+phone widths their actions occupy the second row so titles have room to read.
 
 The shared Users, Roles, and Organization Units item-card header uses a native
 NiceGUI three-column grid: icon, wrapping title/identity, and trailing status

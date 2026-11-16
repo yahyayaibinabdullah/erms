@@ -29,8 +29,8 @@ def build_resource_collection_results(
                 value=result_state.get("sort", "number"), label=render_message("webui.render_entity_compact_results.select.sort_by_26eae3a9"),
             ).props("outlined dense options-dense").classes("w-44")
             page_size_control = ui.select(
-                {10: "10", 25: "25", 50: "50", 100: "100"},
-                value=int(result_state.get("page_size", 10)), label=render_message("webui.render_entity_compact_results.select.per_page_d6d26cbd"),
+                {size: str(size) for size in sorted({10, 25, 50, 100, result_state["page_size"]})},
+                value=result_state["page_size"], label=render_message("webui.render_entity_compact_results.select.per_page_d6d26cbd"),
             ).props("outlined dense options-dense").classes("w-28")
         cap_notice = ui.label().classes("text-sm text-slate-500 px-5")
         summary = ui.label().classes("text-sm text-slate-500 px-5")
@@ -110,7 +110,7 @@ def build_resource_collection_results(
 
         async def change_controls() -> None:
             await load_page(1, filter=str(filter_control.value or ""),
-                            sort=sort_control.value, page_size=int(page_size_control.value or 10))
+                            sort=sort_control.value, page_size=int(page_size_control.value or result_state["page_size"]))
 
         filter_control.on_value_change(change_controls)
         sort_control.on_value_change(change_controls)

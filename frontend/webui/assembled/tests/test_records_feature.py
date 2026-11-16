@@ -27,7 +27,7 @@ async def test_record_draft_validation_staging_commit_and_metadata(assembled,med
     def fields(d):return {plain(e).removesuffix(' *'):e for e in d.descendants() if isinstance(e,(ui.input,ui.select,ui.textarea,ui.number))}
     add=t('webui.index.button.add_record_fc8125c4')
     await eventually(lambda:current_page(user)=='aggregation-details' and any(b.visible for b in buttons(add)) and user.pending_requests==0)
-    click_one(user,buttons(add));d=await opened(user);await eventually(lambda:user.pending_requests==0)
+    click_one(user,[b for b in buttons(add) if b.visible]);d=await opened(user);await eventually(lambda:user.pending_requests==0)
     f=fields(d);assert f['Aggregation'].value==parent['id'] and f['Aggregation'].props.get('readonly')
     assert f['Medium'].value==medium and not f['Medium'].enabled
     commit=t('webui.open_record_draft_editor.button.create_record_dd0193d6')
@@ -50,9 +50,18 @@ async def test_record_draft_validation_staging_commit_and_metadata(assembled,med
     row=created_rows()[0]
     click_one(user,[b for b in row.descendants() if isinstance(b,ui.button) and b.props.get('aria-label')=='Open record'])
     edit=t('webui.select_record_details.button.edit_metadata_d7742b94')
-    await eventually(lambda:bool(buttons(edit)) and any('component-grid' in e.classes and e.id>buttons(edit)[0].id and list(e.descendants()) for e in user.client.elements.values()) and user.pending_requests==0)
-    old=buttons(edit)[0].id;click_one(user,buttons(edit));d=await opened(user)
+    await eventually(lambda:current_page(user)=='record-details' and any(
+        'resource-detail-header' in e.classes and any(isinstance(label,ui.label) and plain(label)=='DRAFT-'+medium for label in e.descendants())
+        for e in user.client.elements.values()) and user.pending_requests==0)
+    click_one(user,buttons(t('resource_details.details')))
+    await eventually(lambda:bool(buttons(edit)) and user.pending_requests==0)
+    old=buttons(edit)[0].id;click_one(user,buttons(edit))
+    def editor_dialogs():
+        return [d for d in user.client.elements.values() if isinstance(d,ui.dialog) and d.value and 'Title' in fields(d)]
+    await eventually(lambda:bool(editor_dialogs()) and user.pending_requests==0)
+    d=editor_dialogs()[0]
     with user:fields(d)['Title'].value='Updated '+medium+' record'
-    click_one(user,buttons('Save',d));await eventually(lambda:not d.value and any(b.id!=old for b in buttons(edit)) and user.pending_requests==0)
+    click_one(user,buttons('Save',d))
+    await eventually(lambda:any(b.id!=old for b in buttons(edit)) and user.pending_requests==0)
     assert (await api.get('records',created['id']))['title']=='Updated '+medium+' record'
     assert not user.api_failures

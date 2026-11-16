@@ -184,6 +184,8 @@ def test_sys_admin_grant_does_not_grant_settings_to_governance_profiles(client):
 
 
 @pytest.mark.parametrize("key,value", [
+    ("CHILD_AGGREGATION_PAGE_SIZE", 0), ("CONTAINED_RECORD_PAGE_SIZE", 101),
+    ("SEARCH_RESULTS_PAGE_SIZE", True),
     ("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", 0), ("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", True),
     ("CONTENT_SEGMENT_SIZE_BYTES", 67108865), ("AUTH_PASSWORD_MIN_LENGTH", 7),
     ("DISPOSITION_DESTRUCTION_REVIEW_ROUTE", "other"),
@@ -199,6 +201,18 @@ def test_invalid_setting_keeps_all_submitted_values_and_history_unchanged(client
     assert items(client) == before
     with db() as c:
         assert c.execute("SELECT count(*) AS count FROM event_history WHERE entity_type='application_setting'").fetchone()["count"] == count
+
+
+def test_listing_page_sizes_are_independent_application_settings(client):
+    response = client.get('/api/v1/application-configuration')
+    assert response.status_code == 200
+    defaults = {'CHILD_AGGREGATION_PAGE_SIZE': 10, 'CONTAINED_RECORD_PAGE_SIZE': 25, 'SEARCH_RESULTS_PAGE_SIZE': 25}
+    assert {key: response.json()[key] for key in defaults} == defaults
+    values = {'CHILD_AGGREGATION_PAGE_SIZE': 7, 'CONTAINED_RECORD_PAGE_SIZE': 18, 'SEARCH_RESULTS_PAGE_SIZE': 30}
+    response = save(client, values)
+    assert response.status_code == 200, response.text
+    effective = client.get('/api/v1/application-configuration').json()
+    assert {key: effective[key] for key in values} == values
 
 
 def test_reason_unknown_keys_deployment_values_and_generic_crud_are_rejected(client):

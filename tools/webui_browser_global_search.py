@@ -9,7 +9,7 @@ from tools.check_webui_browser import plain
 
 def check_global_search(page):
     response=page.api.post('/api/v1/aggregations/search',json={'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,'offset':0});response.raise_for_status();parent=response.json()['items'][0]
-    for i in range(27):
+    for i in range(52):
         response=page.api.post('/api/v1/aggregations',json={'aggregation_number':f'QS-{i:02}','title':f'Quasararchive aggregation {i:02}','classification_id':parent['classification_id'],'medium':'physical','date_opened':'2026-01-01T00:00:00Z'});response.raise_for_status()
     for i in range(2):
         response=page.api.post('/api/v1/records',json={'record_number':f'QS-REC-{i:02}','title':f'Quasararchive record {i:02}','aggregation_id':parent['id'],'medium':'physical','date_originated':'2026-01-01T00:00:00Z'});response.raise_for_status()
@@ -44,7 +44,7 @@ with psycopg.connect(url) as c:
     def requests():
         return sum(e['path']=='/api/v1/full-text-search' for e in page.events())
     def totals():
-        for kind,count in [('all',29),('records',2),('aggregations',27)]:
+        for kind,count in [('all',54),('records',2),('aggregations',52)]:
             page.button(page.t(f'global_search.filter.{kind}').format(count=count))
     def capture(name):page.capture('global-'+name+'-'+page.language)
     for language in ('en','ar'):
@@ -60,11 +60,11 @@ with psycopg.connect(url) as c:
             page.report.setdefault('focus',[]).append({'language':language,'sequence':['query','clear','submit']})
             totals()
             count=requests()
-            assert len(page.visible('.compact-result-item'))==10;capture('first')
-            next_page();assert len(page.visible('.compact-result-item'))==10;assert requests()==count+1;totals();capture('second')
-            next_page();assert len(page.visible('.compact-result-item'))==9;assert requests()==count+2;totals();capture('third')
+            assert len(page.visible('.compact-result-item'))==25;capture('first')
+            next_page();assert len(page.visible('.compact-result-item'))==25;assert requests()==count+1;totals();capture('second')
+            next_page();assert len(page.visible('.compact-result-item'))==4;assert requests()==count+2;totals();capture('third')
             previous=page.t('webui.render_global_search_results.accessible_name.previous_page_571d7f79')
-            page.click(previous);page.wait.until(lambda _:len(page.visible('.compact-result-item'))==10)
+            page.click(previous);page.wait.until(lambda _:len(page.visible('.compact-result-item'))==25)
             assert requests()==count+3
             page.click(page.t('global_search.filter.records').format(count=2));page.wait.until(lambda _:len(page.visible('.compact-result-item'))==2);capture('records')
             totals()
@@ -79,7 +79,7 @@ with psycopg.connect(url) as c:
             original_tab = tab_id()
             original_search = cached_slots()[original_tab]
             original_count = len(cached_slots())
-            page.reload();page.wait.until(lambda _:len(page.visible('.compact-result-item'))==10);capture('reload')
+            page.reload();page.wait.until(lambda _:len(page.visible('.compact-result-item'))==25);capture('reload')
             assert tab_id() == original_tab
             assert cached_slots()[original_tab] != original_search
             assert len(cached_slots()) == original_count
@@ -91,7 +91,7 @@ with psycopg.connect(url) as c:
             page.wait.until(lambda _:len(page.driver.window_handles) == 2)
             duplicate = next(w for w in page.driver.window_handles if w != original_window)
             page.driver.switch_to.window(duplicate)
-            page.wait.until(lambda _:len(page.visible('.compact-result-item')) == 10)
+            page.wait.until(lambda _:len(page.visible('.compact-result-item')) == 25)
             duplicate_tab = tab_id()
             assert duplicate_tab != original_tab
             assert original_tab in cached_slots() and duplicate_tab in cached_slots()
@@ -116,9 +116,9 @@ with psycopg.connect(url) as c:
 """],check=True,timeout=30)
             count=requests()
             next_page()
-            assert len(page.visible('.compact-result-item'))==9 and requests()==count+2
+            assert len(page.visible('.compact-result-item'))==4 and requests()==count+2
             page.click(previous)
-            page.wait.until(lambda _:len(page.visible('.compact-result-item'))==10)
+            page.wait.until(lambda _:len(page.visible('.compact-result-item'))==25)
             assert [plain(row.text) for row in page.visible('.compact-result-item')]==second
             assert requests()==count+3
             totals();page.errors()
@@ -142,7 +142,7 @@ with psycopg.connect(url) as c:
             page.wait.until(lambda _:page.visible('.dashboard-personal-panel'))
             primary = page.t('webui.index.input.search_by_number_title_or_description_e21ed520')
             page.fill(primary, 'Quasararchive');page.field(primary).send_keys(Keys.ENTER)
-            page.wait.until(lambda _:len(page.visible('.compact-result-item')) == 10)
+            page.wait.until(lambda _:len(page.visible('.compact-result-item')) == 25)
             filter_id = cached_slots()[active_tab]
             assert filter_id != advanced_id and len(cached_slots()) == slot_count
             page.drawer('advanced_search');page.one('.advanced-search-page')
@@ -150,7 +150,7 @@ with psycopg.connect(url) as c:
             # Even edited but unsubmitted controls must not alter the rebuild.
             page.fill(criterion, 'Unsubmitted absent draft')
             page.click(page.t('webui.select_advanced_search.accessible_name.next_page_d75b42e2'))
-            page.wait.until(lambda _:len(page.visible('.compact-result-item')) == 2)
+            page.wait.until(lambda _:len(page.visible('.compact-result-item')) == 25)
             assert all('Quasararchive' in plain(item.text) for item in page.visible('.compact-result-item'))
             assert cached_slots()[active_tab] not in {advanced_id, filter_id}
             assert len(cached_slots()) == slot_count

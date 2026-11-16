@@ -17,10 +17,11 @@ def build(values):
     from frontend.webui.components import build_components
     return build_components(**values,error_message=host.error_message,render_component_cards=host.render_component_cards)
 
-async def setup(user,*,closed=False,medium='digital',allowed=True,language='en',inline=False,row_count=2):
+async def setup(user,*,closed=False,medium='digital',allowed=True,language='en',inline=False,row_count=2,record_page=False):
     rows=[dict(id=i,version=3,file_name=f'Fixture {i}.png',mime_type='image/png',content_status='available',component_order=i,size_in_bytes=1) for i in range(1,row_count+1)]
     caps={k:allowed for k in ('add_component','view_component','download_component','print_component','reindex_components','reorder_components','remove_component')}
-    api=SimpleNamespace(effective_aggregation_closure=AsyncMock(return_value={'aggregation_number':'CLOSED','title':'Closed fixture'} if closed else None),resource_capabilities=AsyncMock(return_value=caps),component_page=AsyncMock(side_effect=lambda *a,**kw:{'items':list(rows),'total':len(rows)}),component_indexing_status=AsyncMock(return_value={'status':'indexed'}),move_component=AsyncMock(),delete_component=AsyncMock(),download_component=AsyncMock(return_value=b'fixture bytes'),reindex_component=AsyncMock(return_value={'status':'queued'}),upload_component=AsyncMock())
+    api=SimpleNamespace(effective_record_closure=AsyncMock(return_value={'aggregation_number':'CLOSED','title':'Closed fixture'} if closed else None),resource_capabilities=AsyncMock(return_value=caps),component_page=AsyncMock(side_effect=lambda *a,**kw:{'items':list(rows),'total':len(rows)}),component_indexing_status=AsyncMock(return_value={'status':'indexed'}),move_component=AsyncMock(),delete_component=AsyncMock(),download_component=AsyncMock(return_value=b'fixture bytes'),reindex_component=AsyncMock(return_value={'status':'queued'}),upload_component=AsyncMock())
+    api.component_count=AsyncMock(side_effect=lambda _:len(rows))
     values=dict(api=api,show_entity_history=AsyncMock(),preview_record_components=AsyncMock())
     record={'id':11,'aggregation_id':9,'record_number':'FIX','medium':medium}
     @ui.page('/component-feature')
@@ -28,13 +29,19 @@ async def setup(user,*,closed=False,medium='digital',allowed=True,language='en',
         messages={r['message_key']:r['translated_text'] for r in json.loads((Path(__file__).parents[2]/'i18n/messages.ar.generated.json').read_text())['items']} if language=='ar' else {}
         set_active_messages(messages)
         values['show']=build(values)
-        if inline:
+        if record_page:
+            with ui.column() as page_host:
+                upload_host=ui.column()
+                values['container']=ui.column()
+            values['upload_host']=upload_host
+            await values['show'](record,container=values['container'],upload_host=upload_host,drop_scope=page_host)
+        elif inline:
             values['container']=ui.column()
             await values['show'](record,container=values['container'])
         else:
             await values['show'](record)
     await user.open('/component-feature')
-    d=values['container'] if inline else max((d for d in user.find(ui.dialog).elements if d.value),key=lambda d:d.id)
+    d=values['container'] if inline or record_page else max((d for d in user.find(ui.dialog).elements if d.value),key=lambda d:d.id)
     return api,values,rows,record,d
 
 def buttons(d,icon):return [e for e in d.descendants() if isinstance(e,ui.button) and e.props.get('icon')==icon]
@@ -119,19 +126,24 @@ async def test_move_refresh_history_preview_download_and_reindex(user,failure,mo
     click(user,buttons(d,'manage_search')[0]);await settle();api.reindex_component.assert_awaited_once_with(1)
     assert rows[0]['_indexing']['status']=='queued'
 
-async def test_upload_batch_uses_current_total_and_refreshes_each_accepted_file(user):
+@pytest.mark.parametrize('partial_failure',[False,True])
+async def test_upload_batch_uses_current_total_and_refreshes_saved_files(user,partial_failure):
     api,v,rows,record,d=await setup(user)
     def uploaded(identity,position,name,content,mime):
+        if partial_failure and name=='b.png':
+            raise ApiError(409,'Upload rejected')
         rows.append(dict(id=position,version=1,file_name=name,mime_type=mime,content_status='pending',component_order=position,size_in_bytes=len(content)))
     api.upload_component.side_effect=uploaded
     uploader=next(e for e in d.descendants() if isinstance(e,ui.upload))
     with user:uploader._multi_upload_handlers[0](SimpleNamespace(contents=[BytesIO(b'a'),BytesIO(b'b')],names=['a.png','b.png'],types=['image/png','image/png']))
     await settle()
     assert [c.args for c in api.upload_component.await_args_list]==[(11,3,'a.png',b'a','image/png'),(11,4,'b.png',b'b','image/png')]
-    assert api.component_page.await_count==4 and len(buttons(d,'delete_outline'))==4
+    api.component_count.assert_awaited_once_with(11)
+    assert api.component_page.await_count==2 and len(buttons(d,'delete_outline'))==(3 if partial_failure else 4)
 
 async def test_last_page_deletion_returns_to_the_remaining_page(user):
-    api,v,rows,record,d=await setup(user)
+    api,v,rows,record,d=await setup(user,row_count=26)
+    del rows[2:]
     page_calls=[]
     def page(identity,**kw):
         page_calls.append(kw['offset'])
@@ -139,7 +151,6 @@ async def test_last_page_deletion_returns_to_the_remaining_page(user):
     api.component_page.side_effect=page
     # Invoke the current pager callback: a concurrent removal has shortened the result.
     next_button=buttons(d,'chevron_right')[0]
-    next_button.enable()
     click(user,next_button);await settle()
     assert page_calls==[25,0]
     assert len(buttons(d,'delete_outline'))==2
@@ -151,4 +162,23 @@ async def test_failed_upload_preserves_existing_cards_and_stops_the_batch(user):
     with user:uploader._multi_upload_handlers[0](SimpleNamespace(contents=[BytesIO(b'a'),BytesIO(b'b')],names=['a.png','b.png'],types=['image/png','image/png']))
     await settle()
     assert api.upload_component.await_count==1
-    assert len(buttons(d,'delete_outline'))==2 and api.component_page.await_count==2
+    assert len(buttons(d,'delete_outline'))==2 and api.component_page.await_count==1
+
+
+@pytest.mark.parametrize('closed,medium,allowed',[(False,'digital',True),(True,'digital',True),(False,'physical',True),(False,'digital',False)])
+async def test_record_file_rows_and_drop_target_follow_access(user,closed,medium,allowed):
+    from frontend.webui.component_presentation import RecordComponentDropTarget
+
+    api, values, _, _, container = await setup(user,record_page=True,closed=closed,medium=medium,allowed=allowed)
+    upload_host=values['upload_host']
+    assert any(isinstance(e,RecordComponentDropTarget) for e in upload_host.descendants()) == (not closed and medium=='digital' and allowed)
+    first=next(b for b in container.descendants() if isinstance(b,ui.button) and 'record-file-disclosure' in b.classes)
+    assert first.props['aria-expanded']=='false'
+    assert not api.component_indexing_status.await_count
+    click(user,first)
+    await settle()
+    assert first.props['aria-expanded']=='true'
+    assert api.component_indexing_status.await_count==int(allowed)
+    click(user,first)
+    await settle()
+    assert first.props['aria-expanded']=='false'

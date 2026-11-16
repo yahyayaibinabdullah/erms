@@ -128,9 +128,9 @@ def test_hold_mutations_collect_reasons_and_refresh_live_state():
     assert 'Reason for removing this direct assignment' in source
     assert 'Remove all directly assigned holds? Protection inherited from parent aggregations will remain.' in source
     assert 'api.effective_holds("record", record_id)' in source
-    assert 'api.effective_holds("aggregation", current["id"])' in source
-    assert 'effective_holds, "record", record_id' in source
-    assert 'effective_holds, "aggregation", current["id"]' in source
+    assert 'api.effective_holds("aggregation", identifier)' in source
+    assert 'render_effective_holds(holds, "record", record_id' in source
+    assert 'render_effective_holds(holds, "aggregation", identifier' in source
     assert 'Remove from this hold' in source
 
 
@@ -143,30 +143,15 @@ def test_hold_editor_datetime_conversion_uses_application_timezone_without_javas
     assert "Dates currently use the application timezone." in source
 
 
-def test_aggregation_command_centre_matches_the_approved_two_column_layout():
+def test_aggregation_details_reuse_hold_actions_and_retention_timeline():
     source = with_english_messages(hold_sources())
-    assert '"aggregation-command-layout w-full p-5"' in source
-    assert '"Aggregation overview"' in source
-    assert '"detail-surface aggregation-actions-panel shadow-none p-4 gap-3"' in source
-    assert '"Metadata and review"' in source
-    assert '"Lifecycle"' in source
-    assert '"Security, access and audit"' in source
-    assert '"detail-surface aggregation-hold-controls shadow-none p-4 gap-3"' in source
-    assert '"Hold controls"' in source
+    retention = (APP.parent / "retention_timeline.py").read_text()
+    assert 'render_effective_holds(holds, "aggregation", identifier' in source
     assert '"Remove direct holds"' in source
-    assert '"aggregation-child-preview-grid mx-5 mb-3"' in source
-    assert 'for child in children:' in source
-    assert 'f"{child[\'aggregation_number\']} · {child_status}"' in source
-    assert '"aggregation-retention-stages w-full"' in (APP.parent / "retention_timeline.py").read_text()
-    assert '"aggregation-retention-footer detail-action-row w-full"' in source
-    assert 'grid-column: 1 / -1; grid-row: 2' in source
-    assert '"w-full text-sm font-semibold text-slate-800"' in (APP.parent / "retention_timeline.py").read_text()
-    assert 'disposition_label(rule["final_disposition"])' in (APP.parent / "retention_timeline.py").read_text()
-    assert '.aggregation-retention-stage:not(:last-child)::after' in source
-    assert 'padding-inline-start: 30px' in source
+    assert '"aggregation-child-preview-grid w-full"' in source
+    assert '"aggregation-retention-stages w-full"' in retention
+    assert 'disposition_label(rule["final_disposition"])' in retention
     assert 'html[dir="rtl"] .aggregation-retention-stage:not(:last-child)::after' in source
-    assert 'content: "←"' in source
-    assert '.aggregation-overview-actions .q-btn' in source
 
 
 def test_access_explainer_renders_redaction_safe_hold_constraints():

@@ -108,6 +108,11 @@ filename order for upgrades newer than its recorded baseline. A fresh canonical
 installation must not replay older files merely because their historical marker
 is absent.
 
+Migration **113** adds the application settings for child aggregation,
+contained record, and search result page sizes. It adds defaults of 10, 25,
+and 25 and preserves values already present. Apply it before restarting the
+API and WebUI with code that reads those settings.
+
 Migration **079** originally omitted its history insert. Use the corrected
 `079_disposition_admission_reason.sql` from the current checkout when reconciling
 an existing installation. It records its version and is safe to repeat. If

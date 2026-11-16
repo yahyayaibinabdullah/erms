@@ -16,6 +16,7 @@ from .hold_notifications import notify_assignments
 from .entity_localization import localize_rows, localized_projection, preferred_language
 from .resource_authorization import require_resource_operation
 from .authorization_policy import require_global_privilege
+from .creator_attribution import add_creator_names
 
 
 router = APIRouter(prefix="/api/v1", tags=["legal holds"])
@@ -137,6 +138,7 @@ class HoldPage(BaseModel):
 
 
 class HoldHeldItemResponse(BaseModel):
+    created_by: str | None = None
     id: int
     version: int
     resource_type: Literal["aggregation", "record"]
@@ -161,6 +163,7 @@ class HoldHeldItemPage(BaseModel):
 
 
 class CandidateResponse(BaseModel):
+    created_by: str | None = None
     resource_type: Literal["aggregation", "record"]
     resource_id: int
     number: str
@@ -538,6 +541,7 @@ def list_hold_held_item_candidates(
         + " ORDER BY lower(number),resource_type,resource_id LIMIT %s OFFSET %s",
         (*parameters, limit, offset),
     ).fetchall()
+    add_creator_names(connection, ((row["resource_type"], row) for row in items), id_key="resource_id")
     return {"items": list(items), "total": total, "limit": limit, "offset": offset}
 
 
@@ -581,6 +585,7 @@ def list_hold_held_items(
         + f" ORDER BY {order} {'DESC' if descending else 'ASC'},resource_type,resource_id LIMIT %s OFFSET %s",
         (*parameters,limit,offset),
     ).fetchall()
+    add_creator_names(connection, ((row["resource_type"], row) for row in rows), id_key="resource_id")
     language_tag = preferred_language(connection, request)
     for row in rows:
         for field in ("assigned_by", "security_level"):

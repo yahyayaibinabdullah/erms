@@ -24,6 +24,7 @@ def collection_loader(scope):
     page_client.connected = AsyncMock()
     page_client.tab_id = 'e2170d62-e82f-4718-a4c6-375eb00c7c49'
     return build_collection_loader(scope['api'],
+        get_configuration=lambda: {'SEARCH_RESULTS_PAGE_SIZE': 25},
         get_resource=lambda:state['resource'],
         get_query=lambda:getattr(scope.get('search_input'),'value',''),
         pages=state.setdefault('collection_pages',{}),
