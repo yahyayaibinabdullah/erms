@@ -81,6 +81,7 @@ _DEFINITIONS = (
     integer("CHILD_AGGREGATION_PAGE_SIZE", "interface_limits", 10, "Child aggregations per page", "Number of child aggregations shown per page in aggregation details.", maximum=100),
     integer("CONTAINED_RECORD_PAGE_SIZE", "interface_limits", 25, "Contained records per page", "Number of records shown per page in aggregation details.", maximum=100),
     integer("SEARCH_RESULTS_PAGE_SIZE", "interface_limits", 25, "Search results per page", "Default page size for Global Search, Advanced Search, and aggregation and record filters.", maximum=100),
+    integer("MESSAGES_PAGE_SIZE", "interface_limits", 25, "Messages per page", "Number of entries per page in Inbox, Outbox, and Drafts. Enter a whole number from 1 to 50. The default is 25. Changes apply when a mailbox is opened again.", maximum=50),
     Setting("FULL_TEXT_SEARCH_ENABLED", "search", "boolean", False, "Full-text search enabled", "Availability of API-enforced full-text search."),
     Setting("CONTENT_INDEXING_SCHEDULING_ENABLED", "search", "boolean", False, "Content indexing scheduling enabled", "Schedule API-owned content indexing work."),
     integer("CONTENT_INDEXING_HISTORY_RETENTION_DAYS", "search", 365, "Indexing history retention", "Content indexing history retention in days.", 0),

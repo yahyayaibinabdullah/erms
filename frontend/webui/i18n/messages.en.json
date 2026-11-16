@@ -20968,6 +20968,20 @@
     "is_html": false
   },
   {
+    "message_key": "messaging.action.apply_filters",
+    "context_group": "messaging.workspace",
+    "default_text": "Apply filters",
+    "semantic_meaning": "Submits selected mailbox filters and starts at the first page.",
+    "common_locations": [
+      "Inbox, Outbox, Drafts, or message Compose"
+    ],
+    "translator_guidance": "Use the established mailbox names. Keep the action or instruction short.",
+    "grammatical_role": "label or message",
+    "parameter_schema": {},
+    "rendered_example": "Apply filters",
+    "is_html": false
+  },
+  {
     "message_key": "messaging.action.browse_recipients",
     "context_group": "messaging.action",
     "default_text": "Browse organization structure",
@@ -20993,6 +21007,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Cancel",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.action.clear_filters",
+    "context_group": "messaging.workspace",
+    "default_text": "Clear filters",
+    "semantic_meaning": "Clears all applied mailbox filters.",
+    "common_locations": [
+      "Inbox, Outbox, Drafts, or message Compose"
+    ],
+    "translator_guidance": "Use the established mailbox names. Keep the action or instruction short.",
+    "grammatical_role": "label or message",
+    "parameter_schema": {},
+    "rendered_example": "Clear filters",
     "is_html": false
   },
   {
@@ -21024,6 +21052,20 @@
     "is_html": false
   },
   {
+    "message_key": "messaging.action.filters",
+    "context_group": "messaging.workspace",
+    "default_text": "Filters",
+    "semantic_meaning": "Opens the available mailbox filters.",
+    "common_locations": [
+      "Inbox, Outbox, Drafts, or message Compose"
+    ],
+    "translator_guidance": "Use the established mailbox names. Keep the action or instruction short.",
+    "grammatical_role": "label or message",
+    "parameter_schema": {},
+    "rendered_example": "Filters",
+    "is_html": false
+  },
+  {
     "message_key": "messaging.action.follow_up",
     "context_group": "messaging.action",
     "default_text": "Send follow-up",
@@ -21049,6 +21091,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Forward",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.action.more",
+    "context_group": "messaging.workspace",
+    "default_text": "More message actions",
+    "semantic_meaning": "Tooltip and accessible name for the menu containing permitted message actions.",
+    "common_locations": [
+      "Inbox, Outbox, Drafts, or message Compose"
+    ],
+    "translator_guidance": "Use the established mailbox names. Keep the action or instruction short.",
+    "grammatical_role": "label or message",
+    "parameter_schema": {},
+    "rendered_example": "More message actions",
     "is_html": false
   },
   {
@@ -21091,6 +21147,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Open amended message",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.action.open_draft",
+    "context_group": "messaging.workspace",
+    "default_text": "Open in Drafts",
+    "semantic_meaning": "Opens the saved message in the Drafts editor after a successful save.",
+    "common_locations": [
+      "Inbox, Outbox, Drafts, or message Compose"
+    ],
+    "translator_guidance": "Use the established mailbox names. Keep the action or instruction short.",
+    "grammatical_role": "label or message",
+    "parameter_schema": {},
+    "rendered_example": "Open in Drafts",
     "is_html": false
   },
   {
@@ -21217,6 +21287,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Send",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.action.view_sent",
+    "context_group": "messaging.workspace",
+    "default_text": "View in Outbox",
+    "semantic_meaning": "Opens the sent message in Outbox after successful delivery.",
+    "common_locations": [
+      "Inbox, Outbox, Drafts, or message Compose"
+    ],
+    "translator_guidance": "Use the established mailbox names. Keep the action or instruction short.",
+    "grammatical_role": "label or message",
+    "parameter_schema": {},
+    "rendered_example": "View in Outbox",
     "is_html": false
   },
   {
@@ -22920,21 +23004,6 @@
     "is_html": false
   },
   {
-    "message_key": "messaging.field.resources",
-    "context_group": "messaging",
-    "default_text": "Resources",
-    "semantic_meaning": "Heading for resources attached separately below a message body.",
-    "common_locations": [
-      "Compose attachment panel",
-      "Delivered and sent message resource panels"
-    ],
-    "translator_guidance": "Records and aggregations linked to the message, separate from authored body text.",
-    "grammatical_role": "heading",
-    "parameter_schema": {},
-    "rendered_example": "Resources",
-    "is_html": false
-  },
-  {
     "message_key": "messaging.field.role",
     "context_group": "messaging.field",
     "default_text": "Role",
@@ -22960,6 +23029,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Search subject",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.field.search_body",
+    "context_group": "messaging.workspace",
+    "default_text": "Search message body",
+    "semantic_meaning": "Filter mailbox results by text in the visible message body.",
+    "common_locations": [
+      "Inbox, Outbox, and Drafts filters"
+    ],
+    "translator_guidance": "Use a concise input label describing the part of the message being searched.",
+    "grammatical_role": "input label",
+    "parameter_schema": {},
+    "rendered_example": "Search message body",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.field.search_linked_content",
+    "context_group": "messaging.workspace",
+    "default_text": "Search linked content",
+    "semantic_meaning": "Filter mailbox results by indexed content in linked resources.",
+    "common_locations": [
+      "Inbox, Outbox, and Drafts filters"
+    ],
+    "translator_guidance": "Use a concise input label describing the part of the message being searched.",
+    "grammatical_role": "input label",
+    "parameter_schema": {},
+    "rendered_example": "Search linked content",
     "is_html": false
   },
   {
@@ -23173,6 +23270,20 @@
     "is_html": false
   },
   {
+    "message_key": "messaging.kind.system_notice",
+    "context_group": "messaging.workspace",
+    "default_text": "System notification",
+    "semantic_meaning": "Badge identifying a notification generated by Wathiq.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "badge",
+    "parameter_schema": {},
+    "rendered_example": "System notification",
+    "is_html": false
+  },
+  {
     "message_key": "messaging.linked.title",
     "context_group": "messaging.linked",
     "default_text": "Earlier linked message",
@@ -23184,6 +23295,51 @@
     "grammatical_role": "heading",
     "parameter_schema": {},
     "rendered_example": "Earlier linked message",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.list.last_updated",
+    "context_group": "messaging.workspace",
+    "default_text": "Last updated",
+    "semantic_meaning": "Sort order for the draft list, with the most recently updated drafts first.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "sort label",
+    "parameter_schema": {},
+    "rendered_example": "Last updated",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.list.newest_first",
+    "context_group": "messaging.workspace",
+    "default_text": "Newest first",
+    "semantic_meaning": "Sort order in Inbox and Outbox, with the newest messages first.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "sort label",
+    "parameter_schema": {},
+    "rendered_example": "Newest first",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.list.page_range",
+    "context_group": "messaging.workspace",
+    "default_text": "{first}–{last}",
+    "semantic_meaning": "First and last positions on the current mailbox page.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Preserve both placeholders and the compact range format.",
+    "grammatical_role": "pagination status",
+    "parameter_schema": {
+      "first": "integer",
+      "last": "integer"
+    },
+    "rendered_example": "1–25",
     "is_html": false
   },
   {
@@ -24704,6 +24860,226 @@
     "is_html": false
   },
   {
+    "message_key": "messaging.outbox.completed_count",
+    "context_group": "messaging.outbox",
+    "default_text": "{completed} of {total} completed",
+    "semantic_meaning": "Recipients who completed the action out of all To recipients. Cc recipients do not count.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "Recipients who completed the action out of all To recipients. Cc recipients do not count. Preserve all placeholders.",
+    "grammatical_role": "summary",
+    "parameter_schema": {
+      "completed": "integer",
+      "total": "integer"
+    },
+    "rendered_example": "0 of 1 completed",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.delivered_count",
+    "context_group": "messaging.outbox",
+    "default_text": "{count} delivered",
+    "semantic_meaning": "Number of concrete recipients to whom this message was delivered.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "Number of concrete recipients to whom this message was delivered. Preserve all placeholders.",
+    "grammatical_role": "summary",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "2 delivered",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.due",
+    "context_group": "messaging.outbox",
+    "default_text": "Due {date}",
+    "semantic_meaning": "Effective action due date on a sent message. The date is already localized.",
+    "common_locations": [
+      "Outbox reading pane",
+      "Inbox reading pane"
+    ],
+    "translator_guidance": "Effective action due date on a sent message. The date is already localized. Preserve all placeholders.",
+    "grammatical_role": "status",
+    "parameter_schema": {
+      "date": "text"
+    },
+    "rendered_example": "Due 10 Nov 2026",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.next_recipients",
+    "context_group": "messaging.outbox",
+    "default_text": "Next recipients",
+    "semantic_meaning": "Accessible label and tooltip for the next recipients page.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "Accessible label and tooltip for the next recipients page.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Next recipients",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.no_due_date",
+    "context_group": "messaging.outbox",
+    "default_text": "No due date",
+    "semantic_meaning": "A sent message requires an action, with no effective due date.",
+    "common_locations": [
+      "Outbox reading pane",
+      "Inbox reading pane"
+    ],
+    "translator_guidance": "A sent message requires an action, with no effective due date.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "No due date",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.open_completion_reply",
+    "context_group": "messaging.outbox",
+    "default_text": "Open completion reply",
+    "semantic_meaning": "Open the recipient’s reply that acknowledged completing the original action.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "Open the recipient’s reply that acknowledged completing the original action.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Open completion reply",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.previous_recipients",
+    "context_group": "messaging.outbox",
+    "default_text": "Previous recipients",
+    "semantic_meaning": "Accessible label and tooltip for the previous recipients page.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "Accessible label and tooltip for the previous recipients page.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Previous recipients",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.priority",
+    "context_group": "messaging.outbox",
+    "default_text": "{priority} priority",
+    "semantic_meaning": "Priority badge on a sent message. The priority value is already localized.",
+    "common_locations": [
+      "Outbox reading pane",
+      "Inbox reading pane"
+    ],
+    "translator_guidance": "Priority badge on a sent message. The priority value is already localized. Preserve all placeholders.",
+    "grammatical_role": "badge",
+    "parameter_schema": {
+      "priority": "text"
+    },
+    "rendered_example": "Normal priority",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.read_count",
+    "context_group": "messaging.outbox",
+    "default_text": "{count} read",
+    "semantic_meaning": "Number of recipients who read this message. Shown only when read receipts were requested.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "Number of recipients who read this message. Shown only when read receipts were requested. Preserve all placeholders.",
+    "grammatical_role": "summary",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "0 read",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.receipt_delivered_at",
+    "context_group": "messaging.outbox",
+    "default_text": "Delivered {time}",
+    "semantic_meaning": "When the recipient’s message copy was created in their Wathiq Inbox.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "Show the in-app delivery time for one recipient. The time is already localized. Preserve {time}.",
+    "grammatical_role": "status",
+    "parameter_schema": {
+      "time": "text"
+    },
+    "rendered_example": "Delivered 11 Nov 2026, 10:30 AM",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.receipt_read_at",
+    "context_group": "messaging.outbox",
+    "default_text": "Read {time}",
+    "semantic_meaning": "First-read time shown on an individual receipt. The time is already localized.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "First-read time shown on an individual receipt. The time is already localized. Preserve all placeholders.",
+    "grammatical_role": "status",
+    "parameter_schema": {
+      "time": "text"
+    },
+    "rendered_example": "Read 11 Nov 2026, 10:41 AM",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.recipient_range",
+    "context_group": "messaging.outbox",
+    "default_text": "{first}–{last} of {total}",
+    "semantic_meaning": "First and last visible recipient positions and total number of recipients.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "First and last visible recipient positions and total number of recipients. Preserve all placeholders.",
+    "grammatical_role": "pagination status",
+    "parameter_schema": {
+      "first": "integer",
+      "last": "integer",
+      "total": "integer"
+    },
+    "rendered_example": "1–3 of 8",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.recipients",
+    "context_group": "messaging.outbox",
+    "default_text": "Recipients & receipts",
+    "semantic_meaning": "Collapsible list of the concrete recipients and their requested read receipts.",
+    "common_locations": [
+      "Outbox reading pane"
+    ],
+    "translator_guidance": "Collapsible list of the concrete recipients and their requested read receipts.",
+    "grammatical_role": "heading",
+    "parameter_schema": {},
+    "rendered_example": "Recipients & receipts",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.outbox.security",
+    "context_group": "messaging.outbox",
+    "default_text": "Security",
+    "semantic_meaning": "Short label for the message’s security classification and level.",
+    "common_locations": [
+      "Outbox reading pane",
+      "Inbox reading pane",
+      "Inline draft editor"
+    ],
+    "translator_guidance": "Short label for the message’s security classification and level.",
+    "grammatical_role": "field label",
+    "parameter_schema": {},
+    "rendered_example": "Security",
+    "is_html": false
+  },
+  {
     "message_key": "messaging.priority.high",
     "context_group": "messaging.priority",
     "default_text": "High",
@@ -24743,6 +25119,22 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Very high",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.reader.linked_resources",
+    "context_group": "messaging.reader",
+    "default_text": "Linked resources",
+    "semantic_meaning": "Heading for the records and aggregations linked by a message.",
+    "common_locations": [
+      "Inbox reading pane",
+      "Outbox reading pane",
+      "Earlier linked message dialog"
+    ],
+    "translator_guidance": "Describes resources linked to the message. Activating a resource opens its contents.",
+    "grammatical_role": "section heading",
+    "parameter_schema": {},
+    "rendered_example": "Linked resources",
     "is_html": false
   },
   {
@@ -24875,6 +25267,20 @@
     "is_html": false
   },
   {
+    "message_key": "messaging.section.action_history",
+    "context_group": "messaging.workspace",
+    "default_text": "Action history",
+    "semantic_meaning": "Disclosure for the original requested action and amendments.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "section title",
+    "parameter_schema": {},
+    "rendered_example": "Action history",
+    "is_html": false
+  },
+  {
     "message_key": "messaging.section.amendments",
     "context_group": "messaging.section",
     "default_text": "Action amendments",
@@ -24886,6 +25292,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Action amendments",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.section.deleted_draft",
+    "context_group": "messaging.workspace",
+    "default_text": "Deleted draft",
+    "semantic_meaning": "Heading of the read-only pane for a recently deleted draft.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "section title",
+    "parameter_schema": {},
+    "rendered_example": "Deleted draft",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.section.edit_draft",
+    "context_group": "messaging.workspace",
+    "default_text": "Edit draft",
+    "semantic_meaning": "Heading of the inline editor for an existing draft.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "section title",
+    "parameter_schema": {},
+    "rendered_example": "Edit draft",
     "is_html": false
   },
   {
@@ -24917,6 +25351,20 @@
     "is_html": false
   },
   {
+    "message_key": "messaging.section.new_draft",
+    "context_group": "messaging.workspace",
+    "default_text": "New draft",
+    "semantic_meaning": "Heading of the inline editor for a new draft in Drafts.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "section title",
+    "parameter_schema": {},
+    "rendered_example": "New draft",
+    "is_html": false
+  },
+  {
     "message_key": "messaging.section.original",
     "context_group": "messaging.section",
     "default_text": "Original action",
@@ -24931,17 +25379,45 @@
     "is_html": false
   },
   {
-    "message_key": "messaging.section.recipients",
-    "context_group": "messaging.section",
-    "default_text": "Recipients and status",
-    "semantic_meaning": "Human messaging interface: Recipients and status",
+    "message_key": "messaging.section.reading_pane",
+    "context_group": "messaging.workspace",
+    "default_text": "Reading pane",
+    "semantic_meaning": "Toolbar label above a received or sent message.",
     "common_locations": [
-      "Messages workspace"
+      "Messaging workspace"
     ],
-    "translator_guidance": "Preserve the messaging meaning; a message is not a record or workflow.",
-    "grammatical_role": "label",
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "section title",
     "parameter_schema": {},
-    "rendered_example": "Recipients and status",
+    "rendered_example": "Reading pane",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.section.saved_drafts",
+    "context_group": "messaging.workspace",
+    "default_text": "Saved drafts",
+    "semantic_meaning": "Heading above the list of draft messages.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "section title",
+    "parameter_schema": {},
+    "rendered_example": "Saved drafts",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.section.sent_messages",
+    "context_group": "messaging.workspace",
+    "default_text": "Sent messages",
+    "semantic_meaning": "Heading above the list of messages in Outbox.",
+    "common_locations": [
+      "Messaging workspace"
+    ],
+    "translator_guidance": "Use concise mailbox terminology.",
+    "grammatical_role": "section title",
+    "parameter_schema": {},
+    "rendered_example": "Sent messages",
     "is_html": false
   },
   {
@@ -25124,6 +25600,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Draft saved",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.state.select_draft",
+    "context_group": "messaging.workspace",
+    "default_text": "Select a draft to edit",
+    "semantic_meaning": "Shown in the Drafts editor pane before a draft is selected.",
+    "common_locations": [
+      "Inbox, Outbox, Drafts, or message Compose"
+    ],
+    "translator_guidance": "Use the established mailbox names. Keep the action or instruction short.",
+    "grammatical_role": "label or message",
+    "parameter_schema": {},
+    "rendered_example": "Select a draft to edit",
+    "is_html": false
+  },
+  {
+    "message_key": "messaging.state.select_message",
+    "context_group": "messaging.workspace",
+    "default_text": "Select a message to read",
+    "semantic_meaning": "Shown in the reading pane before a mailbox message is selected.",
+    "common_locations": [
+      "Inbox, Outbox, Drafts, or message Compose"
+    ],
+    "translator_guidance": "Use the established mailbox names. Keep the action or instruction short.",
+    "grammatical_role": "label or message",
+    "parameter_schema": {},
+    "rendered_example": "Select a message to read",
     "is_html": false
   },
   {
@@ -31328,6 +31832,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Maximum upload size",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.messages_page_size.description",
+    "context_group": "application_settings",
+    "default_text": "Number of entries per page in Inbox, Outbox, and Drafts. Enter a whole number from 1 to 50. The default is 25. Changes apply when a mailbox is opened again.",
+    "semantic_meaning": "Shared mailbox page size in Application Settings.",
+    "common_locations": [
+      "WebUI: Application Settings"
+    ],
+    "translator_guidance": "Use the mailbox navigation terms for Inbox, Outbox, and Drafts.",
+    "grammatical_role": "description",
+    "parameter_schema": {},
+    "rendered_example": "Number of entries per page in Inbox, Outbox, and Drafts. Enter a whole number from 1 to 50. The default is 25. Changes apply when a mailbox is opened again.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.messages_page_size.label",
+    "context_group": "application_settings",
+    "default_text": "Messages per page",
+    "semantic_meaning": "Shared mailbox page size in Application Settings.",
+    "common_locations": [
+      "WebUI: Application Settings"
+    ],
+    "translator_guidance": "Use the mailbox navigation terms for Inbox, Outbox, and Drafts.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Messages per page",
     "is_html": false
   },
   {

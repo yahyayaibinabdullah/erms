@@ -1,4 +1,23 @@
 """Existing navigation journeys shared by the disposable browser acceptance run."""
+def assert_page_title_icon(page, expected):
+    icon = page.one('.erms-page-title-icon', expected)
+    assert icon.get_attribute('aria-hidden') == 'true'
+    assert page.driver.execute_script("""
+        const icon = arguments[0];
+        const title = icon.nextElementSibling;
+        const glyph = icon.getBoundingClientRect();
+        const label = title.getBoundingClientRect();
+        return title.innerText.trim() &&
+            (document.documentElement.dir === 'rtl' ? glyph.left >= label.right : glyph.right <= label.left);
+    """, icon), (page.language, expected)
+    assert 'Material Symbols Outlined' in icon.value_of_css_property('font-family')
+
+
+def assert_resource_title_icon(page, expected):
+    page.one('.resource-detail-header .q-avatar .q-icon', expected)
+    assert not page.visible('.erms-page-title-icon')
+
+
 def check_navigation(page):
     with page.check('Settings breadcrumb preserves selected category'):
         page.settings()
@@ -21,6 +40,7 @@ def check_navigation(page):
         page.errors()
         page.driver.get(page.args.url + '/?q=zz_phase2_absent')
         page.see(page.t('webui.render_global_search_results.label.no_results_found_ab1c85dc'))
+        assert_page_title_icon(page, 'search')
         assert page.driver.current_url.endswith('/?q=zz_phase2_absent')
         page.capture('search-empty-' + page.language)
         page.reload()
@@ -75,12 +95,14 @@ def check_navigation(page):
         row = page.one('.compact-result-item')
         page.one('button[aria-label="Open record"]', scope=row).click()
         parent = page.one('button.resource-detail-parent')
+        assert_resource_title_icon(page, 'description')
         assert 'Test aggregation' in parent.text
         parent.click()
         heading = page.t('webui.open_aggregation.label.child_aggregations_cd3bce3a')
         page.see(heading)
         page.reload()
         page.see(heading)
+        assert_resource_title_icon(page, 'folder')
         assert page.one('.erms-card').is_displayed()
         page.capture('aggregation-restored-' + page.language)
     with page.check('existing relationship types table renders with bounded results'):
@@ -95,6 +117,22 @@ def check_navigation(page):
         table = page.wait.until(loaded_table)
         assert len(table.find_elements('css selector','tbody tr'))<=25
         page.capture('relationship-types-table-'+page.language)
+
+    with page.check('page title icons match sidebar icons and lead the title'):
+        for label_key in (
+            'relationships.ui.catalogue', 'messaging.navigation.inbox', 'messaging.navigation.outbox',
+            'messaging.navigation.drafts', 'messaging.monitor.title', 'messaging.admin.title',
+            'privilege.search.saved_search.administrator.name', 'navigation.item.security_levels',
+            'navigation.item.profiles', 'navigation.item.translations', 'navigation.item.holds',
+            'navigation.item.classification_schemes',
+        ):
+            button = page.one('button.erms-nav-link', page.t(label_key))
+            expected = button.find_element('css selector', '.q-icon').text
+            if button.get_attribute('aria-current') != 'page':
+                page.activate(button)
+                page.wait.until(lambda _: button.get_attribute('aria-current') == 'page')
+            assert_page_title_icon(page, expected)
+        page.capture('page-title-icon-' + page.language, target=page.one('.erms-page-title-row'))
     page.settings()
     page.tab('general')
     page.driver.get(page.args.url + '/')

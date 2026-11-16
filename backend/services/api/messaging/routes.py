@@ -13,6 +13,7 @@ from .config import LIMITS
 from .models import RecipientValidation, Send, Amendment, Draft, DraftSend
 from . import drafts
 from .service import RESOURCE_QUERIES, expand, level, require_exchange, send
+from .text_filters import TextFilters
 from .transactions import run
 
 router = APIRouter(prefix="/api/v1/messages", tags=["messages"])
@@ -21,6 +22,14 @@ require_exchange_privilege = require_global_privilege(
 )
 PageSize = Query(25, ge=1, le=50)
 Priority = Literal["normal", "high", "very_high"]
+
+
+def mailbox_text_filters(
+    q: str = Query("", max_length=255),
+    body_q: str = Query("", max_length=255),
+    linked_q: str = Query("", max_length=255),
+) -> TextFilters:
+    return TextFilters(q, body_q, linked_q)
 
 
 @router.get("/capabilities", dependencies=[Depends(require_exchange_privilege)])
@@ -213,6 +222,7 @@ def inbox(
     sender_user_id: int | None = Query(None, gt=0),
     recipient_kind: Literal["user", "role", "org_unit"] | None = None,
     recipient_id: int | None = Query(None, gt=0),
+    text_filters: TextFilters = Depends(mailbox_text_filters),
     principal: Principal = Depends(principal_from_request),
 ):
     return run(
@@ -229,6 +239,7 @@ def inbox(
             sender_user_id=sender_user_id,
             recipient_kind=recipient_kind,
             recipient_id=recipient_id,
+            text_filters=text_filters,
         ),
     )
 
@@ -286,7 +297,6 @@ def read_delivery(
 def outbox(
     limit: int = PageSize,
     cursor: str | None = Query(None, max_length=200),
-    q: str = Query("", max_length=255),
     priority: Priority | None = None,
     security_level_id: int | None = Query(None, gt=0),
     action_required: bool | None = None,
@@ -295,6 +305,7 @@ def outbox(
     action_state: Literal["outstanding", "late"] | None = None,
     recipient_kind: Literal["user", "role", "org_unit"] | None = None,
     recipient_id: int | None = Query(None, gt=0),
+    text_filters: TextFilters = Depends(mailbox_text_filters),
     principal: Principal = Depends(principal_from_request),
 ):
     return run(
@@ -304,7 +315,7 @@ def outbox(
             principal.user_id,
             limit,
             cursor,
-            q=q,
+            text_filters=text_filters,
             priority=priority,
             security_level_id=security_level_id,
             action_required=action_required,
@@ -393,11 +404,15 @@ def list_drafts(
     deleted: bool = False,
     recipient_kind: Literal["user", "role", "org_unit"] | None = None,
     recipient_id: int | None = Query(None, gt=0),
+    text_filters: TextFilters = Depends(mailbox_text_filters),
     principal: Principal = Depends(principal_from_request),
 ):
     return run(
         principal.user_id,
-        lambda c: drafts.listing(c, principal.user_id, limit, cursor, deleted, recipient_kind=recipient_kind, recipient_id=recipient_id),
+        lambda c: drafts.listing(
+            c, principal.user_id, limit, cursor, deleted, recipient_kind=recipient_kind,
+            recipient_id=recipient_id, text_filters=text_filters,
+        ),
     )
 
 

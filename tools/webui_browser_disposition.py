@@ -1,14 +1,21 @@
 """Existing disposition pages, bounded selectors, focus and filter persistence."""
 from selenium.webdriver.common.keys import Keys
 from tools.check_webui_browser import plain
+from tools.webui_browser_navigation import assert_page_title_icon
 
 
 def check_disposition(page):
     def text(key):return page.t('disposition.ui.'+key)
     def workspace():return page.one('.detail-surface.messaging-workspace')
+    def open_section(label):
+        link = page.one('button.erms-nav-link', text(label))
+        expected = link.find_element('css selector', '.q-icon').text
+        page.activate(link)
+        page.wait.until(lambda _: link.get_attribute('aria-current') == 'page')
+        assert_page_title_icon(page, expected)
     def enter(key):
         old=workspace().get_attribute('id') if page.visible('.detail-surface.messaging-workspace') else None
-        page.activate(page.one('button.erms-nav-link',text({'disposition-jobs':'jobs','disposition-eligibility':'eligibility','disposition-tasks':'my_tasks'}[key])))
+        open_section({'disposition-jobs':'jobs','disposition-eligibility':'eligibility','disposition-tasks':'my_tasks'}[key])
         page.wait.until(lambda _:workspace().get_attribute('id')!=old)
         page.wait.until(lambda _:not page.visible('.q-inner-loading'))
     def capture(key):page.capture('disposition-'+key+'-'+page.language)
@@ -30,7 +37,7 @@ def check_disposition(page):
         with page.check('disposition eligibility and task pages retain existing navigation and empty states'):
             enter('disposition-eligibility');page.see(text('empty'));capture('eligibility')
             enter('disposition-tasks');page.see(text('empty'));capture('tasks')
-            page.activate(page.one('button.erms-nav-link',text('templates')));page.see(text('repository_default'));capture('templates')
+            open_section('templates');page.see(text('repository_default'));capture('templates')
             page.errors();page.settings()
     check_disposition_applied_filters(page, enter, expand, workspace, text)
 

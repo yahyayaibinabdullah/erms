@@ -28,6 +28,17 @@ def db():
     return psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row)
 
 
+def replay_legacy_settings_migrations(c, *filenames):
+    # Older migrations replace the validator with the registry of their era.
+    # Restore the current definition so the shared fixture can reset every setting.
+    validator = c.execute(
+        "SELECT pg_get_functiondef('public.application_setting_value_valid(text,jsonb,bytea)'::regprocedure) AS ddl"
+    ).fetchone()["ddl"]
+    for filename in filenames:
+        c.execute((ROOT / "database/migrations" / filename).read_text(), prepare=False)
+    c.execute(validator, prepare=False)
+
+
 def items(client):
     response = client.get(PATH)
     assert response.status_code == 200, response.text
@@ -186,6 +197,8 @@ def test_sys_admin_grant_does_not_grant_settings_to_governance_profiles(client):
 @pytest.mark.parametrize("key,value", [
     ("CHILD_AGGREGATION_PAGE_SIZE", 0), ("CONTAINED_RECORD_PAGE_SIZE", 101),
     ("SEARCH_RESULTS_PAGE_SIZE", True),
+    ("MESSAGES_PAGE_SIZE", 0), ("MESSAGES_PAGE_SIZE", 51),
+    ("MESSAGES_PAGE_SIZE", True), ("MESSAGES_PAGE_SIZE", 1.5),
     ("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", 0), ("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", True),
     ("CONTENT_SEGMENT_SIZE_BYTES", 67108865), ("AUTH_PASSWORD_MIN_LENGTH", 7),
     ("DISPOSITION_DESTRUCTION_REVIEW_ROUTE", "other"),
@@ -206,9 +219,11 @@ def test_invalid_setting_keeps_all_submitted_values_and_history_unchanged(client
 def test_listing_page_sizes_are_independent_application_settings(client):
     response = client.get('/api/v1/application-configuration')
     assert response.status_code == 200
-    defaults = {'CHILD_AGGREGATION_PAGE_SIZE': 10, 'CONTAINED_RECORD_PAGE_SIZE': 25, 'SEARCH_RESULTS_PAGE_SIZE': 25}
+    defaults = {'CHILD_AGGREGATION_PAGE_SIZE': 10, 'CONTAINED_RECORD_PAGE_SIZE': 25,
+                'SEARCH_RESULTS_PAGE_SIZE': 25, 'MESSAGES_PAGE_SIZE': 25}
     assert {key: response.json()[key] for key in defaults} == defaults
-    values = {'CHILD_AGGREGATION_PAGE_SIZE': 7, 'CONTAINED_RECORD_PAGE_SIZE': 18, 'SEARCH_RESULTS_PAGE_SIZE': 30}
+    values = {'CHILD_AGGREGATION_PAGE_SIZE': 7, 'CONTAINED_RECORD_PAGE_SIZE': 18,
+              'SEARCH_RESULTS_PAGE_SIZE': 30, 'MESSAGES_PAGE_SIZE': 50}
     response = save(client, values)
     assert response.status_code == 200, response.text
     effective = client.get('/api/v1/application-configuration').json()
@@ -268,8 +283,7 @@ def test_destination_audit_snapshots_survive_rename_clear_and_deletion(client,ke
     if upgrade:
         before=items(client)
         with db() as c:
-            c.execute((ROOT/'database/migrations/050_application_settings.sql').read_text(),prepare=False)
-            c.execute((ROOT/'database/migrations/088_request_presentation_settings.sql').read_text(),prepare=False)
+            replay_legacy_settings_migrations(c, "050_application_settings.sql", "088_request_presentation_settings.sql")
         assert save(client,{'REVIEW_WARNING_WINDOW_DAYS':31}).status_code==200
         with db() as c:
             historical=c.execute("SELECT id,metadata FROM event_history WHERE entity_type='application_setting' ORDER BY id").fetchall()
@@ -474,9 +488,10 @@ def test_upgrade_repeats_portable_ddl_preserves_values_and_fresh_schema_parity(c
     assert save(client, {"AUDIT_TRAIL_SEARCH_RESULT_LIMIT": 77}).status_code == 200
     before = items(client)
     with db() as c:
-        c.execute((ROOT / "database/migrations/050_application_settings.sql").read_text(), prepare=False)
-        c.execute((ROOT/'database/migrations/088_request_presentation_settings.sql').read_text(),prepare=False)
-        c.execute((ROOT / "database/migrations/052_application_settings_reference_audit.sql").read_text(), prepare=False)
+        replay_legacy_settings_migrations(
+            c, "050_application_settings.sql", "088_request_presentation_settings.sql",
+            "052_application_settings_reference_audit.sql",
+        )
     assert items(client) == before
     with db() as c:
         columns = c.execute("SELECT column_name FROM information_schema.columns WHERE table_name='application_settings'").fetchall()

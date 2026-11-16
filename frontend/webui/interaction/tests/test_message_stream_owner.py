@@ -86,11 +86,11 @@ async def test_active_refresh_only_refreshes_inbox_and_unread_is_identity_scoped
     assert h['message_unread_button'].text=='initial'
 
 @pytest.mark.parametrize('identity',['invalid',None,'valid'])
-async def test_notification_open_validates_id_and_uses_current_inbox_workspace(user,monkeypatch,identity):
-    h=await setup(user,monkeypatch);opened=AsyncMock();h['state']['messaging_workspace']={'open':opened};value=str(uuid4()) if identity=='valid' else identity
+async def test_notification_open_validates_id_and_routes_directly_to_inbox(user, monkeypatch, identity):
+    h = await setup(user, monkeypatch)
+    value = str(uuid4()) if identity == 'valid' else identity
     await h['functions']['open_live_delivery'](SimpleNamespace(args=value))
-    if identity=='invalid':h['select_messages'].assert_not_awaited();opened.assert_not_awaited()
+    if identity == 'invalid':
+        h['select_messages'].assert_not_awaited()
     else:
-        h['select_messages'].assert_awaited_once_with('inbox')
-        if value:opened.assert_awaited_once_with(value)
-        else:opened.assert_not_awaited()
+        h['select_messages'].assert_awaited_once_with('inbox', initial_item=value)

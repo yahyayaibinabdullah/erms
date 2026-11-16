@@ -7,6 +7,7 @@ from psycopg import sql
 from pydantic import ValidationError
 from .config import LIMITS
 from .content import body, invalid
+from .text_filters import TextFilters, mailbox_page
 from .models import Send
 from .service import level, require_exchange, send
 from ..config import default_working_timezone
@@ -57,7 +58,7 @@ def get(c, user, identity, lock=False, deleted=False):
     return row
 
 
-def listing(c, user, limit, after=None, deleted=False, recipient_kind=None, recipient_id=None):
+def listing(c, user, limit, after=None, deleted=False, recipient_kind=None, recipient_id=None, text_filters=TextFilters()):
     require_exchange(c, user)
     condition = (
         "(deleted_at IS NOT NULL OR expires_at<=CURRENT_TIMESTAMP) AND COALESCE(purge_after,expires_at+make_interval(days=>expiry_restoration_days))>CURRENT_TIMESTAMP"
@@ -65,6 +66,13 @@ def listing(c, user, limit, after=None, deleted=False, recipient_kind=None, reci
         else "deleted_at IS NULL AND expires_at>CURRENT_TIMESTAMP"
     )
     args = [user]
+    predicates, patterns = text_filters.predicates(
+        subject="message_drafts.subject", body="message_drafts.body_rich_text",
+    )
+    if predicates:
+        condition += " AND (SELECT messaging_user_clearance(%s)) >= (SELECT level_number FROM security_levels WHERE id=message_drafts.security_level_id) AND "
+        condition += " AND ".join(predicates)
+        args.extend([user, *patterns])
     if (recipient_kind is None) != (recipient_id is None):
         invalid("message_recipient_filter_invalid")
     if recipient_kind:
@@ -76,12 +84,17 @@ def listing(c, user, limit, after=None, deleted=False, recipient_kind=None, reci
 
         condition += " AND (date_updated,id)<(%s,%s)"
         args.extend(cursor_decode(after))
-    rows = c.execute(
-        "SELECT id,subject,date_updated,expires_at,version,deleted_at,purge_after, messaging_user_clearance(%s)>=(SELECT level_number FROM security_levels WHERE id=message_drafts.security_level_id) AS readable, (subject='' OR body_rich_text='' OR NOT EXISTS(SELECT 1 FROM message_draft_recipient_selectors s WHERE s.draft_id=message_drafts.id AND s.recipient_type='to')) AS needs_attention, expires_at<=CURRENT_TIMESTAMP+make_interval(days=>%s) AS expiry_warning FROM message_drafts WHERE owner_user_id=%s AND "
-        + condition
-        + " ORDER BY date_updated DESC,id DESC LIMIT %s",
-        (user, LIMITS["DRAFT_WARNING_DAYS"], *args, limit + 1),
-    ).fetchall()
+    rows = mailbox_page(
+        c, projection="""id,subject,date_updated,expires_at,version,deleted_at,purge_after,
+            messaging_user_clearance(%s)>=(SELECT level_number FROM security_levels WHERE id=message_drafts.security_level_id) AS readable,
+            (subject='' OR body_rich_text='' OR NOT EXISTS(SELECT 1 FROM message_draft_recipient_selectors s
+                WHERE s.draft_id=message_drafts.id AND s.recipient_type='to')) AS needs_attention,
+            expires_at<=CURRENT_TIMESTAMP+make_interval(days=>%s) AS expiry_warning""",
+        projection_args=(user, LIMITS["DRAFT_WARNING_DAYS"]), source="message_drafts",
+        clauses=("owner_user_id=%s", condition), args=args, order="date_updated DESC,id DESC", limit=limit + 1,
+        linked_query=text_filters.linked_q, row_id="message_drafts.id", envelope_id="message_drafts.id",
+        level="(SELECT level_number FROM security_levels WHERE id=message_drafts.security_level_id)", draft=True,
+    )
     for row in rows:
         if not row.pop("readable"):
             row["subject"] = None

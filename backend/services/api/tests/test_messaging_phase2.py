@@ -339,6 +339,96 @@ def test_completion_is_independent_and_requires_original_sender_in_to(client):
     )
 
 
+def test_reply_draft_preserves_completion_choice_without_completing_action(client):
+    sender, sender_id, _ = account(client)
+    recipient, recipient_id, _ = account(client)
+    outsider, _, _ = account(client)
+    original = post(client, sender, payload(recipient_id, action_required=True)).json()
+    delivery_path = PREFIX + "/inbox/" + original["deliveries"][0]["id"]
+    data = payload(
+        sender_id, relationship_kind="reply", related_delivery_id=original["deliveries"][0]["id"],
+        complete_action=True,
+    )
+    data.pop("request_id")
+    owner = _bearer(recipient)
+    created = client.post(PREFIX + "/drafts", headers=owner, json=data)
+    assert created.status_code == 200, created.text
+    draft = created.json()
+    assert draft["complete_action"] is True
+    draft_path = PREFIX + "/drafts/" + draft["id"]
+    assert client.get(draft_path, headers=owner).json()["complete_action"] is True
+    assert client.get(draft_path, headers=_bearer(outsider)).status_code == 404
+    assert client.put(
+        draft_path, headers={**_bearer(outsider), "If-Match": str(draft["version"])}, json=data,
+    ).status_code == 404
+    cleared = client.put(
+        draft_path, headers={**owner, "If-Match": str(draft["version"])},
+        json={**data, "complete_action": False},
+    )
+    assert cleared.status_code == 200, cleared.text
+    assert client.get(draft_path, headers=owner).json()["complete_action"] is False
+    assert client.get(delivery_path, headers=owner).json()["action_status"] == "outstanding"
+
+
+def test_outbox_receipt_summary_counts_every_delivery_and_respects_ownership(client):
+    from datetime import datetime
+
+    sender, sender_id, _ = account(client)
+    reader, reader_id, _ = account(client)
+    _, other_to, _ = account(client)
+    copied, copied_id, _ = account(client)
+    _, other_cc, _ = account(client)
+    data = payload(reader_id, other_to, action_required=True, read_receipt_requested=True)
+    data["selectors"] += [
+        {"selector_kind": "user", "target_id": identity, "recipient_type": "cc"}
+        for identity in (copied_id, other_cc)
+    ]
+    sent = post(client, sender, data)
+    assert sent.status_code == 200, sent.text
+    sent = sent.json()
+    path = PREFIX + "/outbox/" + sent["envelope_id"]
+    deliveries = {row["recipient_user_id"]: row["id"] for row in sent["deliveries"]}
+    for token, identity in ((reader, reader_id), (copied, copied_id)):
+        response = client.post(PREFIX + "/inbox/" + deliveries[identity] + "/read", headers=_bearer(token))
+        assert response.status_code == 200
+    reply = post(client, reader, payload(
+        sender_id, relationship_kind="reply", related_delivery_id=deliveries[reader_id], complete_action=True,
+    ))
+    assert reply.status_code == 200, reply.text
+
+    owner = _bearer(sender)
+    detail = client.get(path, headers=owner)
+    assert detail.status_code == 200, detail.text
+    assert detail.json()["recipient_summary"] == {
+        "delivered": 4, "read": 2, "action_total": 2, "completed": 1, "action_status": "outstanding",
+    }
+    first = client.get(path + "/recipients", headers=owner, params={"limit": 3}).json()
+    second = client.get(
+        path + "/recipients", headers=owner, params={"limit": 3, "after": first["next_cursor"]},
+    ).json()
+    rows = first["items"] + second["items"]
+    assert [row["recipient_user_id"] for row in rows] == sorted(deliveries)
+    assert first["has_more"] and not second["has_more"]
+    assert {row["delivered_at"] for row in rows} == {detail.json()["sent_at"]}
+    assert {row["recipient_user_id"] for row in rows if row["read_at"]} == {reader_id, copied_id}
+    for row in rows:
+        if row["read_at"]:
+            assert datetime.fromisoformat(row["delivered_at"]) < datetime.fromisoformat(row["read_at"])
+    assert rows[0]["action_status"] == "completed" and rows[0]["completion_reply_delivery_id"]
+    assert rows[2]["recipient_type"] == "cc" and rows[2]["action_status"] is None
+    assert client.get(path, headers=_bearer(reader)).status_code == 404
+    assert client.get(path + "/recipients", headers=_bearer(reader)).status_code == 404
+    ordinary = post(client, sender, payload(reader_id)).json()
+    ordinary_delivery = PREFIX + "/inbox/" + ordinary["deliveries"][0]["id"] + "/read"
+    assert client.post(ordinary_delivery, headers=_bearer(reader)).status_code == 200
+    ordinary_path = PREFIX + "/outbox/" + ordinary["envelope_id"]
+    ordinary_detail = client.get(ordinary_path, headers=owner).json()
+    assert ordinary_detail["recipient_summary"] == {"delivered": 1}
+    ordinary_row = client.get(ordinary_path + "/recipients", headers=owner).json()["items"][0]
+    assert ordinary_row["delivered_at"] == ordinary_detail["sent_at"]
+    assert "read_at" not in ordinary_row
+
+
 def test_draft_empty_send_and_failed_send_preserve_version_and_children(client):
     sender, uid, _ = account(client)
     recipient, rid, role = account(client)
@@ -873,7 +963,9 @@ def test_messaging_translation_artifact_valid_and_curated_items_preserved(client
         assert summary['complete'] == (not pending)
         for row in artifact['items']:
             if row['message_key'] in pending:
-                assert row['status'] == 'draft' and row['origin'] == 'generated'
+                provenance = row.get('provenance', {})
+                assert row.get('status', provenance.get('source_status')) == 'draft'
+                assert row.get('origin', provenance.get('source_origin')) == 'generated'
     # Curated baseline rows were compared exactly above. Older approved exports
     # need not carry the generation-only review_required field; new generated
     # messaging candidates must still be explicitly marked for review.

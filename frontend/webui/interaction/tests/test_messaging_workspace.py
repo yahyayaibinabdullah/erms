@@ -81,7 +81,8 @@ class Api:
         return {"id": 1, "name": "General", "level_number": 0}
 
 
-async def setup(user, language="en", exchange=True, browse=None, mailbox="inbox", api=None):
+async def setup(user, language="en", exchange=True, browse=None, mailbox="inbox", api=None,
+                linked_content_enabled=True, mailbox_position=None, page_size=25):
     api = api or Api()
     alive = {"value": True}
     scope = dict(
@@ -124,6 +125,9 @@ async def setup(user, language="en", exchange=True, browse=None, mailbox="inbox"
             format_timestamp=str,
             active=lambda: alive["value"],
             browse_recipients=browse,
+            linked_content_enabled=linked_content_enabled,
+            mailbox_position=mailbox_position,
+            page_size=page_size,
         )
 
     await user.open("/messaging-test")
@@ -160,8 +164,7 @@ async def test_system_only_inbox_hides_compose_and_reopens_fresh(
     assert not any(
         b.text in ("Compose", "إنشاء رسالة") for b in user.find(ui.button).elements
     )
-    label = "Refresh" if language == "en" else "تحديث"
-    user.find(label).click()
+    user.find(marker="mailbox-refresh").click()
     await asyncio.sleep(0.05)
     await user.should_see(empty)
     assert sum(path.endswith("/inbox") for _, path, _ in api.calls) == 2
@@ -170,7 +173,7 @@ async def test_system_only_inbox_hides_compose_and_reopens_fresh(
 async def test_abandoned_refresh_cannot_render_into_another_page(user: User):
     api, alive = await setup(user)
     api.block = asyncio.Event()
-    user.find("Refresh").click()
+    user.find(marker="mailbox-refresh").click()
     await asyncio.sleep(0.05)
     alive["value"] = False
     api.block.set()
@@ -507,6 +510,7 @@ async def test_mailbox_recipient_filter_search_browse_and_clear(user: User, mail
         assert kwargs['selection_mode'] == 'all'
         assert await kwargs['on_selection']({'type': 'org_unit', 'id': 2})
     api, _ = await setup(user, mailbox=mailbox, browse=browse)
+    user.find(marker='mailbox-toggle-filters').click()
     controls = {c.label: c for c in user.find(ui.select).elements}
     assert 'Recipient kind' not in controls
     recipient = controls['Recipient']
@@ -515,7 +519,7 @@ async def test_mailbox_recipient_filter_search_browse_and_clear(user: User, mail
     await emit_query(recipient, 'Re')
     assert set(recipient.options) == {6, 7, 8, 9, 10, 11}
     recipient.value = 7
-    user.find('Search subject', kind=ui.button).click()
+    user.find(marker='mailbox-apply-filters', kind=ui.button).click()
     await asyncio.sleep(.1)
     params = [kwargs['params'] for method,path,kwargs in api.calls if path.endswith('/'+mailbox)][-1]
     assert params['recipient_kind'] == 'role' and params['recipient_id'] == 2
@@ -523,7 +527,7 @@ async def test_mailbox_recipient_filter_search_browse_and_clear(user: User, mail
     await asyncio.sleep(.1)
     assert recipient.value == 8
     recipient.value = None
-    user.find('Search subject',kind=ui.button).click()
+    user.find(marker='mailbox-apply-filters',kind=ui.button).click()
     await asyncio.sleep(.1)
     params = [kwargs['params'] for method,path,kwargs in api.calls if path.endswith('/'+mailbox)][-1]
     assert 'recipient_id' not in params and 'recipient_kind' not in params
@@ -629,7 +633,7 @@ async def test_mailbox_row_keeps_page_and_discards_stale_detail(user: User, mail
         return await original(method, path, **kwargs)
     api.request = request
     await setup(user, api=api, language=language, mailbox=mailbox)
-    user.find('Next' if language == 'en' else 'التالي', kind=ui.button).click()
+    user.find(marker='mailbox-next', kind=ui.button).click()
     await asyncio.sleep(.05)
     assert list_cursors == [None, 'page-two']
     user.find(marker='message-row-first').click()
@@ -640,11 +644,72 @@ async def test_mailbox_row_keeps_page_and_discards_stale_detail(user: User, mail
     await asyncio.sleep(.05)
     assert 'Stale response must never render' not in [getattr(c, 'text', '') for c in user.find(ui.label).elements]
     assert next(iter(user.find(marker='message-row-second').elements)).visible
-    assert next(iter(user.find('Previous' if language == 'en' else 'السابق', kind=ui.button).elements)).enabled
+    assert next(iter(user.find(marker='mailbox-previous', kind=ui.button).elements)).enabled
+
+@pytest.mark.parametrize('status', ['outstanding', 'late', 'completed', 'completed_late', 'withdrawn'])
+async def test_inbox_shows_action_and_due_date_only_for_direct_recipients(user: User, status):
+    api = Api()
+    original = api.request
+    original_due = '2026-11-30'
+    current_due = {'late': '2026-11-28', 'withdrawn': None}.get(status, original_due)
+    effective_action = {'action_required': status != 'withdrawn', 'due_date': current_due,
+                        'due_timezone': 'Asia/Dubai' if current_due else None}
+    deliveries = {
+        'direct': {'id': 'direct', 'subject': 'Direct message', 'recipient_type': 'to',
+                   'effective_action': effective_action, 'action_status': status},
+        'copied': {'id': 'copied', 'subject': 'Copied message', 'recipient_type': 'cc',
+                   'effective_action': effective_action, 'action_status': None},
+    }
+
+    async def request(method, path, **kwargs):
+        if path.endswith('/inbox'):
+            return {'items': list(deliveries.values()), 'has_more': False, 'next_cursor': None}
+        if path.endswith('/read'):
+            identity = path.split('/')[-2]
+            return dict(
+                deliveries[identity], envelope_id=identity, availability='available', sender_name='Sender',
+                sender_kind='user', sender_user_id=2, sent_at='2026-11-16', priority='normal',
+                security_level_id=1, security_level_name='General', selectors=[],
+                body_rich_text=f'<p>Body of {identity} delivery</p>', resource_links=[], is_test=False,
+                message_kind='user_message', expires_at='2029-11-16T00:00:00Z', action_required=True,
+                action_due_date=original_due, action_due_timezone='Asia/Dubai',
+            )
+        return await original(method, path, **kwargs)
+
+    api.request = request
+    await setup(user, api=api)
+    await user.should_see('Copied message')
+    action_label = render_message_plain(f'messaging.state.{status}')
+    due_label = render_message_plain('messaging.field.due_date')
+    for message_id, expected_badges in (('direct', [action_label]), ('copied', ['Cc'])):
+        row, = user.find(marker=f'message-row-{message_id}').elements
+        badges = [badge.text for badge in row.descendants() if isinstance(badge, ui.badge)]
+        assert badges == expected_badges
+        due = [label.text for label in row.descendants() if isinstance(label, ui.label)
+               and label.text.startswith(f'{due_label}: ')]
+        assert due == ([f'{due_label}: {current_due}'] if message_id == 'direct' and current_due else [])
+    assert all(path.endswith('/inbox') for _, path, _ in api.calls)
+
+    user.find(marker='message-row-direct').click()
+    await user.should_see('Body of direct delivery')
+    assert any('mailbox-action-summary' in row.classes for row in user.find(ui.row).elements)
+    current_label = render_message_plain('messaging.section.effective')
+    current_lines = [label.text for label in user.find(ui.label).elements if label.text.startswith(f'{current_label}: ')]
+    if status == 'late':
+        assert len(current_lines) == 1 and current_due in current_lines[0]
+    elif status == 'withdrawn':
+        assert current_lines == [f"{current_label}: {render_message_plain('messaging.amendment.action_withdrawn')}"]
+    else:
+        assert current_lines == []
+    user.find(marker='message-row-copied').click()
+    await user.should_see('Body of copied delivery')
+    assert not any('mailbox-action-summary' in row.classes for row in user.find(ui.row).elements)
+
 
 @pytest.mark.parametrize('language', ['en', 'ar'])
 async def test_inbox_date_filters_and_browse_below_recipient(user: User, language):
     api, _ = await setup(user, language=language, browse=AsyncMock())
+    user.find(marker='mailbox-toggle-filters').click()
     labels = {r['message_key']: r['translated_text'] for r in json.loads((ROOT / 'i18n/messages.ar.generated.json').read_text())['items']}
     english_labels = {r['message_key']: r['default_text'] for r in json.loads((ROOT / 'i18n/messages.en.json').read_text())}
     def label(key, english):
@@ -655,7 +720,7 @@ async def test_inbox_date_filters_and_browse_below_recipient(user: User, languag
     assert isinstance(recipient.parent_slot.parent, ui.column)
     for key, value in [('sent_from', '2026-10-01'), ('sent_before', '2026-10-05')]:
         next(c for c in user.find(ui.input).elements if c.label == label('field.' + key, 'Sent from' if key == 'sent_from' else 'Sent before')).value = value
-    user.find(label('field.search', 'Search subject'), kind=ui.button).click()
+    user.find(marker='mailbox-apply-filters', kind=ui.button).click()
     await asyncio.sleep(.1)
     params = next(kwargs['params'] for method, path, kwargs in reversed(api.calls) if path.endswith('/inbox'))
     assert params['sent_from'] == '2026-10-01T00:00:00Z'
@@ -666,12 +731,13 @@ async def test_inbox_date_filters_and_browse_below_recipient(user: User, languag
 @pytest.mark.parametrize('mailbox', ['inbox', 'drafts'])
 async def test_mailbox_sender_and_draft_recipient_filters(user: User, language, mailbox):
     api, _ = await setup(user, language=language, mailbox=mailbox, browse=AsyncMock())
+    user.find(marker='mailbox-toggle-filters').click()
     marker = 'mailbox-sender' if mailbox == 'inbox' else 'mailbox-recipient'
     control = next(iter(user.find(marker=marker).elements))
     control.options = {2: 'Sender'} if mailbox == 'inbox' else {7: 'Role · Auditor'}
     control.value = 2 if mailbox == 'inbox' else 7
     await asyncio.sleep(.05)
-    user.find('Search subject' if language == 'en' else 'البحث في الموضوع', kind=ui.button).click()
+    user.find(marker='mailbox-apply-filters', kind=ui.button).click()
     await asyncio.sleep(.1)
     params = next(kwargs['params'] for method, path, kwargs in reversed(api.calls) if path.endswith('/' + mailbox))
     if mailbox == 'inbox':
@@ -679,7 +745,7 @@ async def test_mailbox_sender_and_draft_recipient_filters(user: User, language, 
     else:
         assert params['recipient_kind'] == 'role' and params['recipient_id'] == 2
     control.value = None
-    user.find('Search subject' if language == 'en' else 'البحث في الموضوع', kind=ui.button).click()
+    user.find(marker='mailbox-apply-filters', kind=ui.button).click()
     await asyncio.sleep(.1)
     params = next(kwargs['params'] for method, path, kwargs in reversed(api.calls) if path.endswith('/' + mailbox))
     assert 'sender_user_id' not in params and 'recipient_id' not in params
@@ -746,7 +812,7 @@ async def test_draft_panel_switch_save_and_cancel_keep_listing(user: User, langu
         return await original(method,path,**kwargs)
     api.request = request
     await setup(user, api=api, mailbox='drafts', language=language)
-    user.find('Next' if language=='en' else 'التالي', kind=ui.button).click()
+    user.find(marker='mailbox-next', kind=ui.button).click()
     await asyncio.sleep(.05)
     user.find(marker='message-row-first').click()
     await started.wait()
@@ -803,6 +869,35 @@ async def test_earlier_dialog_preserves_latest_and_navigates_back(user: User, la
     assert not any(c.value for c in next(iter(user.find(marker='message-row-latest').elements)).client.elements.values() if isinstance(c,ui.dialog))
 
 
+@pytest.mark.parametrize("mailbox", ["inbox", "outbox"])
+@pytest.mark.parametrize("language,level", [("en", "Confidential"), ("ar", "سري")])
+async def test_mailbox_security_level_is_shown_only_for_readable_messages(user: User, mailbox, language, level):
+    api = Api()
+    original = api.request
+
+    async def request(method, path, **kwargs):
+        if path.endswith(f"/{mailbox}"):
+            return {
+                "items": [
+                    {"id": "readable", "subject": "Readable message", "availability": "available",
+                     "security_level_code": "C", "security_level_name": level},
+                    {"id": "restricted", "availability": "restricted",
+                     "security_level_code": "S", "security_level_name": "Restricted level"},
+                ],
+                "has_more": False,
+            }
+        return await original(method, path, **kwargs)
+
+    api.request = request
+    await setup(user, api=api, mailbox=mailbox, language=language)
+    await user.should_see("Readable message")
+    label = "Security level" if language == "en" else "درجة السرية"
+    for identity, expected in (("readable", [f"{label}: C · {level}"]), ("restricted", [])):
+        row, = user.find(marker=f"message-row-{identity}").elements
+        badges = [badge.text for badge in row.descendants() if isinstance(badge, ui.badge)]
+        assert badges == expected
+
+
 @pytest.mark.parametrize("language", ["en", "ar"])
 async def test_everyone_selection_exclusivity_and_removal(user: User, language):
     api, _ = await setup(user, language=language)
@@ -850,13 +945,112 @@ async def test_outbox_pages_keep_the_submitted_subject_until_search(user: User):
     await asyncio.sleep(.05)
     assert queries[-1] == {'limit': 25, 'q': 'Submitted'}
     field.value = 'Draft'
-    user.find('Next', kind=ui.button).click()
+    user.find(marker='mailbox-next', kind=ui.button).click()
     await asyncio.sleep(.05)
     assert queries[-1] == {'limit': 25, 'cursor': 'page-two', 'q': 'Submitted'}
-    user.find('Previous', kind=ui.button).click()
+    user.find(marker='mailbox-refresh', kind=ui.button).click()
+    await asyncio.sleep(.05)
+    assert queries[-2:] == [{'limit': 25, 'cursor': 'page-two', 'q': 'Submitted'}] * 2
+    user.find(marker='mailbox-previous', kind=ui.button).click()
     await asyncio.sleep(.05)
     assert queries[-1] == {'limit': 25, 'q': 'Submitted'}
     assert field.value == 'Draft'
     user.find(kind=ui.button, content=label).click()
     await asyncio.sleep(.05)
     assert queries[-1] == {'limit': 25, 'q': 'Draft'}
+
+
+@pytest.mark.parametrize('mailbox,deleted', [('inbox', False), ('outbox', False), ('drafts', True)])
+async def test_toolbar_clear_resets_submitted_and_edited_filters(user: User, mailbox, deleted):
+    stored = {'criteria': {'q': 'Submitted', 'body_q': 'Body', 'linked_q': 'Linked'},
+              'cursor': 'page-two', 'previous': [None], 'deleted': deleted}
+    api, _ = await setup(user, mailbox=mailbox, mailbox_position=stored)
+    clear, = user.find(marker='mailbox-clear-filters', kind=ui.button).elements
+    subject = next(field for field in user.find(ui.input).elements if field.label == 'Search subject')
+    assert clear.enabled and clear.visible
+    subject.value = 'Unsubmitted'
+    user.find(marker='mailbox-clear-filters').click()
+    await asyncio.sleep(.05)
+    expected = {'limit': 25}
+    if mailbox == 'drafts':
+        expected['deleted'] = True
+    assert api.calls[-1][2]['params'] == expected
+    assert stored['criteria'] == {} and stored['cursor'] is None and stored['previous'] == []
+    assert stored['deleted'] is deleted
+    assert subject.value == '' and not clear.enabled
+    user.find(marker='mailbox-toggle-filters').click()
+    for label in ('Search message body', 'Search linked content'):
+        assert next(field for field in user.find(ui.input).elements if field.label == label).value == ''
+
+    count = len(api.calls)
+    subject.value = 'Only edited'
+    assert clear.enabled
+    user.find(marker='mailbox-clear-filters').click()
+    await asyncio.sleep(.05)
+    assert subject.value == '' and not clear.enabled
+    assert len(api.calls) == count
+
+
+async def test_disabled_linked_search_clears_only_the_unavailable_criterion(user: User):
+    stored = {"criteria": {"q": "Subject", "body_q": "Body", "linked_q": "File"},
+              "cursor": "filtered-page-two", "previous": [None]}
+    api, _ = await setup(user, linked_content_enabled=False, mailbox_position=stored)
+    await user.should_see("No messages to show")
+    user.find(marker="mailbox-toggle-filters", kind=ui.button).click()
+    await user.should_see("Search message body")
+    await user.should_not_see("Search linked content")
+    assert api.calls[-1][2]["params"] == {"limit": 25, "q": "Subject", "body_q": "Body"}
+    assert stored["criteria"] == {"q": "Subject", "body_q": "Body"}
+
+
+async def test_changed_page_size_resets_cursor_and_preserves_the_submitted_draft_filters(user: User):
+    stored = {"criteria": {"q": "Submitted", "body_q": "Body"}, "deleted": True,
+              "cursor": "filtered-page-two", "previous": [None], "page_size": 25}
+    api, _ = await setup(user, mailbox="drafts", mailbox_position=stored, page_size=10)
+    await user.should_see("No messages to show")
+    assert api.calls[-1][2]["params"] == {
+        "limit": 10, "deleted": True, "q": "Submitted", "body_q": "Body",
+    }
+    assert stored == {"criteria": {"q": "Submitted", "body_q": "Body"}, "deleted": True,
+                      "cursor": None, "previous": [], "page_size": 10}
+
+
+@pytest.mark.parametrize(("failed_operation", "status"), [("PUT", 409), ("POST", 422)])
+async def test_failed_draft_send_retains_inline_editor_and_edits(user: User, failed_operation, status):
+    api = Api()
+    original = api.request
+    failed = asyncio.Event()
+
+    async def request(method, path, **kwargs):
+        if path.endswith("/drafts"):
+            return {"items": [{"id": "draft", "subject": "Saved version"}], "has_more": False}
+        if path.endswith("/drafts/draft") and method == "GET":
+            return {
+                "id": "draft", "version": 1, "priority": "normal", "security_level_id": 1,
+                "subject": "Saved version", "body_rich_text": "<p>Draft body</p>", "resource_links": [],
+                "selectors": [{"recipient_type": "to", "selector_kind": "user", "target_id": 2}],
+            }
+        if path.endswith("/drafts/draft") and method == "PUT":
+            if failed_operation == "PUT":
+                failed.set()
+                raise ApiError(status, {})
+            return {"id": "draft", "version": 2}
+        if path.endswith("/drafts/draft/send"):
+            failed.set()
+            raise ApiError(status, {})
+        return await original(method, path, **kwargs)
+
+    api.request = request
+    await setup(user, api=api, mailbox="drafts")
+    user.find(marker="message-row-draft").click()
+    await user.should_see("Subject", kind=ui.input)
+    subject = next(c for c in user.find(ui.input).elements if c.label == "Subject")
+    subject.value = "Unsaved edits"
+    send = next(iter(user.find(marker="messaging-send").elements))
+    await asyncio.sleep(.05)
+    assert send.enabled
+    user.find(marker="messaging-send").click()
+    await asyncio.wait_for(failed.wait(), 1)
+    assert subject.value == "Unsaved edits" and not subject._deleted
+    assert send.enabled
+    assert user.find(marker="message-row-draft").elements

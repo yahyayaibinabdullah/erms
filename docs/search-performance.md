@@ -106,6 +106,26 @@ match would change its rank. The focused search regression suite covers this.
 
 ## Required repeatable gate
 
+Mailbox text filters use the same document fixture with 2,400 messages per
+folder and caller. The mailbox run measures subject, body, and linked-content
+filters, including combined criteria, denied resource access, and cursor pages
+past 1,000 items. It records exact expected counts and row IDs, complete
+request timings, and executed SQL plans.
+
+```sh
+backend/services/api/.venv/bin/python tools/check_search_performance.py \
+  --mailbox-only --output .runtime/search-performance/mailbox-filters-new --repeats 3 --settle-seconds 30
+```
+
+Use `--mailbox-page-size 50` to check the upper bound of **Messages per
+page**. The mailbox workload includes unfiltered pages and applies the
+chosen page size to the filtered requests and executed plans.
+
+This run also checks Outbox recipient totals and bounded recipient paging for
+one sent message with 2,000 deliveries. It records owner and denied requests
+for the reading pane, first, last, and empty pages, along with executed query
+plans and the expected delivery, read, and completion counts.
+
 Full-text scoring and page-evidence changes must pass both the original gate
 below and the richer-text gate:
 

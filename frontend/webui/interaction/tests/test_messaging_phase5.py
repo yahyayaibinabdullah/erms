@@ -255,6 +255,8 @@ async def test_capture_button_is_busy_until_staging_finishes(user: User):
 
     await user.open("/capture-busy")
     user.find(marker="message-row-delivery").click()
+    await user.should_see(marker="mailbox-more-actions")
+    user.find(marker="mailbox-more-actions").click()
     await user.should_see("Save as record")
     user.find("Save as record").click()
     await asyncio.wait_for(entered.wait(), 1)

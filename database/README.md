@@ -108,6 +108,14 @@ filename order for upgrades newer than its recorded baseline. A fresh canonical
 installation must not replay older files merely because their historical marker
 is absent.
 
+Migration **115** adds **Messages per page** for Inbox, Outbox, and Drafts.
+Apply it before restarting the API and WebUI. Existing installations start at
+25 with an allowed range of 1–50.
+
+Migration **114** saves the action completion checkbox with reply drafts.
+Apply it before running the updated messaging API against an existing database.
+Existing drafts start unchecked because earlier versions did not save the choice.
+
 Migration **113** adds the application settings for child aggregation,
 contained record, and search result page sizes. It adds defaults of 10, 25,
 and 25 and preserves values already present. Apply it before restarting the

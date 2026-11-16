@@ -1,8 +1,57 @@
-"""Pure data operations for the existing in-app navigation trail."""
+"""Shared navigation presentation and pure operations for the in-app trail."""
 from typing import Any
 
 NAVIGATION_TRAIL_LIMIT = 20
 NAVIGATION_VISIBLE_LIMIT = 5
+
+# Sidebar entries and the authenticated page heading use the same glyphs.
+PAGE_ICONS = {
+    "dashboard": "dashboard",
+    "advanced-search": "manage_search",
+    "full-text-search": "search",
+    "aggregations": "folder",
+    "aggregation-details": "folder",
+    "records": "description",
+    "record-details": "description",
+    "classification-schemes": "account_tree",
+    "classification-workspace": "account_tree",
+    "classification-scheme-details": "account_tree",
+    "classification-details": "schema",
+    "relationship-types": "link",
+    "disposition-tasks": "task_alt",
+    "disposition-task": "task_alt",
+    "disposition-eligibility": "event_available",
+    "disposition-jobs": "work_outline",
+    "disposition-job": "work_outline",
+    "disposition-templates": "description",
+    "messages-inbox": "inbox",
+    "messages-outbox": "outbox",
+    "messages-drafts": "drafts",
+    "messages-monitor": "monitor_heart",
+    "messages-notifications": "notifications",
+    "organization-browser": "lan",
+    "org-units": "corporate_fare",
+    "org-unit-details": "corporate_fare",
+    "roles": "badge",
+    "role-details": "badge",
+    "users": "group",
+    "user-details": "person",
+    "audit-trail": "manage_history",
+    "login-sessions": "devices",
+    "security-operations": "monitor_heart",
+    "saved-search-administration": "manage_search",
+    "security-levels": "security",
+    "profiles": "admin_panel_settings",
+    "privileges": "key",
+    "permissions": "verified_user",
+    "governance-custody": "shield_person",
+    "holds": "gavel",
+    "hold-details": "gavel",
+    "text-indexers": "manage_search",
+    "text-indexer-details": "manage_search",
+    "translations": "translate",
+    "application-settings": "settings",
+}
 
 
 def navigation_entry_identity(entry: dict[str, Any]) -> tuple[str, int | None]:

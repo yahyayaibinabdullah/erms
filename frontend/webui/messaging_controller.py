@@ -4,27 +4,58 @@ from .api_client import ApiError
 from .capabilities import can_navigate
 from .entity_editor_controls import entity_metadata_label
 from .messaging_monitor import messaging_monitor
-from .messaging_workspace import messaging_workspace
+from .messaging_workspace import MAILBOX_PAGE_SIZE, messaging_workspace
 from .notification_administration import notification_administration
 from .relationship_select import relationship_select
 from .i18n_catalogue import render_message
 from .resource_inspector import resource_inspector
 from nicegui import ui
 
+_MAILBOX_PRIVILEGES = {
+    "messaging.user_messages.exchange",
+    "organization.browse",
+    "record.create",
+}
+
+
+def _mailbox_scope(principal):
+    if not principal:
+        return None
+    user_id = (principal.get("user") or {}).get("id")
+    session_id = (principal.get("session") or {}).get("id")
+    if user_id is None or session_id is None:
+        return None
+    return user_id, session_id, _MAILBOX_PRIVILEGES.intersection(
+        principal.get("global_privileges", ())
+    )
+
+
 def build_messaging_controller(
-    *, add_button, add_record_button, aggregation_mode_bar, aggregation_state, api, bind_remote_relationship_select, collection_state, enter_messages, error_message, format_timestamp, get_principal, get_resource, guarded_page_navigation, guidance, localized_navigation, medium_label, messaging_state, open_aggregation, open_record_draft_editor, preview_record_components, refresh_message_unread, register_navigation, search_bar, select_audit_trail, select_disposition, show_authenticated_view, show_organization_structure, show_record_details, subtitle, table_container, title,
+    *, add_button, add_record_button, aggregation_mode_bar, aggregation_state, api, bind_remote_relationship_select, collection_state, enter_messages, error_message, format_timestamp, get_principal, get_resource, guarded_page_navigation, guidance, localized_navigation, medium_label, messaging_state, open_aggregation, open_record_draft_editor, preview_record_components, refresh_message_unread, register_navigation, search_bar, select_audit_trail, select_disposition, show_authenticated_view, show_organization_structure, subtitle, table_container, title, compose_host=None, get_language=lambda: None, linked_content_enabled=lambda: True,
+    format_date=str, load_page_size=None,
 ):
-    async def select_messages(mailbox: str = "inbox") -> None:
+    async def select_messages(mailbox: str = "inbox", *, initial_item=None) -> None:
         principal = get_principal()
         if principal is None:
             return
         key = "messages-" + mailbox
         if not can_navigate(key, principal.get("global_privileges", [])):
             return
+        privileges = principal.get("global_privileges", [])
+        language = get_language()
+        scope = _mailbox_scope(principal)
+        # Only submitted criteria and cursors survive navigation. Results and
+        # selected entity labels are fetched under the current principal.
+        if (
+            scope is None or messaging_state.get("mailbox_scope") != (scope, language)
+        ):
+            messaging_state.update(mailbox_scope=(scope, language), mailbox_positions={})
+        positions = messaging_state["mailbox_positions"]
         show_authenticated_view()
         enter_messages(key); collection_state.update(rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
         token = object()
         messaging_state["messaging_workspace_token"] = token
+        messaging_state.pop("messaging_workspace", None)
         register_navigation(key, localized_navigation[key])
         title.text = localized_navigation[key]
         subtitle.text = ""
@@ -35,14 +66,41 @@ def build_messaging_controller(
         guidance.text = ""
         table_container.clear()
 
-        async def open_message_resource(kind, identity):
+        def workspace_active():
+            # Account-menu refresh replaces the profile within the same login.
+            return (
+                scope is not None
+                and _mailbox_scope(get_principal()) == scope
+                and messaging_state.get("messaging_workspace_token") is token
+                and get_resource() == key
+                and get_language() == language
+            )
+
+        async def navigate_mailbox(destination, identity=None):
+            if not workspace_active():
+                return
+            await guarded_page_navigation(lambda: select_messages(destination, initial_item=identity))
+
+        async def open_message_resource(kind, identity, link_active):
+            if not link_active():
+                return
             if kind == "aggregation":
-                await open_aggregation(await api.get("aggregations", identity))
+                aggregation = await api.get("aggregations", identity)
+
+                async def open_contents():
+                    if link_active():
+                        await open_aggregation(aggregation, from_authorized_read=True)
+
+                if link_active():
+                    await guarded_page_navigation(open_contents)
             elif kind == "record":
-                await show_record_details(await api.get("records", identity))
-            else:
+                await preview_record_components({"id": identity}, source_active=link_active)
+            elif kind == "digital_component":
                 component = await api.get("digital-components", identity)
-                await show_record_details(await api.get("records", component["record_id"]))
+                if link_active():
+                    await preview_record_components(
+                        {"id": component["record_id"]}, initial_component_id=identity, source_active=link_active,
+                    )
 
         async def inspect_message_resource(kind, identity, picker_active):
             await resource_inspector(api=api, kind=kind, identity=identity,
@@ -55,8 +113,7 @@ def build_messaging_controller(
             capture_dialog = ui.dialog().props("persistent")
             opening = {"closed": False}
             def capture_active():
-                return (not opening["closed"] and get_principal() is principal
-                        and messaging_state.get("messaging_workspace_token") is token)
+                return not opening["closed"] and workspace_active()
             def cancel_opening():
                 opening["closed"] = True
                 capture_dialog.close()
@@ -83,8 +140,12 @@ def build_messaging_controller(
                 return
             async def prepare_pdfs():
                 return await api.request("POST", f"/api/v1/messages/{envelope_id}/capture", params=params,timeout=660)
+            async def refresh_captured_message(_):
+                workspace = messaging_state.get("messaging_workspace")
+                if workspace_active() and workspace:
+                    await workspace["capture_committed"]()
             await open_record_draft_editor(existing_capture_draft=draft,
-                on_committed=lambda _:select_messages(mailbox),capture_active=capture_active,
+                on_committed=refresh_captured_message, capture_active=capture_active,
                 capture_loader=prepare_pdfs,capture_dialog=capture_dialog)
 
         if mailbox == "monitor":
@@ -104,22 +165,37 @@ def build_messaging_controller(
                 and messaging_state.get("messaging_workspace_token") is token and get_resource() == key,
             )
             return
-        messaging_state["messaging_workspace"] = await messaging_workspace(
+        try:
+            page_size = await load_page_size() if load_page_size else MAILBOX_PAGE_SIZE
+        except ApiError as error:
+            if workspace_active():
+                ui.notify(error_message(error), color="negative", close_button=True)
+            return
+        if not workspace_active():
+            return
+        workspace = await messaging_workspace(
             api=api, container=table_container, mailbox=mailbox,
-            can_exchange="messaging.user_messages.exchange" in principal.get("global_privileges", []),
+            can_exchange="messaging.user_messages.exchange" in privileges,
             relationship_select=relationship_select,
             bind_relationship=bind_remote_relationship_select,
-            open_resource=open_message_resource, format_timestamp=format_timestamp,
+            open_resource=open_message_resource, format_timestamp=format_timestamp, format_date=format_date,
             open_disposition_eligibility=lambda:guarded_page_navigation(lambda:select_disposition("disposition-eligibility")),
             open_disposition_job=lambda job_id:guarded_page_navigation(lambda:select_disposition("disposition-job",job_id)),
             open_disposition_task=lambda job_id,task_id:guarded_page_navigation(lambda:select_disposition("disposition-job",job_id,task_id=task_id)),
             inspect_resource=inspect_message_resource,
             on_read=refresh_message_unread,
-            browse_recipients=show_organization_structure if "organization.browse" in principal.get("global_privileges", []) else None,
-            capture_record=capture_message if "record.create" in principal.get("global_privileges",[]) else None,
-            active=lambda: get_principal() is principal
-            and messaging_state.get("messaging_workspace_token") is token and get_resource() == key,
+            browse_recipients=show_organization_structure if "organization.browse" in privileges else None,
+            capture_record=capture_message if "record.create" in privileges else None,
+            active=workspace_active,
+            mailbox_position=positions.setdefault(mailbox, {}),
+            initial_item=initial_item,
+            navigate_mailbox=navigate_mailbox,
+            compose_host=compose_host,
+            linked_content_enabled=linked_content_enabled(),
+            page_size=page_size,
         )
+        if workspace_active():
+            messaging_state["messaging_workspace"] = workspace
 
 
     return select_messages

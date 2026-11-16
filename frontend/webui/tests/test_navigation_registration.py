@@ -15,6 +15,7 @@ def host():
     node = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == 'prepare_navigation')
     calls = Mock()
     h = {'Any': object, 'api': SimpleNamespace(cancel_pending_reads=calls.cancel),
+         'content_controls': SimpleNamespace(compose_host=Mock()),
          'personal': PersonalResourceState(),
          'state': dict(search_diagnostics_sent='old', search_diagnostics_accepted='old', search_diagnostics_error='old'),
          'content_card': SimpleNamespace(classes=calls.classes), 'set_active_drawer_link': calls.drawer,

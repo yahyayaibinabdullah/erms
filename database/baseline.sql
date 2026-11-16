@@ -76,5 +76,7 @@ INSERT INTO schema_migrations(version) VALUES
  ('110_search_cache_cleanup_settings'),
  ('111_shared_search_results_cache'),
  ('112_search_vector_storage'),
- ('113_aggregation_listing_page_sizes');
+ ('113_aggregation_listing_page_sizes'),
+ ('114_message_draft_completion_choice'),
+ ('115_messages_page_size');
 COMMIT;

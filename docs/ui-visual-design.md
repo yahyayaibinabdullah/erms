@@ -40,8 +40,8 @@ a pale-yellow background, dark-blue text, and a slim blue rail. Its active state
 remains visible in collapsed icon-rail mode and is exposed with
 `aria-current="page"`.
 Drawer icons use the unfilled Material Symbols treatment at weight 300 for a
-light outline. This icon treatment is scoped to navigation and does not alter action,
-status, or metadata icons elsewhere in the application.
+light outline. Shared page headings use the same treatment and icon as their
+drawer entry. See [the page frame convention](webui-design-language.md#54-page-frame).
 
 ## Detail pages
 
@@ -57,11 +57,6 @@ Entity details use a consistent hierarchy:
 
 Record details retain the embedded Digital Components interface immediately
 below the metadata surface.
-
-The Dashboard and main list pages for Aggregations, Records, Classification
-Schemes, Organization Units, Roles, and Users place the corresponding lightweight
-outlined navigation icon immediately before the page title. Other pages hide
-this title icon rather than inheriting a stale icon from prior navigation.
 
 ## Dashboard charts
 

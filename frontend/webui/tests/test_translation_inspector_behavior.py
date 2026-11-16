@@ -27,7 +27,7 @@ async def test_synchronize_privilege_visibility_restore_and_failure(authorized,f
     v=build()
     if failure:v['page_client'].run_javascript.side_effect=RuntimeError('fixture')
     await v['synchronize_translation_inspector']({'localization.administer'} if authorized else set())
-    v['enable_diagnostic_metadata' if authorized else 'disable_diagnostic_metadata'].assert_called_once_with('fixture')
+    v['enable_diagnostic_metadata' if authorized and not failure else 'disable_diagnostic_metadata'].assert_called_once_with('fixture')
     for name in ('diagnostics_separator','diagnostics_section'):v[name].set_visibility.assert_called_once_with(authorized)
     assert v['inspector_switch'].value is (authorized and not failure)
     if not authorized:v['page_client'].run_javascript.assert_not_awaited()

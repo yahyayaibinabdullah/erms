@@ -358,3 +358,17 @@ results cache and their idle/cleanup policy covers every search type in the slot
 No environment variables are added or renamed. This migration does not apply
 itself during local stack startup; apply it explicitly before restarting updated
 services. Arabic wording changes remain drafts for administrator review.
+
+## Messages per page (migration 115)
+
+Apply `115_messages_page_size.sql` on existing databases before starting the
+updated API and WebUI. Fresh installations receive the setting through the
+canonical schema, required reference seed, and baseline. The default is 25.
+Administrators can change it under **Administration → Settings → Dashboard
+and selection limits**. Values from 1 to 50 apply when a mailbox is reopened
+after normal settings propagation. Subsequent edits take effect during
+normal operation.
+
+Synchronize the two new setting keys and seed missing Arabic drafts with the
+existing `--missing-only` workflow. The Arabic label and description require
+review before publication.

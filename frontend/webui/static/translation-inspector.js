@@ -2,7 +2,7 @@
   const P='\u2063',S='\u2064',V=0xFE00,STORE='wathiq.translationInspector.enabled',POSITION_STORE='wathiq.translationInspector.position';
   const ATTR=['aria-label','title','placeholder'];
   const state={authorized:false,enabled:false,pinned:null,active:null,highlighted:null,panel:null,labels:{},listening:false};
-  const textData=new WeakMap(),attrData=new WeakMap(),entriesByElement=new WeakMap(),pending=new Set(); let frame=0;
+  const textData=new WeakMap(),attrData=new WeakMap(),entriesByElement=new WeakMap();
   const selectorHex=s=>[...s].map(c=>(c.codePointAt(0)-V).toString(16)).join('');
   function key(s){const h=selectorHex(s),p=h.match(/.{2}/g);return p?new TextDecoder().decode(new Uint8Array(p.map(x=>parseInt(x,16)))):'';}
   function parse(value){
@@ -19,11 +19,56 @@
   function refresh(el){if(!(el instanceof Element))return;const all=[];for(const n of el.childNodes)if(n.nodeType===3)all.push(...(textData.get(n)?.entries||[]));for(const a of (attrData.get(el)||new Map()).values())all.push(...a.entries);
     const unique=all.filter((x,i)=>all.findIndex(y=>y.key===x.key&&y.rendered===x.rendered&&y.fallback===x.fallback)===i);
     if(unique.length){entriesByElement.set(el,unique);el.dataset.i18nKey=unique[0].key;}else{entriesByElement.delete(el);delete el.dataset.i18nKey;}}
-  function ignored(n){const e=n instanceof Element?n:n.parentElement;return !!e?.closest('#wathiq-translation-inspector,[data-inspector-ignore],script,style');}
-  function scan(root){if(!root||ignored(root))return;if(root.nodeType===3){const original=root.nodeValue,p=parse(original),previous=textData.get(root);if(p.entries.length||!previous||previous.value!==p.value)textData.set(root,p);if(p.value!==original)root.nodeValue=p.value;refresh(root.parentElement);return;}
-    if(!(root instanceof Element)&&root!==document)return;const e=root===document?document.documentElement:root,w=document.createTreeWalker(e,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT,{acceptNode:n=>ignored(n)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
-    const one=x=>{for(const name of ATTR){let m=attrData.get(x);if(!x.hasAttribute?.(name)){m?.delete(name);continue;}const original=x.getAttribute(name),p=parse(original);if(!m){m=new Map();attrData.set(x,m);}const previous=m.get(name);if(p.entries.length||!previous||previous.value!==p.value)m.set(name,p);if(p.value!==original)x.setAttribute(name,p.value);}refresh(x);};one(e);let n;while(n=w.nextNode())n.nodeType===3?scan(n):one(n);}
-  function queue(root){if(!root||ignored(root))return;for(const q of pending){if(q===root||q.contains?.(root))return;if(root.contains?.(q))pending.delete(q);}pending.add(root);if(!frame)frame=requestAnimationFrame(()=>{frame=0;for(const q of pending)scan(q);pending.clear();if(state.pinned&&!state.pinned.isConnected){state.pinned=null;show(null);}});}
+  function skipped(n) {
+    const element = n instanceof Element ? n : n.parentElement;
+    return !!element?.closest('#wathiq-translation-inspector,script,style');
+  }
+  function scanText(node) {
+    const original = node.nodeValue;
+    const p = parse(original);
+    const previous = textData.get(node);
+    if(p.entries.length||!previous||previous.value!==p.value)textData.set(node,p);
+    if (p.value !== original) node.nodeValue = p.value;
+    refresh(node.parentElement);
+  }
+  function scanAttributes(element) {
+    for (const name of ATTR) {
+      let attributes = attrData.get(element);
+      if (!element.hasAttribute(name)) {
+        attributes?.delete(name);
+        continue;
+      }
+      const original = element.getAttribute(name);
+      const p = parse(original);
+      const previous = attributes?.get(name);
+      if (p.entries.length || previous) {
+        if (!attributes) {
+          attributes = new Map();
+          attrData.set(element, attributes);
+        }
+        if (p.entries.length || previous.value !== p.value) attributes.set(name, p);
+      }
+      if (p.value !== original) element.setAttribute(name, p.value);
+    }
+    refresh(element);
+  }
+  function scan(root) {
+    if (skipped(root)) return;
+    if (root.nodeType === Node.TEXT_NODE) {
+      scanText(root);
+      return;
+    }
+    if (!(root instanceof Element)) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
+      acceptNode: node => skipped(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    });
+    scanAttributes(root);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node.nodeType === Node.TEXT_NODE) scanText(node);
+      else scanAttributes(node);
+    }
+  }
   function place(p,left,top){const margin=8,maxLeft=Math.max(margin,innerWidth-p.offsetWidth-margin),maxTop=Math.max(margin,innerHeight-p.offsetHeight-margin);p.style.inset='auto';p.style.left=`${Math.min(Math.max(margin,left),maxLeft)}px`;p.style.top=`${Math.min(Math.max(margin,top),maxTop)}px`;}
   function restorePosition(p){try{const saved=JSON.parse(sessionStorage.getItem(POSITION_STORE)||'null');if(saved&&Number.isFinite(saved.left)&&Number.isFinite(saved.top))place(p,saved.left,saved.top);}catch(_){sessionStorage.removeItem(POSITION_STORE);}}
   function makeMovable(p){const h=p.querySelector('.wathiq-i18n-panel-header');let drag=null;h.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,select,input,a'))return;const r=p.getBoundingClientRect();drag={x:e.clientX-r.left,y:e.clientY-r.top};h.setPointerCapture(e.pointerId);h.classList.add('is-dragging');e.preventDefault();});h.addEventListener('pointermove',e=>{if(drag)place(p,e.clientX-drag.x,e.clientY-drag.y);});const finish=e=>{if(!drag)return;drag=null;h.classList.remove('is-dragging');const r=p.getBoundingClientRect();sessionStorage.setItem(POSITION_STORE,JSON.stringify({left:r.left,top:r.top}));if(h.hasPointerCapture(e.pointerId))h.releasePointerCapture(e.pointerId);};h.addEventListener('pointerup',finish);h.addEventListener('pointercancel',finish);addEventListener('resize',()=>{if(p.style.left){const r=p.getBoundingClientRect();place(p,r.left,r.top);}});}
@@ -35,6 +80,45 @@
   const candidate=e=>{const o=e.target instanceof Element?e.target:e.target?.parentElement;return o?.closest('[data-inspector-ignore]')?null:o?.closest('[data-i18n-key]')||null;};
   const handlers={over:e=>{if(!state.pinned&&!e.target?.closest?.('#wathiq-translation-inspector'))show(candidate(e));},out:e=>{if(!state.pinned&&!e.relatedTarget?.closest?.('#wathiq-translation-inspector'))show(e.relatedTarget instanceof Element?e.relatedTarget.closest('[data-i18n-key]'):null);},focus:e=>{if(!state.pinned)show(candidate(e));},blur:e=>{if(!state.pinned&&!e.relatedTarget?.closest?.('#wathiq-translation-inspector'))show(e.relatedTarget instanceof Element?e.relatedTarget.closest('[data-i18n-key]'):null);},click:e=>{if(!e.target?.closest?.('#wathiq-translation-inspector')){const t=candidate(e);if(t){e.preventDefault();e.stopPropagation();state.pinned=t;show(t);}}},key:e=>{if(e.key==='Escape'){state.pinned=null;show(null);}}};
   const events=[['pointerover','over'],['pointerout','out'],['focusin','focus'],['focusout','blur'],['click','click'],['keydown','key']];function listen(on){if(on===state.listening)return;for(const [e,h] of events)document[on?'addEventListener':'removeEventListener'](e,handlers[h],true);state.listening=on;}
-  const observer=new MutationObserver(rs=>{for(const r of rs)r.type==='childList'?[...r.addedNodes].forEach(queue):queue(r.target);});
-  window.wathiqTranslationInspector={initialize(labels){state.labels={...labels};panel();return true;},setAuthorized(v){state.authorized=!!v;if(!v)this.setEnabled(false);return state.authorized;},setEnabled(v){state.enabled=state.authorized&&!!v;state.pinned=null;state.active=null;state.enabled?sessionStorage.setItem(STORE,'true'):sessionStorage.removeItem(STORE);observer.disconnect();listen(false);if(state.enabled){scan(document);listen(true);observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:ATTR});}show(null);return state.enabled;},restore(){return this.setEnabled(state.authorized&&sessionStorage.getItem(STORE)==='true');},clearSession(){sessionStorage.removeItem(STORE);return this.setEnabled(false);}};
+  const observer = new MutationObserver(records => {
+    const added = new Set();
+    for (const record of records) {
+      if (skipped(record.target)) continue;
+      if (record.type === 'childList') {
+        for (const node of record.addedNodes) added.add(node);
+        if (record.removedNodes.length) refresh(record.target);
+      } else if (record.type === 'attributes') {
+        scanAttributes(record.target);
+      } else {
+        scanText(record.target);
+      }
+    }
+    for (const node of added) {
+      if (node.isConnected && !added.has(node.parentNode)) scan(node);
+    }
+    if (state.pinned && !state.pinned.isConnected) {
+      state.pinned = null;
+      show(null);
+    }
+  });
+  window.wathiqTranslationInspector={initialize(labels){state.labels={...labels};panel();return true;},
+    setAuthorized(value) {
+      if (state.authorized === !!value) return state.authorized;
+      state.authorized = !!value;
+      if (state.authorized) {
+        // Collect and remove transport markers even while inspection is switched off.
+        scan(document.documentElement);
+        observer.observe(document.documentElement, {
+          subtree:true, childList:true, characterData:true, attributes:true, attributeFilter:ATTR,
+        });
+      } else {
+        observer.disconnect();
+        this.setEnabled(false);
+      }
+      return state.authorized;
+    },
+    setEnabled(v){state.enabled=state.authorized&&!!v;state.pinned=null;state.active=null;state.enabled?sessionStorage.setItem(STORE,'true'):sessionStorage.removeItem(STORE);listen(state.enabled);show(null);return state.enabled;},
+    restore(){return this.setEnabled(state.authorized&&sessionStorage.getItem(STORE)==='true');},
+    clearSession(){sessionStorage.removeItem(STORE);return this.setAuthorized(false);}
+  };
 })();

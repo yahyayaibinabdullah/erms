@@ -20,6 +20,7 @@ from frontend.webui.record_presentation import RECORD_UPLOAD_WAIT_MESSAGE
 from frontend.webui.organization_table import LIFECYCLE_ACTION_BUTTONS
 from frontend.webui.navigation_data import NAVIGATION_TRAIL_LIMIT
 from frontend.webui.navigation_data import NAVIGATION_VISIBLE_LIMIT
+from frontend.webui.navigation_data import PAGE_ICONS
 from frontend.webui.organization_table import USER_SUSPENSION_ACTION_BUTTONS
 from frontend.webui.entity_selectors import apply_relationship_selection
 from frontend.webui.component_presentation import component_uploader
@@ -1144,7 +1145,9 @@ def test_navigation_drawer_collapses_to_clickable_icon_rail():
     source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())) + inspect.getsource(application_shell) + inspect.getsource(login_sessions) + inspect.getsource(security_operations))
     assert '"width=300 mini-width=64 show-if-above"' in source
     assert '"width=300 mini-width=64 show-if-above bordered"' not in source
-    assert '"Browse", "lan", navigation_key="organization-browser"' in source
+    assert '"Browse", navigation_key="organization-browser"' in source
+    assert 'icon=PAGE_ICONS[navigation_key]' in source
+    assert PAGE_ICONS["organization-browser"] == "lan"
     assert "erms-nav-link" in source
     assert "white-space: nowrap" in source
     assert ".erms-nav-link:hover" in source
@@ -1310,7 +1313,7 @@ def test_governance_custody_page_explains_qualification_and_empty_configuration(
     assert 'page_rows = custodian_rows[offset:offset + 5]' in source
     assert 'page_rows = assignment_rows[offset:offset + 5]' in source
     assert "def set_page_title_icon(page: str)" in source
-    assert 'page_title_icon = ui.icon("dashboard")' in source
+    assert 'page_title_icon = ui.icon(PAGE_ICONS["dashboard"])' in source
     assert "page_title_icon = ui.icon()" not in source
     assert 'ui.label("Previous sign-in")' in source
 
@@ -1336,16 +1339,13 @@ def test_login_session_statuses_and_security_operations_use_compact_cards():
     assert 'current_user_avatar_initials = ui.label("?")' in source
     assert 'user_menu.on("show", refresh_user_profile)' in source
     assert 'my_sessions_menu' not in source
-    assert '"dashboard": "dashboard"' in source
-    assert '"aggregations": "folder"' in source
-    assert '"records": "description"' in source
-    assert '"classification-workspace": "account_tree"' in source
-    assert '"org-units": "corporate_fare"' in source
-    assert '"roles": "badge"' in source
-    assert '"users": "group"' in source
-    assert '"organization-browser": "lan"' in source
-    assert '"audit-trail": "manage_history"' in source
-    assert '"login-sessions": "devices"' in source
+    established_icons = {
+        "dashboard": "dashboard", "aggregations": "folder", "records": "description",
+        "classification-workspace": "account_tree", "org-units": "corporate_fare", "roles": "badge",
+        "users": "group", "organization-browser": "lan", "audit-trail": "manage_history",
+        "login-sessions": "devices",
+    }
+    assert {page: PAGE_ICONS[page] for page in established_icons} == established_icons
     assert '"w-full px-5 pb-5 pt-0 gap-4"' in source
     assert "background: #f4f6f8; color: var(--erms-ink);" in source
     assert "min-height: 54px; padding: 0 18px;" in source
