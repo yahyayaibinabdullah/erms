@@ -5,6 +5,7 @@ from nicegui import ui
 
 from .api_client import ApiError
 from .i18n_catalogue import render_message, render_message_plain, strip_diagnostic_metadata
+from .navigation_data import PAGE_ICONS
 
 
 async def detail_read(request, on_error):
@@ -141,7 +142,7 @@ def render_resource_detail_header(
     format_timestamp, render_actions, render_context=None,
 ):
     number = item[f'{kind}_number']
-    icon = 'folder' if kind == 'aggregation' else 'description'
+    icon = PAGE_ICONS[f'{kind}-details']
     details_label = render_message('resource_details.details')
     unavailable = render_message('resource_details.unavailable')
     marked_vital = item.get('is_vital')

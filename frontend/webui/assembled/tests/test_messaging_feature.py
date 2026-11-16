@@ -29,14 +29,21 @@ async def test_mailbox_compose_draft_send_retention_real_api(assembled):
         next(e for e in dialog.descendants() if isinstance(e,ui.input) and plain(e)==t('messaging.field.subject')).value='Mailbox refactor acceptance'
         next(e for e in dialog.descendants() if isinstance(e,ui.editor)).value='<p>Preserved mailbox content</p>'
         await eventually(lambda:button('messaging.action.send',dialog)[0].enabled and user.pending_requests==0)
-        click_one(user,button('messaging.action.save_draft',dialog));await user.should_see(t('messaging.state.saved'))
+        click_one(user,button('messaging.action.save_draft',dialog))
+        await eventually(lambda: any(
+            element.visible and "mailbox-draft-saved" in element._markers
+            for element in dialog.descendants()
+        ) and user.pending_requests == 0)
         drafts=(await api.request('GET','/api/v1/messages/drafts'))['items'];draft=next(r for r in drafts if r['subject']=='Mailbox refactor acceptance')
-        click_one(user,button('messaging.action.cancel',dialog));await enter('drafts')
-        last_element=max(user.client.elements);user.find(marker='message-row-'+draft['id']).click();await eventually(lambda:any(isinstance(e,ui.button) and 'messaging-send' in e._markers and e.enabled and e.id>last_element for e in user.client.elements.values()))
+        click_one(user,button('messaging.action.open_draft',dialog))
+        await eventually(lambda:current_page(user)=='messages-drafts' and user.pending_requests==0)
+        assert any(isinstance(e,ui.input) and e.value==draft['subject'] for e in user.client.elements.values())
         send=max((e for e in user.client.elements.values() if isinstance(e,ui.button) and 'messaging-send' in e._markers and e.enabled),key=lambda e:e.id)
         click_one(user,[send]);await user.should_see(t('messaging.state.sent'))
         sent=next(r for r in (await api.request('GET','/api/v1/messages/outbox'))['items'] if r['subject']=='Mailbox refactor acceptance')
-        await enter('outbox');user.find(marker='message-row-'+sent['id']).click()
+        click_one(user,button('messaging.action.view_sent'))
+        await eventually(lambda:current_page(user)=='messages-outbox' and user.pending_requests==0)
+        user.find(marker='mailbox-more-actions').click()
         await eventually(lambda:user.pending_requests==0 and bool(button('messaging.capture.save')))
         message=await api.request('GET','/api/v1/messages/outbox/'+sent['id'])
         assert not message['can_delete']

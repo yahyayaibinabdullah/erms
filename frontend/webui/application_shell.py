@@ -7,6 +7,7 @@ from nicegui import ui
 from .disposition.messages import text as disposition_text
 from .config import database_display_name
 from .i18n_catalogue import render_message
+from .navigation_data import PAGE_ICONS
 
 
 @dataclass(frozen=True)
@@ -192,9 +193,9 @@ def build_drawer(initial_direction: str) -> DrawerControls:
     drawer_sections: list[tuple[Any, tuple[str, ...]]] = []
 
     def drawer_link(
-        label: str, icon: str, *, navigation_key: str, extra_classes: str = "",
+        label: str, *, navigation_key: str, extra_classes: str = "",
     ) -> Any:
-        button = ui.button(label, icon=icon).props(
+        button = ui.button(label, icon=PAGE_ICONS[navigation_key]).props(
             f'flat align=left no-caps aria-label={label!r}'
         ).classes(f"erms-nav-link w-full justify-start px-4 {extra_classes}")
         with button:
@@ -240,29 +241,28 @@ def build_drawer(initial_direction: str) -> DrawerControls:
         with ui.scroll_area().classes("erms-nav-scroll w-full h-full"):
             with ui.column().classes("w-full gap-0 no-wrap"):
                 dashboard_navigation = drawer_link(
-                    render_message("navigation.item.dashboard"), "dashboard", navigation_key="dashboard", extra_classes="mt-4",
+                    render_message("navigation.item.dashboard"), navigation_key="dashboard", extra_classes="mt-4",
                 )
                 for heading_key, entries in (
-                    ("records_heading", (("advanced-search", "manage_search"), ("aggregations", "folder"), ("records", "description"), ("classification-schemes", "account_tree"), ("relationship-types", "link"))),
-                    ("disposition_heading", (("disposition-tasks", "task_alt"), ("disposition-eligibility", "event_available"), ("disposition-jobs", "work_outline"), ("disposition-templates", "description"))),
-                    ("messages_heading", (("messages-inbox", "inbox"), ("messages-outbox", "outbox"), ("messages-drafts", "drafts"), ("messages-monitor", "monitor_heart"), ("messages-notifications", "notifications"))),
-                    ("organization_heading", (("org-units", "corporate_fare"), ("roles", "badge"), ("users", "group"))),
+                    ("records_heading", ("advanced-search", "aggregations", "records", "classification-schemes", "relationship-types")),
+                    ("disposition_heading", ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-templates")),
+                    ("messages_heading", ("messages-inbox", "messages-outbox", "messages-drafts", "messages-monitor", "messages-notifications")),
+                    ("organization_heading", ("org-units", "roles", "users")),
                 ):
                     heading_control = ui.label(localized_navigation[heading_key]).classes(
                         "erms-nav-heading px-4 pt-5 pb-2"
                     )
                     drawer_headings.append(heading_control)
-                    section_keys = tuple(key for key, _ in entries)
+                    section_keys = entries
                     if heading_key == "organization_heading":
                         organization_browser_navigation = drawer_link(
-                            render_message("navigation.item.organization_browser"), "lan", navigation_key="organization-browser",
+                            render_message("navigation.item.organization_browser"), navigation_key="organization-browser",
                         )
                         section_keys = ("organization-browser", *section_keys)
                     drawer_sections.append((heading_control, section_keys))
-                    for key, icon in entries:
+                    for key in entries:
                         navigation[key] = drawer_link(
-                            localized_navigation[key],
-                            icon, navigation_key=key,
+                            localized_navigation[key], navigation_key=key,
                         )
                 system_heading = ui.label(render_message("webui.index.label.system_administration_53cbe26c")).classes(
                     "erms-nav-heading px-4 pt-5 pb-2"
@@ -274,38 +274,38 @@ def build_drawer(initial_direction: str) -> DrawerControls:
                     "text-indexers", "translations", "application-settings",
                 )))
                 text_indexers_navigation = drawer_link(
-                    render_message("navigation.item.text_indexers"), "manage_search", navigation_key="text-indexers",
+                    render_message("navigation.item.text_indexers"), navigation_key="text-indexers",
                 )
                 application_settings_navigation = drawer_link(
-                    render_message("navigation.item.application_settings"), "settings", navigation_key="application-settings",
+                    render_message("navigation.item.application_settings"), navigation_key="application-settings",
                 )
                 audit_navigation = drawer_link(
-                    render_message("navigation.item.audit_trail"), "manage_history", navigation_key="audit-trail",
+                    render_message("navigation.item.audit_trail"), navigation_key="audit-trail",
                 )
                 sessions_navigation = drawer_link(
-                    render_message("navigation.item.login_sessions"), "devices", navigation_key="login-sessions",
+                    render_message("navigation.item.login_sessions"), navigation_key="login-sessions",
                 )
                 security_operations_navigation = drawer_link(
-                    render_message("navigation.item.security_operations"), "monitor_heart", navigation_key="security-operations",
+                    render_message("navigation.item.security_operations"), navigation_key="security-operations",
                 )
                 saved_search_administration_navigation = drawer_link(
                     render_message("privilege.search.saved_search.administrator.name"),
-                    "manage_search", navigation_key="saved-search-administration",
+                    navigation_key="saved-search-administration",
                 )
                 navigation["security-levels"] = drawer_link(
-                    render_message("navigation.item.security_levels"), "security", navigation_key="security-levels",
+                    render_message("navigation.item.security_levels"), navigation_key="security-levels",
                 )
                 navigation["profiles"] = drawer_link(
-                    render_message("navigation.item.profiles"), "admin_panel_settings", navigation_key="profiles",
+                    render_message("navigation.item.profiles"), navigation_key="profiles",
                 )
                 navigation["translations"] = drawer_link(
-                    render_message("navigation.item.translations"), "translate", navigation_key="translations",
+                    render_message("navigation.item.translations"), navigation_key="translations",
                 )
                 custody_navigation = drawer_link(
-                    render_message("navigation.item.governance_custody"), "shield_person", navigation_key="governance-custody",
+                    render_message("navigation.item.governance_custody"), navigation_key="governance-custody",
                 )
                 holds_navigation = drawer_link(
-                    render_message("navigation.item.holds"), "gavel", navigation_key="holds",
+                    render_message("navigation.item.holds"), navigation_key="holds",
                 )
 
     return DrawerControls(
@@ -339,6 +339,7 @@ class ContentControls:
     aggregation_search_mode: Any
     breadcrumb_host: Any
     content_card: Any
+    compose_host: Any
     guidance: Any
     page_title_icon: Any
     search_bar: Any
@@ -359,7 +360,7 @@ def build_content() -> ContentControls:
         with ui.row().classes("w-full items-center no-wrap gap-4", remove="row"):
             with ui.column().classes("gap-0 grow min-w-0"):
                 with ui.row().classes("erms-page-title-row items-center no-wrap gap-2"):
-                    page_title_icon = ui.icon("dashboard").classes("erms-page-title-icon")
+                    page_title_icon = ui.icon(PAGE_ICONS["dashboard"]).classes("erms-page-title-icon shrink-0").props("aria-hidden=true")
                     title = ui.label().classes("text-2xl font-semibold")
                 subtitle = ui.label().classes("text-sm text-slate-500")
             with ui.row().classes("items-center no-wrap gap-2 flex-none"):
@@ -367,6 +368,8 @@ def build_content() -> ContentControls:
                 add_record_button = ui.button(
                     render_message("webui.index.button.add_record_fc8125c4"), icon="note_add", color="secondary"
                 ).props("unelevated rounded")
+
+            compose_host = ui.row().classes("items-center flex-none empty:hidden")
 
         with ui.card().classes("erms-card w-full p-0") as content_card:
             with ui.row().classes(
@@ -402,6 +405,7 @@ def build_content() -> ContentControls:
         aggregation_search_mode=aggregation_search_mode,
         breadcrumb_host=breadcrumb_host,
         content_card=content_card,
+        compose_host=compose_host,
         guidance=guidance,
         page_title_icon=page_title_icon,
         search_bar=search_bar,

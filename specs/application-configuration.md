@@ -248,6 +248,11 @@ password change, or administrative password recovery clears the counter/lock.
 | `DASHBOARD_REVIEW_PREVIEW_LIMIT` | integer | `5` | At least `1` |
 | `CLASSIFICATION_RECENT_SELECTION_LIMIT` | integer | `4` | At least `1` |
 | `USER_DETAILS_SESSION_LIMIT` | integer | `5` | At least `1` |
+| `MESSAGES_PAGE_SIZE` | integer | `25` | `1`–`50` |
+
+The WebUI reads `MESSAGES_PAGE_SIZE` from effective application configuration
+when opening Inbox, Outbox, or Drafts and uses that value for server pagination.
+See [Notifications and In-App Messaging](notifications-and-messaging.md#mailbox-navigation-and-presentation-16-november-2026).
 
 ### 5.5 Search and indexing policy owned by the API
 

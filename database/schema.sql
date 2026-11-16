@@ -3789,6 +3789,7 @@ CREATE FUNCTION public.application_setting_value_valid(p_key text, p_value jsonb
  WHEN 'CHILD_AGGREGATION_PAGE_SIZE' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 100)
  WHEN 'CONTAINED_RECORD_PAGE_SIZE' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 100)
  WHEN 'SEARCH_RESULTS_PAGE_SIZE' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 100)
+ WHEN 'MESSAGES_PAGE_SIZE' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 50)
  WHEN 'FULL_TEXT_SEARCH_ENABLED' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='boolean')
  WHEN 'CONTENT_INDEXING_SCHEDULING_ENABLED' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='boolean')
  WHEN 'CONTENT_INDEXING_HISTORY_RETENTION_DAYS' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 0 AND 9223372036854775807)
@@ -9230,6 +9231,7 @@ CREATE TABLE public.message_drafts (
     purge_after timestamp with time zone,
     deletion_reason text,
     expiry_restoration_days integer DEFAULT 30 NOT NULL,
+    complete_action boolean DEFAULT false NOT NULL,
     CONSTRAINT message_drafts_body_rich_text_check CHECK (((body_rich_text IS NULL) OR (octet_length(body_rich_text) <= 65536))),
     CONSTRAINT message_drafts_check CHECK (((action_due_date IS NULL) = (action_due_timezone IS NULL))),
     CONSTRAINT message_drafts_check1 CHECK ((action_required OR (action_due_date IS NULL))),

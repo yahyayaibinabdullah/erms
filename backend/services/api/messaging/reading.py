@@ -8,6 +8,7 @@ from .content import invalid
 from .config import LIMITS
 from ..entity_localization import preferred_language_for_user, localized_projection
 from .service import RESOURCE_QUERIES, require_exchange
+from .text_filters import TextFilters, mailbox_page
 
 ACTIVE_INBOX = "d.deleted_at IS NULL AND (e.expires_at>CURRENT_TIMESTAMP OR d.purge_after>CURRENT_TIMESTAMP)"
 ACTIVE_OUTBOX = "e.sender_deleted_at IS NULL AND (e.expires_at>CURRENT_TIMESTAMP OR e.sender_purge_after>CURRENT_TIMESTAMP)"
@@ -90,7 +91,7 @@ def links_for(c, rows):
     return result
 
 
-def present(c, user, rows, *, detail=False):
+def present(c, user, rows, *, detail=False, outbox_detail=False):
     from .actions import decorate
 
     action_details = decorate(c, user, rows, detail)
@@ -260,7 +261,11 @@ def present(c, user, rows, *, detail=False):
         if detail and task_links.get(r['id']):item['disposition_task']=task_links[r['id']]
         if detail and job_links.get(r['id']):item['disposition_job']=job_links[r['id']]
         if detail:
-            if r["sender_user_id"] == user:
+            if outbox_detail:
+                summary = recipient_summary(c, r, action_details[r["id"]]["effective_action"])
+                item["recipient_summary"] = summary
+                item["recipient_count"] = summary["delivered"]
+            elif r["sender_user_id"] == user:
                 item["recipient_count"] = c.execute(
                     "SELECT count(*) AS n FROM message_addressees WHERE envelope_id=%s",
                     (r["id"],),
@@ -275,10 +280,23 @@ def present(c, user, rows, *, detail=False):
     return output
 
 
-def inbox(c, user, limit, cursor=None, after=None, is_read=None, priority=None, recipient_kind=None, recipient_id=None, sent_from=None, sent_before=None, sender_user_id=None):
+def inbox(c, user, limit, cursor=None, after=None, is_read=None, priority=None, recipient_kind=None, recipient_id=None, sent_from=None, sent_before=None, sender_user_id=None, text_filters=TextFilters()):
     person(c, user)
     clauses = ["d.recipient_user_id=%s", ACTIVE_INBOX, VISIBLE]
     args = [user, user]
+    source = JOIN
+    source_args = []
+    if text_filters.q.strip() or text_filters.body_q.strip():
+        source += """ LEFT JOIN message_envelope_localizations variant
+          ON variant.envelope_id=e.id AND variant.language_tag=%s
+          AND e.message_kind IN ('system_notification','action_amendment_notice')"""
+        source_args.append(preferred_language_for_user(c, user))
+        predicates, patterns = text_filters.predicates(
+            subject="coalesce(variant.subject,e.subject)",
+            body="coalesce(variant.body_rich_text,e.body_rich_text)",
+        )
+        clauses.extend(["(SELECT messaging_user_clearance(%s))>=l.level_number", *predicates])
+        args.extend([user, *patterns])
     if sender_user_id is not None:
         clauses.append("(messaging_user_clearance(%s)>=l.level_number AND e.sender_user_id=%s)")
         args.extend((user, sender_user_id))
@@ -310,12 +328,12 @@ def inbox(c, user, limit, cursor=None, after=None, is_read=None, priority=None, 
     order = (
         "d.mailbox_sequence ASC" if after is not None else "d.created_at DESC,d.id DESC"
     )
-    rows = c.execute(
-        f"SELECT {PROJECTION},CURRENT_TIMESTAMP AS now FROM {JOIN} WHERE "
-        + " AND ".join(clauses)
-        + f" ORDER BY {order} LIMIT %s",
-        (user, *args, limit + 1),
-    ).fetchall()
+    rows = mailbox_page(
+        c, projection=f"{PROJECTION},CURRENT_TIMESTAMP AS now", projection_args=(user,),
+        source=source, source_args=source_args, clauses=clauses, args=args,
+        order=order, limit=limit + 1, linked_query=text_filters.linked_q,
+        row_id="d.id", envelope_id="e.id", level="l.level_number",
+    )
     more = len(rows) > limit
     rows = rows[:limit]
     output = {"items": present(c, user, rows), "has_more": more}
@@ -351,13 +369,54 @@ def delivery(c, user, identity, mark_read=False):
     return present(c, user, [row], detail=True)[0]
 
 
+def owned_outbox_row(c, user, identity):
+    require_exchange(c, user)
+    row = c.execute(
+        f"""SELECT e.*,l.level_number,l.name AS security_level_name,CURRENT_TIMESTAMP AS now,
+                   messaging_user_clearance(%s)>=l.level_number AS readable
+            FROM message_envelopes e JOIN security_levels l ON l.id=e.security_level_id
+            WHERE e.id=%s AND e.sender_user_id=%s AND e.message_kind='user_message' AND {ACTIVE_OUTBOX}""",
+        (user, identity, user),
+    ).fetchone()
+    if not row:
+        invalid("message_not_found", 404)
+    return row
+
+
+RECIPIENT_SUMMARY_SQL = """SELECT count(*) AS delivered,
+    CASE WHEN %(receipts)s THEN count(d.read_at) END AS read,
+    CASE WHEN %(action)s THEN count(*) FILTER (WHERE d.recipient_type='to') END AS action_total,
+    CASE WHEN %(action)s THEN count(completion.original_delivery_id) END AS completed,
+    max(completion.completed_at) AS last_completion
+    FROM message_deliveries d
+    LEFT JOIN message_action_completions completion
+        ON %(action)s AND d.recipient_type='to' AND completion.original_delivery_id=d.id
+    WHERE d.envelope_id=%(identity)s"""
+
+
+def recipient_summary(c, row, effective_action):
+    from .actions import status
+
+    summary = c.execute(RECIPIENT_SUMMARY_SQL, {
+        "identity": row["id"], "receipts": row["read_receipt_requested"],
+        "action": row["action_required"],
+    }).fetchone()
+    last_completion = summary.pop("last_completion")
+    if summary["action_total"] and effective_action["action_required"]:
+        summary["action_status"] = status(
+            True, effective_action,
+            last_completion if summary["completed"] == summary["action_total"] else None,
+            row["now"],
+        )
+    return {key: value for key, value in summary.items() if value is not None}
+
+
 def outbox(
     c,
     user,
     limit,
     cursor=None,
     identity=None,
-    q="",
     priority=None,
     security_level_id=None,
     action_required=None,
@@ -366,13 +425,14 @@ def outbox(
     action_state=None,
     recipient_kind=None,
     recipient_id=None,
+    text_filters=TextFilters(),
 ):
+    if identity:
+        row = owned_outbox_row(c, user, identity)
+        return present(c, user, [row], detail=True, outbox_detail=True)[0]
     require_exchange(c, user)
     clauses = ["e.sender_user_id=%s", "e.message_kind='user_message'", ACTIVE_OUTBOX]
     args = [user]
-    if identity:
-        clauses.append("e.id=%s")
-        args.append(identity)
     if cursor:
         clauses.append("(e.sent_at,e.id)<(%s,%s)")
         args.extend(cursor_decode(cursor))
@@ -386,11 +446,10 @@ def outbox(
                 f"(messaging_user_clearance(%s)>=l.level_number AND {expression}=%s)"
             )
             args.extend((user, value))
-    if q:
-        clauses.append(
-            "(messaging_user_clearance(%s)>=l.level_number AND e.subject ILIKE %s)"
-        )
-        args.extend((user, "%" + q + "%"))
+    predicates, patterns = text_filters.predicates(subject="e.subject", body="e.body_rich_text")
+    if predicates:
+        clauses.extend(["(SELECT messaging_user_clearance(%s))>=l.level_number", *predicates])
+        args.extend([user, *patterns])
     for value, operator in ((sent_from, ">="), (sent_before, "<")):
         if value:
             clauses.append(f"e.sent_at{operator}%s")
@@ -418,16 +477,15 @@ def outbox(
             if action_state == "late"
             else "(CASE WHEN am.id IS NULL THEN e.action_due_at ELSE am.new_due_at END IS NULL OR CASE WHEN am.id IS NULL THEN e.action_due_at ELSE am.new_due_at END>=CURRENT_TIMESTAMP)"
         )
-    rows = c.execute(
-        "SELECT e.*,l.level_number,l.name AS security_level_name,CURRENT_TIMESTAMP AS now,messaging_user_clearance(%s)>=l.level_number AS readable FROM message_envelopes e JOIN security_levels l ON l.id=e.security_level_id LEFT JOIN LATERAL (SELECT * FROM message_action_amendments WHERE original_envelope_id=e.id ORDER BY sequence DESC LIMIT 1) am ON true WHERE "
-        + " AND ".join(clauses)
-        + " ORDER BY e.sent_at DESC,e.id DESC LIMIT %s",
-        (user, *args, limit + 1),
-    ).fetchall()
-    if identity:
-        if not rows:
-            invalid("message_not_found", 404)
-        return present(c, user, rows, detail=True)[0]
+    rows = mailbox_page(
+        c, projection="""e.*,l.level_number,l.name AS security_level_name,CURRENT_TIMESTAMP AS now,
+                         messaging_user_clearance(%s)>=l.level_number AS readable""",
+        projection_args=(user,), source="""message_envelopes e JOIN security_levels l ON l.id=e.security_level_id
+            LEFT JOIN LATERAL (SELECT * FROM message_action_amendments WHERE original_envelope_id=e.id
+                               ORDER BY sequence DESC LIMIT 1) am ON true""",
+        clauses=clauses, args=args, order="e.sent_at DESC,e.id DESC", limit=limit + 1,
+        linked_query=text_filters.linked_q, row_id="e.id", envelope_id="e.id", level="l.level_number",
+    )
     more = len(rows) > limit
     rows = rows[:limit]
     return {
@@ -437,35 +495,51 @@ def outbox(
     }
 
 
+RECIPIENT_PAGE_SQL = """WITH page AS (
+    SELECT id,recipient_user_id,recipient_type,created_at AS delivered_at{read_field}
+    FROM message_deliveries
+    WHERE envelope_id=%(identity)s AND recipient_user_id>%(after)s
+    ORDER BY recipient_user_id LIMIT %(limit)s
+)
+SELECT d.*,a.recipient_name,u.translations,completion.completed_at,completion.reply_envelope_id,
+       reply_delivery.id AS completion_reply_delivery_id
+FROM page d
+JOIN message_addressees a ON a.envelope_id=%(identity)s AND a.user_id=d.recipient_user_id
+LEFT JOIN users u ON u.id=d.recipient_user_id
+LEFT JOIN message_action_completions completion ON completion.original_delivery_id=d.id
+LEFT JOIN message_deliveries reply_delivery
+    ON reply_delivery.envelope_id=completion.reply_envelope_id AND reply_delivery.recipient_user_id=%(user)s
+ORDER BY d.recipient_user_id"""
+
+
 def receipts(c, user, identity, limit, after):
-    message = outbox(c, user, 1, identity=identity)
-    if message["availability"] != "available":
+    message = owned_outbox_row(c, user, identity)
+    if not message["readable"]:
         invalid("message_restricted", 403)
-    fields = ",d.read_at" if message["read_receipt_requested"] else ""
+    read_field = ",read_at" if message["read_receipt_requested"] else ""
     rows = c.execute(
-        f"""SELECT d.id,d.recipient_user_id,d.recipient_type,a.recipient_name,u.translations,completion.completed_at,completion.reply_envelope_id,reply_delivery.id AS completion_reply_delivery_id{fields}
-        FROM message_deliveries d JOIN message_addressees a ON a.envelope_id=d.envelope_id AND a.user_id=d.recipient_user_id
-        LEFT JOIN users u ON u.id=d.recipient_user_id
-        LEFT JOIN message_action_completions completion ON completion.original_delivery_id=d.id
-        LEFT JOIN message_deliveries reply_delivery ON reply_delivery.envelope_id=completion.reply_envelope_id AND reply_delivery.recipient_user_id=%s
-        WHERE d.envelope_id=%s AND d.recipient_user_id>%s ORDER BY d.recipient_user_id LIMIT %s""",
-        (user, identity, after, limit + 1),
+        RECIPIENT_PAGE_SQL.format(read_field=read_field),
+        {"user": user, "identity": identity, "after": after, "limit": limit + 1},
     ).fetchall()
     from .actions import status
 
-    now = c.execute("SELECT CURRENT_TIMESTAMP AS now").fetchone()["now"]
     last = c.execute(
-        "SELECT previous_due_at FROM message_action_amendments WHERE original_envelope_id=%s ORDER BY sequence DESC LIMIT 1",
+        """SELECT new_action_required,new_due_at,previous_due_at
+           FROM message_action_amendments WHERE original_envelope_id=%s ORDER BY sequence DESC LIMIT 1""",
         (identity,),
     ).fetchone()
+    effective = {
+        "action_required": last["new_action_required"] if last else message["action_required"],
+        "due_at": last["new_due_at"] if last else message["action_due_at"],
+    }
     language = preferred_language_for_user(c, user)
     for row in rows:
         row["recipient_name"] = localized_projection({"name": row["recipient_name"], "translations": row.pop("translations")}, language, "name")["name"]
         row["action_status"] = status(
             message["action_required"] and row["recipient_type"] == "to",
-            message["effective_action"],
+            effective,
             row["completed_at"],
-            now,
+            message["now"],
             last["previous_due_at"] if last else message["action_due_at"],
         )
     more = len(rows) > limit

@@ -1,6 +1,6 @@
 """Translation administration and Inspector parity without changing catalogue artifacts."""
 from selenium.webdriver.common.keys import Keys
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlsplit
 
 
 def check_translations(page):
@@ -12,6 +12,34 @@ def check_translations(page):
     def closed():page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
     def capture(name):page.capture('translations-'+name+'-'+page.language)
     def action(key):page.click(page.t(key))
+
+    clipboard_readable = page.args.browser in {'chrome', 'edge'}
+
+    def assert_label_copies_cleanly(label, expected):
+        result = page.driver.execute_async_script("""
+            const [label, clipboardReadable, done] = arguments;
+            const range = document.createRange();
+            range.selectNodeContents(label);
+            const selection = getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            const selected = selection.toString();
+            const copied = clipboardReadable && document.execCommand('copy');
+            selection.removeAllRanges();
+            if (!clipboardReadable) { done({selected}); return; }
+            navigator.clipboard.readText().then(text => done({selected, copied, text}),
+                error => done({error: error.message}));
+        """, label, clipboard_readable)
+        assert result.get('selected') == expected, result
+        if clipboard_readable:
+            assert result.get('copied') is True and result.get('text') == expected, result
+
+    if clipboard_readable:
+        origin = urlsplit(page.driver.current_url)
+        page.driver.execute_cdp_cmd('Browser.grantPermissions', {
+            'origin': f'{origin.scheme}://{origin.netloc}',
+            'permissions': ['clipboardReadWrite', 'clipboardSanitizedWrite'],
+        })
     def profile():
         # Menu-show refreshes the principal and restores Inspector state. Observe
         # that existing restore before interacting with its toggle, so the test
@@ -74,6 +102,7 @@ def check_translations(page):
             page.driver.switch_to.active_element.send_keys(Keys.ESCAPE)
             # Click the translated brand to pin it; the Inspector prevents its normal action.
             brand=page.one('header [data-i18n-key="webui.index.label.wathiq_d1dfb800"]')
+            assert_label_copies_cleanly(brand, page.t('webui.index.label.wathiq_d1dfb800'))
             page.activate(brand);capture('inspector')
             page.report.setdefault('inspector_diagnostics',[]).append(page.driver.execute_script("return {bridge:document.getElementById('translation-inspector-bridge')?.outerHTML, keys:document.querySelector('#wathiq-translation-inspector [data-x=keys]')?.textContent, connected:window.socket?.connected}"))
             page.activate(page.one('#wathiq-translation-inspector [data-a=open]'))
@@ -82,6 +111,10 @@ def check_translations(page):
             menu=profile();page.activate(page.one('[role=switch]',scope=menu))
             page.wait.until(lambda _:not page.visible('#wathiq-translation-inspector'))
             page.driver.switch_to.active_element.send_keys(Keys.ESCAPE)
+            enter()
+            heading = 'webui.select_translation_administration.label.supported_languages_0a3fd31a'
+            label = page.one(f'main [data-i18n-key="{heading}"]', page.t(heading))
+            assert_label_copies_cleanly(label, page.t(heading))
             page.errors()
     writes=[e for e in page.events() if e['method'] in {'POST','PATCH','PUT','DELETE'} and '/admin/i18n/' in e['path']]
     assert not writes,writes

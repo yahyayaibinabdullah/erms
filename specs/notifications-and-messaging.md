@@ -726,6 +726,9 @@ A human user with `messaging.user_messages.exchange` may save an unsent private
 draft. A draft may contain the same compose fields, recipient selectors, and
 structured resource links as a message, but it has no sent time, delivery
 copies, read state, receipts, mailbox sequence, toast, or action completion.
+An eligible reply draft retains its author's **Is the action done?** choice.
+Only sending the reply can record the completion acknowledgment, subject to
+the current action status and send-time validation.
 Only the owning user with current exchange privilege may list, read, edit,
 send, or discard it.
 
@@ -1211,6 +1214,12 @@ growing can therefore retain older messages for longer than three years. This
 is intentional; individual expiry dates do not promise a maximum physical
 storage lifetime.
 
+**Expires** in the reading pane displays the message's expiry instant in the
+viewer's working time zone. At expiry, an active entry leaves the ordinary
+mailbox and enters **Recently deleted** for its applicable restoration period
+(30 days by default). The retention cleanup worker permanently deletes the
+group after both eligibility conditions above are met.
+
 For example, a message sent in January and a reply sent in February remain
 stored together until both have expired and all their deleted-message
 restoration periods have ended. Cleanup then deletes both together. It must
@@ -1543,11 +1552,21 @@ a deterministic tie-breaker. Read state and priority may be exposed as filters
 or deliberate alternate sort choices.
 
 The inbox shall distinguish unread messages, `To` from `Cc`, priority, and
-action-required messages. For a readable action-required delivery it shall also
-show the due date when present and the recipient's current Outstanding, Late,
-Completed, or Completed late indicator. It shall have deliberate loading,
-empty, and error states and follow Wathiq's established table/list
-presentation.
+action-required messages. The Messages list shows a **Cc** badge for copied
+deliveries. A directly addressed message uses the standard list row. The
+reading pane shows the original To and Cc headers. For readable action-required
+To deliveries, the list shows any due date and the recipient's current status
+of Outstanding, Late, Completed, or Completed late. Cc rows show their Cc badge
+without a personal action status or due date. The list has deliberate
+loading, empty, and error states and follows Wathiq's established presentation.
+
+The Inbox reading pane displays the personal action banner for To deliveries
+with action details. The Cc header identifies copied recipients, who can open
+the action history to see the sender's amendments.
+
+Action history displays the original action settings and the amendment timeline.
+It displays **Current action** when the effective settings differ from the
+original, including when the sender withdraws the requirement.
 
 Without `messaging.user_messages.exchange`, the same Inbox page and pagination
 contract return only envelopes with `sender_kind = system`. Human-authored
@@ -1760,6 +1779,17 @@ the concrete delivery result, requested read receipts, and per-recipient action
 status. Current security and resource-link authorization still apply. The
 Outbox does not imply that all recipients remain authorized to open the message
 or its resources.
+
+The collapsed **Recipients & receipts** heading shows total deliveries, the
+number read when receipts were requested, and the number completed out of all
+To recipients when the message originally required an action. The expanded
+section groups each recipient's name above their delivery type, delivery
+timestamp, available read receipt, and action status. The delivery timestamp
+records when Wathiq stored the Inbox copy as part of sending. The first-read
+timestamp appears separately when a read receipt was requested and the copy
+has been read. The section links to the completion reply when available.
+The expanded list shows three recipients per server page, with a visible
+range and previous and next controls when there are multiple pages.
 
 For an eligible ordinary user message, the Outbox detail provides **Forward**
 and **Send follow-up** actions. Both open a new compose form linked to that
@@ -2831,7 +2861,8 @@ shall provide all the authenticated operations below.
   references, return expiry state, perform capture-gated or explicitly capture-
   free early deletion under MSG-020, and restore during the deleted entry's
   restoration period;
-- list the current sender's sent envelopes and per-recipient receipt status;
+- list the current sender's sent envelopes and each recipient's delivery
+  timestamp (`delivered_at`) and authorized receipt status;
 - get a sent envelope created by the current sender.
 
 ### 10.4 Record capture
@@ -4091,6 +4122,33 @@ Compose keeps its default `purpose=compose`, excludes self, and retains all
 existing eligibility rules. Both lookup purposes keep the existing active
 directory and exchange-privilege rules.
 
+### Mailbox text filters (16 November 2026)
+
+Inbox, Outbox and Drafts offer a subject search and separate filters for message
+body and linked content. The subject shortcut submits only the edited subject
+alongside criteria already applied. Apply filters submits the three text fields
+with the other filter controls. Criteria combine with AND, and a new submission
+starts on the first page. Refresh and paging reuse the submitted criteria.
+
+**Clear filters** sits alongside **Filters** wherever mailbox filtering is
+available. It clears both edited and submitted criteria. Clearing submitted
+criteria loads the first unfiltered page in the current mailbox and mode.
+
+The mailbox APIs accept `q` for the subject, `body_q` for user-visible body
+text, and `linked_q` for linked content. Each field accepts up to 255
+characters. Body matching is a case-insensitive substring over the decoded
+text of the sanitized body, with collapsed whitespace. Localized Inbox messages
+are matched in the same language used for display. All matches require current
+mailbox ownership and message clearance before page selection.
+
+Linked content uses existing full-text matching over the active indexed file
+text of directly linked records and the indexed metadata of directly linked
+aggregations. Aggregation links use the existing aggregation search scope.
+Linked content follows the application's existing full-text search setting.
+Current resource and file-view authorization, the message security level, and
+the existing searchable-resource eligibility rules govern matches. Results show
+the matching mailbox rows in their usual order.
+
 ### Mailbox reading panels (approved 4 October 2026)
 
 Inbox and Outbox open a message when the user clicks anywhere on its listing
@@ -4105,6 +4163,32 @@ existing message views and permitted controls. Drafts retain save, send,
 discard/restore and cancel controls; saving preserves the listing page.
 Switching drafts abandons stale requests for the previously selected draft. Independent list and detail requests must discard stale responses
 without abandoning the other panel.
+
+### Mailbox navigation and presentation (16 November 2026)
+
+Use the application's **Navigation** sidebar for Inbox, Outbox, and Drafts.
+The tabs in the clickable prototypes are controls for moving between the
+mockup screens. The application pages do not duplicate the sidebar links.
+
+The **Messages per page** application setting controls the number of entries
+per page in Inbox, Outbox, and Drafts, including the Recently deleted views.
+It defaults to 25 and accepts whole numbers from 1 to 50. Each mailbox reads
+the effective setting when opened and requests each page using server cursors.
+When the size changes, reopen on the first page with the previously submitted
+filters and Recently deleted mode.
+
+The list and reading or draft-editor headings use the same font family, size,
+weight, and light-blue background. Sender, Recipient, and Security filters
+use the compact control height of the other filters. The desktop Compose
+dialog is 840px wide and fits the available width on narrower screens. The
+selected To and Cc names can wrap in both the Compose dialog and the inline
+Drafts editor.
+
+Saving a draft shows a brief confirmation. After saving from the Compose
+dialog, **Open in Drafts** remains available while the dialog is open. Sending
+shows one dismissible confirmation outside the page layout with **View in
+Outbox**. The action opens the authorized message even when the current
+Outbox page or filters exclude it.
 
 ### Inspecting earlier linked messages (approved 4 October 2026)
 

@@ -288,9 +288,15 @@ def main():
                         help='Disposable-only storage comparison; application schema is unchanged')
     parser.add_argument('--settle-seconds',type=int,default=0,
                         help='Explicit idle interval after fixture maintenance, before any search; recorded in evidence')
+    parser.add_argument('--mailbox-only',action='store_true',
+                        help='Measure Inbox, Outbox and Drafts against the same document corpus')
+    parser.add_argument('--mailbox-page-size', type=int, default=25,
+                        help='Page size for the mailbox workload (1–50)')
     args=parser.parse_args()
     if args.repeats<1:parser.error('repeats must be positive')
     if not 0<=args.settle_seconds<=300:parser.error('settle-seconds must be between 0 and 300')
+    if not 1 <= args.mailbox_page_size <= 50:
+        parser.error('mailbox-page-size must be between 1 and 50')
     args.output.mkdir(parents=True,exist_ok=False)
     source_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in (
         'tools/check_search_performance.py', 'backend/services/api/search.py',
@@ -303,7 +309,10 @@ def main():
         'backend/services/api/main.py',
         'backend/services/api/dashboard_visibility.py', 'database/schema.sql',
         'backend/services/api/creator_attribution.py', 'backend/services/api/application_settings_registry.py',
-        'database/seeds/000_required_reference_data.sql')}
+        'database/seeds/000_required_reference_data.sql',
+        *(['tools/search_mailbox_performance.py', 'backend/services/api/messaging/text_filters.py',
+           'backend/services/api/messaging/reading.py', 'backend/services/api/messaging/drafts.py',
+           'backend/services/api/messaging/routes.py'] if args.mailbox_only else []))}
     config={**dotenv_values(ROOT/'.env'),**os.environ}
     name='erms_search_perf_'+uuid4().hex
     admin=make_conninfo(config['DATABASE_URL'],dbname='postgres')
@@ -321,9 +330,14 @@ def main():
         os.environ.update(DATABASE_URL=url,AUTH_COOKIE_SECURE='false')
         with psycopg.connect(url,row_factory=dict_row) as c:
             initialize(c)
+            if args.mailbox_only:
+                c.execute((ROOT/'database/seeds/messaging.sql').read_text(), prepare=False)
             from tools.search_storage_experiment import configure, inspect
             configure(c, args.vector_storage)
             seed(c)
+            if args.mailbox_only:
+                from tools.search_mailbox_performance import seed_mailboxes
+                seed_mailboxes(c)
             assert c.execute('SELECT count(*) AS n FROM aggregations').fetchone()['n']>50000
             assert c.execute('SELECT count(*) AS n FROM records').fetchone()['n']>150000
             from backend.services.api.search_execution import search_sql_execution
@@ -333,7 +347,9 @@ def main():
                 'database':name,'postgres':c.execute('SELECT version() AS v').fetchone()['v'],
                 'platform':platform.platform(),'aggregations':AGGREGATIONS,'records':RECORDS,
                 'components':RECORDS,'chunks':RECORDS*2,'repeats':args.repeats,
-                'threshold_seconds':3,'page_size':100,'result_cap':1000,
+                'threshold_seconds':3,'page_size':args.mailbox_page_size if args.mailbox_only else 100,
+                'result_cap':None if args.mailbox_only else 1000,
+                'mailbox_rows_per_folder':2400 if args.mailbox_only else None,
                 'source_sha256':source_hashes,
                 'storage_experiment':inspect(c, args.vector_storage),
                 'work_mem':c.execute('SHOW work_mem').fetchone()['work_mem'],
@@ -353,7 +369,11 @@ def main():
             time.sleep(args.settle_seconds)
         buffered = BufferedOutput(args.output)
         try:
-            exercise(buffered,args.repeats)
+            if args.mailbox_only:
+                from tools.search_mailbox_performance import exercise_mailboxes
+                exercise_mailboxes(buffered, args.repeats, args.mailbox_page_size)
+            else:
+                exercise(buffered,args.repeats)
         finally:
             buffered.flush()
     except BaseException as error:

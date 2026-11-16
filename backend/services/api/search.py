@@ -1123,10 +1123,13 @@ def _cursor_decode(value: str) -> tuple[UUID, UUID, int, str | None]:
 
 def _indexed_text_ids(
     table: str, id_column: str, query: str, configurations: tuple[str, ...],
+    *, candidates: sql.Composable | None = None,
 ) -> tuple[sql.Composable, list[str]]:
     source = sql.SQL("SELECT {} AS id FROM {} WHERE ").format(
         sql.Identifier(id_column), sql.Identifier(table),
     )
+    if candidates is not None:
+        source += sql.SQL("{} IN ({}) AND ").format(sql.Identifier(id_column), candidates)
     configs = [sql.SQL("{}::regconfig").format(sql.Literal(config)) for config in configurations]
     # A fixed configuration lets PostgreSQL use the GIN index on search_vector.
     predicates = [
@@ -1137,7 +1140,10 @@ def _indexed_text_ids(
     ]
     # One common-config branch allows a BitmapOr for selective terms and one
     # sequential scan for corpus-wide terms, rather than a full scan per language.
-    branches = [source + sql.SQL(" OR ").join(predicates)]
+    common_match = sql.SQL(" OR ").join(predicates)
+    if candidates is not None:
+        common_match = sql.SQL("({})").format(common_match)
+    branches = [source + common_match]
     # Preserve matching for rows written with other installed configurations.
     branches.append(source + sql.SQL(
         "text_search_config NOT IN ({}) AND search_vector @@ "

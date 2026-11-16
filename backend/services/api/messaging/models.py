@@ -78,6 +78,7 @@ class Draft(Input):
     relationship_kind: Literal["reply", "forward", "follow_up"] | None = None
     related_delivery_id: UUID | None = None
     related_envelope_id: UUID | None = None
+    complete_action: bool = False
 
 
 class DraftSend(Input):

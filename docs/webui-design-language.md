@@ -330,7 +330,7 @@ collection state where the current implementation supports it.
 Authenticated content uses the existing bounded `erms-content` canvas. A page
 begins with:
 
-1. an optional established page-title icon;
+1. one established page-title icon;
 2. one page title;
 3. a short subtitle when it materially identifies scope or purpose; and
 4. a non-wrapping primary action group aligned with the title.
@@ -338,11 +338,13 @@ begins with:
 Long titles truncate or yield space before splitting a related action group.
 Do not repeat the page title inside the first card.
 
-The Dashboard and primary collection pages for Aggregations, Records,
-Classification Schemes, Organization Units, Roles, and Users use their
-established lightweight outlined icon immediately before the page title. Pages
-without an approved title icon hide the icon; they must not retain a stale icon
-from the previously visited page.
+Every authenticated page displays an icon at the reading start of its title,
+on the left in English and the right in Arabic. Use the shared lightweight
+Material Symbols Outlined treatment for shell headings. The resource header on
+aggregation and record detail pages displays the title icon in its avatar.
+Define a new page's icon by navigation key in `frontend/webui/navigation_data.py`.
+The sidebar and page heading read the same definition. Detail pages use the
+established icon for the item they show.
 
 ## 6. Page composition patterns
 

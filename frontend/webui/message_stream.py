@@ -24,10 +24,7 @@ def build_message_stream(
                 identity = str(UUID(identity))
             except (ValueError, TypeError):
                 return
-        await select_messages("inbox")
-        workspace = messaging_state.get("messaging_workspace")
-        if identity and workspace:
-            await workspace["open"](identity)
+        await select_messages("inbox", initial_item=identity)
 
 
     def show_message_notification(label, identity):

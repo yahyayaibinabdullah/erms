@@ -127,20 +127,15 @@ def test_translation_administration_pages_complete_context_groups():
     assert 'translation_state["translation_offset"] = 0' in APP_SOURCE
 
 
-def test_copied_inspector_text_is_searchable_without_altering_visible_characters():
-    from nicegui import ui
-    from frontend.webui.i18n_catalogue import (
-        _diagnostic_marker, disable_diagnostic_metadata, enable_diagnostic_metadata,
-        strip_diagnostic_metadata,
-    )
-    with ui.column() as host:
-        enable_diagnostic_metadata(host.client.id)
-        try:
-            for text in ('وسط الحفظ', 'Medium', 'نصّ عربي ❤️'):
-                marked = _diagnostic_marker('entity_metadata.field.medium', text)
-                assert marked != text
-                assert strip_diagnostic_metadata(marked) == text
-                assert strip_diagnostic_metadata(text) == text
-                assert strip_diagnostic_metadata(marked + ' / ' + marked) == text + ' / ' + text
-        finally:
-            disable_diagnostic_metadata(host.client.id)
+def test_copied_inspector_text_is_searchable_without_altering_visible_characters(monkeypatch):
+    from types import SimpleNamespace
+    from frontend.webui import i18n_catalogue as catalogue
+
+    monkeypatch.setattr(catalogue, 'context', SimpleNamespace(client=SimpleNamespace(id='copy-test')))
+    monkeypatch.setattr(catalogue, '_diagnostic_clients', {'copy-test'})
+    for text in ('وسط الحفظ', 'Medium', 'نصّ عربي ❤️'):
+        marked = catalogue._diagnostic_marker('entity_metadata.field.medium', text)
+        assert marked != text
+        assert catalogue.strip_diagnostic_metadata(marked) == text
+        assert catalogue.strip_diagnostic_metadata(text) == text
+        assert catalogue.strip_diagnostic_metadata(marked + ' / ' + marked) == text + ' / ' + text

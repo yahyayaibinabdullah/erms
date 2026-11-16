@@ -502,7 +502,8 @@ INSERT INTO public."application_settings" ("id", "key", "value", "protected_secr
  (59, 'GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE', '5000'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
  (60, 'CHILD_AGGREGATION_PAGE_SIZE', '10'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
  (61, 'CONTAINED_RECORD_PAGE_SIZE', '25'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
- (62, 'SEARCH_RESULTS_PAGE_SIZE', '25'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL);
+ (62, 'SEARCH_RESULTS_PAGE_SIZE', '25'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL),
+ (63, 'MESSAGES_PAGE_SIZE', '25'::jsonb, NULL, 'default', 1, CURRENT_TIMESTAMP, NULL);
 SELECT pg_catalog.setval('public.application_settings_id_seq', (SELECT max("id") FROM public."application_settings"), true);
 
 -- application_settings_state

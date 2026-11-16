@@ -27,6 +27,11 @@ work. It is database-managed and editable, takes effect through the general
 30-second cache, and requires no restart. The API supplies the effective limit
 to the Audit Trail UI.
 
+**Dashboard and selection limits** includes **Messages per page**. The setting
+applies to Inbox, Outbox, and Drafts. It defaults to 25 and accepts whole numbers
+from 1 to 50. Mailboxes read the effective value when reopened, subject to the
+standard application settings propagation window.
+
 The page groups settings by their business area and shows each setting's
 name, current value, allowed choices, and explanation of its effect.
 Authorized administrators can save changes through this page. Business

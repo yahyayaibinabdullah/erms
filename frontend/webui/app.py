@@ -47,7 +47,7 @@ from .component_preview import build_component_preview
 from .components import build_components
 from .api_client import ApiError, ErmsApiClient
 from .application_shell import build_header, build_footer, build_drawer, build_content
-from .navigation_data import visible_navigation_indices
+from .navigation_data import PAGE_ICONS, visible_navigation_indices
 from .navigation_drawer import navigation_menu
 from .navigation_controller import NavigationController
 from .session_context import SessionContext
@@ -562,7 +562,7 @@ def index(q: str = "") -> None:
         /* These native components already inherit RTL. The legacy global row
            reversal flips them twice; Quasar floating labels remain left-anchored.
            Native direction/card/row props do not reset those internal styles. */
-        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page, .application-settings-browser) .row {
+        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .mailbox-letter, .application-settings-page, .application-settings-browser) .row {
             flex-direction: row;
         }
         html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page) .q-field__label {
@@ -577,6 +577,88 @@ def index(q: str = "") -> None:
         /* The native login glyph has no directional variant. Keep the same
            symbol and mirror only this button in RTL. */
         html[dir="rtl"] .wathiq-login-submit .q-icon { transform: scaleX(-1); }
+        html[dir="rtl"] .messaging-workspace .mailbox-page-button .q-icon { transform: scaleX(-1); }
+        .messaging-workspace {
+            --mailbox-selected: #e5f1fd;
+            color: var(--erms-ink);
+            background: #f5f8fc;
+            border-radius: 12px;
+        }
+        @media (min-width: 1024px) {
+            .messaging-workspace .mailbox-columns {
+                grid-template-columns: minmax(0, .83fr) minmax(0, 1fr);
+            }
+        }
+        /* The generic border color utilities override the inline-start utility
+           in the rendered row. Keep a dedicated logical selection border. */
+        .messaging-workspace .mailbox-message-row {
+            border-inline-start: 3px solid transparent;
+            border-block-start: 1px solid var(--erms-border);
+        }
+        .messaging-workspace .mailbox-message-row:first-child { border-block-start: 0; }
+        .messaging-workspace .mailbox-message-row[role="button"]:hover:not([aria-current="true"]) {
+            background: var(--erms-blue-soft);
+        }
+        .messaging-workspace .mailbox-message-row[aria-current="true"] {
+            border-inline-start-color: var(--erms-blue-deep);
+            background: var(--mailbox-selected);
+        }
+        .messaging-workspace .mailbox-message-row:focus-visible {
+            outline: 2px solid var(--erms-blue-deep);
+            outline-offset: -2px;
+        }
+        .messaging-workspace .mailbox-row-dot {
+            flex: 0 0 7px;
+            block-size: 7px;
+            margin-block-start: .45rem;
+            border-radius: 50%;
+        }
+        .messaging-workspace .mailbox-row-subject { font-weight: 500; }
+        .messaging-workspace [data-unread="true"] .mailbox-row-dot { background: var(--erms-blue-deep); }
+        .messaging-workspace [data-unread="true"] .mailbox-row-subject { font-weight: 700; }
+        .messaging-workspace .mailbox-page-button {
+            min-inline-size: 2rem;
+            min-block-size: 2rem;
+            color: var(--erms-blue-deep);
+        }
+        .messaging-workspace .mailbox-page-button::before { border-color: var(--erms-border); }
+        .mailbox-reader-toolbar .mailbox-reply {
+            color: var(--erms-blue-deep) !important;
+            background: var(--erms-blue-soft) !important;
+        }
+        :is(.mailbox-letter, .mailbox-draft-editor) .mailbox-neutral-outline { color: var(--erms-ink) !important; }
+        :is(.mailbox-letter, .mailbox-draft-editor) .mailbox-neutral-outline::before { border-color: var(--erms-border); }
+        .mailbox-letter .mailbox-disclosure-title,
+        :is(.mailbox-letter, .mailbox-draft-editor) .mailbox-text-link { color: var(--erms-blue-deep); }
+        /* The native disclosure header has no direction-aware leading arrow. */
+        html[dir="rtl"] .mailbox-letter-disclosure [aria-expanded="false"] .mailbox-disclosure-marker,
+        html[dir="rtl"] .mailbox-reader-toolbar .mailbox-directional .q-icon {
+            transform: scaleX(-1);
+        }
+        :is(.messaging-workspace, .mailbox-letter) .mailbox-badge {
+            padding: 3px 6px;
+            border-radius: 5px;
+            line-height: 1.2;
+            white-space: normal;
+            background: #f5f8fc;
+            color: #53657d;
+        }
+        :is(.messaging-workspace, .mailbox-letter) .mailbox-badge--info {
+            background: var(--erms-blue-soft);
+            color: var(--erms-blue-deep);
+        }
+        :is(.messaging-workspace, .mailbox-letter) .mailbox-badge--warning,
+        .mailbox-letter .mailbox-action-summary { background: #fff5e4; color: #85500b; }
+        :is(.messaging-workspace, .mailbox-letter) .mailbox-badge--done {
+            background: #eaf7ef;
+            color: #226044;
+        }
+        .mailbox-letter .mailbox-letter-body { line-height: 1.6; }
+        .mailbox-letter-body :is(p, ul, ol) + :is(p, ul, ol) { margin-block-start: .65em; }
+        @media (pointer: coarse) {
+            .messaging-workspace .mailbox-page-button,
+            .mailbox-reader-toolbar .q-btn { min-block-size: 44px; min-inline-size: 44px; }
+        }
         /* QSelect's default removable chips use physical negative margins.
            Native Select props cannot set the internal remove-icon spacing;
            inspection showed overlap in inherited RTL. Keep a logical gap. */
@@ -585,6 +667,20 @@ def index(q: str = "") -> None:
         }
         .remote-relationship-select.q-select--multiple .q-chip__content {
             margin-inline-end: 6px;
+        }
+        /* Native QSelect chips elide their values even when the field can grow.
+           Wrap that value while keeping Quasar's selection and remove controls. */
+        .mailbox-compose-address .q-chip {
+            max-inline-size: 100%;
+            height: auto;
+            min-block-size: 2em;
+        }
+        .mailbox-compose-address .q-chip__content {
+            min-inline-size: 0;
+        }
+        .mailbox-compose-address .q-chip__content > .ellipsis {
+            white-space: normal;
+            overflow-wrap: anywhere;
         }
 
 
@@ -2363,32 +2459,12 @@ def index(q: str = "") -> None:
     title = content_controls.title
 
     def set_page_title_icon(page: str) -> None:
-        icon_name = {
-            "dashboard": "dashboard",
-            "aggregations": "folder",
-            "records": "description",
-            "advanced-search": "manage_search",
-            "classification-workspace": "account_tree",
-            "classification-scheme-details": "account_tree",
-            "classification-details": "schema",
-            "org-units": "corporate_fare",
-            "roles": "badge",
-            "users": "group",
-            "text-indexers": "manage_search",
-            "text-indexer-details": "manage_search",
-            "organization-browser": "lan",
-            "audit-trail": "manage_history",
-            "login-sessions": "devices",
-            "governance-custody": "shield_person",
-            "application-settings": "settings",
-            "security-operations": "monitor_heart",
-        }.get(page)
-        if icon_name:
-            page_title_icon.name = icon_name
-            page_title_icon.set_visibility(True)
-            page_title_icon.update()
-        else:
+        if page in {"aggregation-details", "record-details"}:
+            # These pages render the icon beside their title in the resource header.
             page_title_icon.set_visibility(False)
+            return
+        page_title_icon.name = PAGE_ICONS.get(page, "article")
+        page_title_icon.set_visibility(True)
 
     def current_navigation_snapshot() -> dict[str, Any]:
         entity_result_state = collection_state.get("entity_result_states", {}).get(state.get("resource"), {})
@@ -2541,6 +2617,7 @@ def index(q: str = "") -> None:
         # A newly committed page transition owns subsequent reads. Any older
         # transition may no longer update the visible page and is cancelled.
         api.cancel_pending_reads()
+        content_controls.compose_host.clear()
         personal.leave_view()
         if page != "full-text-search":
             global_search_state["search_diagnostics_sent"] = None
@@ -2725,6 +2802,8 @@ def index(q: str = "") -> None:
     def clear_signed_in_identity() -> None:
         """Remove account identity and overlays before presenting sign-in again."""
         stop_message_stream()
+        messaging_state.clear()
+        content_controls.compose_host.clear()
         message_unread_button.set_visibility(False)
         clear_global_search_session()
         clear_dashboard_session()
@@ -3330,6 +3409,10 @@ def index(q: str = "") -> None:
             control.set_visibility(False)
         table_container.clear()
 
+    async def load_mailbox_page_size():
+        configuration = await api.application_configuration()
+        return configuration["MESSAGES_PAGE_SIZE"]
+
     select_messages = build_messaging_controller(
         add_button=add_button,
         add_record_button=add_record_button,
@@ -3340,6 +3423,7 @@ def index(q: str = "") -> None:
         collection_state=collection_state,
         enter_messages=lambda key: state.update(resource=key),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
+        format_date=format_date,
         format_timestamp=lambda *args, **kwargs: format_timestamp(*args, **kwargs),
         get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
@@ -3358,10 +3442,13 @@ def index(q: str = "") -> None:
         select_disposition=lambda *args, **kwargs: select_disposition(*args, **kwargs),
         show_authenticated_view=lambda *args, **kwargs: show_authenticated_view(*args, **kwargs),
         show_organization_structure=lambda *args, **kwargs: show_organization_structure(*args, **kwargs),
-        show_record_details=lambda *args, **kwargs: show_record_details(*args, **kwargs),
         subtitle=subtitle,
         table_container=table_container,
         title=title,
+        compose_host=content_controls.compose_host,
+        get_language=lambda: (state.get("localization") or {}).get("effective_language"),
+        linked_content_enabled=lambda: (state.get("application_configuration") or {}).get("FULL_TEXT_SEARCH_ENABLED", False),
+        load_page_size=load_mailbox_page_size,
     )
 
     select_entity, refresh_personal_sections = build_collection_navigation(

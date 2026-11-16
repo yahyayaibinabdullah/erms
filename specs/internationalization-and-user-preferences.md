@@ -1699,6 +1699,10 @@ The feature is accepted only when:
    navigation history and applies the exact key filter defined in section 7.4.
    It remains subject to `localization.administer` authorization.
 
+   Ordinary text selection and copy place visible application text on the
+   clipboard without diagnostic transport markers, whether the Inspector
+   switch is on or off. **Copy key** copies the selected translation key.
+
    The central translation renderer attaches diagnostic metadata, such as a
    controlled `data-i18n-key` attribute, while the inspector uses one document-
    level delegated hover/focus/click mechanism. Individual screens must not add

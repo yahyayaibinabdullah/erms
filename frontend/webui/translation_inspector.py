@@ -27,7 +27,7 @@ def build_translation_inspector(
             "if (existing) existing.remove();"
             "const script = document.createElement('script');"
             "script.id = 'wathiq-translation-inspector-script';"
-            "script.src = '/static/inspector/translation-inspector.js?v=10';"
+            "script.src = '/static/inspector/translation-inspector.js?v=11';"
             "script.onload = () => resolve(true);"
             "script.onerror = () => { script.remove(); reject(new Error('Translation inspector failed to load')); };"
             "document.head.appendChild(script);"
@@ -65,13 +65,10 @@ def build_translation_inspector(
 
     async def synchronize_translation_inspector(privileges: set[str]) -> None:
         authorized = "localization.administer" in privileges
-        if authorized:
-            enable_diagnostic_metadata(page_client.id)
-        else:
-            disable_diagnostic_metadata(page_client.id)
         diagnostics_separator.set_visibility(authorized)
         diagnostics_section.set_visibility(authorized)
         if not authorized:
+            disable_diagnostic_metadata(page_client.id)
             inspector_switch.value = False
             inspector_switch.update()
             return
@@ -83,7 +80,9 @@ def build_translation_inspector(
                 + "); window.wathiqTranslationInspector.restore()",
                 timeout=5,
             )
+            enable_diagnostic_metadata(page_client.id)
         except Exception:
+            disable_diagnostic_metadata(page_client.id)
             enabled = False
         inspector_switch.value = bool(enabled) if authorized else False
         inspector_switch.update()
