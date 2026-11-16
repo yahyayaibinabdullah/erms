@@ -869,6 +869,35 @@ async def test_earlier_dialog_preserves_latest_and_navigates_back(user: User, la
     assert not any(c.value for c in next(iter(user.find(marker='message-row-latest').elements)).client.elements.values() if isinstance(c,ui.dialog))
 
 
+@pytest.mark.parametrize("mailbox", ["inbox", "outbox"])
+@pytest.mark.parametrize("language,level", [("en", "Confidential"), ("ar", "سري")])
+async def test_mailbox_security_level_is_shown_only_for_readable_messages(user: User, mailbox, language, level):
+    api = Api()
+    original = api.request
+
+    async def request(method, path, **kwargs):
+        if path.endswith(f"/{mailbox}"):
+            return {
+                "items": [
+                    {"id": "readable", "subject": "Readable message", "availability": "available",
+                     "security_level_code": "C", "security_level_name": level},
+                    {"id": "restricted", "availability": "restricted",
+                     "security_level_code": "S", "security_level_name": "Restricted level"},
+                ],
+                "has_more": False,
+            }
+        return await original(method, path, **kwargs)
+
+    api.request = request
+    await setup(user, api=api, mailbox=mailbox, language=language)
+    await user.should_see("Readable message")
+    label = "Security level" if language == "en" else "درجة السرية"
+    for identity, expected in (("readable", [f"{label}: C · {level}"]), ("restricted", [])):
+        row, = user.find(marker=f"message-row-{identity}").elements
+        badges = [badge.text for badge in row.descendants() if isinstance(badge, ui.badge)]
+        assert badges == expected
+
+
 @pytest.mark.parametrize("language", ["en", "ar"])
 async def test_everyone_selection_exclusivity_and_removal(user: User, language):
     api, _ = await setup(user, language=language)

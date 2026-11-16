@@ -395,6 +395,9 @@ def check_outbox_receipts(page, nav, text, message, page_read):
     with page.check('Outbox receipt counts, status rows and navigation match the prototype'):
         nav('navigation.outbox')
         row = page.one('.mailbox-row-subject', message['subject'])
+        message_row = row.find_element(By.XPATH, './ancestor::*[contains(@class, "mailbox-message-row")]')
+        badge = page.one('.mailbox-security-level', scope=message_row)
+        assert plain(badge.text).startswith(text('field.security') + ': ')
         started = len(page.events())
         page.activate(row)
         reader = page.one('.mailbox-outbox')
@@ -531,7 +534,8 @@ def check_mailbox_presentation(page, nav, text):
         assert row.get_attribute('data-unread') == 'true'
         assert unread['dot'] != 'rgba(0, 0, 0, 0)' and unread['weight'] == 700
         assert unread['warning'] == 'rgb(255, 245, 228)', unread
-        assert [plain(badge.text) for badge in page.visible('.mailbox-badge', row)] == [text('priority.high')]
+        assert plain(page.one('.mailbox-security-level', scope=row).text).startswith(text('field.security') + ': ')
+        assert [plain(badge.text) for badge in page.visible('.mailbox-badge--warning', row)] == [text('priority.high')]
         assert text('field.expiry') not in plain(page.one('.mailbox-list').text)
         page.activate(row)
         reader = page.one('.mailbox-letter')
