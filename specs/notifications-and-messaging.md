@@ -4179,8 +4179,9 @@ filters and Recently deleted mode.
 
 The list and reading or draft-editor headings use the same font family, size,
 weight, and light-blue background. Readable Inbox and Outbox rows show the
-message's security level code and localized name in a badge. Restricted rows
-hide the security level. Sender, Recipient, and Security filters
+message's security level code and localized name in a badge, such as
+**C · Confidential**. Restricted rows hide the security level. Sender,
+Recipient, and Security filters
 use the compact control height of the other filters. The desktop Compose
 dialog is 840px wide and fits the available width on narrower screens. The
 selected To and Cc names can wrap in both the Compose dialog and the inline

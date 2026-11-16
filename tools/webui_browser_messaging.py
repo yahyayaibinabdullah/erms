@@ -396,8 +396,7 @@ def check_outbox_receipts(page, nav, text, message, page_read):
         nav('navigation.outbox')
         row = page.one('.mailbox-row-subject', message['subject'])
         message_row = row.find_element(By.XPATH, './ancestor::*[contains(@class, "mailbox-message-row")]')
-        badge = page.one('.mailbox-security-level', scope=message_row)
-        assert plain(badge.text).startswith(text('field.security') + ': ')
+        security_badge = plain(page.one('.mailbox-security-level', scope=message_row).text)
         started = len(page.events())
         page.activate(row)
         reader = page.one('.mailbox-outbox')
@@ -414,6 +413,7 @@ def check_outbox_receipts(page, nav, text, message, page_read):
         cells = page.one('.mailbox-headers', scope=reader).find_elements(By.XPATH, './*')
         assert len(cells) == 6 and float(cells[0].value_of_css_property('font-size').removesuffix('px')) \
             < float(cells[1].value_of_css_property('font-size').removesuffix('px'))
+        assert security_badge == plain(cells[-1].text).rsplit(' · ', 1)[0]
         banner = page.one('.mailbox-action-summary', scope=reader)
         assert text('state.outstanding') in plain(banner.text)
         assert page.button(text('action.amend'), banner).is_displayed()
@@ -534,7 +534,7 @@ def check_mailbox_presentation(page, nav, text):
         assert row.get_attribute('data-unread') == 'true'
         assert unread['dot'] != 'rgba(0, 0, 0, 0)' and unread['weight'] == 700
         assert unread['warning'] == 'rgb(255, 245, 228)', unread
-        assert plain(page.one('.mailbox-security-level', scope=row).text).startswith(text('field.security') + ': ')
+        security_badge = plain(page.one('.mailbox-security-level', scope=row).text)
         assert [plain(badge.text) for badge in page.visible('.mailbox-badge--warning', row)] == [text('priority.high')]
         assert text('field.expiry') not in plain(page.one('.mailbox-list').text)
         page.activate(row)
@@ -550,6 +550,8 @@ def check_mailbox_presentation(page, nav, text):
         assert [plain(label.text) for label in page.visible('.mailbox-header-label', headers)] == [
             text('field.to'), text('outbox.security'),
         ]
+        security_value = page.visible('.mailbox-header-value', headers)[-1]
+        assert security_badge == plain(security_value.text).rsplit(' · ', 1)[0]
         style = page.driver.execute_script('''
             const headers = arguments[0];
             return Array.from(headers.querySelectorAll('.mailbox-header-label')).map(label => {

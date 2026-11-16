@@ -905,7 +905,7 @@ async def messaging_workspace(
                             if mailbox in ("inbox", "outbox") and (security_name := item.get("security_level_name")):
                                 security_code = item.get("security_level_code")
                                 security_level = f"{security_code} · {security_name}" if security_code else security_name
-                                mailbox_badge(f'{text("field.security")}: {security_level}').classes("mailbox-security-level")
+                                mailbox_badge(security_level).classes("mailbox-security-level")
                             if item.get("recipient_type") != "cc":
                                 action = item.get("effective_action", {})
                                 if action_status := item.get("action_status"):
