@@ -216,6 +216,28 @@ def test_reminders_current_people_both_profiles_dedupe_privacy_and_purge_indepen
     assert reminders.run_batch(db,now=DUE)['sent']==0
 
 
+def test_failed_reminder_does_not_block_other_recipients(client,monkeypatch):
+    with db() as c:
+        actor(c);ready(c);role(c,'reminder-officer','INFO_GOV_OFFICER')
+        other=person(c);role(c,'reminder-manager','INFO_GOV_MGR',user=other)
+        configure_reminder(c)
+
+    original = reminders.emit_system_notification
+
+    def send(**kwargs):
+        if kwargs['context']['recipient_id'] == 1:
+            kwargs['transaction'].execute('SELECT 1 / 0')
+        return original(**kwargs)
+
+    monkeypatch.setattr(reminders,'emit_system_notification',send)
+    reminders.run_batch(db,now=T0)
+    assert reminders.run_batch(db,now=DUE)['sent'] == 1
+    assert reminders.run_batch(db,now=DUE)['sent'] == 0
+    with db() as c:
+        points = c.execute('SELECT recipient_user_id FROM disposition_private.reminder_checkpoints').fetchall()
+        assert [point['recipient_user_id'] for point in points] == [other]
+
+
 @pytest.mark.parametrize('enabled,eligible',[(False,True),(True,False)])
 def test_disabled_or_no_eligible_work_sends_nothing(client,enabled,eligible):
     with db() as c:

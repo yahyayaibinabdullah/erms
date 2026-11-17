@@ -340,10 +340,11 @@ def test_progress_outcome_notifications_are_attributed_and_not_repeated(client,m
     from pathlib import Path
     from backend.services.api.disposition import notifications
     from backend.services.api.messaging import notification_configuration as config,notification_registry as registry
+    from backend.services.api.messaging.notifications import _fingerprint
     with db() as c:
         job,root,mgr=prepared(c,monkeypatch)
         c.execute((Path(__file__).parents[4]/'database/seeds/disposition-notification-producers.sql').read_text());c.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');actor(c)
-        payload=config.Configuration(expected_version=0,enabled=True,audience_mode='current_eligible_managers',operational_owner='Disposable execution acceptance',templates=[config.Template(language_tag=tag,subject_template=subject,body_template_rich_text=body,review_status='published') for tag,subject,body in [('en','Digital destruction outcome','<p>Digital destruction run {run_id} has an outcome.</p>'),('ar','نتيجة الإتلاف الرقمي','<p>أصبحت نتيجة تنفيذ الإتلاف الرقمي {run_id} متاحة.</p>')]])
+        payload=config.Configuration(expected_version=0,enabled=True,audience_mode='current_eligible_managers',operational_owner='Disposable execution acceptance',templates=[config.Template(language_tag=tag,subject_template=subject,body_template_rich_text=body,review_status='published') for tag,subject,body in [('en','Digital destruction outcome','<p>A digital destruction result is available for job {job_number}.</p>'),('ar','نتيجة الإتلاف الرقمي','<p>أصبحت نتيجة الإتلاف الرقمي للعملية {job_number} متاحة.</p>')]])
         version=config.save(c,1,notifications.DESTRUCTION_OUTCOME,payload,'Configure disposable execution notifications')
         config.activate(c,1,notifications.DESTRUCTION_OUTCOME,version['id'],config.Expected(expected_version=version['version']),'Activate disposable execution notifications')
         request(c,job,mgr)
@@ -354,6 +355,10 @@ def test_progress_outcome_notifications_are_attributed_and_not_repeated(client,m
         count=c.execute('SELECT count(*) n FROM message_envelopes').fetchone()['n'];assert count==1
         notifications.publish_destruction_outcomes(c,run)
         assert c.execute('SELECT count(*) n FROM message_envelopes').fetchone()['n']==count
+        envelope = c.execute('SELECT body_rich_text,triggered_by_user_id FROM message_envelopes').fetchone()
+        assert job['job_number'] in envelope['body_rich_text']
+        receipt = c.execute('SELECT request_fingerprint FROM message_request_receipts').fetchone()
+        assert receipt['request_fingerprint'] == _fingerprint({'context': {'run_id': run}, 'actor': envelope['triggered_by_user_id']})
         assert c.execute("SELECT metadata FROM event_history WHERE operation='DIGITAL_DESTRUCTION_SUCCEEDED'").fetchone()['metadata']['job_completed'] is False
 
 

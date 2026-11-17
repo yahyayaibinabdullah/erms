@@ -736,6 +736,12 @@ Assignment makes the IGU responsible for the work. It does not give the IGU
 access to records they could not already access, add permissions, increase
 security clearance, or expand organizational access.
 
+Task assignment, digital destruction, destruction completion or certificate
+failure, and background processing notifications use the user-facing job number
+as `{job_number}` in their English and Arabic templates. Their Job details
+links follow current workspace access rules. Assignment messages also link
+to the specific task.
+
 ### 10.1.0 Job creation and numbering
 
 Both Information Governance Officers and Information Governance Managers with

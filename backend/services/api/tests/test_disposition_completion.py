@@ -223,7 +223,7 @@ def test_completion_notification_is_current_authorized_and_deduplicated(client,m
     job,root,mgr=ready(monkeypatch)
     with db() as c:
         c.execute((Path(__file__).parents[4]/'database/seeds/disposition-notification-producers.sql').read_text());c.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');actor(c)
-        payload=config.Configuration(expected_version=0,enabled=True,audience_mode='current_eligible_managers',operational_owner='Disposable completion acceptance',templates=[config.Template(language_tag=tag,subject_template=subject,body_template_rich_text=body,review_status='published') for tag,subject,body in [('en','Destruction job outcome','<p>Destruction job {job_id} has completed or requires certificate recovery.</p>'),('ar','نتيجة عملية الإتلاف','<p>اكتملت عملية الإتلاف {job_id} أو تتطلب استرداد الشهادة.</p>')]])
+        payload=config.Configuration(expected_version=0,enabled=True,audience_mode='current_eligible_managers',operational_owner='Disposable completion acceptance',templates=[config.Template(language_tag=tag,subject_template=subject,body_template_rich_text=body,review_status='published') for tag,subject,body in [('en','Destruction job outcome','<p>See Job details for the outcome of {job_number}.</p>'),('ar','نتيجة عملية الإتلاف','<p>راجع تفاصيل العملية {job_number} للاطلاع على النتيجة.</p>')]])
         version=config.save(c,1,notifications.COMPLETION_OUTCOME,payload,'Configure disposable completion notification')
         config.activate(c,1,notifications.COMPLETION_OUTCOME,version['id'],config.Expected(expected_version=version['version']),'Activate disposable completion notification')
     assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1,'operations_processed':0}
@@ -236,6 +236,7 @@ def test_completion_notification_is_current_authorized_and_deduplicated(client,m
         count=c.execute('SELECT count(*) n FROM message_envelopes').fetchone()['n'];assert count==1
         notifications.publish_completion_outcomes(c,job['id'])
         assert c.execute('SELECT count(*) n FROM message_envelopes').fetchone()['n']==count
+        assert job['job_number'] in c.execute('SELECT body_rich_text FROM message_envelopes').fetchone()['body_rich_text']
         assert c.execute('SELECT state FROM disposition_private.completion_work').fetchone()['state']=='succeeded'
 
 

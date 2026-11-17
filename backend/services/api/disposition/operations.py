@@ -140,12 +140,14 @@ def _approval(c,work,factory):
 
 def _outcome(c,work,operation):
     c.execute("SELECT append_domain_event('disposition_job',%s,%s,jsonb_build_object('operation_id',%s::text))",(work['job_id'],operation,str(work['id'])))
+    from .notifications import OPERATION_OUTCOME, try_notification
+    try_notification(c, OPERATION_OUTCOME, _deliver_outcome, c, work['id'])
+
+
+def _deliver_outcome(c, operation_id):
     from .notifications import publish_operation_outcomes
-    try:
-        with c.transaction():
-            if publish_operation_outcomes(c,work['id']):
-                c.execute('UPDATE disposition_private.operation_work SET notification_pending=false WHERE id=%s',(work['id'],))
-    except Exception:logging.getLogger(__name__).exception('Disposition operation notification remains unavailable')
+    if publish_operation_outcomes(c, operation_id):
+        c.execute('UPDATE disposition_private.operation_work SET notification_pending=false WHERE id=%s', (operation_id,))
 
 
 # Deliberate handler registry: future approved long operations use the same
@@ -186,15 +188,14 @@ def process_one(factory):
 
 def _notify_one(factory):
     """Retry a durable terminal notification without rerunning business work."""
-    from .notifications import OPERATION_OUTCOME,publish_operation_outcomes
+    from .notifications import OPERATION_OUTCOME
     with factory() as c:
         c.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE')
         if not c.execute('SELECT 1 FROM system_notification_producers WHERE producer_code=%s AND active_configuration_version_id IS NOT NULL',(OPERATION_OUTCOME,)).fetchone():return False
         work=c.execute("SELECT * FROM disposition_private.operation_work WHERE state IN ('succeeded','failed') AND notification_pending ORDER BY requested_at,id LIMIT 1 FOR UPDATE SKIP LOCKED").fetchone()
         if not work:return False
         identity(c,work['requested_by_user_id'])
-        if publish_operation_outcomes(c,work['id']):
-            c.execute('UPDATE disposition_private.operation_work SET notification_pending=false WHERE id=%s',(work['id'],))
+        _deliver_outcome(c, work['id'])
         return True
 
 

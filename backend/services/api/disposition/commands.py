@@ -40,13 +40,13 @@ def execute_command(
         result = apply(connection)
         if not isinstance(result, dict):
             raise TypeError("Disposition command result must be an object")
-        from .notifications import publish_command_tasks
-        publish_command_tasks(connection)
         connection.execute("SELECT disposition_private.finish_command(%s)", (Jsonb(result),))
         # Check this command before acknowledging it to another service in the
         # same outer transaction. Preserve deferred mode for subsequent work.
         connection.execute("SET CONSTRAINTS ALL IMMEDIATE")
         connection.execute("SET CONSTRAINTS ALL DEFERRED")
+        from .notifications import publish_command_tasks
+        publish_command_tasks(connection, command_id)
         return result
 
 

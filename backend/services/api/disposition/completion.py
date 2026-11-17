@@ -102,12 +102,8 @@ def fail(c, job_id, code, source='scheduled_job'):
         return
     c.execute("SELECT set_config('app.user_id','',true),set_config('app.actor_type','automated_process',true),set_config('app.actor_name','Certificate worker',true),set_config('app.event_source',%s,true)",(source,))
     c.execute("SELECT append_domain_event('disposition_job',%s,'DIGITAL_CERTIFICATE_FAILED',%s)", (job_id, Jsonb({'job_id': job_id, 'error_code': code})))
-    try:
-        from .notifications import publish_completion_outcomes
-        with c.transaction():
-            publish_completion_outcomes(c, job_id)
-    except Exception:
-        pass  # Notification failure must not erase the durable failure record.
+    from .notifications import COMPLETION_OUTCOME, publish_completion_outcomes, try_notification
+    try_notification(c, COMPLETION_OUTCOME, publish_completion_outcomes, c, job_id)
 
 
 def process_one(factory,*,event_source='scheduled_job'):

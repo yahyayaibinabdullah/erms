@@ -108,6 +108,28 @@ filename order for upgrades newer than its recorded baseline. A fresh canonical
 installation must not replay older files merely because their historical marker
 is absent.
 
+Migration **116** activates bilingual defaults for the five disposition
+notification producers that have no saved configuration. It registers any
+missing contracts and preserves saved drafts and all existing versions. It
+requires English and Arabic to be registered and covers installations where
+only those languages are enabled. Supply the user ID of the active
+`messaging.notifications.administer` administrator approving the templates
+to record their review and activation in the audit trail. For example, replace
+`42` with that administrator's ID and run:
+
+```bash
+PGOPTIONS='-c app.user_id=42' psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f database/migrations/116_disposition_notification_defaults.sql \
+  -f database/migrations/117_disposition_notification_job_numbers.sql
+```
+
+Migration **117** adds `{job_number}` to the four job-specific producers and
+publishes it in the built-in English and Arabic templates. It preserves
+custom versions and drafts. Installations that already applied 116 run only
+117, with the same administrator attribution. Apply the migrations and deploy
+the matching API and disposition workers together. A fresh installation can
+configure the producers after the administrator has been provisioned.
+
 Migration **115** adds **Messages per page** for Inbox, Outbox, and Drafts.
 Apply it before restarting the API and WebUI. Existing installations start at
 25 with an allowed range of 1–50.

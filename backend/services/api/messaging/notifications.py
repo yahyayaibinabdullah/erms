@@ -93,7 +93,15 @@ def emit_system_notification(
         or len(source_event_id) > 255
     ):
         invalid("notification_event_id_invalid")
-    fingerprint = _fingerprint({"context": context, "actor": triggered_by_user_id})
+    receipt_context = context
+    if definition.display_only_placeholders:
+        contracts.validate_context(definition, context)
+        # Display values can be added without changing the identity of a retry.
+        receipt_context = {
+            key: value for key, value in context.items()
+            if key not in definition.display_only_placeholders
+        }
+    fingerprint = _fingerprint({"context": receipt_context, "actor": triggered_by_user_id})
     prior = _prior(
         c, producer_code, definition.event_type, source_event_id, fingerprint
     )

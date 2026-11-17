@@ -571,8 +571,9 @@ certificate work. Seed the idempotent
 `database/seeds/disposition-notification-producers.sql` reference catalogue and
 configure/activate `disposition.operation_outcome` through the existing
 Notification Administration workflow for out-of-page notifications. Its context
-is `job_id` and `operation_id`; only the initiating, currently authorized Manager
-receives it. Existing destruction/completion producers are retained. Notification
+includes the displayed number as `job_number` alongside `job_id` and
+`operation_id`. Only the initiating, currently authorized Manager receives it.
+Existing destruction/completion producers are retained. Notification
 links recheck current job access when read/opened. Notification failures cannot
 undo applied work.
 
