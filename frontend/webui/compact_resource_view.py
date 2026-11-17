@@ -33,8 +33,15 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
         components_are_matches: bool = False,
         initially_expanded: bool = False,
         on_expansion_changed: Any | None = None,
+        on_component_viewed: Any | None = None,
+        source_active: Any | None = None,
     ) -> None:
         """Render the shared compact record/aggregation result treatment."""
+        preview_options = {}
+        if on_component_viewed is not None:
+            preview_options["on_viewed"] = on_component_viewed
+        if source_active is not None:
+            preview_options["source_active"] = source_active
         is_record = resource == "records"
         number = item.get("record_number" if is_record else "aggregation_number") or render_message("webui.render_compact_resource_result.text.id_8f7a97fe", id=item['id'])
         date_value = item.get("date_originated" if is_record else "date_opened")
@@ -116,7 +123,7 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                         favourite_button(resource, int(item["id"]))
                     if is_record and can_preview:
                         ui.button(
-                            icon="visibility", on_click=lambda _, selected=item: preview_record_components(selected),
+                            icon="visibility", on_click=lambda _, selected=item: preview_record_components(selected, **preview_options),
                         ).props(
                             'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.preview_digital_components_72d3f864"))
                         ).tooltip(render_message("webui.render_compact_resource_result.tooltip.preview_digital_components_81745e00"))
@@ -149,7 +156,7 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                                 ui.button(
                                     icon="visibility",
                                     on_click=lambda _, selected=item, component_id=int(component["id"]):
-                                        preview_record_components(selected, component_id),
+                                        preview_record_components(selected, component_id, **preview_options),
                                 ).props(
                                     'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.preview_digital_component_f8b12cac"))
                                 ).tooltip(render_message("webui.render_compact_resource_result.tooltip.preview_digital_component_71925875"))

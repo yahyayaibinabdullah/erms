@@ -593,6 +593,11 @@ with psycopg.connect(url) as c:
             check_governed_moves(self)
             self.report['complete'] = True
             return
+        if self.args.scope == 'aggregation-file-drop':
+            from tools.webui_browser_aggregation_file_drop import check_aggregation_file_drop
+            check_aggregation_file_drop(self)
+            self.report['complete'] = True
+            return
         if self.args.scope == 'aggregations':
             from tools.webui_browser_aggregations import check_aggregations
             check_aggregations(self)
@@ -728,7 +733,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
     parser.add_argument('--maildev-url')
     parser.add_argument('--smtp-port',type=int)
     parser.add_argument('--output',type=Path,required=True)

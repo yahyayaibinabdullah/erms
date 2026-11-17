@@ -697,6 +697,23 @@
       "phase_12_enforced": false
     },
     {
+      "id": "POST:/api/v1/aggregations/{aggregation_id}/records/file-drop",
+      "method": "POST",
+      "path": "/api/v1/aggregations/{aggregation_id}/records/file-drop",
+      "current_access_class": "authenticated_only",
+      "target_policy_class": "resource_scoped",
+      "global_privilege": "record.create",
+      "resource_permission": "aggregation.add_record",
+      "phase_0_enforced": false,
+      "phase_4_enforced": false,
+      "phase_5_enforced": false,
+      "phase_7_enforced": false,
+      "phase_8_enforced": false,
+      "phase_9_enforced": false,
+      "phase_11_enforced": false,
+      "phase_12_enforced": false
+    },
+    {
       "id": "DELETE:/api/v1/aggregations/{aggregation_id}/retention-rule",
       "method": "DELETE",
       "path": "/api/v1/aggregations/{aggregation_id}/retention-rule",

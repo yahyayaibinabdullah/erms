@@ -45,24 +45,46 @@ def suggest_number(resource: str, number: str | None = Query(None, min_length=1,
             number = f"{classification['code']}/0/{year}"
         else:
             raise HTTPException(422, detail={'code': 'number_context_required'})
+    numbers = next_numbers(connection, resource, number, root=root)
+    return {'suggested_number': numbers[0] if numbers else None}
+
+
+def next_numbers(connection: Connection, resource: str, number: str, *, root: bool = False,
+                 count: int = 1) -> list[str]:
     pattern = (r'(.+/)([0-9]+)(/[0-9]{4})' if root and resource == 'aggregations'
                else r'(.+\.)([0-9]+)' if resource == 'records' else r'(.+/)([0-9]+)')
     match = re.fullmatch(pattern, number)
     if not match:
-        return {'suggested_number': None}
+        return []
     prefix, suffix = match.groups()[:2]
     ending = match.group(3) if root and resource == "aggregations" else ""
     column = sql.Identifier('record_number' if resource == 'records' else 'aggregation_number')
-    # Candidate gaps avoid generating an unbounded series. Read globally so a
-    # hidden resource cannot cause a suggestion that is already occupied.
+    # Check global occupancy, including hidden records. Generate numbers only
+    # from the first gaps needed to fill the requested batch.
     query = sql.SQL('''WITH existing AS (
-        SELECT substring({column} FROM %s FOR length({column})-%s)::numeric AS n FROM {table}
-        WHERE left({column},%s)=%s AND right({column},%s)=%s
-          AND substring({column} FROM %s FOR greatest(0,length({column})-%s)) ~ '^[0-9]+$'
-    ), candidates AS (SELECT %s::numeric + 1 AS n UNION SELECT n+1 FROM existing)
-    SELECT min(n) AS n FROM candidates
-    WHERE n>%s::numeric AND NOT EXISTS(SELECT 1 FROM existing WHERE existing.n=candidates.n)''').format(
+        SELECT substring({column} FROM %(begin)s FOR length({column})-%(affixes)s)::numeric AS n
+        FROM {table}
+        WHERE left({column},%(prefix_size)s)=%(prefix)s AND right({column},%(ending_size)s)=%(ending)s
+          AND substring({column} FROM %(begin)s FOR greatest(0,length({column})-%(affixes)s)) ~ '^[0-9]+$'
+    ), occupied AS (
+        SELECT DISTINCT n FROM existing WHERE n>%(start)s::numeric
+        UNION ALL SELECT %(start)s::numeric
+    ), spans AS (
+        SELECT n,lead(n) OVER (ORDER BY n) AS next_n FROM occupied
+    ), gaps AS (
+        SELECT n,LEAST(next_n-n-1,%(count)s)::int AS width
+        FROM spans WHERE next_n IS NULL OR next_n>n+1
+    ), available AS (
+        SELECT n,width,sum(width) OVER (ORDER BY n)-width AS preceding FROM gaps
+    )
+    SELECT n+step AS n FROM available
+    CROSS JOIN LATERAL generate_series(1,LEAST(width,%(count)s-preceding)::int) AS step
+    WHERE preceding<%(count)s ORDER BY n''').format(
         column=column, table=sql.Identifier(resource))
-    value = connection.execute(query, (len(prefix)+1,len(prefix)+len(ending),len(prefix),prefix,len(ending),ending,len(prefix)+1,len(prefix)+len(ending),suffix,suffix)).fetchone()['n']
-    suggested = prefix + str(int(value)).zfill(len(suffix)) + ending
-    return {'suggested_number': suggested if len(suggested) <= 200 else None}
+    values = connection.execute(query, {
+        "begin": len(prefix) + 1, "affixes": len(prefix) + len(ending),
+        "prefix_size": len(prefix), "prefix": prefix, "ending_size": len(ending),
+        "ending": ending, "start": suffix, "count": count,
+    }).fetchall()
+    numbers = [prefix + str(int(row["n"])).zfill(len(suffix)) + ending for row in values]
+    return [number for number in numbers if len(number) <= 200]

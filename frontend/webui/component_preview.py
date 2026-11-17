@@ -13,7 +13,7 @@ def build_component_preview(*, api, error_message):
     async def preview_record_components(
         record: dict[str, Any] | None, initial_component_id: int | None = None, *,
         draft_id: int | None = None, staged_components: list[dict[str, Any]] | None = None,
-        source_active=None,
+        source_active=None, on_viewed=None,
     ) -> None:
         """One viewer for saved records and private, uncommitted draft uploads."""
         # Async work and dynamic host clearing can delete the slot which originated
@@ -329,6 +329,8 @@ def build_component_preview(*, api, error_message):
                             ui.video(data_url, controls=True).classes(
                                 "w-full max-w-[1200px] max-h-[calc(100vh-150px)] bg-black"
                             )
+                if draft_id is None and on_viewed is not None:
+                    await on_viewed()
                 return
 
             canvas_id = viewer_state["canvas_id"]
@@ -349,6 +351,11 @@ def build_component_preview(*, api, error_message):
                 )
             except TimeoutError:
                 ui.notify(render_message("webui.select_component.notify.the_pdf_viewer_did_not_finish_loading_f32f23d1"), color="negative")
+                return
+            if (draft_id is None and on_viewed is not None
+                    and request_id == viewer_state["request_id"] and not viewer_state["closed"]
+                    and (source_active is None or source_active())):
+                await on_viewed()
 
         with dialog, ui.card().classes("w-full h-full p-0 gap-0 bg-slate-100"):
             if draft_id is not None:

@@ -703,7 +703,7 @@ def test_recent_resource_activity_uses_one_scoped_card_request(resource, entity_
             await client.close()
 
     assert asyncio.run(exercise()) == [{
-        "id": 8, "title": "Activity resource", f"{entity_type}_number": "ITEM-8",
+        "id": 8, "title": "Activity resource", f"{entity_type}_number": "ITEM-8", "created_by": None,
         "_activity_at": "2026-09-25T18:00:00Z", "_operation": "CONTENT_VIEWED",
     }]
     assert requests == [("/api/v1/auth/me/recent-activity", {"limit": "50", "entity_type": entity_type})]
@@ -1198,3 +1198,47 @@ async def test_late_previous_session_response_cannot_publish_or_revoke_new_ident
         await pending
     assert unauthorized == []
     await client.close()
+
+
+def test_aggregation_recent_activity_is_one_batched_request_with_creator_projection():
+    requests=[]
+    async def handler(request):
+        requests.append((request.url.path,dict(request.url.params)))
+        return httpx.Response(200,json=[dict(entity_id=i,title=f'Row {i}',number=f'R{i}',operation='CREATE',
+                                            occurred_at='2026-11-17T12:00:00Z',created_by='Creator') for i in range(20)])
+    async def exercise():
+        client=ErmsApiClient('http://api.test',transport=httpx.MockTransport(handler))
+        try:return await client.recent_resource_activity('records',aggregation_id=7)
+        finally:await client.close()
+    rows=asyncio.run(exercise())
+    assert len(rows)==20 and all(row['created_by']=='Creator' for row in rows)
+    assert requests==[('/api/v1/auth/me/recent-activity',{'limit':'50','entity_type':'record','aggregation_id':'7'})]
+
+
+@pytest.mark.parametrize('title', [None, 'Confirmed report'])
+def test_file_drop_sends_confirmed_title_and_ordered_multipart_files(title):
+    from email.parser import BytesParser
+    from email.policy import default
+
+    async def handler(request):
+        message=BytesParser(policy=default).parsebytes(
+            b'Content-Type: '+request.headers['content-type'].encode()+b'\r\n\r\n'+await request.aread())
+        parts=list(message.iter_parts())
+        fields={part.get_param('name',header='content-disposition'):part.get_content()
+                for part in parts if part.get_filename() is None}
+        assert fields['separate_records']==('true' if title is None else 'false')
+        assert fields['creator_acl_role_id']=='20'
+        assert fields.get('title')==title
+        files=[part for part in parts if part.get_filename() is not None]
+        assert [part.get_filename() for part in files]==['z-first.txt','a-second.txt']
+        assert [part.get_payload(decode=True) for part in files]==[b'first',b'second']
+        return httpx.Response(201,json={'count':2 if title is None else 1})
+
+    async def exercise():
+        client=ErmsApiClient('http://api.test',transport=httpx.MockTransport(handler))
+        try:
+            return await client.create_records_from_file_drop(7,
+                [('z-first.txt',b'first','text/plain'),('a-second.txt',b'second','text/plain')],
+                separate_records=title is None,creator_acl_role_id=20,title=title)
+        finally: await client.close()
+    assert asyncio.run(exercise())==(2 if title is None else 1)

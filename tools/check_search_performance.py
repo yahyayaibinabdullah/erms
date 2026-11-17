@@ -73,9 +73,9 @@ def seed(c, *, include_chunks=True):
         WHEN 'SEARCH_RATE_LIMIT_PER_MINUTE' THEN '100000'::jsonb END
         WHERE key IN ('FULL_TEXT_SEARCH_ENABLED','SEARCH_RESULT_LIMIT','SEARCH_RATE_LIMIT_PER_MINUTE')""")
     for table, number, count, divisor in [('aggregations','aggregation_number',AGGREGATIONS,3),('records','record_number',RECORDS,1)]:
-        parent = ",aggregation_id" if table == 'records' else ',inherit_acl_from_parent,classification_id'
+        parent = ",aggregation_id" if table == 'records' else ',inherit_acl_from_parent,classification_id,parent_aggregation_id'
         # Keep a populated branch whose contents exceed the filtered search cap.
-        values = ",CASE WHEN n<=1100 THEN 1 ELSE (n-1)/3+1 END" if table == 'records' else f',false,{classification}'
+        values = ",CASE WHEN n<=1100 THEN 1 ELSE (n-1)/3+1 END" if table == 'records' else f',false,CASE WHEN n BETWEEN 2 AND 1101 THEN NULL ELSE {classification} END,CASE WHEN n BETWEEN 2 AND 1101 THEN 1 END'
         c.execute(sql.SQL("""INSERT INTO {} (id,{},title,description,owning_org_unit_id,security_level_id,medium{})
             SELECT n, 'PERF-' || n, repeat('common ',1+n%%3) ||
                 CASE WHEN n<=%s THEN 'needle ' ELSE '' END ||
@@ -86,6 +86,11 @@ def seed(c, *, include_chunks=True):
                 repeat('ordinary description evidence ', 12), %s,%s,'digital' {}
             FROM generate_series(1,%s) n""").format(sql.Identifier(table),sql.Identifier(number),sql.SQL(parent),sql.SQL(values)),
             (37 if divisor==1 else 13, 120//divisor, 420//divisor,120//divisor,60//divisor,150//divisor,unit,level,count))
+        # Legacy chronology deliberately differs from system creation time;
+        # equal historical timestamps exercise ID ties on multiple pages.
+        historical_date = 'date_originated' if table == 'records' else 'date_opened'
+        c.execute(sql.SQL("UPDATE {} SET {}='2001-01-01'::timestamptz + (id % 3) * interval '1 day'").format(
+            sql.Identifier(table), sql.Identifier(historical_date)))
         kind = 'record' if table=='records' else 'aggregation'
         c.execute(sql.SQL("""INSERT INTO event_history(entity_type,entity_id,operation,occurred_at,
               actor_user_id,actor_name,actor_type,source,after_state)
@@ -270,11 +275,14 @@ def exercise(output, repeats):
                         if label == 'content' and resource == 'records':
                             assert 'component_search_chunks_vector_gin' in used
                     c.commit()
+            from tools.search_aggregation_activity_performance import exercise as exercise_aggregation_activity
+            failures.extend(exercise_aggregation_activity(client, c, output, repeats, identity))
             from tools.search_cache_performance import exercise as exercise_tab_cache
-            from tools.search_cache_performance import exercise_contained_records
+            from tools.search_cache_performance import exercise_contained_records, exercise_child_aggregations
             from tools.search_cache_performance import exercise_global_ui_pages
             failures.extend(exercise_tab_cache(client, c, output, repeats, identity, oracle))
             failures.extend(exercise_contained_records(client, c, output, repeats, identity))
+            failures.extend(exercise_child_aggregations(client, c, output, repeats, identity))
             failures.extend(exercise_global_ui_pages(client, output, repeats, identity))
         (output/'results.json').write_text(json.dumps({'results':results,'failures':failures},indent=2))
         assert not failures, f'{len(failures)} responses exceeded their time limit; see {output}/results.json'
@@ -308,6 +316,7 @@ def main():
         'backend/services/api/authentication.py',
         'backend/services/api/main.py',
         'backend/services/api/dashboard_visibility.py', 'database/schema.sql',
+        'backend/services/api/recent_activity.py', 'tools/search_aggregation_activity_performance.py',
         'backend/services/api/creator_attribution.py', 'backend/services/api/application_settings_registry.py',
         'database/seeds/000_required_reference_data.sql',
         *(['tools/search_mailbox_performance.py', 'backend/services/api/messaging/text_filters.py',

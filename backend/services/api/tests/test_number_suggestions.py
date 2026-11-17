@@ -58,3 +58,11 @@ def test_proactive_parent_suggestions_use_separators_and_do_not_reserve(client, 
             first=suggest_number(resource,None,c,parent_aggregation_id=parent['id'])
             assert first['suggested_number'].startswith(parent['aggregation_number']+separator)
             assert first==suggest_number(resource,None,c,parent_aggregation_id=parent['id'])
+
+
+def test_batch_numbers_use_gaps_preserve_padding_and_ignore_non_numeric_suffixes(client):
+    from backend.services.api.number_suggestions import next_numbers
+    with psycopg.connect(os.environ['DATABASE_URL'],row_factory=dict_row) as c:
+        c.execute('CREATE TEMP TABLE records(record_number text) ON COMMIT DROP')
+        c.execute("INSERT INTO records VALUES ('A.001'),('A.003'),('A.005'),('A.007'),('A.word')")
+        assert next_numbers(c,'records','A.000',count=5)==['A.002','A.004','A.006','A.008','A.009']

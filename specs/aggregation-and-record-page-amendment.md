@@ -60,8 +60,15 @@ row actions.
 
 - Page on the server. Application Settings controls the two page sizes
   independently. The defaults are 10 child aggregations and 25 records, and
-  each setting accepts 1 to 100 items. Sort by the corresponding item number
-  with ID as the final tie-breaker. Apply authorization and any submitted filter before calculating
+  each setting accepts 1 to 100 items. Sort records by originated timestamp
+  (`date_originated`) ascending and child aggregations by opened timestamp
+  (`date_opened`) ascending, with ID ascending as the final tie-breaker in both
+  lists. These dates preserve historical chronology for migrated resources
+  and bulk capture of physical material; system creation time (`date_created`)
+  records entry into Wathiq. Newly originated/opened resources normally have
+  matching historical and system timestamps. Keep Recent Activity ordered by
+  its existing activity timestamps so newly captured historical items remain
+  discoverable. Apply authorization and any submitted filter before calculating
   counts or selecting a page. Ordinary browsing can reach every authorized item.
 - Paging makes one listing request for the affected list. Filtering also
   refreshes only that list. Keep the submitted record filter separate from
@@ -154,7 +161,7 @@ status in Metadata.
 | --- | --- |
 | ARP-01 | Both aggregation lists and the record’s Digital Components are reachable without opening Details. Verify existing record entry points, action visibility, and the three record dialog tabs. |
 | ARP-02 | Check that the icon tooltips report the current state. Open each summary with pointer and keyboard. Verify direct and inherited closure, restricted sources, vital descendants, zero holds, more than three visible hold names, restricted holds, and an unavailable status. Check Escape and focus restoration. |
-| ARP-03 | Use a fixture with multiple pages in both lists. Reach the final pages, verify counts and order, and confirm that actions match the current user’s access. Verify the originated date, medium icon and exact tooltip below each record title, and the file count beside the actions. Request traces show at most one capability batch per rendered list page and no per-item capability calls. One list’s pager does not reload the other. |
+| ARP-03 | Use a fixture with multiple pages in both lists. Reach the final pages; verify records use Originated ascending and child aggregations use Opened ascending, both with ID ascending for ties. Include legacy dates differing from system creation and ties across pages. Verify counts and confirm that actions match the current user’s access. Verify the originated date, medium icon and exact tooltip below each record title, and the file count beside the actions. Request traces show at most one capability batch per rendered list page and no per-item capability calls. One list’s pager does not reload the other. |
 | ARP-04 | Edit a filter without applying it, page the submitted results, open a record, then return. Both pages, filter values, expansions, and row focus are restored. Verify empty results, clearing the filter, and recovery after another search replaces the shared slot. |
 | ARP-05 | Verify fresh state after edits, closure changes, hold changes, and relationship changes. Check closed branches, read-only users, redacted targets, and permitted and denied previews. Navigate away during a load and verify that late results do not alter the next view. |
 | ARP-06 | Verify desktop and narrow layouts in English/LTR and Arabic/RTL. Check keyboard access, visible focus, long titles, icon labels, and dialog and summary placement. Validate the English and Arabic catalogues. |
