@@ -47,14 +47,9 @@ def _fail(c,run,root,code='disposition_digital_interrupted'):
     c.execute("UPDATE disposition_destruction_runs SET state='failed',finished_at=clock_timestamp(),failed_units=(SELECT count(*) FROM disposition_destruction_run_units WHERE run_id=%s AND state='failed'),last_error_code=%s,last_error_message='Digital destruction requires authorized action.' WHERE id=%s AND state IN ('queued','running')",(run,code,run))
     c.execute("SELECT set_config('app.user_id','',true),set_config('app.actor_type','automated_process',true),set_config('app.actor_name','Digital destruction worker',true),set_config('app.event_source','scheduled_job',true)")
     c.execute("SELECT append_domain_event('disposition_job',(SELECT job_id FROM disposition_destruction_runs WHERE id=%s),'DIGITAL_DESTRUCTION_FAILED',jsonb_build_object('run_id',%s::bigint,'error_code',%s::text))",(run,run,code))
-    from .notifications import publish_destruction_outcomes
-    try:
-        with c.transaction():publish_destruction_outcomes(c,run)
-    except Exception:
-        # Failed notification delivery cannot erase the durable failure record.
-        # Its optional producer can be repaired before an explicit retry.
-        pass
     _clear(c)
+    from .notifications import DESTRUCTION_OUTCOME, publish_destruction_outcomes, try_notification
+    try_notification(c, DESTRUCTION_OUTCOME, publish_destruction_outcomes, c, run)
 
 
 def claim(c):

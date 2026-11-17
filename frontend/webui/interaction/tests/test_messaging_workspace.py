@@ -82,7 +82,8 @@ class Api:
 
 
 async def setup(user, language="en", exchange=True, browse=None, mailbox="inbox", api=None,
-                linked_content_enabled=True, mailbox_position=None, page_size=25):
+                linked_content_enabled=True, mailbox_position=None, page_size=25,
+                open_disposition_job=None):
     api = api or Api()
     alive = {"value": True}
     scope = dict(
@@ -122,6 +123,7 @@ async def setup(user, language="en", exchange=True, browse=None, mailbox="inbox"
             relationship_select=relationship_select,
             bind_relationship=scope["bind_remote_relationship_select"],
             open_resource=AsyncMock(),
+            open_disposition_job=open_disposition_job,
             format_timestamp=str,
             active=lambda: alive["value"],
             browse_recipients=browse,
@@ -132,6 +134,44 @@ async def setup(user, language="en", exchange=True, browse=None, mailbox="inbox"
 
     await user.open("/messaging-test")
     return api, alive
+
+
+@pytest.mark.parametrize('language,label', [('en', 'Job details'), ('ar', 'تفاصيل العملية')])
+@pytest.mark.parametrize('task_notice', [False, True])
+async def test_disposition_notification_opens_job(user: User, language, label, task_notice):
+    api = Api()
+    original = api.request
+    opened = asyncio.Event()
+    opened_jobs = []
+
+    async def open_job(job_id):
+        opened_jobs.append(job_id)
+        opened.set()
+
+    message = dict(id='delivery', envelope_id='envelope', subject='Destruction status update',
+        availability='available', sender_name='System', sender_kind='system', sent_at='2026-11-17',
+        priority='normal', security_level_id=1, security_level_name='General', selectors=[],
+        body_rich_text='<p>Check the outcome in Wathiq.</p>', resource_links=[], is_test=False,
+        message_kind='system_notification', action_required=False)
+    if task_notice:
+        message['disposition_task'] = {'job_id': 42, 'task_id': 5}
+    else:
+        message['disposition_job'] = 42
+
+    async def request(method, path, **kwargs):
+        if path.endswith('/inbox'):
+            return dict(items=[message], has_more=False)
+        if path.endswith(('/inbox/delivery', '/inbox/delivery/read')):
+            return message
+        return await original(method, path, **kwargs)
+
+    api.request = request
+    await setup(user, api=api, language=language, exchange=False, open_disposition_job=open_job)
+    user.find(marker='message-row-delivery').click()
+    await user.should_see(kind=ui.button, content=label)
+    user.find(label, kind=ui.button).click()
+    await asyncio.wait_for(opened.wait(), timeout=1)
+    assert opened_jobs == [42]
 
 
 async def test_compose_uses_shared_bounded_selector_and_sends_new_content(user: User):

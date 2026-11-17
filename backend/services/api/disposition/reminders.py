@@ -5,6 +5,7 @@ from ..messaging.notification_registry import SystemNotificationDefinition,Place
 from ..messaging.models import Selector
 from ..messaging.notifications import emit_system_notification
 from .email import worker_actor
+from .notifications import try_notification
 
 CODE='disposition.eligibility_reminder'
 
@@ -64,8 +65,9 @@ def run_batch(connection_factory,*,limit=100,now=None):
                 for row in rows:
                     identity=row['id']
                     if c.execute('SELECT 1 FROM disposition_private.reminder_checkpoints WHERE producer_code=%s AND scheduled_at=%s AND recipient_user_id=%s',(CODE,due,identity)).fetchone():continue
-                    result=emit_system_notification(transaction=c,producer_code=CODE,source_event_id=f'{due.isoformat()}:{identity}',context={'recipient_id':identity,'scheduled_interval':due.isoformat()})
-                    if result.status in ('created','existing','message_result_purged'):
+                    result=try_notification(c, CODE, emit_system_notification, transaction=c, producer_code=CODE,
+                        source_event_id=f'{due.isoformat()}:{identity}', context={'recipient_id':identity,'scheduled_interval':due.isoformat()})
+                    if result and result.status in ('created','existing','message_result_purged'):
                         c.execute('INSERT INTO disposition_private.reminder_checkpoints(producer_code,scheduled_at,recipient_user_id) VALUES(%s,%s,%s) ON CONFLICT DO NOTHING',(CODE,due,identity));sent+=1
             finished=len(rows)<limit
             c.execute('UPDATE disposition_private.reminder_schedule SET interval_index=%s,recipient_after=%s WHERE producer_code=%s',(state['interval_index']+int(finished),0 if finished else rows[-1]['id'],CODE))

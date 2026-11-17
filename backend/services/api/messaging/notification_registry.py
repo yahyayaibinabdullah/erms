@@ -30,6 +30,7 @@ class SystemNotificationDefinition:
     resource_builder: Callable | None = None
     resource_configuration: type[BaseModel] | None = None
     sample_context: dict = field(default_factory=dict)
+    display_only_placeholders: frozenset[str] = frozenset()
 
     def contract(self):
         return {
@@ -68,6 +69,8 @@ class NotificationRegistry:
                 for key in item.placeholders
             ):
                 raise RuntimeError("Invalid notification placeholder")
+            if not item.display_only_placeholders.issubset(item.placeholders):
+                raise RuntimeError("Unknown display-only notification placeholder")
             if (
                 "static" in item.audience_resolvers
                 or not item.contract()["audience_modes"]

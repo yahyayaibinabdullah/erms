@@ -1287,9 +1287,10 @@ async def messaging_workspace(
                                 )).classes("text-xs text-slate-600")
 
     def render_body(message, link_active):
-        if message.get('disposition_job') and open_disposition_job:
+        job_id = message.get('disposition_job') or (message.get('disposition_task') or {}).get('job_id')
+        if job_id and open_disposition_job:
             from .disposition.messages import text as disposition_text
-            ui.button(disposition_text('job_details'),icon='open_in_new',on_click=lambda:open_disposition_job(message['disposition_job'])).props('outline no-caps')
+            ui.button(disposition_text('workspace_details'),icon='open_in_new',on_click=lambda:open_disposition_job(job_id)).props('outline no-caps')
         if message.get("disposition_eligibility") and open_disposition_eligibility:
             from .disposition.messages import text as disposition_text
             ui.button(disposition_text("eligibility"),icon="event_available",on_click=open_disposition_eligibility).props("outline no-caps")

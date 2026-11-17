@@ -16,7 +16,7 @@ def configure_outcome_notification(c):
     from backend.services.api.disposition import notifications
     from backend.services.api.messaging import notification_configuration as config
     c.execute((Path(__file__).parents[4]/'database/seeds/disposition-notification-producers.sql').read_text());c.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');actor(c)
-    configuration=config.Configuration(expected_version=0,enabled=True,audience_mode='requesting_managers',operational_owner='Disposable background approval verification',templates=[config.Template(language_tag=tag,subject_template=subject,body_template_rich_text=body,review_status='published') for tag,subject,body in [('en','Disposition processing outcome','<p>Open job {job_id} to review its processing outcome.</p>'),('ar','نتيجة معالجة التصرف','<p>افتح العملية {job_id} لمراجعة نتيجة المعالجة.</p>')]])
+    configuration=config.Configuration(expected_version=0,enabled=True,audience_mode='requesting_managers',operational_owner='Disposable background approval verification',templates=[config.Template(language_tag=tag,subject_template=subject,body_template_rich_text=body,review_status='published') for tag,subject,body in [('en','Disposition processing outcome','<p>Open job {job_number} to review its processing outcome.</p>'),('ar','نتيجة معالجة التصرف','<p>افتح العملية {job_number} لمراجعة نتيجة المعالجة.</p>')]])
     saved=config.save(c,1,notifications.OPERATION_OUTCOME,configuration,'Configure disposable background outcome')
     config.activate(c,1,notifications.OPERATION_OUTCOME,saved['id'],config.Expected(expected_version=saved['version']),'Activate disposable background outcome');c.commit()
 
@@ -303,6 +303,7 @@ def test_outcome_notification_deduplicates_and_links_to_currently_accessible_job
         delivery=c.execute('SELECT id FROM message_deliveries ORDER BY id LIMIT 1').fetchone()['id']
         shown=reading.delivery(c,1,delivery)
         assert shown['disposition_job']==job['id']
+        assert job['job_number'] in shown['body_rich_text']
         c.execute("DELETE FROM user_role_assignments WHERE user_id=1 AND role_id=%s",(mgr,))
         assert not reading.delivery(c,1,delivery).get('disposition_job')
 

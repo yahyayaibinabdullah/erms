@@ -916,7 +916,7 @@ business change may commit without its notification:
   without creating a notification.
 - **Optional producer (`false`), enabled:** the business change and attempted
   notification still commit together. A notification failure rolls back the
-  transaction.
+  transaction unless the disposition exception below applies.
 
 `required_for_business_commit` does not set message priority, request a read
 receipt or action, require the recipient to read the message, or require a toast
@@ -1026,19 +1026,28 @@ Whenever a production system notification is created, it commits in the same
 PostgreSQL transaction as the business change that caused it. That transaction
 includes the envelope, recipient snapshots, deliveries, mailbox sequences, and
 `NOTIFY` calls. If notification validation or creation fails, the complete
-transaction rolls back. The caller may retry the ordinary business operation
+transaction rolls back, subject to the optional disposition exception below.
+The caller may retry the ordinary business operation
 using its stable idempotency key; retrying must not create a duplicate domain
 change or notification.
+
+For the optional disposition producers `task_assigned`, `eligibility_reminder`,
+`destruction_outcome`, `completion_outcome`, and `operation_outcome`, a failed
+send rolls back its messaging writes and is logged. Successful disposition work
+and its history can commit independently of that failure. A failed reminder
+does not stop the batch from processing other recipients. Background operation
+outcomes retain their existing independent retry. A successful send still
+commits with its domain event when attempted in the same transaction.
 
 The explicitly marked administration test in MSG-019 has no domain change. Its
 test envelope, recipients, mailbox sequences, and notifications commit in one
 standalone transaction or not at all.
 
-There is no asynchronous system-notification intent queue, retry worker, or
-manual notification replay operation in this revision. Adding one later would
-be a separately approved extension. Backend work that cannot share the domain
-transaction must not claim to have produced a system notification under this
-contract.
+Outside the disposition background operation retry above, there is no
+asynchronous system-notification intent queue, retry worker, or manual replay
+operation in this revision. Adding one later would be a separately approved
+extension. Backend work must report a system notification as produced only
+after it has been durably created.
 
 ### MSG-019 — System notification administration
 
