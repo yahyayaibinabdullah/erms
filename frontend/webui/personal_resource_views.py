@@ -11,6 +11,45 @@ from .i18n_catalogue import render_message
 from .personal_resources import PersonalResourceState, STOP_PROPAGATION_CLICK_HANDLER
 
 
+def render_recent_activity_item(item, *, icon, number_field, open_resource, format_timestamp):
+    """Render the batched activity projection; fetch details only on activation."""
+    operation = item["_operation"]
+    activity_icon, activity_class = {
+        "CREATE": ("add", "dashboard-activity-created"),
+        "UPDATE": ("edit", "dashboard-activity-updated"),
+        "CONTENT_VIEWED": ("visibility", "dashboard-activity-viewed"),
+    }[operation]
+    activity_label = render_message({
+        "CREATE": "dashboard.activity.created",
+        "UPDATE": "dashboard.activity.updated",
+        "CONTENT_VIEWED": "dashboard.activity.viewed",
+    }[operation])
+    row = ui.element("div").classes("dashboard-personal-item").props(
+        "role=button tabindex=0"
+    ).on(
+        "click", lambda _, selected=item: open_resource(selected),
+    ).on(
+        "keydown.enter", lambda _, selected=item: open_resource(selected),
+    )
+    with row:
+        with ui.element("div").classes("dashboard-overview-icon"):
+            ui.icon(icon, size="18px")
+        with ui.column().classes("gap-0 grow min-w-0"):
+            ui.label(item["title"]).classes(
+                "text-sm font-semibold text-slate-700 truncate w-full"
+            ).tooltip(item["title"])
+            ui.label(
+                render_message("webui.render_recent_item.label.value_format_timestamp_2d04c976", value=item.get(number_field) or '—', format_timestamp=format_timestamp(item.get('_activity_at')))
+            ).classes("text-xs text-slate-500 truncate w-full")
+            render_creator_name(item)
+        with ui.element("div").classes(
+            f"dashboard-activity-badge {activity_class}"
+        ):
+            ui.icon(activity_icon, size="13px")
+            ui.label(activity_label)
+
+
+
 def favourite_pages(api, dialog, host, *, kind, render_row, empty_text, error_message, active):
     """Mount server pages under an open favourites dialog."""
     size = 25
@@ -239,35 +278,8 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
                 )
 
         def render_recent_item(item: dict[str, Any]) -> None:
-            operation = item["_operation"]
-            activity_label, activity_icon, activity_class = {
-                "CREATE": (render_message("dashboard.activity.created"), "add", "dashboard-activity-created"),
-                "UPDATE": (render_message("dashboard.activity.updated"), "edit", "dashboard-activity-updated"),
-                "CONTENT_VIEWED": (render_message("dashboard.activity.viewed"), "visibility", "dashboard-activity-viewed"),
-            }[operation]
-            row = ui.element("div").classes("dashboard-personal-item").props(
-                "role=button tabindex=0"
-            ).on(
-                "click", lambda _, selected=item: open_resource(selected),
-            ).on(
-                "keydown.enter", lambda _, selected=item: open_resource(selected),
-            )
-            with row:
-                with ui.element("div").classes("dashboard-overview-icon"):
-                    ui.icon(icon, size="18px")
-                with ui.column().classes("gap-0 grow min-w-0"):
-                    ui.label(item["title"]).classes(
-                        "text-sm font-semibold text-slate-700 truncate w-full"
-                    ).tooltip(item["title"])
-                    ui.label(
-                        render_message("webui.render_recent_item.label.value_format_timestamp_2d04c976", value=item.get(number_field) or '—', format_timestamp=format_timestamp(item.get('_activity_at')))
-                    ).classes("text-xs text-slate-500 truncate w-full")
-                    render_creator_name(item)
-                with ui.element("div").classes(
-                    f"dashboard-activity-badge {activity_class}"
-                ):
-                    ui.icon(activity_icon, size="13px")
-                    ui.label(activity_label)
+            render_recent_activity_item(item, icon=icon, number_field=number_field,
+                                        open_resource=open_resource, format_timestamp=format_timestamp)
 
         async def remove_favourite(item: dict[str, Any], *, refresh_dialog=None) -> None:
             selected = await toggle_favourite(resource, item["id"])

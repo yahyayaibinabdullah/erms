@@ -427,6 +427,7 @@ def my_recent_activity(
     limit: int = Query(6, ge=1, le=50),
     since: datetime | None = None,
     entity_type: Literal["aggregation", "record"] | None = None,
+    aggregation_id: int | None = Query(None, gt=0),
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
@@ -436,7 +437,11 @@ def my_recent_activity(
 
     if since is None:
         since = recent_since_default(settings_cache.for_connection(connection)["DASHBOARD_RECENT_DAYS"])
-    return recent_activity(connection, principal.user_id, since, limit, entity_type)
+    if aggregation_id is not None:
+        if entity_type == "aggregation":
+            raise HTTPException(422, detail="aggregation_id scopes record activity")
+        entity_type = "record"
+    return recent_activity(connection, principal.user_id, since, limit, entity_type, aggregation_id=aggregation_id)
 
 
 @router.post("/logout", status_code=204)

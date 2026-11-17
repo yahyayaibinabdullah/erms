@@ -385,13 +385,15 @@ class ErmsApiClient:
 
     async def my_recent_activity(
         self, *, limit: int = 6, since: datetime | None = None,
-        entity_type: str | None = None,
+        entity_type: str | None = None, aggregation_id: int | None = None,
     ) -> list[dict[str, Any]]:
         params: dict[str, Any] = {"limit": limit}
         if since is not None:
             params["since"] = since.isoformat()
         if entity_type is not None:
             params["entity_type"] = entity_type
+        if aggregation_id is not None:
+            params["aggregation_id"] = aggregation_id
         return await self.request("GET", "/api/v1/auth/me/recent-activity", params=params)
 
     async def profile_references(self) -> list[dict[str, Any]]:
@@ -1141,6 +1143,7 @@ class ErmsApiClient:
         *,
         limit: int = 50,
         since: datetime | str | None = None,
+        aggregation_id: int | None = None,
     ) -> list[dict[str, Any]]:
         entity_type = {"aggregations": "aggregation", "records": "record"}[resource]
         parsed_since = (
@@ -1148,7 +1151,8 @@ class ErmsApiClient:
             else datetime.fromisoformat(since.replace("Z", "+00:00")) if since
             else None
         )
-        activity = await self.my_recent_activity(limit=limit, since=parsed_since, entity_type=entity_type)
+        scope = {"aggregation_id": aggregation_id} if aggregation_id is not None else {}
+        activity = await self.my_recent_activity(limit=limit, since=parsed_since, entity_type=entity_type, **scope)
         return [
             {
                 "id": entry["entity_id"],
@@ -1379,6 +1383,20 @@ class ErmsApiClient:
 
     async def discard_record_draft(self, draft_id: int) -> None:
         await self.request("DELETE", f"/api/v1/record-drafts/{draft_id}")
+
+    async def create_records_from_file_drop(
+        self, aggregation_id: int, files, *, separate_records: bool, creator_acl_role_id: int,
+        title: str | None = None,
+    ) -> int:
+        result = await self.request(
+            "POST", f"/api/v1/aggregations/{aggregation_id}/records/file-drop",
+            data={"separate_records": str(separate_records).lower(), "creator_acl_role_id": str(creator_acl_role_id),
+                  **({"title": title} if title is not None else {})},
+            files=[("files", (name, content, mime_type or "application/octet-stream"))
+                   for name, content, mime_type in files],
+            timeout=660,
+        )
+        return result["count"]
 
     async def recent_classifications(self, limit: int | None = None, offset: int = 0) -> list[dict[str, Any]]:
         return await self.request("GET", "/api/v1/classifications/recent", params={**({"limit":limit} if limit is not None else {}), "offset":offset})

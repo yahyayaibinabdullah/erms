@@ -44,7 +44,7 @@ def exercise_contained_records(client, connection, output, repeats, identity, *,
     from backend.services.api.schemas import SearchRequest
 
     path = '/api/v1/records/search'
-    number_sort = [{'field': 'record_number', 'direction': 'asc'}]
+    historical_sort = [{'field': 'date_originated', 'direction': 'asc'}, {'field': 'id', 'direction': 'asc'}]
     parent = {'field': 'aggregation_id', 'operator': 'eq', 'value': 1}
     failures, results = [], []
     for label, pattern in [('browse', None), ('broad', 'common'), ('selective', 'needle'), ('empty', 'zzabsent')]:
@@ -55,13 +55,13 @@ def exercise_contained_records(client, connection, output, repeats, identity, *,
                 for field in ('record_number', 'title')
             ]})
         request = {'where': {'and': conditions}, 'limit': 25,
-                   'sort': number_sort, 'include': ['record_capabilities']}
+                   'sort': historical_sort, 'include': ['record_capabilities']}
         expected = []
         if identity == 'reader':
             expected = [row['id'] for row in connection.execute(
                 '''SELECT id FROM records WHERE aggregation_id=1
                    AND (%s OR record_number ILIKE %s OR title ILIKE %s)
-                   ORDER BY record_number,id''', (pattern is None, f'%{pattern}%', f'%{pattern}%'),
+                   ORDER BY date_originated,id''', (pattern is None, f'%{pattern}%', f'%{pattern}%'),
             ).fetchall()]
         matching_count = len(expected)
         if pattern:
@@ -111,6 +111,52 @@ def exercise_contained_records(client, connection, output, repeats, identity, *,
         with search_sql_execution(connection):
             plan = connection.execute(sql.SQL('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) ') + statement, values).fetchone()['QUERY PLAN']
         (output / 'contained-records-broad-plan.json').write_text(json.dumps(plan, indent=2))
+        connection.commit()
+    return failures
+
+
+def exercise_child_aggregations(client, connection, output, repeats, identity):
+    """Verify uncapped chronological child paging, including date ties and denial."""
+    from backend.services.api.search import canonicalize_search_request
+    from backend.services.api.search_cache import _statement
+    from backend.services.api.search_execution import search_sql_execution
+    from backend.services.api.schemas import SearchRequest
+
+    results, failures = [], []
+    for parent_id in (1, 51003):
+        request = {'where': {'and': [{'field': 'parent_aggregation_id', 'operator': 'eq', 'value': parent_id}]},
+                   'sort': [{'field': 'date_opened', 'direction': 'asc'}, {'field': 'id', 'direction': 'asc'}],
+                   'limit': 10}
+        expected = [r['id'] for r in connection.execute(
+            'SELECT id FROM aggregations WHERE parent_aggregation_id=%s ORDER BY date_opened,id',
+            (parent_id,)).fetchall()] if identity == 'reader' else []
+        samples = []
+        for repeat in range(repeats):
+            received = []
+            for offset in range(0, max(1, len(expected)), 10):
+                started = time.perf_counter()
+                response = client.post('/api/v1/aggregations/search', json={**request, 'offset': offset})
+                elapsed = time.perf_counter() - started
+                assert response.status_code == 200, response.text
+                body = response.json()
+                assert body['total'] == len(expected)
+                received.extend(item['id'] for item in body['items'])
+                sample = {'repeat': repeat, 'offset': offset, 'seconds': round(elapsed, 4)}
+                samples.append(sample)
+                if elapsed > 3:
+                    failures.append({'identity': identity, 'case': 'child_aggregations', 'parent_id': parent_id, **sample})
+            assert received == expected
+        results.append({'request': request, 'expected_ids': expected, 'samples': samples})
+    (output / f'{identity}-child-aggregations.json').write_text(json.dumps(results, indent=2))
+    if identity == 'reader':
+        uid = connection.execute("SELECT id FROM users WHERE email='reader@performance.invalid'").fetchone()['id']
+        connection.execute("SELECT set_config('app.user_id',%s,true)", (str(uid),))
+        request = SearchRequest(**results[0]['request'])
+        canonical = canonicalize_search_request(connection, 'aggregations', request)
+        statement, values = _statement('aggregations', request, canonical, None, None, 10)
+        with search_sql_execution(connection):
+            plan = connection.execute(sql.SQL('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) ') + statement, values).fetchone()['QUERY PLAN']
+        (output / 'child-aggregations-plan.json').write_text(json.dumps(plan, indent=2))
         connection.commit()
     return failures
 

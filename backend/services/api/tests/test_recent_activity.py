@@ -82,3 +82,40 @@ def test_scoped_cards_audit_governance_once_per_resource(client, aggregation):
     metadata = audit[0]["metadata"]
     assert metadata["required_privilege"] == metadata["required_permission"] == "aggregation.view"
     assert [item["id"] for item in metadata["qualifying_roles"]] == [role]
+
+
+def test_aggregation_scope_filters_hidden_records_before_limiting(client, aggregation):
+    token,user,role=_account(client,privileges=('record.view','aggregation.view'),suffix='scoped-activity')
+    with psycopg.connect(os.environ['DATABASE_URL'],row_factory=dict_row) as c:
+        c.execute("SELECT set_config('app.event_source','seeding',true)")
+        c.execute("INSERT INTO aggregation_acl_grants(aggregation_id,permission_id,principal_type,role_id) SELECT %s,id,'role',%s FROM permissions WHERE code='aggregation.view'",(aggregation['id'],role))
+        rows=c.execute('''INSERT INTO records(aggregation_id,owning_org_unit_id,record_number,title,inherit_acl_from_parent)
+                          SELECT %s,%s,'SCOPED-'||n,'Scoped '||n,false FROM generate_series(1,3) n RETURNING id''',
+                       (aggregation['id'],aggregation['owning_org_unit_id'])).fetchall()
+        visible=rows[0]['id']
+        c.execute("INSERT INTO record_acl_grants(record_id,permission_id,principal_type,role_id) SELECT %s,id,'role',%s FROM permissions WHERE code='record.view'",(visible,role))
+        c.execute('''INSERT INTO event_history(entity_type,entity_id,operation,actor_user_id,actor_type,source,after_state)
+                     SELECT 'record',id,'CREATE',%s,'user','seeding','{}' FROM unnest(%s::bigint[]) id''',
+                  (user,[r['id'] for r in rows]))
+    params={'entity_type':'record','aggregation_id':aggregation['id'],'limit':1}
+    response=client.get(ACTIVITY,params=params,headers=_bearer(token))
+    assert response.status_code==200,response.text
+    assert [r['entity_id'] for r in response.json()]==[visible]
+    with psycopg.connect(os.environ['DATABASE_URL']) as c:
+        c.execute('DELETE FROM record_acl_grants WHERE record_id=%s',(visible,))
+    assert client.get(ACTIVITY,params=params,headers=_bearer(token)).json()==[]
+
+
+def test_preview_appears_in_aggregation_record_activity(client, record):
+    uploaded=client.post(f"/api/v1/records/{record['id']}/digital-components/upload",
+        data={'component_order':'1'},files={'file':('preview.png',b'\x89PNG\r\n\x1a\nfixture','image/png')})
+    assert uploaded.status_code==201,uploaded.text
+    params={'entity_type':'record','aggregation_id':record['aggregation_id'],'limit':50}
+    assert not any(r['operation']=='CONTENT_VIEWED' for r in client.get(ACTIVITY,params=params).json())
+    viewed=client.get(f"/api/v1/digital-components/{uploaded.json()['id']}/rendition")
+    assert viewed.status_code==200,viewed.text
+    response=client.get(ACTIVITY,params=params)
+    assert response.status_code==200,response.text
+    events=[r for r in response.json() if r['operation']=='CONTENT_VIEWED']
+    assert len(events)==1 and events[0]['entity_id']==record['id']
+    assert events[0]['title']==record['title'] and 'created_by' in events[0]

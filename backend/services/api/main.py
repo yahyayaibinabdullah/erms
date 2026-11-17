@@ -39,9 +39,10 @@ from .continuity_lock import acquire_continuity_shared_lock
 from .content_storage import configured_storage, inspect_upload
 from .database import close_pool, get_connection, get_consistent_connection, open_pool, pool
 from .document_conversion import ConversionUnavailable, UnsupportedPreview, pdf_rendition
-from .number_suggestions import router as number_suggestions_router
+from .number_suggestions import next_numbers, router as number_suggestions_router
 from .entity_localization import localized_projection, preferred_language
 from .schemas import (
+    NonBlankString,
     AggregationCreate,
     AggregationRead,
     AggregationUpdate,
@@ -1121,6 +1122,13 @@ def create_record(payload: RecordCreate, connection: Connection = Depends(get_co
         "SELECT lowest_security_level_id() AS id"
     ).fetchone()["id"]
     require_clearance_for_level(connection, level_id)
+    _set_record_creator(connection, selected_role)
+    values = payload.model_dump(exclude={"creator_acl_role_id"})
+    values["medium"] = _resolved_record_medium(parent, payload.medium)
+    return create_row(connection, "records", values)
+
+
+def _set_record_creator(connection: Connection, selected_role: dict) -> None:
     connection.execute(
         "SELECT set_config('app.creator_acl_role_id',%s,true),set_config('app.event_metadata',%s,true)",
         (str(selected_role["role_id"]), json.dumps({
@@ -1129,9 +1137,6 @@ def create_record(payload: RecordCreate, connection: Connection = Depends(get_co
             "creator_org_unit_id": selected_role["org_unit_id"],
         })),
     )
-    values = payload.model_dump(exclude={"creator_acl_role_id"})
-    values["medium"] = _resolved_record_medium(parent, payload.medium)
-    return create_row(connection, "records", values)
 
 
 @app.get("/api/v1/records", response_model=list[RecordRead], tags=["records"])
@@ -2074,7 +2079,14 @@ def upload_digital_component(
     require_resource_operation(connection, "record", record_id,
                                "record.component.add", "record.component.add")
     _require_record_accepts_components(connection, record_id)
-    content_settings = settings_cache.for_connection(connection)
+    return _store_uploaded_component(connection, record_id, file, component_order,
+                                     settings_cache.for_connection(connection), date_originated)
+
+
+def _store_uploaded_component(
+    connection: Connection, record_id: int, file: UploadFile, component_order: int,
+    content_settings, date_originated: datetime | None = None, *, record_creation: bool = False,
+) -> dict:
     inspected = inspect_upload(file, content_settings)
     mime_type = file.content_type or "application/octet-stream"
     component = create_row(
@@ -2094,16 +2106,72 @@ def upload_digital_component(
         },
     )
     uploaded = configured_storage().store_upload(connection, component["id"], file, settings=content_settings)
-    component = get_or_404(connection, "digital_components", component["id"])
+    # Creation has already authorized the parent and creator role, just as
+    # draft commit does. It must not additionally require component-read
+    # privileges merely to construct an internal upload audit event.
+    if not record_creation:
+        component = get_or_404(connection, "digital_components", component["id"])
     _append_content_event(
         connection,
         component["id"],
         "CONTENT_UPLOADED",
         {"file_name": component["file_name"], "mime_type": mime_type,
          "size_in_bytes": uploaded.size_in_bytes, "checksum_algo": "sha256",
-         "checksum_value": uploaded.checksum_value},
+         "checksum_value": uploaded.checksum_value,
+         **({"record_creation": True} if record_creation else {})},
     )
     return component
+
+
+@app.post("/api/v1/aggregations/{aggregation_id}/records/file-drop", status_code=201, tags=["records"])
+@operation_policy("resource_scoped", "record.create", "aggregation.add_record")
+def create_records_from_file_drop(
+    aggregation_id: int,
+    files: list[UploadFile] = File(..., min_length=1),
+    separate_records: bool = Form(...),
+    creator_acl_role_id: int | None = Form(None),
+    title: NonBlankString | None = Form(None),
+    connection: Connection = Depends(get_connection, scope="function"),
+) -> dict[str, int]:
+    acquire_continuity_shared_lock(connection)
+    # The parent row lock serializes allocation and protects ownership and
+    # medium until the entire batch, including its content, has committed.
+    parent = require_resource_operation(
+        connection, "aggregation", aggregation_id, "record.create", "aggregation.add_record",
+    )
+    if parent["medium"] == "physical":
+        raise HTTPException(409, detail={"code": "aggregation_file_drop_physical",
+                                         "message_key": "aggregation_file_drop.physical"})
+    selected_role = _select_creator_role(connection, creator_acl_role_id, aggregation_id)
+    level_id = connection.execute("SELECT lowest_security_level_id() AS id").fetchone()["id"]
+    require_clearance_for_level(connection, level_id)
+    if any(not (file.filename or "").strip() or "\x00" in file.filename for file in files):
+        raise HTTPException(422, detail={"code": "aggregation_file_drop_invalid_filename", "message_key": "aggregation_file_drop.invalid_filename"})
+
+    combined = not separate_records and len(files) > 1
+    if combined and title is None:
+        raise RequestValidationError([{"type": "missing", "loc": ("body", "title"),
+                                       "msg": "Field required", "input": None}])
+
+    groups = ([file] for file in files) if separate_records else (files,)
+    count = len(files) if separate_records else 1
+    numbers = next_numbers(connection, "records", parent["aggregation_number"] + ".0", count=count)
+    if len(numbers) != count:
+        raise HTTPException(409, detail={"code": "aggregation_file_drop_number_unavailable", "message_key": "aggregation_file_drop.number_unavailable"})
+
+    settings = settings_cache.for_connection(connection)
+    _set_record_creator(connection, selected_role)
+    for number, group in zip(numbers, groups, strict=True):
+        record = create_row(connection, "records", {
+            "aggregation_id": aggregation_id,
+            "record_number": number,
+            "title": title if combined else group[0].filename,
+            "security_level_id": level_id,
+            "medium": "digital",
+        })
+        for order, file in enumerate(group, 1):
+            _store_uploaded_component(connection, record["id"], file, order, settings, record_creation=True)
+    return {"count": count}
 
 
 @app.head(

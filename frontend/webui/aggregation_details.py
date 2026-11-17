@@ -18,6 +18,8 @@ from .retention_timeline import render_retention_stages
 from datetime import timezone
 from nicegui import ui
 from .creator_labels import render_creator_name
+from .aggregation_file_drop import AggregationFileDrop
+from .aggregation_recent_activity import AggregationRecentActivity
 from .resource_detail_header import detail_action_group, detail_read, metadata_layout, open_details_dialog, read_closure, render_resource_detail_header
 
 def build_aggregation_details(
@@ -883,25 +885,31 @@ def build_aggregation_details(
                                                           icon="add", on_click=add_child).props("flat dense no-caps").classes("max-w-full text-start")
                             add_child_control.set_visibility(False)
                         child_host = ui.column().classes("w-full px-3 py-2 gap-2")
-                    with ui.column().classes("resource-contents-section w-full gap-0 rounded-lg border border-slate-200"):
-                        with ui.row().classes("w-full items-center justify-between gap-2 px-3 py-1 bg-blue-50 rounded-t-lg", remove="row").style("flex-wrap: wrap"):
-                            with ui.row().classes("items-center gap-2", remove="row"):
-                                ui.label(render_message("webui.open_aggregation.label.records_in_this_aggregation_db111558")).props(
-                                    f"id={records_heading} tabindex=-1",
-                                ).classes("text-sm font-semibold")
-                                record_count = ui.badge(color="blue-2", text_color="blue-10").props("rounded")
-                                record_count.set_visibility(False)
-                            add_record_control = ui.button(render_message("webui.index.button.add_record_fc8125c4"),
-                                                           icon="note_add", on_click=add_record).props("flat dense no-caps").classes("max-w-full text-start")
-                            add_record_control.set_visibility(False)
-                        with ui.row().classes("items-center w-full px-3 pt-2 gap-2", remove="row").style("flex-wrap: wrap"):
-                            record_filter = ui.input(
-                                render_message("webui.open_aggregation.input.filter_records_d5ad0981"),
-                                value=page_state.get("filter_draft", record_query),
-                            ).props("outlined dense clearable").classes("grow min-w-0").style("flex-basis: 10rem; max-width: 16rem")
-                            ui.button(render_message("webui.open_saved_search_dialog.button.apply_filters_63a71659"),
-                                      on_click=lambda: load_records(1, submit=True)).props("flat dense no-caps")
-                        records_host = ui.column().classes("w-full px-3 py-2 gap-2")
+                    with ui.grid().classes("w-full grid-cols-1 gap-4 items-start lg:grid-cols-3"):
+                        with ui.column().classes("resource-contents-section lg:col-span-2 min-w-0 w-full gap-0 rounded-lg border border-slate-200"):
+                            with ui.row().classes("w-full items-center justify-between gap-2 px-3 py-1 bg-blue-50 rounded-t-lg", remove="row").style("flex-wrap: wrap"):
+                                with ui.row().classes("items-center gap-2", remove="row"):
+                                    ui.label(render_message("webui.open_aggregation.label.records_in_this_aggregation_db111558")).props(
+                                        f"id={records_heading} tabindex=-1",
+                                    ).classes("text-sm font-semibold")
+                                    record_count = ui.badge(color="blue-2", text_color="blue-10").props("rounded")
+                                    record_count.set_visibility(False)
+                                add_record_control = ui.button(render_message("webui.index.button.add_record_fc8125c4"),
+                                                               icon="note_add", on_click=add_record).props("flat dense no-caps").classes("max-w-full text-start")
+                                add_record_control.set_visibility(False)
+                            with ui.row().classes("items-center w-full px-3 pt-2 gap-2", remove="row").style("flex-wrap: wrap"):
+                                record_filter = ui.input(
+                                    render_message("webui.open_aggregation.input.filter_records_d5ad0981"),
+                                    value=page_state.get("filter_draft", record_query),
+                                ).props("outlined dense clearable").classes("grow min-w-0").style("flex-basis: 10rem; max-width: 16rem")
+                                ui.button(render_message("webui.open_saved_search_dialog.button.apply_filters_63a71659"),
+                                          on_click=lambda: load_records(1, submit=True)).props("flat dense no-caps")
+                            records_host = ui.column().classes("w-full px-3 py-2 gap-2")
+                        activity = AggregationRecentActivity(
+                            api=api, aggregation_id=identifier, active=active,
+                            configuration=get_configuration(), format_timestamp=format_timestamp,
+                            show_record_details=show_record_details, error_message=error_message,
+                        )
 
                 configuration = get_configuration()
                 child_limit = configuration["CHILD_AGGREGATION_PAGE_SIZE"]
@@ -925,10 +933,14 @@ def build_aggregation_details(
 
                 def pager(total, page, limit, on_change):
                     if total > limit:
-                        ui.pagination(1, (total + limit - 1) // limit, value=page,
-                                      on_change=lambda event: on_change(int(event.value))).props(
-                            "direction-links boundary-links color=primary",
-                        )
+                        last = (total + limit - 1) // limit
+                        with ui.row().classes("items-center gap-2", remove="row"):
+                            ui.pagination(1, last, value=page,
+                                          on_change=lambda event: on_change(int(event.value))).props(
+                                "direction-links color=primary",
+                            )
+                            ui.button(render_message("aggregation_file_drop.last_page"),
+                                      on_click=lambda: on_change(last)).props("flat dense no-caps").set_enabled(page < last)
 
                 def show_failure(retry):
                     ui.label(render_message("resource_details.list_unavailable"))
@@ -941,10 +953,12 @@ def build_aggregation_details(
                     with child_host:
                         spinner = ui.spinner()
                     try:
-                        result = await api.relationship_page(
-                            "aggregations", ("aggregation_number", "title"), limit=child_limit,
-                            offset=(page - 1) * child_limit, filters={"parent_aggregation_id": identifier},
-                        )
+                        result = await api.search_request("aggregations", {
+                            "where": {"and": [{"field": "parent_aggregation_id", "operator": "eq", "value": identifier}]},
+                            "limit": child_limit, "offset": (page - 1) * child_limit,
+                            "sort": [{"field": "date_opened", "direction": "asc"},
+                                     {"field": "id", "direction": "asc"}],
+                        })
                     except ApiError:
                         if active() and serial == request_serial["children"]:
                             child_count.set_visibility(False)
@@ -1002,7 +1016,8 @@ def build_aggregation_details(
                     payload = {"where": {"and": conditions}, "limit": record_limit,
                                "offset": (page - 1) * record_limit,
                                "include": ["record_capabilities"],
-                               "sort": [{"field": "record_number", "direction": "asc"}]}
+                               "sort": [{"field": "date_originated", "direction": "asc"},
+                                        {"field": "id", "direction": "asc"}]}
                     if query:
                         conditions.append({"or": [
                             {"field": field, "operator": "contains_ci", "value": query}
@@ -1063,6 +1078,7 @@ def build_aggregation_details(
                                     render_compact_resource_result(
                                         "records", record, on_open=open_record, component_total=count,
                                         contained_record=True,
+                                        on_component_viewed=activity.load, source_active=active,
                                         can_preview=bool(flags.get("has_previewable_component")),
                                         can_expand_components=bool(count),
                                         initially_expanded=int(record["id"]) in expanded,
@@ -1076,6 +1092,17 @@ def build_aggregation_details(
                 record_filter.on("keydown.enter", lambda: load_records(1, submit=True))
                 record_filter.on_value_change(lambda event: page_state.update(filter_draft=event.value or ""))
 
+                async def files_committed():
+                    if active():
+                        page_state.pop("search_id", None)
+                        await asyncio.gather(load_records(page_state.get("page", 1)), activity.load())
+
+                drop_target = AggregationFileDrop(
+                    page=table_container, aggregation=current, api=api, active=active,
+                    on_committed=files_committed, error_message=error_message,
+                    direction=current_direction["value"],
+                )
+
                 async def load_header():
                     nonlocal capabilities, closure, closure_known, hold_count
                     capability_result, closure_result = await asyncio.gather(
@@ -1088,7 +1115,9 @@ def build_aggregation_details(
                     hold_count = capabilities.get("effective_hold_count")
                     closure_known, closure = closure_result
                     add_child_control.set_visibility(closure_known and closure is None and bool(capabilities.get("add_child")))
-                    add_record_control.set_visibility(closure_known and closure is None and bool(capabilities.get("add_record")))
+                    can_add_record = closure_known and closure is None and bool(capabilities.get("add_record"))
+                    add_record_control.set_visibility(can_add_record)
+                    drop_target.set_enabled(can_add_record)
                     with header:
                         render_resource_detail_header(
                             current, kind="aggregation", closure=closure, closure_known=closure_known,
@@ -1098,7 +1127,7 @@ def build_aggregation_details(
                         )
 
                 await asyncio.gather(load_header(), load_children(child_page_state.get(identifier, 1)),
-                                     load_records(page_state.get("page", 1)))
+                                     load_records(page_state.get("page", 1)), activity.load())
                 if details_tab and active():
                     await show_details(details_tab)
         except ApiError as error:

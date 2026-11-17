@@ -25,7 +25,7 @@ ACTIVITY_SCOPES = {
 }
 
 
-def _activity_statement(entity_type: str | None) -> str:
+def _activity_statement(entity_type: str | None, *, aggregation_scoped: bool = False) -> str:
     resource_table, resource_filter, parent_join, targets = ACTIVITY_SCOPES[entity_type]
     card_fields = "" if entity_type is None else f"""
         ,resource.title,resource.{entity_type}_number AS number,
@@ -38,10 +38,22 @@ def _activity_statement(entity_type: str | None) -> str:
     """
     attribution = ",has_view_acl" if entity_type is not None else ""
     event_attribution = ",target.has_view_acl" if entity_type is not None else ""
-    return f"""WITH RECURSIVE governed_resource_events AS (
+    scope = """
+    scoped_aggregation AS MATERIALIZED (
+        SELECT id FROM aggregations WHERE id=%s AND current_user_can_view_aggregation(id)
+    ), """ if aggregation_scoped else ""
+    record_scope = """
+          JOIN records scoped_record ON scoped_record.id=event.entity_id
+          JOIN scoped_aggregation ON scoped_aggregation.id=scoped_record.aggregation_id
+    """ if aggregation_scoped else ""
+    component_scope = """
+          JOIN records scoped_record ON scoped_record.id=component.record_id
+          JOIN scoped_aggregation ON scoped_aggregation.id=scoped_record.aggregation_id
+    """ if aggregation_scoped else ""
+    return f"""WITH RECURSIVE {scope} governed_resource_events AS (
         SELECT DISTINCT ON (event.entity_type,event.entity_id,event.operation)
                event.id,event.entity_type,event.entity_id,event.operation,event.occurred_at
-          FROM event_history event
+          FROM event_history event {record_scope}
          WHERE event.actor_user_id=%s AND event.occurred_at >= %s
            AND event.entity_type IN ('aggregation','record')
            AND event.operation IN ('CREATE','UPDATE') {resource_filter}
@@ -50,7 +62,7 @@ def _activity_statement(entity_type: str | None) -> str:
         SELECT DISTINCT ON (target.entity_type,target.entity_id)
                event.id,target.entity_type,target.entity_id,event.operation,event.occurred_at
           FROM event_history event
-          JOIN digital_components component ON component.id=event.entity_id
+          JOIN digital_components component ON component.id=event.entity_id {component_scope}
           {parent_join}
           CROSS JOIN LATERAL ({targets}) target(entity_type,entity_id)
          WHERE event.actor_user_id=%s AND event.occurred_at >= %s
@@ -84,16 +96,19 @@ def _activity_statement(entity_type: str | None) -> str:
 
 
 ACTIVITY_STATEMENTS = {scope: _activity_statement(scope) for scope in ACTIVITY_SCOPES}
+AGGREGATION_RECORD_ACTIVITY = _activity_statement("record", aggregation_scoped=True)
 
 
 @interactive_search
 def recent_activity(
     connection: Connection, user_id: int, since: datetime, limit: int,
-    entity_type: Literal["record", "aggregation"] | None,
+    entity_type: Literal["record", "aggregation"] | None, *, aggregation_id: int | None = None,
 ) -> list[dict]:
-    rows = connection.execute(
-        ACTIVITY_STATEMENTS[entity_type], (user_id, since, user_id, since, limit),
-    ).fetchall()
+    parameters = (user_id, since, user_id, since, limit)
+    if aggregation_id is None:
+        rows = connection.execute(ACTIVITY_STATEMENTS[entity_type], parameters).fetchall()
+    else:
+        rows = connection.execute(AGGREGATION_RECORD_ACTIVITY, (aggregation_id, *parameters)).fetchall()
     if entity_type is None:
         return rows
 

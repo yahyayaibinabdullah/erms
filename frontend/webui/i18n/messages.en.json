@@ -1061,6 +1061,218 @@
     "is_html": false
   },
   {
+    "message_key": "aggregation_file_drop.combined",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Create one record with all files",
+    "semantic_meaning": "Aggregation file drop: Create one record with all files",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Create one record with all files",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.component_order",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Digital component order",
+    "semantic_meaning": "Heading for the numbered reorderable list of dropped digital files.",
+    "common_locations": [
+      "aggregation file-drop confirmation dialog"
+    ],
+    "translator_guidance": "Files are digital components. Reordering changes component order and the suggested title, but does not overwrite a user-entered custom title.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital component order",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.create_record",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Create record",
+    "semantic_meaning": "Aggregation file drop: Create record",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Create record",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.create_records",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Create records",
+    "semantic_meaning": "Aggregation file drop: Create records",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Create records",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.created",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Created {count} record(s).",
+    "semantic_meaning": "Aggregation file drop: Created {count} record(s).",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Created 2 record(s).",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.invalid_filename",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Every dropped file must have a valid filename.",
+    "semantic_meaning": "Aggregation file drop: Every dropped file must have a valid filename.",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Every dropped file must have a valid filename.",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.last_page",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Last page",
+    "semantic_meaning": "Aggregation file drop: Last page",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Last page",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.no_activity",
+    "context_group": "aggregation_file_drop",
+    "default_text": "No recent record activity in this aggregation.",
+    "semantic_meaning": "Aggregation file drop: No recent record activity in this aggregation.",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No recent record activity in this aggregation.",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.number_unavailable",
+    "context_group": "aggregation_file_drop",
+    "default_text": "A record number could not be assigned to every record.",
+    "semantic_meaning": "Aggregation file drop: A record number could not be assigned to every record.",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "A record number could not be assigned to every record.",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.owning_role_required",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Creation requires a current role in the aggregation’s owning organizational unit.",
+    "semantic_meaning": "Aggregation file drop: Creation requires a current role in the aggregation’s owning organizational unit.",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Creation requires a current role in the aggregation’s owning organizational unit.",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.physical",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Physical aggregations cannot accept digital files.",
+    "semantic_meaning": "Aggregation file drop: Physical aggregations cannot accept digital files.",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical aggregations cannot accept digital files.",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.recent_activity",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Recent Activity",
+    "semantic_meaning": "Aggregation file drop: Recent Activity",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Recent Activity",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.reorder_hint",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Move files up or down. The first filename is suggested as the title; a custom title is preserved.",
+    "semantic_meaning": "Guidance explaining file order, the suggested title, and preservation of custom titles.",
+    "common_locations": [
+      "aggregation file-drop confirmation dialog"
+    ],
+    "translator_guidance": "Files are digital components. Reordering changes component order and the suggested title, but does not overwrite a user-entered custom title.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Move files up or down. The first filename is suggested as the title; a custom title is preserved.",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.separate",
+    "context_group": "aggregation_file_drop",
+    "default_text": "Create separate records",
+    "semantic_meaning": "Aggregation file drop: Create separate records",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Create separate records",
+    "is_html": false
+  },
+  {
+    "message_key": "aggregation_file_drop.upload_failed",
+    "context_group": "aggregation_file_drop",
+    "default_text": "The file upload could not be completed.",
+    "semantic_meaning": "Aggregation file drop: The file upload could not be completed.",
+    "common_locations": [
+      "Aggregation page"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The file upload could not be completed.",
+    "is_html": false
+  },
+  {
     "message_key": "audit.entity.application_setting",
     "context_group": "audit.entities",
     "default_text": "Application Setting",
