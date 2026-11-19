@@ -161,3 +161,29 @@ export produced a complete PDF on retry and a new resident PID with a
 successful readiness export. The [deployment regressions](../backend/services/api/tests/test_office_pool.py)
 also exercise one shared slot under two Uvicorn processes, requeue to a
 surviving slot, worker replacement, cleanup and restart-only sizing.
+
+## Deferred proposal — pre-generate shared PDF renditions on save
+
+**Deferred for further review and analysis. Implementation requires separate approval.**
+
+For a newly saved digital component that LibreOffice can convert and whose size exceeds a configurable threshold, the save transaction would enqueue a database job for that source version. The save would return after commit, without waiting for LibreOffice. A background worker would produce **one shared, complete PDF rendition per source version** and store its header and chunks separately from the original content. Below-threshold components and private drafts would continue to use the current viewer-scoped conversion.
+
+### Interactive preview takes priority
+
+Foreground and background requests would use the same job for a source version. An authorized viewer opening the component would get the following behavior.
+
+| Rendition state at open | Proposed behavior |
+| --- | --- |
+| Ready | Serve the shared PDF immediately through the existing authenticated range-loading path. |
+| Queued | Promote the job ahead of queued background work. The viewer waits for that export, which also populates the shared rendition. |
+| Converting | Join the in-flight job. Concurrent viewers can use the same result as soon as it is published. |
+
+The worker would publish the header and all chunks atomically after rechecking the source version and applicable conversion settings. A worker crash could be retried without exposing a partial PDF. Replacement, deletion or disposition would invalidate the old rendition and prevent a late job from republishing it. Each open and range read would still check current access. Only a user opening the preview would generate a content-view event. Closing a viewer would release that viewer's access while the shared PDF remained available under its own retention policy.
+
+### Tradeoffs and review criteria
+
+- **Interactive latency during imports.** Background work should claim only available capacity, with interactive jobs served first. With the default single worker, a preview arriving during an unrelated background export still has to wait. Measure queue wait and click-to-first-page time during bulk saves before deciding whether to reserve separate background capacity and pay its additional memory cost.
+- **Database growth and retention.** The measured 2.58 MB DOCX produced a roughly 3.78 MB PDF. A durable rendition adds storage, write-ahead logging, replication traffic and backup volume. Review retention, eviction, rebuild after conversion-setting changes, and erasure during disposition before choosing a storage policy.
+- **Threshold and wasted conversion.** File size alone predicts neither conversion cost nor the likelihood of a preview. A 5 MB threshold would miss the measured 200-page DOCX. Review size, conversion time and preview frequency by format before selecting a threshold.
+
+A proposed pilot would cover newly saved eligible versions and leave historical backfill for a separate decision. Compare first-page time for ready and unfinished renditions, interactive queue wait under bulk saves, additional database bytes, and the fraction of pre-generated PDFs ever opened. Use those results to compare conversion at save time with conversion on first preview followed by shared retention.
