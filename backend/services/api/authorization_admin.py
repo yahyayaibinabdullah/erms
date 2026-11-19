@@ -115,6 +115,10 @@ def _effective_people_for_privilege(connection: Connection, code: str) -> int:
 
 
 def _universal_custodian_count(connection: Connection) -> int:
+    return qualified_custodian_count(connection)
+
+
+def qualified_custodian_count(connection: Connection, level_id: int | None = None) -> int:
     return connection.execute(
         """
         SELECT count(DISTINCT user_account.id) AS count
@@ -123,7 +127,8 @@ def _universal_custodian_count(connection: Connection) -> int:
         JOIN roles assigned_role ON assigned_role.id=assignment.role_id
         JOIN security_levels level ON level.id=assigned_role.security_level_id
         WHERE assigned_role.is_information_governance
-          AND level.level_number=(SELECT max(level_number) FROM security_levels)
+          AND level.level_number >= coalesce((SELECT level_number FROM security_levels WHERE id=%s),
+                                             (SELECT max(level_number) FROM security_levels))
           AND user_account.account_type='person' AND user_account.status='active'
           AND role_effectively_active(assigned_role.id)
           AND assignment.valid_from<=CURRENT_TIMESTAMP
@@ -136,7 +141,7 @@ def _universal_custodian_count(connection: Connection) -> int:
               AND privilege.code=ANY(%s)
           )=%s
         """,
-        (list(CUSTODY_PRIVILEGE_CODES), len(CUSTODY_PRIVILEGE_CODES)),
+        (level_id, list(CUSTODY_PRIVILEGE_CODES), len(CUSTODY_PRIVILEGE_CODES)),
     ).fetchone()["count"]
 
 

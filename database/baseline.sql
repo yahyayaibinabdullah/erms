@@ -78,5 +78,7 @@ INSERT INTO schema_migrations(version) VALUES
  ('112_search_vector_storage'),
  ('113_aggregation_listing_page_sizes'),
  ('114_message_draft_completion_choice'),
- ('115_messages_page_size');
+ ('115_messages_page_size'),
+ ('118_resource_types'),
+ ('119_resource_type_access');
 COMMIT;

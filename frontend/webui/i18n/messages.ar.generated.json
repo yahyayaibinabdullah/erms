@@ -4,7 +4,7 @@
   "model_version": "GPT-6",
   "prompt_version": "wathiq-mailbox-reading-panes-v1",
   "specification_sha256": "79d67905df41c0c5e8dc760b45fec0ba9a5aeafc60b5eba622d5ea359d3f91f2",
-  "catalogue_sha256": "c652c6f041d2a098c616de5a4d9fdea7f12e44b60868421f47300f5e57d2f096",
+  "catalogue_sha256": "f6dd4135b153aa4d8018a7e691f1cc6ed56fd2401944a2db57c9eff5a6831a2b",
   "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
   "batch_id": "wathiq-mailbox-reading-panes-20261116",
   "generated_at": "2026-11-16T08:52:26.800179+00:00",
@@ -25234,6 +25234,28 @@
         "source_status": "published",
         "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
         "date_published": "2026-09-26T13:44:17.672002+00:00"
+      }
+    },
+    {
+      "message_key": "saved_search.error.reference_unavailable",
+      "translated_text": "أحد الأنواع أو الحقول أو الخيارات المشار إليها في هذا البحث لم يعد متاحًا.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "saved_search.error.type_forbidden",
+      "translated_text": "يشير هذا البحث المحفوظ إلى نوع لا تملك صلاحية الاطلاع عليه.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
       }
     },
     {

@@ -9,6 +9,7 @@ from psycopg import Connection
 
 from .operation_policy import operation_policy
 from .authorization_policy import require_authorization_admin, require_organization_browse
+from .dashboard_visibility import visibility_ctes, visible_resource_ids
 from .database import get_connection
 from .resource_authorization import governance_role_snapshot, require_global, require_resource_operation
 from .schemas import (
@@ -221,22 +222,31 @@ def _replace(connection: Connection, scope: str, owner_id: int, grants: list[Acl
         )
 
 
+_AFFECTED_DESCENDANTS = """affected(id,depth) AS (
+    SELECT child.id,1 FROM aggregations child
+     WHERE child.parent_aggregation_id=%s AND child.inherit_acl_from_parent
+    UNION ALL
+    SELECT child.id,parent.depth+1 FROM affected parent
+      JOIN aggregations parent_row ON parent_row.id=parent.id
+      JOIN aggregations child ON child.parent_aggregation_id=parent.id
+     WHERE child.inherit_acl_from_parent AND parent_row.default_child_aggregation_acl_mode='mirror_resource_acl'
+)"""
+
+
 def _descendant_impact(connection: Connection, aggregation_id: int) -> dict[str, Any]:
-    rows = connection.execute(
-        """WITH RECURSIVE affected(id,depth) AS (
-             SELECT child.id,1 FROM aggregations child WHERE child.parent_aggregation_id=%s AND child.inherit_acl_from_parent
-             UNION ALL
-             SELECT child.id,parent.depth+1 FROM aggregations child JOIN affected parent ON child.parent_aggregation_id=parent.id
-             JOIN aggregations parent_row ON parent_row.id=parent.id
-             WHERE child.inherit_acl_from_parent AND parent_row.default_child_aggregation_acl_mode='mirror_resource_acl')
-           SELECT id,depth FROM affected ORDER BY depth,id""", (aggregation_id,),
-    ).fetchall()
-    ids = [row["id"] for row in rows]
-    record_count = connection.execute(
-        "SELECT count(*) AS count FROM records WHERE inherit_acl_from_parent AND aggregation_id=ANY(%s)",
-        (ids or [aggregation_id],),
-    ).fetchone()["count"]
-    return {"affected_aggregation_ids": ids, "affected_aggregation_count": len(ids), "affected_record_count": record_count}
+    # Traverse the full inheritance chain even when a parent is hidden. Only
+    # visible affected resources contribute to the identifiers and counts.
+    access = visibility_ctes(page_access=True)
+    return connection.execute(f"""WITH RECURSIVE {_AFFECTED_DESCENDANTS},
+        page_aggregation_ids AS (SELECT id FROM affected),
+        record_parents AS (SELECT id FROM affected UNION ALL SELECT %s WHERE NOT EXISTS (SELECT FROM affected)),
+        page_record_ids AS (SELECT id FROM records WHERE inherit_acl_from_parent
+                             AND aggregation_id IN (SELECT id FROM record_parents)), {access}
+        SELECT ARRAY(SELECT affected.id FROM affected JOIN authorized_aggregations USING(id)
+                     ORDER BY depth,id) AS affected_aggregation_ids,
+               (SELECT count(*) FROM authorized_aggregations) AS affected_aggregation_count,
+               (SELECT count(*) FROM authorized_records) AS affected_record_count""",
+        (aggregation_id,aggregation_id)).fetchone()
 
 
 def _custodian_count(connection: Connection, level_id: int) -> int:
@@ -306,9 +316,10 @@ def _preview_delta(
 
 
 def _lock_aggregation_subtree(connection: Connection, aggregation_id: int) -> None:
-    ids = _descendant_impact(connection,aggregation_id)["affected_aggregation_ids"]
-    if ids:
-        connection.execute("SELECT id FROM aggregations WHERE id=ANY(%s) ORDER BY id FOR UPDATE",(ids,)).fetchall()
+    connection.execute(f"""WITH RECURSIVE {_AFFECTED_DESCENDANTS}
+                           SELECT id FROM aggregations WHERE id IN (SELECT id FROM affected)
+                           ORDER BY id FOR UPDATE""", (aggregation_id,)).fetchall()
+
 
 
 @router.get("/permissions", response_model=list[PermissionRead])
@@ -349,11 +360,18 @@ def aggregation_permissions(aggregation_id:int, connection:Connection=Depends(ge
     return _aggregation_permissions(aggregation_id, connection)
 
 
+def _visible_acl_source(connection: Connection, source: str, source_id: int) -> int | None:
+    if source == "resource_override":
+        return source_id
+    return connection.execute("SELECT CASE WHEN current_user_can_view_aggregation(%s) THEN %s::bigint END AS id",
+                              (source_id, source_id)).fetchone()["id"]
+
+
 def _aggregation_permissions(aggregation_id: int, connection: Connection):
     aggregation=_resource(connection,"aggregations",aggregation_id)
     source,source_id,effective=_effective_aggregation(connection,aggregation_id)
     return {"inherit_acl_from_parent":aggregation["inherit_acl_from_parent"],"effective_acl":_group(effective),
-            "effective_acl_source":source,"effective_acl_source_id":source_id,"override_acl":_group(_grant_rows(connection,"aggregation",aggregation_id)),
+            "effective_acl_source":source,"effective_acl_source_id":_visible_acl_source(connection,source,source_id),"override_acl":_group(_grant_rows(connection,"aggregation",aggregation_id)),
             "override_acl_is_dormant":bool(aggregation["parent_aggregation_id"] and aggregation["inherit_acl_from_parent"]),
             "resource_acl_version":aggregation["resource_acl_version"]}
 
@@ -425,7 +443,7 @@ def preview_child_aggregation_permissions(aggregation_id:int,payload:ChildAggreg
 def child_record_permissions(aggregation_id:int,connection:Connection=Depends(get_connection,scope="function")):
     aggregation=_resource(connection,"aggregations",aggregation_id)
     return {"effective_acl":_group(_grant_rows(connection,"child_record",aggregation_id)),"version":aggregation["child_record_acl_version"],
-            "affected_record_count":connection.execute("SELECT count(*) AS count FROM records WHERE aggregation_id=%s AND inherit_acl_from_parent",(aggregation_id,)).fetchone()["count"]}
+            "affected_record_count":connection.execute(f"SELECT count(*) AS count FROM records WHERE inherit_acl_from_parent AND id IN ({visible_resource_ids('records', candidate_column='aggregation_id')})",(aggregation_id,)).fetchone()["count"]}
 
 
 @router.put("/aggregations/{aggregation_id}/default-child-record-permissions", response_model=ChildRecordAclRead, dependencies=[Depends(require_authorization_admin)])
@@ -462,7 +480,7 @@ def record_permissions(record_id:int,connection:Connection=Depends(get_connectio
 def _record_permissions(record_id: int, connection: Connection):
     record=_resource(connection,"records",record_id); source,source_id,effective=_effective_record(connection,record_id)
     return {"inherit_acl_from_parent":record["inherit_acl_from_parent"],"effective_acl":_group(effective),"effective_acl_source":source,
-            "effective_acl_source_id":source_id,"override_acl":_group(_grant_rows(connection,"record",record_id)),
+            "effective_acl_source_id":_visible_acl_source(connection,source,source_id),"override_acl":_group(_grant_rows(connection,"record",record_id)),
             "override_acl_is_dormant":record["inherit_acl_from_parent"],"resource_acl_version":record["resource_acl_version"]}
 
 

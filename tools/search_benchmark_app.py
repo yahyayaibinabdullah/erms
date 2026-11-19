@@ -1,5 +1,5 @@
 """API factory used only by the disposable benchmark's explicit CLI command."""
-from functools import wraps
+from functools import partial, wraps
 from contextlib import asynccontextmanager
 import argparse
 import hashlib
@@ -8,10 +8,15 @@ from pathlib import Path
 import time
 
 
-def create_app(output=None):
+def create_app(output=None, *, capture_plans=False, ranking_io_concurrency=None):
     from backend.services.api import search
+    from backend.services.api.search_execution import global_ranking_io
     from backend.services.api.main import app
+    if ranking_io_concurrency is not None:
+        # Only this standalone benchmark process overrides the production value.
+        search.global_ranking_io = partial(global_ranking_io, concurrency=ranking_io_concurrency)
     recorded, stages = {}, []
+    actual_plans = []
 
     def flush():
         # File writes (and host filesystem scanners) must not add latency to
@@ -21,6 +26,8 @@ def create_app(output=None):
             for digest, packet in recorded.items():
                 (output / f'ranking-query-{digest}.json').write_text(json.dumps(packet, indent=2) + '\n')
             (output / 'stages.json').write_text(json.dumps(stages, indent=2) + '\n')
+            if capture_plans:
+                (output / 'actual-ranking-plans.json').write_text(json.dumps(actual_plans) + '\n')
 
     lifecycle = app.router.lifespan_context
 
@@ -53,7 +60,43 @@ def create_app(output=None):
             rendered = statement if isinstance(statement, str) else statement.as_string(self.connection)
             if 'WITH ranked AS MATERIALIZED' in rendered:
                 self.packets.append({'sql': rendered, 'parameters': parameters})
+                execute = self.execute_with_plan if capture_plans else self.connection.execute
+                return execute(statement, parameters, **kwargs)
             return self.connection.execute(statement, parameters, **kwargs)
+
+        def execute_with_plan(self, statement, parameters, **kwargs):
+            # Receive auto_explain's report from this execution via libpq. Do
+            # not instrument login, other API routes, page details or oracles.
+            c = self.connection
+            c.execute("LOAD 'auto_explain'")
+            c.execute("""SET LOCAL auto_explain.log_level = notice;
+                         SET LOCAL client_min_messages = notice;
+                         SET LOCAL auto_explain.log_format = json;
+                         SET LOCAL auto_explain.log_analyze = on;
+                         SET LOCAL auto_explain.log_buffers = on;
+                         SET LOCAL auto_explain.log_timing = off;
+                         SET LOCAL auto_explain.log_parameter_max_length = 0;
+                         SET LOCAL track_io_timing = on""")
+            reports = []
+            def notice(diagnostic):
+                msg = diagnostic.message_primary or ''
+                if 'plan:\n' in msg:
+                    reports.append(msg)
+            c.add_notice_handler(notice)
+            try:
+                c.execute("SET LOCAL auto_explain.log_min_duration = 0")
+                started = time.time()
+                result = c.execute(statement, parameters, **kwargs)
+                finished = time.time()
+                c.execute("SET LOCAL auto_explain.log_min_duration = -1")
+            finally:
+                c.remove_notice_handler(notice)
+            message, = reports
+            header, body = message.split('plan:\n', 1)
+            actual_plans.append({'started_at': started, 'finished_at': finished,
+                                 'pid': c.info.backend_pid, 'duration': header.strip(),
+                                 'explain': json.loads(body)})
+            return result
 
     def timed(name):
         original = getattr(search, name)
@@ -91,5 +134,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', required=True, type=int)
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--capture-ranking-plans', action='store_true')
+    parser.add_argument('--ranking-io-concurrency', type=int, choices=range(0, 1001), metavar='N')
     args = parser.parse_args()
-    uvicorn.run(create_app(args.output), host='127.0.0.1', port=args.port, access_log=False)
+    uvicorn.run(create_app(args.output, capture_plans=args.capture_ranking_plans,
+                           ranking_io_concurrency=args.ranking_io_concurrency),
+                host='127.0.0.1', port=args.port, access_log=False)

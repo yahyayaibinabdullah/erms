@@ -45,6 +45,39 @@ def test_one_headline_per_component_preserves_snippet_order_and_cap(client, reco
         assert item['score'] == expected['relevance']
 
 
+def test_first_and_cached_pages_serialize_resource_timestamps_identically(client):
+    from .test_application_settings import save
+    _grant_phase3_privileges()
+    assert save(client, {"FULL_TEXT_SEARCH_ENABLED": True}).status_code == 200
+    timestamp = "2026-01-12T07:06:01.789680+00:00"
+    title = "Serialization fixture"
+    parent = client.post("/api/v1/aggregations", json={
+        "aggregation_number": "TIMESTAMP-A", "title": title,
+        "classification_id": 1, "date_opened": timestamp,
+    })
+    assert parent.status_code == 201
+    child = client.post("/api/v1/records", json={
+        "record_number": "TIMESTAMP-R", "title": title,
+        "aggregation_id": parent.json()["id"], "date_originated": timestamp,
+    })
+    assert child.status_code == 201
+    criteria = {"full_text": {"query": "Serialization", "sources": ["metadata"]}}
+    payload = {"tab_id": str(uuid4()), "result_types": ["records", "aggregations"],
+               "record_where": criteria, "aggregation_where": criteria}
+    first = client.post("/api/v1/full-text-search", json=payload)
+    assert first.status_code == 200
+    items = first.json()["items"]
+    assert {item["type"] for item in items} == {"record", "aggregation"}
+    for item in items:
+        kind = item["type"]
+        assert item[kind]["date_originated" if kind == "record" else "date_opened"] == timestamp
+    cached = client.post("/api/v1/full-text-search", json={
+        **payload, "search_id": first.json()["search_id"], "page": 1,
+    })
+    assert cached.status_code == 200
+    assert cached.json()["items"] == items
+
+
 def test_page_batch_preserves_evidence_scores_and_capabilities(client, record):
     from .test_application_settings import save
     _grant_phase3_privileges()
@@ -130,3 +163,37 @@ def test_metadata_and_additional_file_candidates_keep_overlap_evidence_and_order
     assert by_id[records[1]["id"]]["matching_components"]
     assert by_id[records[2]["id"]]["matched_record_metadata"]
     assert by_id[records[2]["id"]]["matching_components"] == []
+
+
+def test_only_the_initial_global_ranking_select_runs_with_synchronous_reads(client, record, monkeypatch):
+    from backend.services.api import search
+    from .test_application_settings import save
+
+    _grant_phase3_privileges()
+    assert save(client, {'FULL_TEXT_SEARCH_ENABLED': True}).status_code == 200
+    timings_scope = []
+    original_rank = search._rank_global_search
+    execute = psycopg.Connection.execute
+
+    def observe_sql(connection, statement, *args, **kwargs):
+        if isinstance(statement, psycopg.sql.Composable) and 'WITH ranked AS MATERIALIZED' in statement.as_string(connection):
+            current = execute(connection, 'SHOW effective_io_concurrency').fetchone()
+            timings_scope.append(('ranking', current['effective_io_concurrency']))
+        return execute(connection, statement, *args, **kwargs)
+
+    def rank(connection, *args):
+        connection.execute('SET LOCAL effective_io_concurrency=37')
+        result = original_rank(connection, *args)
+        timings_scope.append(('before cache save', connection.execute('SHOW effective_io_concurrency').fetchone()['effective_io_concurrency']))
+        return result
+
+    monkeypatch.setattr(psycopg.Connection, 'execute', observe_sql)
+    monkeypatch.setattr(search, '_rank_global_search', rank)
+    request = {'tab_id': str(uuid4()), 'result_types': ['records'], 'limit': 10,
+               'record_where': {'full_text': {'query': 'Example', 'sources': ['metadata']}}}
+    first = client.post('/api/v1/full-text-search', json=request)
+    assert first.status_code == 200, first.text
+    again = client.post('/api/v1/full-text-search', json={**request, 'search_id': first.json()['search_id'], 'page': 1})
+    assert again.status_code == 200, again.text
+    assert again.json()['items'] == first.json()['items']
+    assert timings_scope == [('ranking', '0'), ('before cache save', '37')]

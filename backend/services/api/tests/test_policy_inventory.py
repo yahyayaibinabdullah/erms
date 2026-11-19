@@ -253,7 +253,12 @@ def test_permission_catalogue_records_conditional_policy():
     registry = build_inventory()
     conditional = [operation for operation in registry["api_operations"]
                    if "conditional_global_privileges" in operation]
-    assert [operation["id"] for operation in conditional] == ["GET:/api/v1/permissions"]
+    assert [operation["id"] for operation in conditional] == [
+        "GET:/api/v1/permissions", "GET:/api/v1/saved-searches/{saved_search_id}"]
+    assert conditional[1]["conditional_global_privileges"] == {
+        "query_parameter":"inspection", "match":"any", "when_omitted":[],
+        "by_value":{"true":["search.saved_search.administer"], "false":[]},
+    }
     assert conditional[0]["conditional_global_privileges"] == {
         "query_parameter": "resource_type",
         "match": "any",
@@ -265,6 +270,7 @@ def test_permission_catalogue_records_conditional_policy():
     }
     seed = json.loads(SEED_PATH.read_text(encoding="utf-8"))
     privileges = {item["code"] for item in seed["privileges"]}
-    rule = conditional[0]["conditional_global_privileges"]
-    assert set(rule["when_omitted"]) <= privileges
-    assert all(set(alternatives) <= privileges for alternatives in rule["by_value"].values())
+    for operation in conditional:
+        rule = operation["conditional_global_privileges"]
+        assert set(rule["when_omitted"]) <= privileges
+        assert all(set(alternatives) <= privileges for alternatives in rule["by_value"].values())

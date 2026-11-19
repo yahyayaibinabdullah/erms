@@ -7,6 +7,9 @@ from psycopg.errors import CheckViolation, ForeignKeyViolation, InsufficientPriv
 from psycopg.types.json import Jsonb
 from pydantic import BaseModel, ConfigDict, Field
 
+from .dashboard_visibility import visibility_ctes
+from .resource_authorization import require_type_use, lock_visible_resource
+from .continuity_lock import acquire_continuity_shared_lock
 from .creator_attribution import add_creator_names
 from .operation_policy import operation_policy
 from .authentication import principal_from_request
@@ -79,7 +82,12 @@ def tables(kind: Kind):
     return ('aggregations', 'aggregation_number') if kind == 'aggregation' else ('records', 'record_number')
 
 
-def require_endpoint(c, kind, resource_id):
+def require_endpoint(c, kind, resource_id, *, mutation=False):
+    if mutation:
+        acquire_continuity_shared_lock(c)
+        row = lock_visible_resource(c,kind,resource_id)
+        require_type_use(c,kind,row,"relationships.link",f"{kind}.view")
+        return
     table, _ = tables(kind)
     if not c.execute(f'SELECT 1 FROM {table} WHERE id=%s AND current_user_can_view_{kind}(id)',
                      (resource_id,)).fetchone():
@@ -205,10 +213,12 @@ def targets(kind: Kind, resource_id: int, q: str = Query('', max_length=200),
     if selected_id is None and len(q.strip()) < 2:
         return {'items': []}
     query = '%' + q.strip().replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_') + '%'
-    items = c.execute(f'''SELECT id,{number} AS number,title FROM {table}
-        WHERE id<>%s AND current_user_can_view_{kind}(id)
+    items = c.execute(f'''WITH RECURSIVE candidate_ids AS MATERIALIZED (SELECT id FROM {table}
+        WHERE id<>%s
         AND ((%s::bigint IS NOT NULL AND id=%s) OR (%s::bigint IS NULL AND (title ILIKE %s OR {number} ILIKE %s OR description ILIKE %s)))
-        ORDER BY {number},id LIMIT %s''',
+        ), {visibility_ctes(candidate_resource=table,ordinary_access=True)}
+        SELECT r.id,r.{number} AS number,r.title FROM {table} r JOIN authorized_{table} a USING(id)
+        ORDER BY r.{number},r.id LIMIT %s''',
         (resource_id, selected_id, selected_id, selected_id, query, query, query, limit)).fetchall()
     add_creator_names(c, ((kind, item) for item in items))
     return {'items': items}
@@ -220,8 +230,8 @@ def targets(kind: Kind, resource_id: int, q: str = Query('', max_length=200),
 def create_link(kind: Kind, resource_id: int, payload: LinkCreate,
                 c: Connection = Depends(get_connection, scope='function')):
     c.execute('SELECT pg_advisory_xact_lock(7357,1)')
-    require_endpoint(c, kind, resource_id)
-    require_endpoint(c, kind, payload.target_id)
+    require_endpoint(c, kind, resource_id,mutation=True)
+    require_endpoint(c, kind, payload.target_id,mutation=True)
     source, target = (resource_id, payload.target_id) if payload.direction == 'forward' else (payload.target_id, resource_id)
     try:
         with c.transaction():
@@ -237,15 +247,15 @@ def create_link(kind: Kind, resource_id: int, payload: LinkCreate,
 def delete_link(kind: Kind, resource_id: int, link_id: int,
                 c: Connection = Depends(get_connection, scope='function')):
     c.execute('SELECT pg_advisory_xact_lock(7357,1)')
-    require_endpoint(c, kind, resource_id)
+    require_endpoint(c, kind, resource_id,mutation=True)
     try:
         with c.transaction():
             row = c.execute(f'''SELECT * FROM {kind}_relationships
                 WHERE id=%s AND (source_id=%s OR target_id=%s) FOR UPDATE''', (link_id, resource_id, resource_id)).fetchone()
             if not row:
                 failure('relationship_not_found', 404)
-            require_endpoint(c, kind, row['source_id'])
-            require_endpoint(c, kind, row['target_id'])
+            require_endpoint(c, kind, row['source_id'],mutation=True)
+            require_endpoint(c, kind, row['target_id'],mutation=True)
             c.execute(f'DELETE FROM {kind}_relationships WHERE id=%s', (link_id,))
     except InsufficientPrivilege as error:
         translate_error(error)
@@ -266,15 +276,18 @@ def list_links(kind: Kind, resource_id: int, language_tag: Language = 'en',
     total = c.execute(f'SELECT count(*) AS total FROM {kind}_relationships link WHERE {where}', params).fetchone()['total']
     order = 'definition.code,link.id' if sort == 'type' else 'link.id'
     order = ','.join(column + (' DESC' if descending else ' ASC') for column in order.split(','))
-    rows = c.execute(f'''SELECT link.date_created AS link_created_at,link.source_id=%s AS is_forward,
-        definition.*, link.id AS link_id,
-        CASE WHEN current_user_can_view_{kind}(target.id) THEN target.id END AS related_id,
-        CASE WHEN current_user_can_view_{kind}(target.id) THEN target.{number} END AS related_number,
-        CASE WHEN current_user_can_view_{kind}(target.id) THEN target.title END AS related_title
+    rows = c.execute(f'''WITH RECURSIVE page AS MATERIALIZED (
+        SELECT link.date_created AS link_created_at,link.source_id=%s AS is_forward,
+               CASE WHEN link.source_id=%s THEN link.target_id ELSE link.source_id END AS target_id,
+               definition.*,link.id AS link_id,row_number() OVER (ORDER BY {order}) AS ordinal
         FROM {kind}_relationships link JOIN relationship_types definition ON definition.id=link.relationship_type_id
-        JOIN {table} target ON target.id=CASE WHEN link.source_id=%s THEN link.target_id ELSE link.source_id END
-        WHERE {where} ORDER BY {order} LIMIT %s OFFSET %s''',
-        (resource_id, resource_id, *params, limit, offset)).fetchall()
+        WHERE {where} ORDER BY {order} LIMIT %s OFFSET %s
+    ), candidate_ids AS (SELECT DISTINCT target_id AS id FROM page),
+    {visibility_ctes(candidate_resource=table,ordinary_access=True)}
+    SELECT page.*,target.id AS related_id,target.{number} AS related_number,target.title AS related_title
+    FROM page LEFT JOIN authorized_{table} a ON a.id=page.target_id
+    LEFT JOIN {table} target ON target.id=a.id ORDER BY page.ordinal''',
+        (resource_id,resource_id,*params,limit,offset)).fetchall()
     items = []
     for row in rows:
         definition = labels(row, language_tag)

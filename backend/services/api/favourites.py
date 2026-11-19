@@ -67,59 +67,29 @@ def list_favourites(
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     configuration = ui_configuration(connection)
+    # The legacy unpaged response uses the same visible sets and parent
+    # redaction as the paged response. PostgreSQL accepts NULL for no LIMIT.
+    selected_kind = kind if limit is not None else None
+    rows = connection.execute(FAVOURITE_PAGE, (
+        principal.user_id, selected_kind, selected_kind, principal.user_id,
+        selected_kind, selected_kind, limit, offset if limit is not None else 0,
+    )).fetchall()
+    total = rows[0]["total"]
+    items = {"aggregations": [], "records": []}
+    page = [(row.pop("kind"), row) for row in rows if row["id"] is not None]
     if limit is not None:
-        rows = connection.execute(FAVOURITE_PAGE, (
-            principal.user_id, kind, kind, principal.user_id, kind, kind, limit, offset,
-        )).fetchall()
-        total = rows[0]["total"]
-        items = {"aggregations": [], "records": []}
-        page = [(row.pop("kind"), row) for row in rows if row["id"] is not None]
         add_creator_names(connection, page)
-        for item_kind, item in page:
-            item.pop("total")
-            if item_kind == "record":
-                item.pop("parent_aggregation_id")
-            else:
-                item.pop("record_number")
-                item.pop("aggregation_id")
-                item.pop("aggregation_title")
-            items[item_kind + "s"].append(item)
+    for item_kind, item in page:
+        item.pop("total")
+        if item_kind == "record":
+            item.pop("parent_aggregation_id")
+        else:
+            for key in ("record_number","aggregation_id","aggregation_title"):
+                item.pop(key)
+        items[item_kind + "s"].append(item)
+    if limit is not None:
         return {**items, "total": total, "application_configuration": configuration}
-    aggregations = connection.execute(
-        """
-        SELECT aggregation.id, aggregation.aggregation_number,
-               aggregation.title,
-               CASE WHEN aggregation.parent_aggregation_id IS NULL
-                          OR current_user_can_view_aggregation(aggregation.parent_aggregation_id)
-                    THEN aggregation.parent_aggregation_id END AS parent_aggregation_id,
-               favourite.date_created AS date_favourited
-        FROM user_favourite_aggregations favourite
-        JOIN aggregations aggregation ON aggregation.id = favourite.aggregation_id
-        WHERE favourite.user_id = %s
-          AND current_user_can_view_aggregation(aggregation.id)
-        ORDER BY favourite.date_created DESC, aggregation.id DESC
-        """,
-        (principal.user_id,),
-    ).fetchall()
-    records = connection.execute(
-        """
-        SELECT record.id, record.record_number, record.title,
-               CASE WHEN current_user_can_view_aggregation(record.aggregation_id)
-                    THEN record.aggregation_id END AS aggregation_id,
-               CASE WHEN current_user_can_view_aggregation(record.aggregation_id)
-                    THEN aggregation.aggregation_number END AS aggregation_number,
-               CASE WHEN current_user_can_view_aggregation(record.aggregation_id)
-                    THEN aggregation.title END AS aggregation_title,
-               favourite.date_created AS date_favourited
-        FROM user_favourite_records favourite
-        JOIN records record ON record.id = favourite.record_id
-        JOIN aggregations aggregation ON aggregation.id = record.aggregation_id
-        WHERE favourite.user_id = %s
-          AND current_user_can_view_record(record.id)
-        ORDER BY favourite.date_created DESC, record.id DESC
-        """,
-        (principal.user_id,),
-    ).fetchall()
+    aggregations, records = items["aggregations"], items["records"]
     if preview:
         add_creator_names(connection, favourite_preview(aggregations, records, configuration["DASHBOARD_FAVOURITE_ITEM_LIMIT"], preview))
     return {"aggregations": aggregations, "records": records, "application_configuration": configuration}

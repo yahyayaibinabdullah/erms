@@ -34,6 +34,12 @@ unambiguous global privilege dependency. It also covers HTTP methods hidden
 from OpenAPI. A resource or workflow rule still needs its own declaration
 when the route also has a global dependency.
 
+## Typed resources
+
+A record or aggregation permission also carries the resource-type gate. A read requires See on the current type. A mutation requires Use on each affected type. On reassignment the source and destination must both pass. A qualifying information-governance role can supply type access with its own clearance. The existing privilege, resource-state, clearance and ACL checks still apply. A type administrator can maintain definitions through the corresponding catalogue privilege. [Operation mapping](../specs/aggregation-and-record-types.md#73-operation-coverage)
+
+On history routes, the resource permission controls admission to the timeline. The audit projection then checks each historical side independently. An auditor can identify the former and current types while the source side’s values are withheld. [Auditor example](event-history.md#when-a-record-or-aggregation-changes-type)
+
 ## Generate and review the registry
 
 ```bash

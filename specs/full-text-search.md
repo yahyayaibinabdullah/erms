@@ -3,12 +3,13 @@
 **Status:** Approved
 **Project:** ERMS / Wathiq  
 **Prepared:** 24 September 2026  
-**Revision:** 0.44 — Accepted performance baseline with a documented latency exception
+**Revision:** 0.45 — Connection-local synchronous reads for Global Search ranking
 
 ### Revision history
 
 | Revision | Date | Change |
 | --- | --- | --- |
+| 0.45 | 19 November 2026 | Apply synchronous reads to the initial Global Search ranking SELECT and restore the caller’s exact setting before cache and page work |
 | 0.44 | 14 November 2026 | Recorded user acceptance of the current compressed-storage performance baseline on the shared MacBook; deferred further tuning while preserving failed samples and the three-second threshold for future changes |
 | 0.43 | 13 November 2026 | Prefer MAIN/LZ4 storage for file-text vectors; require exact value preservation when rewriting existing storage and verify actual stored compression |
 | 0.42 | 13 November 2026 | Retained chunk-local matching with explicit multi-chunk AND/NOT/phrase limitations; required reuse of numeric scores and richer-text performance coverage |
@@ -2581,6 +2582,10 @@ reuse batch permission calculations and indexable candidate predicates.
 Changes require the disposable large-data correctness and latency gate: more
 than 50,000 aggregations and 150,000 records, a 1,000-result cap, exact expected
 counts/ranking/order, and every measured response within 3 seconds.
+
+### Global Search ranking execution
+
+The ranking SELECT on a new Global Search submission runs with transaction-local `effective_io_concurrency = 0` on its executing connection. Restore the caller's exact setting after the SELECT. A failed transaction restores it through rollback. Cached pages and separate enrichment queries use the caller's setting. The [scope, measurements and verification procedure](../docs/search-performance.md#global-search-ranking-io) document this exception.
 
 ### Approved baseline exception — 14 November 2026
 

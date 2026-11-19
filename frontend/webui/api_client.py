@@ -998,8 +998,9 @@ class ErmsApiClient:
             "GET", f"/api/v1/saved-searches/audience-options/{audience_kind}", params=params,
         )
 
-    async def saved_search(self, saved_search_id: int) -> dict[str, Any]:
-        return await self.request("GET", f"/api/v1/saved-searches/{saved_search_id}")
+    async def saved_search(self, saved_search_id: int, *, inspection: bool = False) -> dict[str, Any]:
+        path = f"/api/v1/saved-searches/{saved_search_id}"
+        return await self.request("GET", path + ("?inspection=true" if inspection else ""))
 
     async def create_saved_search(self, payload: dict[str, Any]) -> dict[str, Any]:
         return await self.request("POST", "/api/v1/saved-searches", json=payload)

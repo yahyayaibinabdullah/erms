@@ -2176,7 +2176,8 @@ CREATE FUNCTION disposition_private.original_aggregation_access(p_user_id bigint
        JOIN security_levels required ON required.id=resource.security_level_id
        WHERE a.user_id=p_user_id AND a.valid_from<=CURRENT_TIMESTAMP
          AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP)
-         AND role_effectively_active(r.id) AND rl.level_number>=required.level_number)
+         AND role_effectively_active(r.id) AND rl.level_number>=required.level_number
+         AND (resource.type_id IS NULL OR user_passes_type_gate(p_user_id,'aggregation',resource.type_id,resource.security_level_id,false)))
      AND (
        user_has_aggregation_permission(p_user_id,p_aggregation_id,'aggregation.view')
        OR EXISTS (SELECT 1 FROM user_role_assignments a
@@ -2200,7 +2201,8 @@ CREATE FUNCTION disposition_private.original_record_access(p_user_id bigint, p_r
        JOIN security_levels required ON required.id=resource.security_level_id
        WHERE a.user_id=p_user_id AND a.valid_from<=CURRENT_TIMESTAMP
          AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP)
-         AND role_effectively_active(r.id) AND rl.level_number>=required.level_number)
+         AND role_effectively_active(r.id) AND rl.level_number>=required.level_number
+         AND (resource.type_id IS NULL OR user_passes_type_gate(p_user_id,'record',resource.type_id,resource.security_level_id,false)))
      AND (
        user_has_record_permission(p_user_id,p_record_id,'record.view')
        OR EXISTS (SELECT 1 FROM user_role_assignments a
@@ -2993,6 +2995,11 @@ BEGIN
  SELECT 'record',r.id,p_root,p_job,p_run,r.aggregation_id,root.classification_id,r.owning_org_unit_id,root.date_closed,due,rule,acceleration,r.security_level_id,
  jsonb_build_object('inherit_acl_from_parent',r.inherit_acl_from_parent,'resource_acl_version',r.resource_acl_version,'grants',(SELECT coalesce(jsonb_agg(to_jsonb(g)-'id'),'[]') FROM record_acl_grants g WHERE g.record_id=r.id)),r.medium,j.destruction_number,p_executor,p_name,p_at,physical_id,CASE WHEN p_run IS NOT NULL THEN p_event END,p_event,CASE WHEN p_run IS NULL THEN 'confirmed_physical' ELSE 'postgresql_transactional_erasure' END
  FROM records r JOIN aggregations root ON root.id=p_root JOIN disposition_jobs j ON j.id=p_job WHERE r.aggregation_id IN (SELECT disposition_private.unit_ids(p_root));
+ -- The retained resource keeps its type for access decisions. Its descriptive
+ -- metadata is erased in the same transaction as the other business values.
+ DELETE FROM resource_type_values WHERE kind='aggregation' AND resource_id IN (SELECT disposition_private.unit_ids(p_root));
+ DELETE FROM resource_type_values WHERE kind='record' AND resource_id IN
+   (SELECT id FROM records WHERE aggregation_id IN (SELECT disposition_private.unit_ids(p_root)));
  DELETE FROM user_favourite_aggregations WHERE aggregation_id IN (SELECT disposition_private.unit_ids(p_root));
  DELETE FROM user_favourite_records WHERE record_id IN (SELECT id FROM records WHERE aggregation_id IN (SELECT disposition_private.unit_ids(p_root)));
  UPDATE aggregations SET disposition_status=10,description=NULL,date_opened=NULL,date_created=p_at,date_of_next_review=NULL,assigned_location=NULL,current_location=NULL,
@@ -4159,12 +4166,7 @@ $$;
 CREATE FUNCTION public.current_user_can_record_component_operation(p_record_id bigint, p_privilege text, p_permission text) RETURNS boolean
     LANGUAGE sql STABLE
     AS $$
-  SELECT current_user_can_view_record(p_record_id)
-     AND user_has_global_privilege(current_user_id(),p_privilege)
-     AND (user_has_record_permission(current_user_id(),p_record_id,p_permission)
-          OR EXISTS(SELECT 1 FROM records resource
-                    WHERE resource.id=p_record_id
-                      AND user_has_governance_clearance(current_user_id(),resource.security_level_id)))
+  SELECT current_user_can_record_operation(p_record_id,p_privilege,p_permission)
 $$;
 
 CREATE FUNCTION public.current_user_can_record_operation(bigint, text, text) RETURNS boolean
@@ -4245,6 +4247,10 @@ BEGIN
   END IF;
   IF p_entity_type='aggregation' THEN
     IF EXISTS (SELECT 1 FROM aggregations WHERE id=p_entity_id) THEN
+      IF p_before->>'type_id' IS NOT NULL OR p_after->>'type_id' IS NOT NULL
+         OR EXISTS (SELECT FROM aggregations WHERE id=p_entity_id AND type_id IS NOT NULL) THEN
+          RETURN current_user_can_aggregation_operation(p_entity_id,'audit.view','aggregation.history.view');
+      END IF;
       RETURN current_user_can_view_aggregation(p_entity_id);
     END IF;
     historical_level_id := COALESCE(
@@ -4253,6 +4259,10 @@ BEGIN
     );
   ELSIF p_entity_type='record' THEN
     IF EXISTS (SELECT 1 FROM records WHERE id=p_entity_id) THEN
+      IF p_before->>'type_id' IS NOT NULL OR p_after->>'type_id' IS NOT NULL
+         OR EXISTS (SELECT FROM records WHERE id=p_entity_id AND type_id IS NOT NULL) THEN
+          RETURN current_user_can_record_operation(p_entity_id,'audit.view','record.history.view');
+      END IF;
       RETURN current_user_can_view_record(p_entity_id);
     END IF;
     historical_level_id := COALESCE(
@@ -4272,6 +4282,12 @@ BEGIN
     RETURN true;
   END IF;
   IF historical_level_id IS NOT NULL THEN
+    -- A deleted resource has no live row. Its final assignment still governs
+    -- access to its history, alongside the original historical-clearance rule.
+    IF EXISTS (SELECT 1 FROM event_history e WHERE e.entity_type=p_entity_type AND e.entity_id=p_entity_id
+               AND e.operation='DELETE' AND e.before_state->>'type_id' IS NOT NULL
+               AND NOT user_passes_type_gate(current_user_id(),p_entity_type,(e.before_state->>'type_id')::bigint,
+                                              (e.before_state->>'security_level_id')::bigint,false)) THEN RETURN false; END IF;
     RETURN user_has_global_privilege(current_user_id(),'audit.view') AND EXISTS (
       SELECT 1 FROM user_role_assignments assignment
       JOIN roles role ON role.id=assignment.role_id
@@ -6689,6 +6705,9 @@ CREATE FUNCTION public.user_can_aggregation_operation(p_user_id bigint, p_aggreg
     AS $$
   SELECT user_can_view_aggregation(p_user_id,p_aggregation_id)
      AND user_has_global_privilege(p_user_id,p_privilege)
+     AND (NOT type_operation_requires_use(p_permission) OR EXISTS (
+         SELECT FROM aggregations resource WHERE resource.id=p_aggregation_id
+           AND user_passes_type_gate(p_user_id,'aggregation',resource.type_id,resource.security_level_id,true)))
      AND (user_has_aggregation_permission(p_user_id,p_aggregation_id,p_permission)
           OR EXISTS(SELECT 1 FROM aggregations resource
                     WHERE resource.id=p_aggregation_id
@@ -6700,6 +6719,9 @@ CREATE FUNCTION public.user_can_record_operation(p_user_id bigint, p_record_id b
     AS $$
   SELECT user_can_view_record(p_user_id,p_record_id)
      AND user_has_global_privilege(p_user_id,p_privilege)
+     AND (NOT type_operation_requires_use(p_permission) OR EXISTS (
+         SELECT FROM records resource WHERE resource.id=p_record_id
+           AND user_passes_type_gate(p_user_id,'record',resource.type_id,resource.security_level_id,true)))
      AND (user_has_record_permission(p_user_id,p_record_id,p_permission)
           OR EXISTS(SELECT 1 FROM records resource
                     WHERE resource.id=p_record_id
@@ -7677,6 +7699,7 @@ CREATE TABLE public.aggregations (
     destruction_number text,
     transfer_number text,
     final_disposition_event_id bigint,
+    type_id bigint,
     CONSTRAINT aggregations_acl_versions_positive CHECK (((resource_acl_version > 0) AND (child_aggregation_acl_version > 0) AND (child_record_acl_version > 0))),
     CONSTRAINT aggregations_assigned_location_valid CHECK (((assigned_location IS NULL) OR ((assigned_location = btrim(assigned_location)) AND (assigned_location <> ''::text) AND (char_length(assigned_location) <= 200)))),
     CONSTRAINT aggregations_child_acl_mode_valid CHECK ((default_child_aggregation_acl_mode = ANY (ARRAY['mirror_resource_acl'::text, 'custom'::text]))),
@@ -7845,7 +7868,48 @@ CREATE TABLE public.event_history (
     CONSTRAINT event_history_source_not_blank CHECK ((btrim(source) <> ''::text))
 );
 
+-- History viewers may know the identity of a type whose instance values
+-- they may not read. Keep the immutable snapshot separate from this projection.
+CREATE FUNCTION public.resource_type_history_access() RETURNS jsonb
+LANGUAGE plpgsql STABLE AS $$
+BEGIN
+    RETURN (WITH effective AS MATERIALIZED (
+        SELECT r.id,level.level_number,r.is_information_governance FROM user_role_assignments a
+          JOIN roles r ON r.id=a.role_id JOIN security_levels level ON level.id=r.security_level_id
+         WHERE a.user_id=current_user_id() AND a.valid_from<=CURRENT_TIMESTAMP
+           AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP) AND role_effectively_active(r.id)
+    ), clearance AS (
+        SELECT max(level_number) AS ordinary,
+               max(level_number) FILTER (WHERE is_information_governance) AS governance FROM effective
+    )
+    SELECT jsonb_build_object(
+        'types', (SELECT jsonb_object_agg(g.kind || '/' || g.type_id,true) FROM resource_type_role_grants g
+                   WHERE g.role_id IN (SELECT id FROM effective)),
+        'levels', (SELECT jsonb_object_agg(id,true) FROM security_levels WHERE level_number<=clearance.ordinary),
+        'governance', (SELECT jsonb_object_agg(id,true) FROM security_levels WHERE level_number<=clearance.governance))
+      FROM clearance);
+END $$;
+
+CREATE FUNCTION public.resource_type_history_side(p_kind text, snapshot jsonb, access jsonb) RETURNS jsonb
+LANGUAGE plpgsql IMMUTABLE AS $$
+BEGIN
+    IF p_kind NOT IN ('aggregation','record') OR snapshot->>'type_id' IS NULL THEN RETURN snapshot; END IF;
+    IF (access->'governance') ? (snapshot->>'security_level_id')
+       OR ((access->'levels') ? (snapshot->>'security_level_id')
+           AND (access->'types') ? (p_kind || '/' || (snapshot->>'type_id'))) THEN RETURN snapshot; END IF;
+    RETURN jsonb_build_object('type_id',snapshot->'type_id','type_name',snapshot->'type_name','values_withheld',true);
+END $$;
+
+CREATE FUNCTION public.resource_type_history_metadata(p_kind text, operation text, payload jsonb, access jsonb) RETURNS jsonb
+LANGUAGE plpgsql IMMUTABLE AS $$
+BEGIN
+    IF operation <> 'TYPE_METADATA_CHANGED' OR p_kind NOT IN ('aggregation','record') THEN RETURN payload; END IF;
+    RETURN payload || jsonb_build_object('before',resource_type_history_side(p_kind,payload->'before',access),
+                                         'after',resource_type_history_side(p_kind,payload->'after',access));
+END $$;
+
 CREATE VIEW public.authorized_event_history AS
+ WITH history_access AS MATERIALIZED (SELECT public.resource_type_history_access() AS rights)
  SELECT event.id,
     event.occurred_at,
     event.transaction_id,
@@ -7869,11 +7933,11 @@ CREATE VIEW public.authorized_event_history AS
     event.request_id,
     event.correlation_id,
         CASE
-            WHEN visible.allowed THEN event.before_state
+            WHEN visible.allowed THEN public.resource_type_history_side(event.entity_type,event.before_state,(SELECT rights FROM history_access))
             ELSE NULL::jsonb
         END AS before_state,
         CASE
-            WHEN visible.allowed THEN event.after_state
+            WHEN visible.allowed THEN public.resource_type_history_side(event.entity_type,event.after_state,(SELECT rights FROM history_access))
             ELSE NULL::jsonb
         END AS after_state,
         CASE
@@ -7885,20 +7949,20 @@ CREATE VIEW public.authorized_event_history AS
             ELSE NULL::text
         END AS reason,
         CASE
-            WHEN visible.allowed THEN event.metadata
+            WHEN visible.allowed THEN public.resource_type_history_metadata(event.entity_type,event.operation,event.metadata,(SELECT rights FROM history_access))
             ELSE jsonb_build_object('redacted', true, 'reason', 'resource_access_denied')
         END AS metadata
    FROM (public.event_history event
      CROSS JOIN LATERAL ( SELECT public.current_user_can_view_event_resource(event.entity_type, event.entity_id, COALESCE(event.before_state,
                 CASE
-                    WHEN (event.entity_type ~~ 'disposition_%'::text) THEN (event.metadata -> 'before'::text)
+                    WHEN (event.entity_type ~~ 'disposition_%'::text OR event.operation='TYPE_METADATA_CHANGED') THEN (event.metadata -> 'before'::text)
                     ELSE NULL::jsonb
                 END), COALESCE(event.after_state,
                 CASE
                     WHEN ((event.entity_type = 'aggregation'::text) AND (event.metadata ? 'recovery_job_id'::text)) THEN event.metadata
-                    WHEN (event.entity_type ~~ 'disposition_%'::text) THEN (event.metadata -> 'after'::text)
+                    WHEN (event.entity_type ~~ 'disposition_%'::text OR event.operation='TYPE_METADATA_CHANGED') THEN (event.metadata -> 'after'::text)
                     ELSE NULL::jsonb
-                END)) AS allowed) visible);
+                END)) AS allowed OFFSET 0) visible);
 
 CREATE TABLE public.record_search_documents (
     record_id bigint NOT NULL,
@@ -7941,6 +8005,7 @@ CREATE TABLE public.records (
     destruction_number text,
     transfer_number text,
     final_disposition_event_id bigint,
+    type_id bigint,
     CONSTRAINT live_record_identity_required CHECK (((disposition_status = 10) OR ((record_number IS NOT NULL) AND (title IS NOT NULL) AND (date_originated IS NOT NULL)))),
     CONSTRAINT records_disposition_status_check CHECK (((disposition_status >= 1) AND (disposition_status <= 13))),
     CONSTRAINT records_medium_valid CHECK ((medium = ANY (ARRAY['digital'::text, 'physical'::text, 'mixed'::text]))),
@@ -13335,6 +13400,344 @@ ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_req
 ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_acting_role_id_fkey FOREIGN KEY (acting_role_id) REFERENCES roles(id) ON DELETE SET NULL;
 ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_run_as_user_id_fkey FOREIGN KEY (run_as_user_id) REFERENCES users(id) ON DELETE SET NULL;
 ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_run_as_role_id_fkey FOREIGN KEY (run_as_role_id) REFERENCES roles(id) ON DELETE SET NULL;
+-- Resource metadata types. Both catalogues share definitions and validation.
+CREATE FUNCTION public.resource_type_has_text(input text) RETURNS boolean
+LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
+RETURN btrim(input, U&'\0009\000A\000B\000C\000D\0020\0085\00A0\1680\2000\2001\2002\2003\2004\2005\2006\2007\2008\2009\200A\2028\2029\202F\205F\3000') <> '';
+
+-- The existing translation trigger validates enabled languages and the shape of
+-- each translation. Apply the same Unicode nonblank rule to translated names.
+CREATE FUNCTION public.resource_type_names_present(translations jsonb) RETURNS boolean
+LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
+RETURN NOT EXISTS (SELECT FROM jsonb_each(translations) AS locale(tag, fields)
+                   WHERE NOT public.resource_type_has_text(fields ->> 'name'));
+
+CREATE TABLE public.resource_types (
+    kind text NOT NULL,
+    id bigint GENERATED ALWAYS AS IDENTITY,
+    name text NOT NULL CHECK (public.resource_type_has_text(name)),
+    description text,
+    translations jsonb CHECK (public.resource_type_names_present(translations)),
+    version bigint NOT NULL DEFAULT 1,
+    PRIMARY KEY (kind, id),
+    UNIQUE (kind, name)
+) PARTITION BY LIST (kind);
+
+CREATE TABLE public.aggregation_types PARTITION OF public.resource_types FOR VALUES IN ('aggregation');
+CREATE TABLE public.record_types PARTITION OF public.resource_types FOR VALUES IN ('record');
+ALTER TABLE public.aggregation_types ADD UNIQUE (id);
+ALTER TABLE public.record_types ADD UNIQUE (id);
+
+ALTER TABLE public.aggregations ADD FOREIGN KEY (type_id) REFERENCES public.aggregation_types (id);
+ALTER TABLE public.records ADD FOREIGN KEY (type_id) REFERENCES public.record_types (id);
+ALTER TABLE public.aggregations ADD UNIQUE (id, type_id);
+ALTER TABLE public.records ADD UNIQUE (id, type_id);
+CREATE INDEX aggregation_type_assignments ON public.aggregations (type_id) WHERE type_id IS NOT NULL;
+CREATE INDEX record_type_assignments ON public.records (type_id) WHERE type_id IS NOT NULL;
+
+-- A row grants See. Use is an additional bit on that same role's See grant.
+CREATE TABLE public.resource_type_role_grants (
+    kind text NOT NULL,
+    type_id bigint NOT NULL,
+    role_id bigint NOT NULL REFERENCES public.roles (id) ON DELETE CASCADE,
+    can_use boolean NOT NULL DEFAULT false,
+    PRIMARY KEY (kind, type_id, role_id),
+    FOREIGN KEY (kind, type_id) REFERENCES public.resource_types ON DELETE CASCADE
+);
+CREATE INDEX resource_type_grants_by_role ON public.resource_type_role_grants (role_id, kind, type_id);
+
+CREATE TYPE public.resource_field_literal AS (
+    text_value text,
+    integer_value bigint,
+    decimal_value numeric,
+    boolean_value boolean,
+    date_value date,
+    datetime_value timestamptz,
+    choice_id bigint
+);
+
+CREATE FUNCTION public.resource_field_valid(data_type text, max_length integer, required boolean,
+                                            literal public.resource_field_literal) RETURNS boolean
+LANGUAGE sql IMMUTABLE PARALLEL SAFE
+RETURN CASE WHEN literal IS NOT DISTINCT FROM NULL THEN NOT required ELSE
+    num_nonnulls(literal.text_value, literal.integer_value, literal.decimal_value, literal.boolean_value,
+                 literal.date_value, literal.datetime_value, literal.choice_id) = 1
+    AND coalesce(CASE data_type
+        WHEN 'text' THEN char_length(literal.text_value) <= max_length
+                         AND (NOT required OR public.resource_type_has_text(literal.text_value))
+        WHEN 'integer' THEN literal.integer_value IS NOT NULL
+        WHEN 'decimal' THEN literal.decimal_value NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric)
+        WHEN 'boolean' THEN literal.boolean_value IS NOT NULL
+        WHEN 'date' THEN isfinite(literal.date_value)
+        WHEN 'datetime' THEN isfinite(literal.datetime_value)
+        WHEN 'single_choice' THEN literal.choice_id IS NOT NULL
+    END, false) END;
+
+CREATE TABLE public.resource_type_fields (
+    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    kind text NOT NULL,
+    type_id bigint NOT NULL,
+    name text NOT NULL CHECK (public.resource_type_has_text(name)),
+    translations jsonb CHECK (public.resource_type_names_present(translations)
+                              AND NOT jsonb_path_exists(translations, '$.*.description')),
+    version bigint NOT NULL DEFAULT 1,
+    display_order integer NOT NULL,
+    required boolean NOT NULL DEFAULT false,
+    data_type text NOT NULL CHECK (data_type IN ('text','integer','decimal','boolean','date','datetime','single_choice')),
+    max_length integer,
+    default_value public.resource_field_literal,
+    default_choice_id bigint GENERATED ALWAYS AS ((default_value).choice_id) STORED,
+    text_capacity integer GENERATED ALWAYS AS (coalesce(max_length, 0)) STORED,
+    CHECK ((data_type = 'text' AND max_length IS NOT NULL AND max_length > 0) OR
+           (data_type <> 'text' AND max_length IS NULL)),
+    CHECK (default_value IS NOT DISTINCT FROM NULL OR
+           public.resource_field_valid(data_type, max_length, required, default_value)),
+    FOREIGN KEY (kind, type_id) REFERENCES public.resource_types ON DELETE CASCADE,
+    UNIQUE (kind, type_id, name),
+    UNIQUE (kind, type_id, id, data_type),
+    UNIQUE (id, text_capacity),
+    UNIQUE (id, data_type)
+);
+
+CREATE TABLE public.resource_field_choices (
+    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    field_id bigint NOT NULL,
+    data_type text GENERATED ALWAYS AS ('single_choice'::text) STORED,
+    name text NOT NULL CHECK (public.resource_type_has_text(name)),
+    translations jsonb CHECK (public.resource_type_names_present(translations)
+                              AND NOT jsonb_path_exists(translations, '$.*.description')),
+    version bigint NOT NULL DEFAULT 1,
+    display_order integer NOT NULL,
+    UNIQUE (field_id, id),
+    FOREIGN KEY (field_id, data_type) REFERENCES public.resource_type_fields (id, data_type) ON DELETE CASCADE
+);
+ALTER TABLE public.resource_type_fields ADD FOREIGN KEY (id, default_choice_id)
+    REFERENCES public.resource_field_choices (field_id, id);
+
+CREATE TRIGGER resource_types_validate_translations BEFORE INSERT OR UPDATE OF translations ON public.resource_types
+    FOR EACH ROW EXECUTE FUNCTION public.validate_multilingual_entity_translations();
+CREATE TRIGGER resource_fields_validate_translations BEFORE INSERT OR UPDATE OF translations ON public.resource_type_fields
+    FOR EACH ROW EXECUTE FUNCTION public.validate_multilingual_entity_translations();
+CREATE TRIGGER resource_choices_validate_translations BEFORE INSERT OR UPDATE OF translations ON public.resource_field_choices
+    FOR EACH ROW EXECUTE FUNCTION public.validate_multilingual_entity_translations();
+CREATE TRIGGER resource_types_bump_version BEFORE UPDATE ON public.resource_types
+    FOR EACH ROW EXECUTE FUNCTION public.bump_entity_version();
+CREATE TRIGGER resource_fields_bump_version BEFORE UPDATE ON public.resource_type_fields
+    FOR EACH ROW EXECUTE FUNCTION public.bump_entity_version();
+CREATE TRIGGER resource_choices_bump_version BEFORE UPDATE ON public.resource_field_choices
+    FOR EACH ROW EXECUTE FUNCTION public.bump_entity_version();
+
+CREATE TABLE public.resource_type_values (
+    kind text NOT NULL,
+    resource_id bigint NOT NULL,
+    type_id bigint NOT NULL,
+    field_id bigint NOT NULL,
+    data_type text NOT NULL,
+    text_capacity integer NOT NULL,
+    value public.resource_field_literal NOT NULL,
+    choice_id bigint GENERATED ALWAYS AS ((value).choice_id) STORED,
+    PRIMARY KEY (kind, resource_id, field_id),
+    CHECK (public.resource_field_valid(data_type, text_capacity, false, value)),
+    FOREIGN KEY (kind, type_id, field_id, data_type)
+        REFERENCES public.resource_type_fields (kind, type_id, id, data_type),
+    -- A shorter limit must also fit every stored value. The cascading update
+    -- and its CHECK are atomic with the definition edit, including concurrent inserts.
+    FOREIGN KEY (field_id, text_capacity)
+        REFERENCES public.resource_type_fields (id, text_capacity) ON UPDATE CASCADE,
+    FOREIGN KEY (field_id, choice_id) REFERENCES public.resource_field_choices (field_id, id)
+) PARTITION BY LIST (kind);
+CREATE TABLE public.aggregation_type_values PARTITION OF public.resource_type_values FOR VALUES IN ('aggregation');
+CREATE TABLE public.record_type_values PARTITION OF public.resource_type_values FOR VALUES IN ('record');
+ALTER TABLE public.aggregation_type_values ADD FOREIGN KEY (resource_id, type_id)
+    REFERENCES public.aggregations (id, type_id) ON DELETE CASCADE;
+ALTER TABLE public.record_type_values ADD FOREIGN KEY (resource_id, type_id)
+    REFERENCES public.records (id, type_id) ON DELETE CASCADE;
+CREATE INDEX resource_type_values_by_field ON public.resource_type_values (field_id, choice_id);
+
+-- Decode one submitted JSON literal once, before persistence. Exact decimal
+-- strings and JSON numbers both enter numeric directly, without a float round trip.
+CREATE FUNCTION public.resource_field_decode(data_type text, input jsonb) RETURNS public.resource_field_literal
+LANGUAGE plpgsql STABLE STRICT AS $$
+DECLARE
+    result public.resource_field_literal;
+    scalar text := input #>> '{}';
+    shape text := jsonb_typeof(input);
+BEGIN
+    IF shape = 'null' THEN RETURN NULL; END IF;
+    CASE
+        WHEN data_type = 'text' AND shape = 'string' THEN result.text_value := scalar;
+        WHEN data_type = 'integer' AND shape = 'number' AND scalar ~ '^-?[0-9]+$' THEN
+            result.integer_value := scalar::bigint;
+        WHEN data_type = 'decimal' AND shape IN ('number','string')
+             AND scalar ~ '^[+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?$' THEN
+            result.decimal_value := scalar::numeric;
+        WHEN data_type = 'boolean' AND shape = 'boolean' THEN result.boolean_value := scalar::boolean;
+        WHEN data_type = 'date' AND shape = 'string' AND scalar ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN
+            result.date_value := scalar::date;
+        WHEN data_type = 'datetime' AND shape = 'string'
+             AND scalar ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt ][0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]+)?)?([Zz]|[+-][0-9]{2}(:?[0-9]{2})?)$' THEN
+            result.datetime_value := scalar::timestamptz;
+        WHEN data_type = 'single_choice' AND shape = 'number' AND scalar ~ '^[0-9]+$' THEN
+            result.choice_id := scalar::bigint;
+        ELSE RAISE EXCEPTION 'Invalid % literal', data_type USING ERRCODE = '22023';
+    END CASE;
+    RETURN result;
+END $$;
+
+-- Resolve the complete proposed value set for a metadata save. This function
+-- has no write or authorization side effects. A new resource has a NULL ID.
+CREATE FUNCTION public.resolve_resource_type_values(p_kind text, p_resource_id bigint, p_type_id bigint, submitted jsonb)
+RETURNS TABLE(field_id bigint, data_type text, text_capacity integer, value public.resource_field_literal)
+LANGUAGE plpgsql STABLE AS $$
+DECLARE
+    current_type bigint;
+    field record;
+BEGIN
+    IF p_kind IS NULL OR p_kind NOT IN ('record','aggregation') OR jsonb_typeof(submitted) IS DISTINCT FROM 'object' THEN
+        RAISE EXCEPTION 'Invalid resource kind or field map' USING ERRCODE = '22023';
+    END IF;
+    IF p_resource_id IS NOT NULL THEN
+        IF p_kind = 'record' THEN SELECT r.type_id INTO STRICT current_type FROM public.records r WHERE r.id = p_resource_id;
+        ELSE SELECT a.type_id INTO STRICT current_type FROM public.aggregations a WHERE a.id = p_resource_id;
+        END IF;
+    END IF;
+    IF p_type_id IS NOT NULL AND NOT EXISTS (
+        SELECT FROM public.resource_types t WHERE (t.kind, t.id) = (p_kind, p_type_id)
+    ) THEN RAISE EXCEPTION 'Unknown % type %', p_kind, p_type_id USING ERRCODE = '23503'; END IF;
+    IF EXISTS (
+        SELECT FROM jsonb_object_keys(submitted) AS supplied(key) WHERE NOT EXISTS (
+            SELECT FROM public.resource_type_fields f
+            WHERE (f.kind, f.type_id) = (p_kind, p_type_id) AND f.id::text = supplied.key)
+    ) THEN RAISE EXCEPTION 'Field outside selected type' USING ERRCODE = '22023'; END IF;
+
+    FOR field IN
+        SELECT f.*, v.value AS previous FROM public.resource_type_fields f
+        LEFT JOIN public.resource_type_values v ON (v.kind, v.resource_id, v.field_id) = (f.kind, p_resource_id, f.id)
+        WHERE (f.kind, f.type_id) = (p_kind, p_type_id) ORDER BY f.display_order, f.id
+    LOOP
+        field_id := field.id;
+        data_type := field.data_type;
+        text_capacity := field.text_capacity;
+        value := CASE WHEN submitted ? field.id::text THEN public.resource_field_decode(data_type, submitted -> field.id::text)
+                      WHEN current_type IS DISTINCT FROM p_type_id THEN field.default_value ELSE field.previous END;
+        IF NOT public.resource_field_valid(data_type, field.max_length, field.required, value) THEN
+            RAISE EXCEPTION 'Invalid value for field %', field.id USING ERRCODE = '23514';
+        END IF;
+        IF value.choice_id IS NOT NULL AND NOT EXISTS (
+            SELECT FROM public.resource_field_choices c WHERE (c.field_id, c.id) = (field.id, value.choice_id)
+        ) THEN RAISE EXCEPTION 'Unknown choice for field %', field.id USING ERRCODE = '23503'; END IF;
+        IF value IS DISTINCT FROM NULL THEN RETURN NEXT; END IF;
+    END LOOP;
+END $$;
+
+CREATE FUNCTION public.user_has_type_grant(p_user bigint, p_kind text, p_type bigint, p_use boolean)
+RETURNS boolean LANGUAGE sql STABLE AS $$
+    SELECT p_type IS NULL OR EXISTS (
+        SELECT FROM resource_type_role_grants g
+        JOIN user_role_assignments a ON a.role_id = g.role_id
+        WHERE (g.kind, g.type_id) = (p_kind, p_type)
+          AND (NOT p_use OR g.can_use) AND a.user_id = p_user
+          AND a.valid_from <= CURRENT_TIMESTAMP
+          AND (a.valid_until IS NULL OR a.valid_until > CURRENT_TIMESTAMP)
+          AND role_effectively_active(a.role_id)
+    )
+$$;
+
+CREATE FUNCTION public.user_passes_type_gate(p_user bigint, p_kind text, p_type bigint, p_level bigint, p_use boolean)
+RETURNS boolean LANGUAGE sql STABLE AS $$
+    SELECT p_type IS NULL OR user_has_type_grant(p_user, p_kind, p_type, p_use)
+                          OR user_has_governance_clearance(p_user, p_level)
+$$;
+
+CREATE FUNCTION public.type_operation_requires_use(p_permission text) RETURNS boolean
+LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
+RETURN p_permission NOT IN ('aggregation.view','record.view','record.component.list','record.component.view',
+                            'record.component.download','record.component.print','record.history.view','aggregation.history.view');
+
+CREATE FUNCTION public.resource_field_json(literal public.resource_field_literal) RETURNS jsonb
+LANGUAGE sql STABLE STRICT
+RETURN coalesce(to_jsonb(literal.text_value), to_jsonb(literal.integer_value),
+                to_jsonb(literal.decimal_value::text), to_jsonb(literal.boolean_value),
+                to_jsonb(literal.date_value), to_jsonb(literal.datetime_value), to_jsonb(literal.choice_id));
+
+CREATE TRIGGER aggregation_types_history AFTER INSERT OR UPDATE OR DELETE ON public.aggregation_types
+    FOR EACH ROW EXECUTE FUNCTION public.record_entity_history('aggregation_type');
+CREATE TRIGGER record_types_history AFTER INSERT OR UPDATE OR DELETE ON public.record_types
+    FOR EACH ROW EXECUTE FUNCTION public.record_entity_history('record_type');
+CREATE TRIGGER resource_type_field_history AFTER INSERT OR UPDATE OR DELETE ON public.resource_type_fields
+    FOR EACH ROW EXECUTE FUNCTION public.record_entity_history('resource_type_field');
+CREATE TRIGGER resource_field_choice_history AFTER INSERT OR UPDATE OR DELETE ON public.resource_field_choices
+    FOR EACH ROW EXECUTE FUNCTION public.record_entity_history('resource_field_choice');
+
+CREATE FUNCTION public.audit_type_role_grant() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE prior jsonb; following jsonb;
+BEGIN
+    IF TG_OP <> 'INSERT' THEN prior := to_jsonb(OLD); END IF;
+    IF TG_OP <> 'DELETE' THEN following := to_jsonb(NEW); END IF;
+    PERFORM append_domain_event((coalesce(following,prior)->>'kind') || '_type',
+            ((coalesce(following,prior))->>'type_id')::bigint, 'TYPE_ROLE_GRANT_CHANGED',
+            jsonb_build_object('before',prior,'after',following));
+    RETURN NULL;
+END $$;
+CREATE TRIGGER type_role_grant_history AFTER INSERT OR UPDATE OR DELETE ON public.resource_type_role_grants
+    FOR EACH ROW EXECUTE FUNCTION public.audit_type_role_grant();
+
+CREATE FUNCTION public.guard_typed_resource_mutation() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE actor bigint := current_user_id();
+BEGIN
+    -- Owner/seed/migration SQL is outside delegated user authority. Requests
+    -- and user-attributed workflow commands supply their actor transactionally.
+    IF actor IS NOT NULL THEN
+        PERFORM pg_advisory_xact_lock_shared(1163021645,1);
+        IF TG_OP <> 'INSERT' AND NOT user_passes_type_gate(actor,TG_ARGV[0],OLD.type_id,OLD.security_level_id,true) THEN
+            RAISE EXCEPTION USING ERRCODE='42501', MESSAGE='insufficient_type_access';
+        END IF;
+        IF TG_OP <> 'DELETE' AND NOT user_passes_type_gate(actor,TG_ARGV[0],NEW.type_id,NEW.security_level_id,true) THEN
+            RAISE EXCEPTION USING ERRCODE='42501', MESSAGE='insufficient_type_access';
+        END IF;
+    END IF;
+    RETURN CASE WHEN TG_OP='DELETE' THEN OLD ELSE NEW END;
+END $$;
+CREATE TRIGGER aggregation_type_use_insert AFTER INSERT ON public.aggregations
+    FOR EACH ROW WHEN (NEW.type_id IS NOT NULL) EXECUTE FUNCTION public.guard_typed_resource_mutation('aggregation');
+CREATE TRIGGER aggregation_type_use_update AFTER UPDATE ON public.aggregations
+    FOR EACH ROW WHEN (OLD.type_id IS NOT NULL OR NEW.type_id IS NOT NULL) EXECUTE FUNCTION public.guard_typed_resource_mutation('aggregation');
+CREATE TRIGGER aggregation_type_use_delete AFTER DELETE ON public.aggregations
+    FOR EACH ROW WHEN (OLD.type_id IS NOT NULL) EXECUTE FUNCTION public.guard_typed_resource_mutation('aggregation');
+CREATE TRIGGER record_type_use_insert AFTER INSERT ON public.records
+    FOR EACH ROW WHEN (NEW.type_id IS NOT NULL) EXECUTE FUNCTION public.guard_typed_resource_mutation('record');
+CREATE TRIGGER record_type_use_update AFTER UPDATE ON public.records
+    FOR EACH ROW WHEN (OLD.type_id IS NOT NULL OR NEW.type_id IS NOT NULL) EXECUTE FUNCTION public.guard_typed_resource_mutation('record');
+CREATE TRIGGER record_type_use_delete AFTER DELETE ON public.records
+    FOR EACH ROW WHEN (OLD.type_id IS NOT NULL) EXECUTE FUNCTION public.guard_typed_resource_mutation('record');
+
+CREATE FUNCTION public.stamp_event_type_name(p_kind text,snapshot jsonb) RETURNS jsonb
+LANGUAGE plpgsql STABLE AS $$
+DECLARE label text;
+BEGIN
+    IF snapshot->>'type_id' IS NULL THEN RETURN snapshot; END IF;
+    SELECT name INTO label FROM resource_types WHERE kind=p_kind AND id=(snapshot->>'type_id')::bigint;
+    RETURN snapshot || jsonb_build_object('type_name',label);
+END $$;
+
+CREATE FUNCTION public.stamp_resource_type_history() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF NEW.operation='TYPE_METADATA_CHANGED' THEN
+        NEW.metadata := NEW.metadata || jsonb_build_object(
+              'before',stamp_event_type_name(NEW.entity_type,NEW.metadata->'before'),
+              'after',stamp_event_type_name(NEW.entity_type,NEW.metadata->'after'));
+    ELSE
+        NEW.before_state := stamp_event_type_name(NEW.entity_type,NEW.before_state);
+        NEW.after_state := stamp_event_type_name(NEW.entity_type,NEW.after_state);
+    END IF;
+    RETURN NEW;
+END $$;
+CREATE TRIGGER stamp_resource_type_history BEFORE INSERT ON public.event_history
+    FOR EACH ROW WHEN (NEW.entity_type IN ('record','aggregation') AND
+        (NEW.operation='TYPE_METADATA_CHANGED' OR NEW.before_state->>'type_id' IS NOT NULL OR NEW.after_state->>'type_id' IS NOT NULL))
+    EXECUTE FUNCTION public.stamp_resource_type_history();
+
 COMMIT;
 
 REVOKE ALL ON FUNCTION disposition_private.preparer_eligible(bigint,text) FROM PUBLIC;

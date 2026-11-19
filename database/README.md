@@ -49,6 +49,8 @@ client meta-commands such as `\\i`, `\\ir`, `\\set`, and `\\copy` are prohibited
 
 ## Existing database
 
+Migration [118](migrations/118_resource_types.sql) installs the aggregation and record type foundation. It leaves existing resources untyped and preserves saved searches. The nullable columns require no resource heap rewrite. The migration builds resource indexes and holds an `ACCESS EXCLUSIVE` lock on both resource tables until commit. Schedule a maintenance interval with capacity for the new indexes and WAL. The measured interval and resource-index growth are recorded in the [Phase 1 upgrade report](../docs/verification/aggregation-record-types-phase-1.md#populated-upgrade). The approved plan introduces public type operations in later phases.
+
 Migration `112_search_vector_storage.sql` changes the physical storage of file
 search vectors to `MAIN` with LZ4 compression. PostgreSQL must be built with LZ4
 support. `MAIN` prefers an inline compressed value but still supports overflow

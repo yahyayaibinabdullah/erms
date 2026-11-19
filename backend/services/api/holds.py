@@ -8,13 +8,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response,
 from psycopg import Connection
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from .dashboard_visibility import visibility_ctes
 from .operation_policy import operation_policy
 from .audit_context import decode_change_reason
 from .concurrency import expected_version
 from .database import get_connection, get_consistent_connection
 from .hold_notifications import notify_assignments
 from .entity_localization import localize_rows, localized_projection, preferred_language
-from .resource_authorization import require_resource_operation
+from .resource_authorization import require_resource_operation, require_type_use
 from .authorization_policy import require_global_privilege
 from .creator_attribution import add_creator_names
 
@@ -248,6 +249,18 @@ def _state(row: dict) -> str:
     return "active"
 
 
+def _held_counts(connection, ids):
+    rows = connection.execute(f"""WITH RECURSIVE requested AS (SELECT unnest(%s::bigint[]) id),
+        containers AS (SELECT hold_id,aggregation_id id FROM hold_aggregation_assignments WHERE hold_id IN (SELECT id FROM requested)),
+        documents AS (SELECT hold_id,record_id id FROM hold_record_assignments WHERE hold_id IN (SELECT id FROM requested)),
+        page_aggregation_ids AS (SELECT DISTINCT id FROM containers), page_record_ids AS (SELECT DISTINCT id FROM documents),
+        {visibility_ctes(page_access=True)}, visible AS (
+            SELECT hold_id FROM containers JOIN authorized_aggregations USING(id) UNION ALL
+            SELECT hold_id FROM documents JOIN authorized_records USING(id))
+        SELECT r.id,count(v.hold_id) AS value FROM requested r LEFT JOIN visible v ON v.hold_id=r.id GROUP BY r.id""",(ids,))
+    return {row["id"]:row["value"] for row in rows}
+
+
 def _serialize_hold(connection: Connection, row: dict, language_tag: str = "en") -> dict:
     result = dict(row)
     result.pop("server_time", None)
@@ -265,13 +278,7 @@ def _serialize_hold(connection: Connection, row: dict, language_tag: str = "en")
     if result["owner"] is None:
         raise RuntimeError(f"hold {row['id']} references a missing owner")
     localize_rows([result["owner"]], language_tag, "name")
-    result["direct_held_item_count"] = connection.execute(
-        """SELECT (SELECT count(*) FROM hold_aggregation_assignments assignment
-                    WHERE assignment.hold_id=%s AND current_user_can_view_aggregation(assignment.aggregation_id))
-                + (SELECT count(*) FROM hold_record_assignments assignment
-                    WHERE assignment.hold_id=%s AND current_user_can_view_record(assignment.record_id)) AS value""",
-        (row["id"], row["id"]),
-    ).fetchone()["value"]
+    result["direct_held_item_count"] = _held_counts(connection,[row["id"]])[row["id"]]
     manager = connection.execute(
         "SELECT current_hold_actor_is_manager(%s) AS value", (row["id"],),
     ).fetchone()["value"]
@@ -309,12 +316,7 @@ def _serialize_holds(connection: Connection, rows: list[dict], language_tag: str
         hold_id=contributor.pop("hold_id"); contributors[hold_id].append(contributor)
     for hold_contributors in contributors.values():
         localize_rows(hold_contributors, language_tag, "name")
-    counts={row["hold_id"]:row["value"] for row in connection.execute(
-        """SELECT requested.hold_id,
-                  (SELECT count(*) FROM hold_aggregation_assignments a WHERE a.hold_id=requested.hold_id AND current_user_can_view_aggregation(a.aggregation_id))
-                + (SELECT count(*) FROM hold_record_assignments r WHERE r.hold_id=requested.hold_id AND current_user_can_view_record(r.record_id)) value
-             FROM unnest(%s::bigint[]) requested(hold_id)""",(hold_ids,),
-    ).fetchall()}
+    counts=_held_counts(connection,hold_ids)
     managers={row["hold_id"]:row["value"] for row in connection.execute(
         "SELECT id hold_id,current_hold_actor_is_manager(id) value FROM holds WHERE id=ANY(%s::bigint[])",(hold_ids,),
     ).fetchall()}
@@ -487,10 +489,12 @@ def replace_contributors(hold_id: int, payload: ContributorReplace, request: Req
     return _serialize_hold(connection,row,preferred_language(connection, request))
 
 
-def _resource_visible(connection: Connection, resource_type: str, resource_id: int) -> dict:
-    require_resource_operation(connection, resource_type, resource_id, f"{resource_type}.view", f"{resource_type}.view")
-    table = "aggregations" if resource_type == "aggregation" else "records"
-    return connection.execute(f"SELECT * FROM {table} WHERE id=%s", (resource_id,)).fetchone()
+def _resource_visible(connection: Connection, resource_type: str, resource_id: int, *, mutation=False) -> dict:
+    view = f"{resource_type}.view"
+    resource = require_resource_operation(connection,resource_type,resource_id,view,view,lock=mutation)
+    if mutation:
+        require_type_use(connection,resource_type,resource,view,view)
+    return resource
 
 
 def _held_item(connection: Connection, hold_id: int, resource_type: str, resource_id: int) -> dict:
@@ -517,18 +521,16 @@ def list_hold_held_item_candidates(
     _hold(connection, hold_id)
     _require_hold_manager(connection, hold_id)
     parameters = (hold_id, hold_id, resource_type, resource_type, q, q, q, q)
-    cte = """WITH candidates AS (
+    cte = f"""WITH RECURSIVE {visibility_ctes(ordinary_access=True)}, candidates AS (
       SELECT 'aggregation'::text resource_type,a.id resource_id,
              a.aggregation_number number,a.title,a.description
-        FROM aggregations a
-       WHERE current_user_can_view_aggregation(a.id)
-         AND NOT EXISTS (SELECT 1 FROM hold_aggregation_assignments x
+        FROM aggregations a JOIN authorized_aggregations allowed USING(id)
+       WHERE NOT EXISTS (SELECT 1 FROM hold_aggregation_assignments x
                           WHERE x.hold_id=%s AND x.aggregation_id=a.id)
       UNION ALL
       SELECT 'record'::text,r.id,r.record_number,r.title,r.description
-        FROM records r
-       WHERE current_user_can_view_record(r.id)
-         AND NOT EXISTS (SELECT 1 FROM hold_record_assignments x
+        FROM records r JOIN authorized_records allowed USING(id)
+       WHERE NOT EXISTS (SELECT 1 FROM hold_record_assignments x
                           WHERE x.hold_id=%s AND x.record_id=r.id)
     )"""
     where = """ WHERE (%s::text IS NULL OR resource_type=%s)
@@ -559,15 +561,17 @@ def list_hold_held_items(
     _hold(connection,hold_id)
     order={"number":"lower(number)","title":"lower(title)","type":"resource_type","assigned_at":"assigned_at",
            "assigned_by":"lower(assigned_by_name)","security_level":"security_level_number"}[sort]
-    cte = """WITH held_items AS (
+    cte = f"""WITH RECURSIVE page_aggregation_ids AS (SELECT aggregation_id id FROM hold_aggregation_assignments WHERE hold_id=%s),
+      page_record_ids AS (SELECT record_id id FROM hold_record_assignments WHERE hold_id=%s),
+      {visibility_ctes(page_access=True)}, held_items AS (
       SELECT x.id,x.version,'aggregation'::text resource_type,a.id resource_id,a.aggregation_number number,
              a.title,a.description,a.security_level_id,x.assigned_at,x.assigned_by_user_id
       FROM hold_aggregation_assignments x JOIN aggregations a ON a.id=x.aggregation_id
-      WHERE x.hold_id=%s AND current_user_can_view_aggregation(a.id)
+      JOIN authorized_aggregations allowed ON allowed.id=a.id WHERE x.hold_id=%s
       UNION ALL
       SELECT x.id,x.version,'record',r.id,r.record_number,r.title,r.description,r.security_level_id,x.assigned_at,x.assigned_by_user_id
       FROM hold_record_assignments x JOIN records r ON r.id=x.record_id
-      WHERE x.hold_id=%s AND current_user_can_view_record(r.id)), enriched AS (
+      JOIN authorized_records allowed ON allowed.id=r.id WHERE x.hold_id=%s), enriched AS (
       SELECT held_items.*,u.name assigned_by_name,u.translations assigned_by_translations,
              sl.code security_level_code,sl.translations security_level_translations,
              sl.name security_level_name,sl.level_number security_level_number
@@ -577,7 +581,7 @@ def list_hold_held_items(
       AND (%s::bigint IS NULL OR assigned_by_user_id=%s)
       AND (%s::timestamptz IS NULL OR assigned_at >= %s)
       AND (%s::timestamptz IS NULL OR assigned_at < %s)"""
-    parameters = (hold_id,hold_id,resource_type,resource_type,q,q,q,q,
+    parameters = (hold_id,hold_id,hold_id,hold_id,resource_type,resource_type,q,q,q,q,
                   assigned_by_user_id,assigned_by_user_id,assigned_from,assigned_from,assigned_before,assigned_before)
     total = connection.execute(cte + " SELECT count(*) value FROM enriched" + where, parameters).fetchone()["value"]
     rows = connection.execute(
@@ -597,7 +601,7 @@ def list_hold_held_items(
 
 
 def _add_held_item(connection: Connection, hold_id: int, resource_type: str, resource_id: int, request: Request):
-    _hold(connection,hold_id); _reason(request); _resource_visible(connection,resource_type,resource_id)
+    _hold(connection,hold_id); _reason(request); _resource_visible(connection,resource_type,resource_id,mutation=True)
     existing=_held_item(connection,hold_id,resource_type,resource_id)
     if existing is not None: return existing
     table="hold_aggregation_assignments" if resource_type=="aggregation" else "hold_record_assignments"; column=f"{resource_type}_id"
@@ -623,7 +627,7 @@ def add_hold_held_items_bulk(
     added = 0
     already_held_items = 0
     for held_item in payload.held_items:
-        _resource_visible(connection, held_item.resource_type, held_item.resource_id)
+        _resource_visible(connection, held_item.resource_type, held_item.resource_id,mutation=True)
         table = ("hold_aggregation_assignments" if held_item.resource_type == "aggregation"
                  else "hold_record_assignments")
         column = f"{held_item.resource_type}_id"
@@ -643,7 +647,7 @@ def add_hold_held_items_bulk(
 @router.delete("/holds/{hold_id}/held-items/{resource_type}/{resource_id}",status_code=204)
 @operation_policy("relationship_scoped")
 def remove_hold_held_item(hold_id:int,resource_type:Literal["aggregation","record"],resource_id:int,request:Request,version:int=Depends(expected_version),connection:Connection=Depends(get_connection,scope="function")):
-    _hold(connection,hold_id); _require_hold_manager(connection, hold_id); _reason(request); _resource_visible(connection,resource_type,resource_id)
+    _hold(connection,hold_id); _require_hold_manager(connection, hold_id); _reason(request); _resource_visible(connection,resource_type,resource_id,mutation=True)
     table="hold_aggregation_assignments" if resource_type=="aggregation" else "hold_record_assignments"; column=f"{resource_type}_id"
     deleted=connection.execute(f"DELETE FROM {table} WHERE hold_id=%s AND {column}=%s AND version=%s RETURNING id",(hold_id,resource_id,version)).fetchone()
     if deleted is None:
@@ -662,7 +666,7 @@ def remove_hold_held_items_bulk(
     if len({(item.resource_type,item.resource_id) for item in payload.held_items}) != len(payload.held_items):
         raise HTTPException(status_code=422,detail={"code":"duplicate_hold_assignments"})
     for item in payload.held_items:
-        _resource_visible(connection,item.resource_type,item.resource_id)
+        _resource_visible(connection,item.resource_type,item.resource_id,mutation=True)
         table="hold_aggregation_assignments" if item.resource_type=="aggregation" else "hold_record_assignments"
         column=f"{item.resource_type}_id"
         deleted=connection.execute(
@@ -710,7 +714,7 @@ def add_record_hold(resource_id:int,payload:ResourceHoldCreate,request:Request,c
 
 
 def _remove_direct(connection:Connection,resource_type:str,resource_id:int,request:Request,hold_id:int|None):
-    reason = _reason(request); _resource_visible(connection,resource_type,resource_id)
+    reason = _reason(request); _resource_visible(connection,resource_type,resource_id,mutation=True)
     table="hold_aggregation_assignments" if resource_type=="aggregation" else "hold_record_assignments"; column=f"{resource_type}_id"
     rows=connection.execute(f"SELECT hold_id FROM {table} WHERE {column}=%s"+(" AND hold_id=%s" if hold_id else "")+" FOR UPDATE",(resource_id,hold_id) if hold_id else (resource_id,)).fetchall()
     if hold_id and not rows: raise HTTPException(status_code=404,detail={"code":"hold_assignment_not_found"})

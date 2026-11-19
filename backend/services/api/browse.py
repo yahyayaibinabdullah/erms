@@ -7,9 +7,9 @@ from typing import Any, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from psycopg import Connection, sql
 
+from .dashboard_visibility import visibility_ctes
 from .operation_policy import operation_policy
 from .saved_searches import audience_eligibility_sql
-from .search import record_destination_clause
 from .database import get_connection
 from .entity_localization import localized_projection, preferred_language
 from .authorization_policy import require_organization_browse
@@ -181,7 +181,9 @@ def _page(
     return {"items": items, "next_cursor": next_cursor, "total": int(total)}
 
 
-CLASSIFICATION_SOURCE = """
+BROWSE_ACCESS = f"WITH RECURSIVE {visibility_ctes(ordinary_access=True)} "
+
+CLASSIFICATION_SOURCE = BROWSE_ACCESS + """
     SELECT c.id, c.classification_scheme_id, c.parent_classification_id,
            c.code, c.title, c.description, c.is_terminal, c.date_deactivated,
            (SELECT count(*) FROM classifications child
@@ -189,13 +191,13 @@ CLASSIFICATION_SOURCE = """
            (SELECT count(*) FROM aggregations aggregation
              WHERE aggregation.classification_id = c.id
                AND aggregation.parent_aggregation_id IS NULL
-               AND current_user_can_view_aggregation(aggregation.id)) AS root_aggregation_count
+               AND aggregation.id IN (SELECT id FROM authorized_aggregations)) AS root_aggregation_count
       FROM classifications c
 """
 
-AGGREGATION_SOURCE = """
+_AGGREGATION_SELECT = """
     SELECT a.id,
-           CASE WHEN a.parent_aggregation_id IS NULL OR current_user_can_view_aggregation(a.parent_aggregation_id)
+           CASE WHEN a.parent_aggregation_id IS NULL OR a.parent_aggregation_id IN (SELECT id FROM authorized_aggregations)
                 THEN a.parent_aggregation_id END AS parent_aggregation_id,
            a.classification_id,
            classification.code AS classification_code,
@@ -206,39 +208,64 @@ AGGREGATION_SOURCE = """
            a.date_of_next_review, a.assigned_location, a.current_location,
            aggregation_effective_assigned_location(a.id) AS effective_assigned_location,
            aggregation_effective_current_location(a.id) AS effective_current_location,
-           CASE WHEN current_user_can_view_aggregation(aggregation_effective_assigned_location_source_id(a.id)) THEN aggregation_effective_assigned_location_source_id(a.id) END AS effective_assigned_location_source_aggregation_id,
-           CASE WHEN current_user_can_view_aggregation(aggregation_effective_current_location_source_id(a.id)) THEN aggregation_effective_current_location_source_id(a.id) END AS effective_current_location_source_aggregation_id,
+           CASE WHEN aggregation_effective_assigned_location_source_id(a.id) IN (SELECT id FROM authorized_aggregations) THEN aggregation_effective_assigned_location_source_id(a.id) END AS effective_assigned_location_source_aggregation_id,
+           CASE WHEN aggregation_effective_current_location_source_id(a.id) IN (SELECT id FROM authorized_aggregations) THEN aggregation_effective_current_location_source_id(a.id) END AS effective_current_location_source_aggregation_id,
            a.owning_org_unit_id, owning_unit.code AS owning_org_unit_code,
            owning_unit.name AS owning_org_unit_name,
            hold_status.effective_hold_count,
            hold_status.resource_state_changes_blocked,
-           (SELECT count(*) FROM aggregations child
-             WHERE child.parent_aggregation_id = a.id
-               AND current_user_can_view_aggregation(child.id)) AS child_aggregation_count,
-           (SELECT count(*) FROM records record
-             WHERE record.aggregation_id = a.id
-               AND current_user_can_view_record(record.id)) AS record_count
+           coalesce(children.total,0) AS child_aggregation_count,
+           coalesce(filed.total,0) AS record_count
       FROM aggregations a
+ LEFT JOIN (SELECT parent_aggregation_id,count(*) AS total FROM authorized_aggregations
+             GROUP BY parent_aggregation_id) children ON children.parent_aggregation_id=a.id
+ LEFT JOIN (SELECT aggregation_id,count(*) AS total FROM authorized_records
+             GROUP BY aggregation_id) filed ON filed.aggregation_id=a.id
  LEFT JOIN classifications classification ON classification.id = a.classification_id
       JOIN org_units owning_unit ON owning_unit.id = a.owning_org_unit_id
  LEFT JOIN LATERAL (SELECT count(*)::integer effective_hold_count,
                            COALESCE(bool_or(preserve_resource_state),false) resource_state_changes_blocked
                       FROM effective_holds_for_aggregation(a.id)) hold_status ON true
-     WHERE current_user_can_view_aggregation(a.id)
+     WHERE a.id IN (SELECT id FROM authorized_aggregations)
 """
 
-RECORD_SOURCE = """
+AGGREGATION_SOURCE = BROWSE_ACCESS + _AGGREGATION_SELECT
+
+
+def _aggregation_browse_source(record_creation: bool, digital_only: bool, *, children: bool = False) -> str:
+    scope = ""
+    target = ""
+    if children:
+        # Include immediate descendants for counts and all ancestors for source
+        # labels. Only the requested branch can appear in the returned list.
+        scope = """branch AS MATERIALIZED (SELECT id,parent_aggregation_id FROM aggregations WHERE parent_aggregation_id=%s),
+            ancestors(id) AS (SELECT parent_aggregation_id FROM branch
+                              UNION SELECT a.parent_aggregation_id FROM aggregations a JOIN ancestors p ON p.id=a.id
+                               WHERE a.parent_aggregation_id IS NOT NULL),
+            page_aggregation_ids AS (SELECT id FROM branch UNION SELECT id FROM ancestors
+                UNION SELECT a.id FROM aggregations a JOIN branch p ON p.id=a.parent_aggregation_id),
+            page_record_ids AS (SELECT r.id FROM records r JOIN branch b ON b.id=r.aggregation_id), """
+        target = " AND a.id IN (SELECT id FROM branch)"
+    access = visibility_ctes(ordinary_access=True, record_destinations=record_creation, page_access=children)
+    if record_creation:
+        target += " AND a.id IN (SELECT id FROM authorized_aggregations WHERE can_add_record)"
+        if digital_only:
+            target += " AND a.medium IN ('digital','mixed')"
+    return f"WITH RECURSIVE {scope}{access} " + _AGGREGATION_SELECT + target
+
+
+RECORD_SOURCE = BROWSE_ACCESS + """
     SELECT r.id,
-           CASE WHEN current_user_can_view_aggregation(r.aggregation_id) THEN r.aggregation_id END AS aggregation_id,
-           CASE WHEN current_user_can_view_aggregation(r.aggregation_id) THEN owner.aggregation_number END AS aggregation_number,
-           CASE WHEN current_user_can_view_aggregation(r.aggregation_id) THEN owner.title END AS aggregation_title,
+           CASE WHEN r.aggregation_id IN (SELECT id FROM authorized_aggregations) THEN r.aggregation_id END AS aggregation_id,
+           CASE WHEN r.aggregation_id IN (SELECT id FROM authorized_aggregations) THEN owner.aggregation_number END AS aggregation_number,
+           CASE WHEN r.aggregation_id IN (SELECT id FROM authorized_aggregations) THEN owner.title END AS aggregation_title,
            r.record_number, r.title, r.description,
            r.date_created, r.date_originated, r.medium, r.is_vital, r.disposition_status, r.disposition_job_id,
            r.date_of_next_review,
            aggregation_effective_assigned_location(r.aggregation_id) AS effective_assigned_location,
            aggregation_effective_current_location(r.aggregation_id) AS effective_current_location,
-           CASE WHEN current_user_can_view_aggregation(aggregation_effective_assigned_location_source_id(r.aggregation_id)) THEN aggregation_effective_assigned_location_source_id(r.aggregation_id) END AS effective_assigned_location_source_aggregation_id,
-           CASE WHEN current_user_can_view_aggregation(aggregation_effective_current_location_source_id(r.aggregation_id)) THEN aggregation_effective_current_location_source_id(r.aggregation_id) END AS effective_current_location_source_aggregation_id,
+           CASE WHEN aggregation_effective_assigned_location_source_id(r.aggregation_id) IN (SELECT id FROM authorized_aggregations) THEN aggregation_effective_assigned_location_source_id(r.aggregation_id) END AS effective_assigned_location_source_aggregation_id,
+           CASE WHEN aggregation_effective_current_location_source_id(r.aggregation_id) IN (SELECT id FROM authorized_aggregations) THEN aggregation_effective_current_location_source_id(r.aggregation_id) END AS effective_current_location_source_aggregation_id,
            r.owning_org_unit_id, owning_unit.code AS owning_org_unit_code,
            owning_unit.name AS owning_org_unit_name,
            hold_status.effective_hold_count,
@@ -251,7 +278,7 @@ RECORD_SOURCE = """
  LEFT JOIN LATERAL (SELECT count(*)::integer effective_hold_count,
                            COALESCE(bool_or(preserve_resource_state),false) resource_state_changes_blocked
                       FROM effective_holds_for_record(r.id)) hold_status ON true
-     WHERE current_user_can_view_record(r.id)
+     WHERE r.id IN (SELECT id FROM authorized_records)
 """
 
 
@@ -336,10 +363,9 @@ def browse_classification_aggregations(
     if not classification["is_terminal"]:
         raise HTTPException(status_code=409, detail="only terminal classifications govern aggregations")
     owner_sql = " AND a.owning_org_unit_id=%s" if owning_org_unit_id is not None else ""
-    destination_sql = " AND " + record_destination_clause("a", digital_only=digital_only) if record_creation else ""
     return _page(
         connection, scope=f"classification:{classification_id}:aggregations:owner:{owning_org_unit_id}:create:{record_creation}:digital:{digital_only}",
-        source_sql=AGGREGATION_SOURCE + " AND a.classification_id=%s AND a.parent_aggregation_id IS NULL" + owner_sql + destination_sql,
+        source_sql=_aggregation_browse_source(record_creation, digital_only) + " AND a.classification_id=%s AND a.parent_aggregation_id IS NULL" + owner_sql,
         parameters=[classification_id, *([owning_org_unit_id] if owning_org_unit_id is not None else [])], key_column="aggregation_number", query=query,
         query_columns=("aggregation_number", "title"), limit=limit, cursor=cursor, resource_kind="aggregation",
     )
@@ -361,10 +387,9 @@ def browse_aggregation_children(
     if connection.execute("SELECT 1 FROM aggregations WHERE id=%s AND current_user_can_view_aggregation(id)", (aggregation_id,)).fetchone() is None:
         raise HTTPException(status_code=404, detail="aggregation not found")
     owner_sql = " AND a.owning_org_unit_id=%s" if owning_org_unit_id is not None else ""
-    destination_sql = " AND " + record_destination_clause("a", digital_only=digital_only) if record_creation else ""
     return _page(
         connection, scope=f"aggregation:{aggregation_id}:children:owner:{owning_org_unit_id}:create:{record_creation}:digital:{digital_only}",
-        source_sql=AGGREGATION_SOURCE + " AND a.parent_aggregation_id=%s" + owner_sql + destination_sql,
+        source_sql=_aggregation_browse_source(record_creation, digital_only, children=True) + owner_sql,
         parameters=[aggregation_id, *([owning_org_unit_id] if owning_org_unit_id is not None else [])], key_column="aggregation_number", query=query,
         query_columns=("aggregation_number", "title"), limit=limit, cursor=cursor, resource_kind="aggregation",
     )
@@ -646,7 +671,7 @@ def browse_org_unit_summary(
                 inactive, language_tag, "name",
             )["name"]
     row["holdings_metrics"] = connection.execute(
-        """WITH aggregation_metrics AS (
+        f"""WITH RECURSIVE {visibility_ctes(ordinary_access=True)}, aggregation_metrics AS (
                SELECT count(*) AS aggregation_count,
                       count(*) FILTER (WHERE date_closed IS NULL) AS open_aggregation_count,
                       count(*) FILTER (WHERE date_closed IS NOT NULL) AS closed_aggregation_count,
@@ -655,7 +680,7 @@ def browse_org_unit_summary(
                       count(*) FILTER (WHERE medium='mixed') AS mixed_aggregation_count
                  FROM aggregations aggregation
                 WHERE aggregation.owning_org_unit_id=%s
-                  AND current_user_can_view_aggregation(aggregation.id)
+                  AND aggregation.id IN (SELECT id FROM authorized_aggregations)
            ), record_metrics AS (
                SELECT count(*) AS record_count,
                       count(*) FILTER (WHERE medium='physical') AS physical_record_count,
@@ -664,13 +689,13 @@ def browse_org_unit_summary(
                       count(*) FILTER (WHERE is_vital) AS vital_record_count
                  FROM records record
                 WHERE record.owning_org_unit_id=%s
-                  AND current_user_can_view_record(record.id)
+                  AND record.id IN (SELECT id FROM authorized_records)
            ), component_metrics AS (
                SELECT coalesce(sum(component.size_in_bytes),0) AS storage_size_in_bytes
                  FROM records record
                  JOIN digital_components component ON component.record_id=record.id
                 WHERE record.owning_org_unit_id=%s
-                  AND current_user_can_view_record(record.id)
+                  AND record.id IN (SELECT id FROM authorized_records)
            )
            SELECT aggregation_metrics.*,record_metrics.*,component_metrics.*
              FROM aggregation_metrics,record_metrics,component_metrics""",

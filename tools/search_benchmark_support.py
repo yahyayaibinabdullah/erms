@@ -1,4 +1,6 @@
 """Observe host load and buffer diagnostic files outside timed search work."""
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 import json
 import os
 from pathlib import Path
@@ -6,6 +8,43 @@ import subprocess
 import sys
 import threading
 import time
+
+import psutil
+import psycopg
+from psycopg.rows import dict_row
+
+
+@contextmanager
+def sample_waits_and_io(output, url):
+    """Sample the owned database and host disk totals without logging SQL text."""
+    stop = threading.Event()
+    samples = []
+
+    def collect():
+        with psycopg.connect(url, autocommit=True, row_factory=dict_row) as observer:
+            while not stop.is_set():
+                active = observer.execute("""
+                    SELECT pid, wait_event_type, wait_event,
+                           ltrim(query, E' \t\n\r') LIKE 'WITH ranked AS MATERIALIZED%' AS ranking
+                    FROM pg_stat_activity
+                    WHERE datname = current_database() AND pid <> pg_backend_pid()
+                      AND backend_type = 'client backend' AND state = 'active'
+                    ORDER BY pid
+                """).fetchall()
+                disk = psutil.disk_io_counters()
+                samples.append({"time": time.time(), "active": active,
+                                "host_read_bytes": disk.read_bytes, "host_write_bytes": disk.write_bytes})
+                stop.wait(0.1)
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(collect)
+        try:
+            yield
+        finally:
+            stop.set()
+            future.result()
+            (output / "waits-and-host-io.jsonl").write_text(
+                "".join(json.dumps(sample) + "\n" for sample in samples))
 
 
 class HostMonitor:

@@ -29989,6 +29989,34 @@
     "is_html": false
   },
   {
+    "message_key": "saved_search.error.reference_unavailable",
+    "context_group": "saved_search.error",
+    "default_text": "A type, field or choice referenced by this search is unavailable.",
+    "semantic_meaning": "Explains why the saved search definition cannot be opened or executed.",
+    "common_locations": [
+      "Saved-search API errors and Advanced Search results"
+    ],
+    "translator_guidance": "Keep both possible causes; do not imply which one occurred or reveal an inaccessible search.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "A type, field or choice referenced by this search is unavailable.",
+    "is_html": false
+  },
+  {
+    "message_key": "saved_search.error.type_forbidden",
+    "context_group": "saved_search.error",
+    "default_text": "This saved search references a type you are not permitted to see.",
+    "semantic_meaning": "Explains why the saved search definition cannot be opened or executed.",
+    "common_locations": [
+      "Saved-search API errors and Advanced Search results"
+    ],
+    "translator_guidance": "Keep both possible causes; do not imply which one occurred or reveal an inaccessible search.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "This saved search references a type you are not permitted to see.",
+    "is_html": false
+  },
+  {
     "message_key": "saved_search.error.unavailable",
     "context_group": "saved_search.error",
     "default_text": "This saved search no longer exists or you no longer have access to it.",

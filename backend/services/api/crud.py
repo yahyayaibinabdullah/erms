@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import HTTPException
 from psycopg import Connection, sql
 
+from .dashboard_visibility import listable_component_parents, visible_resource_ids, visibility_ctes
 from .creator_attribution import add_resource_page_creators
 
 
@@ -27,6 +28,24 @@ def redact_hidden_relationships(
     Never use a magic/sentinel identifier for that distinction.
     """
     relation = {"aggregations": "parent_aggregation_id", "records": "aggregation_id"}.get(table)
+    if table in {"aggregations","records"}:
+        typed = {row["id"]: row for row in rows if row.get("type_id") is not None}
+        if typed:
+            # Use the type seen by the visibility query. A concurrent reassignment
+            # must never attach the new type's values to an older authorized row.
+            for row in typed.values():
+                row["field_values"] = {}
+            rights = visibility_ctes(candidate_resource=table, ordinary_access=True)
+            values = connection.execute(f"""
+                WITH RECURSIVE page AS (SELECT * FROM unnest(%s::bigint[],%s::bigint[]) AS p(resource_id,type_id)),
+                     candidate_ids AS (SELECT resource_id AS id FROM page), {rights}
+                SELECT v.resource_id,jsonb_object_agg(v.field_id,resource_field_json(v.value)) AS fields
+                  FROM resource_type_values v JOIN page USING(resource_id,type_id)
+                 WHERE v.kind=%s AND v.resource_id IN (SELECT id FROM authorized_{table})
+                 GROUP BY v.resource_id""",
+                (list(typed), [row["type_id"] for row in typed.values()], table[:-1]))
+            for item in values:
+                typed[item["resource_id"]]["field_values"] = item["fields"]
     aggregation_context: dict[int, dict[str, Any]] = {}
     if table in {"aggregations", "records"} and rows:
         owner_ids = sorted({row["owning_org_unit_id"] for row in rows if row.get("owning_org_unit_id")})
@@ -48,13 +67,22 @@ def redact_hidden_relationships(
             aggregation_ids.update(row[relation] for row in rows if row.get(relation) is not None)
         aggregation_context = {
             row["id"]: row for row in connection.execute(
-                """SELECT id,
-                          current_user_can_view_aggregation(id) AS visible,
-                          aggregation_effective_assigned_location(id) AS effective_assigned_location,
-                          aggregation_effective_current_location(id) AS effective_current_location
-                          ,CASE WHEN current_user_can_view_aggregation(aggregation_effective_assigned_location_source_id(id)) THEN aggregation_effective_assigned_location_source_id(id) END AS effective_assigned_location_source_aggregation_id
-                          ,CASE WHEN current_user_can_view_aggregation(aggregation_effective_current_location_source_id(id)) THEN aggregation_effective_current_location_source_id(id) END AS effective_current_location_source_aggregation_id
-                     FROM aggregations WHERE id=ANY(%s)""",
+                f"""WITH RECURSIVE locations AS MATERIALIZED (
+                        SELECT id,aggregation_effective_assigned_location(id) AS effective_assigned_location,
+                               aggregation_effective_current_location(id) AS effective_current_location,
+                               aggregation_effective_assigned_location_source_id(id) AS assigned_source,
+                               aggregation_effective_current_location_source_id(id) AS current_source
+                        FROM aggregations WHERE id=ANY(%s)
+                    ), candidate_ids AS (
+                        SELECT id FROM locations UNION SELECT assigned_source FROM locations
+                        UNION SELECT current_source FROM locations
+                    ), {visibility_ctes(candidate_resource="aggregations",ordinary_access=True)}
+                    SELECT l.id,a.id IS NOT NULL AS visible,l.effective_assigned_location,l.effective_current_location,
+                           original.id AS effective_assigned_location_source_aggregation_id,
+                           current_source.id AS effective_current_location_source_aggregation_id
+                    FROM locations l LEFT JOIN authorized_aggregations a USING(id)
+                    LEFT JOIN authorized_aggregations original ON original.id=l.assigned_source
+                    LEFT JOIN authorized_aggregations current_source ON current_source.id=l.current_source""",
                 (sorted(aggregation_ids),),
             ).fetchall()
         } if aggregation_ids else {}
@@ -131,8 +159,16 @@ def list_rows(
         sql.SQL("{} = %s").format(sql.Identifier(column)) for column in filters
     ]
     parameters.extend(filters.values())
-    if table in READ_VISIBILITY:
-        clauses.append(READ_VISIBILITY[table])
+    if table in {"records","aggregations"}:
+        candidate = next((key for key in filters if key in {"id","aggregation_id","parent_aggregation_id","owning_org_unit_id","classification_id"}),None)
+        clauses.append(sql.SQL(f"id IN ({visible_resource_ids(table,candidate_column=candidate)})"))
+        if candidate is not None:
+            parameters.append(filters[candidate])
+    elif table == "digital_components":
+        scoped = "record_id" in filters
+        clauses.append(sql.SQL(f"record_id IN ({listable_component_parents(one_record=scoped)})"))
+        if scoped:
+            parameters.append(filters["record_id"])
     if clauses:
         query += sql.SQL(" WHERE ") + sql.SQL(" AND ").join(clauses)
 

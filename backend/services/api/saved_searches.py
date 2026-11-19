@@ -22,6 +22,8 @@ from .application_settings import cache as settings_cache
 from .application_settings_registry import SEARCH_RESULT_LIMIT_MAXIMUM
 from .schemas import SearchRequest
 from .search import canonicalize_search_request, search_rows
+from .metadata_json import preserve_search_numbers
+from . import type_search
 from .entity_localization import localize_rows, localized_projection, preferred_language
 
 
@@ -30,7 +32,6 @@ require_saved_search_save = require_global_privilege("search.saved_search.save")
 require_saved_search_administrator = require_global_privilege("search.saved_search.administer")
 require_saved_search_delete = require_global_privilege("search.saved_search.delete")
 NonBlank = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
-
 
 class SavedSearchDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -75,6 +76,11 @@ class SavedSearchWrite(BaseModel):
         if self.category == "":
             self.category = None
         return self
+
+
+async def saved_search_write(payload: SavedSearchWrite, request: Request):
+    await preserve_search_numbers(request, payload.definition.request, saved=True)
+    return payload
 
 
 class SavedSearchExecution(BaseModel):
@@ -156,52 +162,70 @@ def _audience(connection: Connection, saved_search_id: int) -> tuple[list[int], 
     return roles, units
 
 
-def _is_accessible(connection: Connection, saved_search_id: int) -> bool:
-    return bool(connection.execute(
-        f"SELECT EXISTS(SELECT 1 FROM saved_searches saved WHERE saved.id=%s AND {_accessible_sql()}) AS value",
-        (saved_search_id,),
-    ).fetchone()["value"])
+def _serialize_page(connection, rows, language, *, inspection=False):
+    """Resolve disclosure for the whole returned page, including nested criteria and sorts."""
+    if not rows:
+        return []
+    refs = {}
+    by_kind = {}
+    for row in rows:
+        request = row["definition"].get("request", {})
+        ref = type_search.references(request.get("where"), request.get("sort", []))
+        refs[row["id"]] = ref
+        by_kind.setdefault(row["resource_type"], []).append(ref)
+    catalogues = {kind: type_search.catalogue(connection, kind, group) for kind, group in by_kind.items()}
+    context = connection.execute(f"""WITH RECURSIVE {type_search.AUTHORITY_CTES}
+        SELECT current_user_id() AS actor, ARRAY(SELECT code FROM effective_privileges) AS privileges,
+            EXISTS(SELECT FROM effective_roles WHERE is_information_governance) AS governance""").fetchone()
+    details = connection.execute(f"""SELECT saved.id, {_accessible_sql()} AS accessible,
+          ARRAY(SELECT role_id FROM saved_search_role_grants WHERE saved_search_id=saved.id ORDER BY role_id) role_ids,
+          ARRAY(SELECT org_unit_id FROM saved_search_org_unit_grants WHERE saved_search_id=saved.id ORDER BY org_unit_id) org_unit_ids,
+          owner.id AS owner_id,owner.name,owner.email,owner.status,owner.translations
+        FROM saved_searches saved JOIN users owner ON owner.id=saved.owner_user_id WHERE saved.id=ANY(%s)""",
+        ([row["id"] for row in rows],)).fetchall()
+    details = {r["id"]: r for r in details}
+    privileges = set(context["privileges"])
+    admin = "search.saved_search.administer" in privileges
+    items = []
+    for row in rows:
+        detail = details.get(row["id"])
+        if detail is None or not (detail["accessible"] or admin or context["governance"]):
+            continue
+        owner = row["owner_user_id"] == context["actor"]
+        audience = detail["accessible"] or context["governance"]
+        issue = type_search.restriction(refs[row["id"]], catalogues[row["resource_type"]])
+        target_view = row["resource_type"] + ".view" in privileges
+        caps = {
+            "open": issue is None,
+            "update": owner or admin,
+            "manage_audience": admin or (owner and "search.saved_search.save" in privileges),
+            "delete": owner or (admin and "search.saved_search.delete" in privileges),
+            "execute": audience and target_view and issue is None,
+        }
+        reasons = {
+            "open": issue, "update": "saved_search_owner_or_administrator_required",
+            "manage_audience": "saved_search_save_or_administrator_required",
+            "delete": "saved_search_delete_and_administration_required",
+            "execute": issue or ("resource_view_required" if audience else "saved_search_not_accessible"),
+        }
+        result = dict(row)
+        result["result_cap"] = _saved_search_result_cap(connection, row["definition"])
+        if issue and not (inspection and admin):
+            result.pop("definition")
+        result["role_ids"], result["org_unit_ids"] = detail["role_ids"], detail["org_unit_ids"]
+        result["owner"] = {"id":detail["owner_id"], **{key: detail[key] for key in ("name","email","status")},
+                           "localized":localized_projection(detail,language,"name")}
+        result["capabilities"] = caps
+        result["capability_reasons"] = {k: None if caps[k] else reason for k, reason in reasons.items()}
+        items.append(result)
+    return items
 
 
-def _capabilities(connection: Connection, row: dict[str, Any]) -> tuple[dict[str, bool], dict[str, str | None]]:
-    owner = row["owner_user_id"] == _current_user_id(connection)
-    administrator = _has(connection, "search.saved_search.administer")
-    save = _has(connection, "search.saved_search.save")
-    delete_privilege = _has(connection, "search.saved_search.delete")
-    target_view = _has(connection, f"{row['resource_type']}.view")
-    accessible = _is_accessible(connection, row["id"])
-    governance_bypass = _has_information_governance_role(connection)
-    values = {
-        "update": owner or administrator,
-        "manage_audience": administrator or (owner and save),
-        "delete": owner or (delete_privilege and administrator),
-        "execute": (accessible or governance_bypass) and target_view,
-    }
-    reasons = {
-        "update": None if values["update"] else "saved_search_owner_or_administrator_required",
-        "manage_audience": None if values["manage_audience"] else "saved_search_save_or_administrator_required",
-        "delete": None if values["delete"] else "saved_search_delete_and_administration_required",
-        "execute": None if values["execute"] else (
-            "resource_view_required" if accessible or governance_bypass else "saved_search_not_accessible"
-        ),
-    }
-    return values, reasons
-
-
-def _serialize(connection: Connection, row: dict[str, Any], language: str) -> dict[str, Any]:
-    result = dict(row)
-    result["result_cap"] = _saved_search_result_cap(connection, row["definition"])
-    roles, units = _audience(connection, row["id"])
-    result["role_ids"] = roles
-    result["org_unit_ids"] = units
-    result["owner"] = connection.execute(
-        "SELECT id,name,email,status,translations FROM users WHERE id=%s", (row["owner_user_id"],),
-    ).fetchone()
-    if result["owner"] is not None:
-        result["owner"]["localized"] = localized_projection(result["owner"], language, "name")
-        result["owner"].pop("translations", None)
-    result["capabilities"], result["capability_reasons"] = _capabilities(connection, row)
-    return result
+def _serialize(connection, row, language, *, inspection=False):
+    items = _serialize_page(connection,[row],language,inspection=inspection)
+    if not items:
+        raise HTTPException(404, detail={"code": "saved_search_unavailable"})
+    return items[0]
 
 
 def _saved_search_result_cap(connection: Connection, definition: dict[str, Any]) -> int:
@@ -292,7 +316,8 @@ def _replace_audience(connection: Connection, saved_search_id: int, payload: Sav
 
 
 @router.get("")
-@operation_policy("relationship_scoped")
+@operation_policy("relationship_scoped", conditional_resource_authorization={
+    "definition": "Current See on all explicitly referenced resource types"})
 def list_saved_searches(
     request: Request,
     scope: Literal["all", "owned", "shared_with_me"] = "all",
@@ -318,7 +343,7 @@ def list_saved_searches(
         (*params, limit, offset),
     ).fetchall()
     language = preferred_language(connection, request)
-    items = [_serialize(connection, row, language) for row in rows]
+    items = _serialize_page(connection, rows, language)
     return {"items": items, "total": total, "limit": limit, "offset": offset, "returned": len(items)}
 
 
@@ -445,12 +470,12 @@ def administer_saved_searches(
         (*params, limit, offset),
     ).fetchall()
     language = preferred_language(connection, request)
-    items = [_serialize(connection, row, language) for row in rows]
+    items = _serialize_page(connection, rows, language, inspection=True)
     return {"items": items, "total": total, "limit": limit, "offset": offset, "returned": len(items)}
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_saved_search_save)])
-def create_saved_search(payload: SavedSearchWrite, request: Request, connection: Connection = Depends(get_connection, scope="function")):
+def create_saved_search(payload: Annotated[SavedSearchWrite, Depends(saved_search_write)], request: Request, connection: Connection = Depends(get_connection, scope="function")):
     if not _has(connection, "search.saved_search.save"):
         raise HTTPException(status_code=403, detail={"code": "insufficient_privilege"})
     administrator = _has(connection, "search.saved_search.administer")
@@ -472,13 +497,25 @@ def create_saved_search(payload: SavedSearchWrite, request: Request, connection:
 
 
 @router.get("/{saved_search_id}")
-@operation_policy("relationship_scoped")
-def get_saved_search(saved_search_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
-    return _serialize(connection, _get(connection, saved_search_id), preferred_language(connection, request))
+@operation_policy("relationship_scoped",
+    conditional_global_privileges={"query_parameter":"inspection", "match":"any", "when_omitted":[],
+                                 "by_value":{"true":["search.saved_search.administer"], "false":[]}},
+    conditional_resource_authorization={"ordinary_definition":"Current See on every referenced resource type"})
+def get_saved_search(saved_search_id: int, request: Request, inspection: bool = False,
+                     connection: Connection = Depends(get_connection, scope="function")):
+    if inspection and not _has(connection, "search.saved_search.administer"):
+        raise HTTPException(403, detail={"code": "insufficient_privilege"})
+    result = _serialize(connection, _get(connection, saved_search_id), preferred_language(connection, request),
+                        inspection=inspection)
+    if "definition" not in result:
+        reason = result["capability_reasons"]["open"]
+        raise type_search.reference_error(reason)
+    return result
 
 
 @router.post("/{saved_search_id}/execute")
-@operation_policy("relationship_scoped")
+@operation_policy("relationship_scoped", conditional_resource_authorization={
+    "execution": "Audience or governance, target view privilege, See on all explicit type references and visibility of each result"})
 def execute_saved_search(
     saved_search_id: int, payload: SavedSearchExecution,
     principal: Principal = Depends(principal_from_request),
@@ -546,7 +583,7 @@ def execute_saved_search(
 @router.put("/{saved_search_id}")
 @operation_policy("relationship_scoped")
 def update_saved_search(
-    saved_search_id: int, payload: SavedSearchWrite, request: Request,
+    saved_search_id: int, payload: Annotated[SavedSearchWrite, Depends(saved_search_write)], request: Request,
     version: int = Depends(expected_version),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
@@ -567,7 +604,17 @@ def update_saved_search(
         raise HTTPException(status_code=403, detail={"code": "saved_search_save_or_administrator_required"})
     if audience_changed:
         _validate_audience(connection, payload, administrator=administrator)
-    definition = _canonical_definition(connection, payload.definition)
+    stored = row["definition"]
+    submitted = payload.definition.request.model_dump(mode="json", by_alias=True, exclude_none=True,
+                                                      exclude={"debug", "tab_id", "search_id"})
+    if (administrator and stored.get("schema_version") == 1
+            and payload.definition.resource_type == row["resource_type"]
+            and submitted == stored.get("request")):
+        # An administrative rename or audience edit need not recreate the query.
+        # Reuse only the server's definition. Changed criteria always require See.
+        definition = dict(stored)
+    else:
+        definition = _canonical_definition(connection, payload.definition)
     if "max_results" in row["definition"]:
         definition["max_results"] = row["definition"]["max_results"]
     connection.execute("SELECT set_config('app.change_reason',%s,true)", (reason,))

@@ -155,7 +155,7 @@ class ResourceAclRead(ApiModel):
     inherit_acl_from_parent: bool
     effective_acl: list[AclPrincipalRead]
     effective_acl_source: str
-    effective_acl_source_id: int
+    effective_acl_source_id: int | None
     override_acl: list[AclPrincipalRead]
     override_acl_is_dormant: bool
     resource_acl_version: int
@@ -255,6 +255,8 @@ class AccessExplanationAclRead(ApiModel):
 
 
 class AccessContributorsRead(ApiModel):
+    type_role_ids: list[int] = Field(default_factory=list)
+    type_bypass_role_ids: list[int] = Field(default_factory=list)
     privilege_role_ids: list[int]
     clearance_role_ids: list[int]
     acl_role_ids_by_permission: dict[str, list[int]]
@@ -272,6 +274,7 @@ class AccessSecurityLevelRead(ApiModel):
 
 
 class AccessExplanationRead(ApiModel):
+    required_type_access: Literal["see","use"] | None = None
     resource_type: Literal["aggregation", "record"]
     resource_id: int
     operation: str
@@ -499,7 +502,16 @@ class SecurityLevelChangePreviewRead(ApiModel):
     reviewed_versions: SecurityLevelChangeVersions
 
 
-class AggregationCreate(ApiModel):
+class TypeAssignment(ApiModel):
+    type_id: int | None = None
+    field_values: dict[str, Any] = Field(default_factory=dict)
+
+
+class TypeUpdate(TypeAssignment):
+    confirm_type_change: bool = False
+
+
+class AggregationCreate(TypeAssignment):
     creator_acl_role_id: int | None = None
     parent_aggregation_id: int | None = None
     classification_id: int | None = None
@@ -530,7 +542,7 @@ class AggregationCreate(ApiModel):
         return self
 
 
-class AggregationUpdate(ApiModel):
+class AggregationUpdate(TypeUpdate):
     parent_aggregation_id: int | None = None
     classification_id: int | None = None
     aggregation_number: NonBlankString | None = None
@@ -549,6 +561,8 @@ class AggregationUpdate(ApiModel):
 
 
 class AggregationRead(ApiModel):
+    type_id: int | None = None
+    field_values: dict[str, Any] = Field(default_factory=dict)
     created_by: str | None = None
     model_config = ConfigDict(extra="ignore")
 
@@ -855,7 +869,7 @@ class EffectiveRetentionRuleRead(ApiModel):
     acceleration: RetentionAccelerationRead | None = None
 
 
-class RecordCreate(ApiModel):
+class RecordCreate(TypeAssignment):
     creator_acl_role_id: int | None = None
     aggregation_id: int
     record_number: NonBlankString
@@ -884,7 +898,7 @@ class CreationRoleOption(ApiModel):
     label: str
 
 
-class RecordUpdate(ApiModel):
+class RecordUpdate(TypeUpdate):
     aggregation_id: int | None = None
     record_number: NonBlankString | None = None
     title: NonBlankString | None = None
@@ -951,6 +965,8 @@ class AggregationLocationPreviewRead(ApiModel):
 
 
 class RecordRead(ApiModel):
+    type_id: int | None = None
+    field_values: dict[str, Any] = Field(default_factory=dict)
     created_by: str | None = None
     model_config = ConfigDict(extra="ignore")
 

@@ -5,6 +5,7 @@ matching. Timers include real HTTP, auth, permissions, ranking, cache and page
 evidence. Oracle calculation and EXPLAIN are outside the request timers.
 """
 import argparse
+from contextlib import nullcontext
 import hashlib
 import json
 import os
@@ -38,10 +39,11 @@ def dump(path, value):
     path.write_text(json.dumps(value, indent=2, default=str) + '\n')
 
 
-from tools.search_benchmark_support import HostMonitor
+from tools.search_benchmark_support import HostMonitor, sample_waits_and_io
 
 
-def exercise(output, url, repeats, settle_seconds):
+def exercise(output, url, repeats, settle_seconds, *, capture_plans=False, predecessor_probe=False,
+             ranking_io_concurrency=None):
     with socket.socket() as sock:
         sock.bind(('127.0.0.1', 0))
         port = sock.getsockname()[1]
@@ -50,8 +52,13 @@ def exercise(output, url, repeats, settle_seconds):
     env = {**os.environ, 'DATABASE_URL': url, 'AUTH_COOKIE_SECURE': 'false', 'PYTHONPATH': str(ROOT)}
     try:
         with (output / 'api.log').open('w') as log:
-            server = subprocess.Popen([sys.executable, str(ROOT / 'tools/search_benchmark_app.py'),
-                                       '--port', str(port), '--output', str(output)],
+            command = [sys.executable, str(ROOT / 'tools/search_benchmark_app.py'),
+                       '--port', str(port), '--output', str(output)]
+            if capture_plans:
+                command.append('--capture-ranking-plans')
+            if ranking_io_concurrency is not None:
+                command.extend(['--ranking-io-concurrency', str(ranking_io_concurrency)])
+            server = subprocess.Popen(command,
                                       cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT)
         with httpx.Client(base_url=f'http://127.0.0.1:{port}', timeout=120) as client, \
                 psycopg.connect(url, row_factory=dict_row, autocommit=True) as c:
@@ -84,10 +91,20 @@ def exercise(output, url, repeats, settle_seconds):
             sets = json.loads((output / 'fixture-sets.json').read_text())
             # The first broad request precedes all search/oracle/plan work.
             # Each round submits a fresh list and then follows every page.
+            rounds = []
             for repeat in range(repeats):
                 cases = list(CASES)
                 if repeat:
                     random.Random(91000 + repeat).shuffle(cases)
+                rounds.append(cases)
+            if predecessor_probe:
+                by_name = {case[0]: case for case in CASES}
+                predecessors = ['far_phrase', 'broad_word', 'negative_phrase']
+                for rotation in range(3):
+                    order = predecessors[rotation:] + predecessors[:rotation]
+                    rounds.append([by_name[name] for previous in order
+                                   for name in (previous, 'negative_phrase')])
+            for repeat, cases in enumerate(rounds):
                 for case in cases:
                     request, page = payload(case), 0
                     observed = {'case': case[0], 'repeat': repeat, 'hits': []}
@@ -122,10 +139,11 @@ def exercise(output, url, repeats, settle_seconds):
 
             login('denied')
             for case in CASES:
-                start = time.perf_counter()
+                start, wall_start = time.perf_counter(), time.time()
                 response = client.post('/api/v1/full-text-search', json=payload(case))
                 elapsed = time.perf_counter() - start
-                row = {'identity': 'denied', 'case': case[0], 'repeat': 0, 'page': 1, 'seconds': elapsed}
+                row = {'identity': 'denied', 'case': case[0], 'repeat': 0, 'page': 1,
+                       'seconds': elapsed, 'start_time': wall_start}
                 samples.append(row)
                 if elapsed > 3:
                     failures.append(row)
@@ -153,7 +171,8 @@ def exercise(output, url, repeats, settle_seconds):
         server = None
         # Preserve real generated plans after timing, including loop counts.
         from backend.services.api import search
-        from backend.services.api.search_execution import search_sql_execution
+        from backend.services.api.search_execution import GLOBAL_RANKING_IO_CONCURRENCY, global_ranking_io, search_sql_execution
+        ranking_io = GLOBAL_RANKING_IO_CONCURRENCY if ranking_io_concurrency is None else ranking_io_concurrency
         captured = [json.loads(path.read_text()) for path in output.glob('ranking-query-*.json')]
         with psycopg.connect(url, row_factory=dict_row) as c:
             # Diagnostic I/O accounting starts only after all response timers.
@@ -164,7 +183,7 @@ def exercise(output, url, repeats, settle_seconds):
             for case in CASES:
                 packet, = [item for item in captured if item['query'] == case[1] and item['sources'] == case[2]]
                 statement, arguments = packet['sql'], packet['parameters']
-                with search_sql_execution(c):
+                with search_sql_execution(c), global_ranking_io(c, ranking_io):
                     plan = c.execute('EXPLAIN (ANALYZE,BUFFERS,VERBOSE,FORMAT JSON) ' + statement,
                                      arguments, prepare=False).fetchone()['QUERY PLAN']
                 dump(output / (case[0] + '-plan.json'), plan)
@@ -218,8 +237,17 @@ def exercise(output, url, repeats, settle_seconds):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--resource-types', action='store_true', help='Include equivalent-access typed resources')
     parser.add_argument('--repeats', type=int, default=3)
     parser.add_argument('--settle-seconds', type=int, default=0)
+    parser.add_argument('--sample-waits-and-io', action='store_true',
+                        help='Sample active database waits and cumulative host disk bytes about every 100 ms')
+    parser.add_argument('--capture-ranking-plans', action='store_true',
+                        help='Instrument actual ranking executions using session-local auto_explain')
+    parser.add_argument('--predecessor-probe', action='store_true',
+                        help='Append three balanced rounds comparing negative-phrase predecessors')
+    parser.add_argument('--ranking-io-concurrency', type=int, choices=range(0, 1001), metavar='N',
+                        help='Diagnostic transaction-local effective_io_concurrency for initial ranking')
     parser.add_argument('--probe-concurrency', action='store_true',
                         help='After the HTTP gate, compare two concurrent ranking queries at 4/12 MB')
     parser.add_argument('--vector-storage', choices=('current', 'uncompressed'), default='current',
@@ -250,14 +278,18 @@ def main():
             initialize(c)
             from tools.search_storage_experiment import configure, inspect
             configure(c, args.vector_storage)
-            sets = fixture(c)
+            sets = fixture(c, typed=args.resource_types)
             dump(output / 'fixture-sets.json', sets)
             environment = {'database': name, 'postgres': c.execute('SELECT version() v').fetchone()['v'],
                            'platform': platform.platform(), 'cpu_count': os.cpu_count(),
                            'aggregations': AGGREGATIONS, 'records': RECORDS, 'distribution': distribution(c),
-                           'cap': 1000, 'page_size': 100, 'repeats': args.repeats,
+                           'mixed_resource_types': args.resource_types, 'cap': 1000, 'page_size': 100, 'repeats': args.repeats,
                            'settle_seconds': args.settle_seconds,
                            'concurrency_probe': args.probe_concurrency,
+                           'sample_waits_and_io': args.sample_waits_and_io,
+                           'capture_ranking_plans': args.capture_ranking_plans,
+                           'predecessor_probe': args.predecessor_probe,
+                           'ranking_io_concurrency': args.ranking_io_concurrency,
                            'source_sha256': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in (
                                ROOT / 'backend/services/api/search.py', ROOT / 'backend/services/api/search_page.py',
                                ROOT / 'backend/services/api/search_cache.py', ROOT / 'tools/search_benchmark_app.py',
@@ -271,9 +303,12 @@ def main():
                                ROOT / 'tools/search_storage_experiment.py', ROOT / 'tools/search_benchmark_support.py',
                                ROOT / 'database/schema.sql', Path(__file__), ROOT / 'tools/search_large_text_fixture.py',
                                ROOT / 'tools/check_search_performance.py')}}
-            for setting in ('jit', 'work_mem', 'shared_buffers', 'fsync', 'data_checksums', 'full_page_writes'):
+            for setting in ('jit', 'work_mem', 'shared_buffers', 'fsync', 'data_checksums', 'full_page_writes',
+                            'effective_io_concurrency', 'io_method', 'io_workers', 'synchronize_seqscans'):
                 environment[setting] = c.execute('SHOW ' + setting).fetchone()[setting]
-            from backend.services.api.search_execution import search_sql_execution
+            from backend.services.api.search_execution import GLOBAL_RANKING_IO_CONCURRENCY, search_sql_execution
+            ranking_io = GLOBAL_RANKING_IO_CONCURRENCY if args.ranking_io_concurrency is None else args.ranking_io_concurrency
+            environment['effective_ranking_io_concurrency'] = ranking_io
             with search_sql_execution(c):
                 environment['search_execution'] = c.execute("SELECT current_setting('jit') AS jit,current_setting('work_mem') AS work_mem").fetchone()
             environment['jit_available'] = c.execute('SELECT pg_jit_available() v').fetchone()['v']
@@ -298,10 +333,13 @@ def main():
             assert environment['actual_counts'] == {'aggregations': AGGREGATIONS, 'records': RECORDS, 'chunks': 180630}
             dump(output / 'environment.json', environment)
         print('Large-text fixture ready: ' + name, flush=True)
-        exercise(output, url, args.repeats, args.settle_seconds)
+        with sample_waits_and_io(output, url) if args.sample_waits_and_io else nullcontext():
+            exercise(output, url, args.repeats, args.settle_seconds,
+                     capture_plans=args.capture_ranking_plans, predecessor_probe=args.predecessor_probe,
+                     ranking_io_concurrency=args.ranking_io_concurrency)
         if args.probe_concurrency:
             from tools.search_memory_probe import probe
-            probe(output, url)
+            probe(output, url, ranking_io)
         changed = [name for name, digest in environment['source_sha256'].items()
                    if hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != digest]
         assert not changed, f'Benchmark sources changed during the run: {changed}'
