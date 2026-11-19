@@ -1098,7 +1098,7 @@ def build_aggregation_details(
                         await asyncio.gather(load_records(page_state.get("page", 1)), activity.load())
 
                 drop_target = AggregationFileDrop(
-                    page=table_container, aggregation=current, api=api, active=active,
+                    page=client.page_container, aggregation=current, api=api, active=active,
                     on_committed=files_committed, error_message=error_message,
                     direction=current_direction["value"],
                 )

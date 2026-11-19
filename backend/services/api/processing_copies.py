@@ -1,8 +1,12 @@
 """API-owned rendition scratch, registered before use and acked after deletion."""
+from contextlib import contextmanager
 from pathlib import Path
+from anyio import CancelScope
+from starlette.concurrency import run_in_threadpool
+from starlette.responses import Response
 import tempfile,hashlib
 from psycopg.conninfo import conninfo_to_dict
-from ..processing_workspace import recover
+from ..processing_workspace import recover, workspace
 from .database import pool,database_url
 
 def root():
@@ -15,7 +19,23 @@ def acknowledge(metadata):
     with pool.connection() as c:c.execute("DELETE FROM disposition_private.processing_copies WHERE token=%s AND kind='rendition'",(metadata['token'],))
 
 
-def recover_renditions():return recover(root(),acknowledge)
+def _draft_root():
+    return root() / "draft-workspaces"
+
+
+def _no_receipt(_metadata):
+    # Staged uploads have no saved component or disposition processing-copy row.
+    pass
+
+
+@contextmanager
+def draft_conversion_workspace():
+    with workspace(_draft_root(), {}, _no_receipt, _no_receipt) as directory:
+        yield directory
+
+
+def recover_renditions():
+    return recover(root(), acknowledge) + recover(_draft_root(), _no_receipt)
 
 
 class ResponseCopy:
@@ -47,23 +67,35 @@ class ResponseCopy:
         if self.directory.exists():cleanup_owned(self.directory,self.metadata,acknowledge)
 
 
+class _ProtectedResponse(Response):
+    """Release the disposition fence even when the downstream send is cancelled."""
+    def __init__(self, response, handle):
+        self.response = response
+        self.handle = handle
+        self.status_code = response.status_code
+        self.raw_headers = response.raw_headers
+        self.background = None
+
+    async def __call__(self, scope, receive, send):
+        try:
+            await self.response(scope, receive, send)
+            if self.background:
+                await self.background()
+        finally:
+            with CancelScope(shield=True):
+                await run_in_threadpool(self.handle.close)
+
+
 def protect_response(function):
     from functools import wraps
     from ..processing_workspace import _FDS
-    from starlette.concurrency import run_in_threadpool
     @wraps(function)
     def guarded(component,request,connection):
         handle=ResponseCopy(component['id'],connection.execute('SELECT current_user_id() id').fetchone()['id'],connection)
         state=_FDS.set((*_FDS.get(),handle.lock.fileno()))
         try:
             response=function(component,request,connection,_temporary_root=handle.directory)
-            previous=response.background
-            async def after():
-                try:
-                    if previous:await previous()
-                finally:await run_in_threadpool(handle.close)
-            response.background=after
-            return response
+            return _ProtectedResponse(response, handle)
         except Exception:
             handle.close();raise
         finally:_FDS.reset(state)

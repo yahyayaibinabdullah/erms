@@ -5,7 +5,14 @@ offers two deliberately separate actions:
 
 - **Download original** returns the stored bytes with attachment disposition.
 - **View document** requests a PDF rendition and displays it with the PDF.js
-  library bundled under `frontend/webui/static/pdfjs`.
+  viewer bundled under `frontend/webui/static/pdfjs`.
+
+The component switcher moves between files. Within a PDF, the sidebar shows
+page thumbnails. The reader supports zoom, page navigation, text selection,
+find, and viewing embedded annotations. Selection and find require a text layer
+in the rendition. Annotation editing is disabled. Use the Wathiq toolbar to
+print or download with the corresponding permission. Staged previews are
+read-only and offer neither action.
 
 Neither operation sends record content to an external service or CDN.
 

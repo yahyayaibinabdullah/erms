@@ -1,0 +1,1247 @@
+{
+  "chrome": "157.0.8103.79",
+  "fixtures": {
+    "docx": {
+      "bytes": 2579277,
+      "sha256": "4214598cf07a3644770921a4feba19a893c235bda97facad89e745df453bc4e8",
+      "page_text_geometry_sha256": "e287db33b23c1c75c0a2d1cbbbc0cb5f1828838216966593ebc1ffdd97d060df"
+    },
+    "xlsx": {
+      "bytes": 123948,
+      "sha256": "4c78f769046eaa4f8edc005894c850a5a2d26a9bf7b39e34cba15dd27582c59c",
+      "page_text_geometry_sha256": "612f4437c35019998c548a6f5d5ddbf6b74dfc433277d438c011387af7a86662"
+    },
+    "pptx": {
+      "bytes": 106098,
+      "sha256": "5678a8c9100fef186009c87c10b5533557e704266c61629905e26454948de2a3",
+      "page_text_geometry_sha256": "8cf17750513d33225c6adfa59c4dfad11eaf76cf8143c233d8e13526dc08c835"
+    }
+  },
+  "fresh": {
+    "database_dropped": true,
+    "resident_pids_verified_stopped": 0,
+    "prewarm_s": 0.0,
+    "samples": [
+      {
+        "viewers": 1,
+        "repeat": 1,
+        "first_ms": {
+          "docx": 7069
+        },
+        "all_first_ms": 7069,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "docx": 0
+        },
+        "export_ms": {
+          "docx": 6181
+        },
+        "rss_samples": 55,
+        "idle_mib": {
+          "api_tree": 99.6,
+          "api_children": 0.0,
+          "webui_tree": 115.1,
+          "chrome_trees": 779.8,
+          "server_total": 214.7,
+          "total": 994.5
+        },
+        "peak_mib": {
+          "api_tree": 537.9,
+          "api_children": 442.7,
+          "webui_tree": 115.2,
+          "chrome_trees": 845.0,
+          "server_total": 641.1,
+          "total": 1441.0
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 1,
+        "first_ms": {
+          "xlsx": 5040
+        },
+        "all_first_ms": 5040,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "xlsx": 0
+        },
+        "export_ms": {
+          "xlsx": 4544
+        },
+        "rss_samples": 40,
+        "idle_mib": {
+          "api_tree": 98.9,
+          "api_children": 0.0,
+          "webui_tree": 112.2,
+          "chrome_trees": 882.8,
+          "server_total": 211.0,
+          "total": 1093.9
+        },
+        "peak_mib": {
+          "api_tree": 450.5,
+          "api_children": 352.4,
+          "webui_tree": 112.2,
+          "chrome_trees": 883.0,
+          "server_total": 561.0,
+          "total": 1420.2
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 1,
+        "first_ms": {
+          "pptx": 6847
+        },
+        "all_first_ms": 6847,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "pptx": 0
+        },
+        "export_ms": {
+          "pptx": 6526
+        },
+        "rss_samples": 54,
+        "idle_mib": {
+          "api_tree": 99.5,
+          "api_children": 0.0,
+          "webui_tree": 112.9,
+          "chrome_trees": 871.2,
+          "server_total": 212.4,
+          "total": 1083.6
+        },
+        "peak_mib": {
+          "api_tree": 681.3,
+          "api_children": 611.0,
+          "webui_tree": 112.9,
+          "chrome_trees": 877.9,
+          "server_total": 753.0,
+          "total": 1625.1
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 2,
+        "first_ms": {
+          "xlsx": 4200
+        },
+        "all_first_ms": 4200,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "xlsx": 0
+        },
+        "export_ms": {
+          "xlsx": 3850
+        },
+        "rss_samples": 34,
+        "idle_mib": {
+          "api_tree": 71.6,
+          "api_children": 0.0,
+          "webui_tree": 72.8,
+          "chrome_trees": 869.8,
+          "server_total": 144.4,
+          "total": 1014.2
+        },
+        "peak_mib": {
+          "api_tree": 423.6,
+          "api_children": 351.7,
+          "webui_tree": 74.0,
+          "chrome_trees": 876.5,
+          "server_total": 496.8,
+          "total": 1366.7
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 2,
+        "first_ms": {
+          "pptx": 5278
+        },
+        "all_first_ms": 5278,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "pptx": 0
+        },
+        "export_ms": {
+          "pptx": 4882
+        },
+        "rss_samples": 42,
+        "idle_mib": {
+          "api_tree": 72.6,
+          "api_children": 0.0,
+          "webui_tree": 105.1,
+          "chrome_trees": 873.9,
+          "server_total": 177.7,
+          "total": 1051.5
+        },
+        "peak_mib": {
+          "api_tree": 666.2,
+          "api_children": 598.6,
+          "webui_tree": 105.1,
+          "chrome_trees": 874.2,
+          "server_total": 770.2,
+          "total": 1575.8
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 2,
+        "first_ms": {
+          "docx": 6273
+        },
+        "all_first_ms": 6273,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "docx": 0
+        },
+        "export_ms": {
+          "docx": 5596
+        },
+        "rss_samples": 49,
+        "idle_mib": {
+          "api_tree": 68.8,
+          "api_children": 0.0,
+          "webui_tree": 105.7,
+          "chrome_trees": 812.5,
+          "server_total": 174.5,
+          "total": 987.0
+        },
+        "peak_mib": {
+          "api_tree": 509.1,
+          "api_children": 439.7,
+          "webui_tree": 107.0,
+          "chrome_trees": 812.6,
+          "server_total": 614.5,
+          "total": 1403.8
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 3,
+        "first_ms": {
+          "pptx": 5438
+        },
+        "all_first_ms": 5438,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "pptx": 0
+        },
+        "export_ms": {
+          "pptx": 5106
+        },
+        "rss_samples": 44,
+        "idle_mib": {
+          "api_tree": 71.7,
+          "api_children": 0.0,
+          "webui_tree": 106.1,
+          "chrome_trees": 794.5,
+          "server_total": 177.8,
+          "total": 972.3
+        },
+        "peak_mib": {
+          "api_tree": 664.3,
+          "api_children": 597.0,
+          "webui_tree": 106.2,
+          "chrome_trees": 794.8,
+          "server_total": 766.1,
+          "total": 1543.4
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 3,
+        "first_ms": {
+          "docx": 6697
+        },
+        "all_first_ms": 6697,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "docx": 0
+        },
+        "export_ms": {
+          "docx": 6255
+        },
+        "rss_samples": 53,
+        "idle_mib": {
+          "api_tree": 68.9,
+          "api_children": 0.0,
+          "webui_tree": 103.8,
+          "chrome_trees": 800.0,
+          "server_total": 172.7,
+          "total": 972.7
+        },
+        "peak_mib": {
+          "api_tree": 512.4,
+          "api_children": 443.2,
+          "webui_tree": 106.4,
+          "chrome_trees": 825.9,
+          "server_total": 616.3,
+          "total": 1414.2
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 3,
+        "first_ms": {
+          "xlsx": 3597
+        },
+        "all_first_ms": 3597,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "xlsx": 0
+        },
+        "export_ms": {
+          "xlsx": 3253
+        },
+        "rss_samples": 29,
+        "idle_mib": {
+          "api_tree": 69.6,
+          "api_children": 0.0,
+          "webui_tree": 107.7,
+          "chrome_trees": 810.0,
+          "server_total": 177.3,
+          "total": 987.3
+        },
+        "peak_mib": {
+          "api_tree": 421.2,
+          "api_children": 351.6,
+          "webui_tree": 107.8,
+          "chrome_trees": 817.4,
+          "server_total": 528.9,
+          "total": 1339.2
+        }
+      },
+      {
+        "viewers": 3,
+        "repeat": 1,
+        "first_ms": {
+          "docx": 7598,
+          "xlsx": 4859,
+          "pptx": 6529
+        },
+        "all_first_ms": 7598,
+        "max_active_exports": 3,
+        "queue_ms": {
+          "xlsx": 0,
+          "pptx": 0,
+          "docx": 0
+        },
+        "export_ms": {
+          "xlsx": 3930,
+          "pptx": 5978,
+          "docx": 7024
+        },
+        "rss_samples": 55,
+        "idle_mib": {
+          "api_tree": 70.8,
+          "api_children": 0.0,
+          "webui_tree": 106.0,
+          "chrome_trees": 2236.0,
+          "server_total": 176.8,
+          "total": 2412.8
+        },
+        "peak_mib": {
+          "api_tree": 978.8,
+          "api_children": 908.6,
+          "webui_tree": 117.6,
+          "chrome_trees": 2330.2,
+          "server_total": 1070.2,
+          "total": 3293.7
+        }
+      },
+      {
+        "viewers": 3,
+        "repeat": 2,
+        "first_ms": {
+          "xlsx": 4142,
+          "pptx": 6184,
+          "docx": 6956
+        },
+        "all_first_ms": 6959,
+        "max_active_exports": 3,
+        "queue_ms": {
+          "xlsx": 0,
+          "pptx": 0,
+          "docx": 0
+        },
+        "export_ms": {
+          "xlsx": 3551,
+          "pptx": 5749,
+          "docx": 6435
+        },
+        "rss_samples": 51,
+        "idle_mib": {
+          "api_tree": 74.2,
+          "api_children": 0.0,
+          "webui_tree": 118.8,
+          "chrome_trees": 2372.3,
+          "server_total": 192.9,
+          "total": 2565.2
+        },
+        "peak_mib": {
+          "api_tree": 1043.1,
+          "api_children": 972.0,
+          "webui_tree": 118.9,
+          "chrome_trees": 2375.9,
+          "server_total": 1153.8,
+          "total": 3379.8
+        }
+      },
+      {
+        "viewers": 3,
+        "repeat": 3,
+        "first_ms": {
+          "pptx": 7235,
+          "docx": 7461,
+          "xlsx": 4540
+        },
+        "all_first_ms": 7463,
+        "max_active_exports": 3,
+        "queue_ms": {
+          "xlsx": 0,
+          "pptx": 0,
+          "docx": 0
+        },
+        "export_ms": {
+          "xlsx": 3973,
+          "pptx": 6825,
+          "docx": 6850
+        },
+        "rss_samples": 54,
+        "idle_mib": {
+          "api_tree": 109.6,
+          "api_children": 0.0,
+          "webui_tree": 114.6,
+          "chrome_trees": 2285.6,
+          "server_total": 224.2,
+          "total": 2509.8
+        },
+        "peak_mib": {
+          "api_tree": 1112.8,
+          "api_children": 1002.8,
+          "webui_tree": 115.2,
+          "chrome_trees": 2286.0,
+          "server_total": 1207.9,
+          "total": 3433.9
+        }
+      }
+    ]
+  },
+  "two_warm_workers": {
+    "database_dropped": true,
+    "resident_pids_verified_stopped": 2,
+    "prewarm_s": 3.935,
+    "samples": [
+      {
+        "viewers": 1,
+        "repeat": 1,
+        "first_ms": {
+          "docx": 6414
+        },
+        "all_first_ms": 6414,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "docx": 0
+        },
+        "export_ms": {
+          "docx": 5337
+        },
+        "rss_samples": 46,
+        "idle_mib": {
+          "api_tree": 515.0,
+          "api_children": 337.9,
+          "webui_tree": 120.9,
+          "chrome_trees": 771.1,
+          "server_total": 635.9,
+          "total": 1407.0
+        },
+        "peak_mib": {
+          "api_tree": 622.1,
+          "api_children": 543.7,
+          "webui_tree": 120.9,
+          "chrome_trees": 816.4,
+          "server_total": 726.8,
+          "total": 1498.9
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 1,
+        "first_ms": {
+          "xlsx": 2164
+        },
+        "all_first_ms": 2164,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "xlsx": 0
+        },
+        "export_ms": {
+          "xlsx": 1645
+        },
+        "rss_samples": 18,
+        "idle_mib": {
+          "api_tree": 428.5,
+          "api_children": 358.4,
+          "webui_tree": 76.9,
+          "chrome_trees": 864.2,
+          "server_total": 505.5,
+          "total": 1369.6
+        },
+        "peak_mib": {
+          "api_tree": 684.2,
+          "api_children": 612.5,
+          "webui_tree": 77.7,
+          "chrome_trees": 872.0,
+          "server_total": 761.3,
+          "total": 1624.6
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 1,
+        "first_ms": {
+          "pptx": 3715
+        },
+        "all_first_ms": 3715,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "pptx": 0
+        },
+        "export_ms": {
+          "pptx": 3413
+        },
+        "rss_samples": 30,
+        "idle_mib": {
+          "api_tree": 616.7,
+          "api_children": 542.2,
+          "webui_tree": 80.2,
+          "chrome_trees": 894.6,
+          "server_total": 697.0,
+          "total": 1591.6
+        },
+        "peak_mib": {
+          "api_tree": 1051.4,
+          "api_children": 977.6,
+          "webui_tree": 80.3,
+          "chrome_trees": 894.7,
+          "server_total": 1128.2,
+          "total": 1966.2
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 2,
+        "first_ms": {
+          "xlsx": 2775
+        },
+        "all_first_ms": 2775,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "xlsx": 0
+        },
+        "export_ms": {
+          "xlsx": 2421
+        },
+        "rss_samples": 23,
+        "idle_mib": {
+          "api_tree": 684.7,
+          "api_children": 611.5,
+          "webui_tree": 75.4,
+          "chrome_trees": 830.3,
+          "server_total": 760.1,
+          "total": 1590.3
+        },
+        "peak_mib": {
+          "api_tree": 770.1,
+          "api_children": 696.9,
+          "webui_tree": 76.6,
+          "chrome_trees": 831.1,
+          "server_total": 845.6,
+          "total": 1670.0
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 2,
+        "first_ms": {
+          "pptx": 4728
+        },
+        "all_first_ms": 4728,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "pptx": 0
+        },
+        "export_ms": {
+          "pptx": 4385
+        },
+        "rss_samples": 36,
+        "idle_mib": {
+          "api_tree": 693.6,
+          "api_children": 624.8,
+          "webui_tree": 106.9,
+          "chrome_trees": 812.6,
+          "server_total": 800.5,
+          "total": 1613.1
+        },
+        "peak_mib": {
+          "api_tree": 926.2,
+          "api_children": 860.4,
+          "webui_tree": 106.9,
+          "chrome_trees": 812.6,
+          "server_total": 1032.0,
+          "total": 1811.5
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 2,
+        "first_ms": {
+          "docx": 4322
+        },
+        "all_first_ms": 4322,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "docx": 0
+        },
+        "export_ms": {
+          "docx": 3789
+        },
+        "rss_samples": 33,
+        "idle_mib": {
+          "api_tree": 829.2,
+          "api_children": 764.5,
+          "webui_tree": 104.2,
+          "chrome_trees": 786.8,
+          "server_total": 933.4,
+          "total": 1720.1
+        },
+        "peak_mib": {
+          "api_tree": 1019.8,
+          "api_children": 950.0,
+          "webui_tree": 105.8,
+          "chrome_trees": 805.6,
+          "server_total": 1122.5,
+          "total": 1914.2
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 3,
+        "first_ms": {
+          "pptx": 3559
+        },
+        "all_first_ms": 3559,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "pptx": 0
+        },
+        "export_ms": {
+          "pptx": 3299
+        },
+        "rss_samples": 29,
+        "idle_mib": {
+          "api_tree": 839.4,
+          "api_children": 768.9,
+          "webui_tree": 106.1,
+          "chrome_trees": 812.8,
+          "server_total": 945.5,
+          "total": 1758.3
+        },
+        "peak_mib": {
+          "api_tree": 1147.5,
+          "api_children": 1078.3,
+          "webui_tree": 106.2,
+          "chrome_trees": 836.1,
+          "server_total": 1252.8,
+          "total": 2061.0
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 3,
+        "first_ms": {
+          "docx": 4264
+        },
+        "all_first_ms": 4264,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "docx": 0
+        },
+        "export_ms": {
+          "docx": 3713
+        },
+        "rss_samples": 34,
+        "idle_mib": {
+          "api_tree": 1099.8,
+          "api_children": 1029.8,
+          "webui_tree": 106.3,
+          "chrome_trees": 813.1,
+          "server_total": 1206.1,
+          "total": 2019.2
+        },
+        "peak_mib": {
+          "api_tree": 1148.2,
+          "api_children": 1077.9,
+          "webui_tree": 106.9,
+          "chrome_trees": 818.0,
+          "server_total": 1254.5,
+          "total": 2072.5
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 3,
+        "first_ms": {
+          "xlsx": 1886
+        },
+        "all_first_ms": 1886,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "xlsx": 0
+        },
+        "export_ms": {
+          "xlsx": 1549
+        },
+        "rss_samples": 16,
+        "idle_mib": {
+          "api_tree": 981.8,
+          "api_children": 912.3,
+          "webui_tree": 107.7,
+          "chrome_trees": 758.4,
+          "server_total": 1089.5,
+          "total": 1847.9
+        },
+        "peak_mib": {
+          "api_tree": 1093.6,
+          "api_children": 1023.8,
+          "webui_tree": 108.7,
+          "chrome_trees": 763.3,
+          "server_total": 1201.4,
+          "total": 1960.7
+        }
+      },
+      {
+        "viewers": 3,
+        "repeat": 1,
+        "first_ms": {
+          "docx": 4608,
+          "xlsx": 5550,
+          "pptx": 4190
+        },
+        "all_first_ms": 5552,
+        "max_active_exports": 2,
+        "queue_ms": {
+          "pptx": 0,
+          "docx": 0,
+          "xlsx": 3433
+        },
+        "export_ms": {
+          "pptx": 3535,
+          "docx": 3984,
+          "xlsx": 1515
+        },
+        "rss_samples": 43,
+        "idle_mib": {
+          "api_tree": 608.1,
+          "api_children": 475.7,
+          "webui_tree": 105.8,
+          "chrome_trees": 2296.3,
+          "server_total": 714.0,
+          "total": 3010.3
+        },
+        "peak_mib": {
+          "api_tree": 1223.4,
+          "api_children": 1150.5,
+          "webui_tree": 128.7,
+          "chrome_trees": 2398.4,
+          "server_total": 1351.3,
+          "total": 3701.6
+        }
+      },
+      {
+        "viewers": 3,
+        "repeat": 2,
+        "first_ms": {
+          "xlsx": 5164,
+          "pptx": 3669,
+          "docx": 4361
+        },
+        "all_first_ms": 5164,
+        "max_active_exports": 2,
+        "queue_ms": {
+          "pptx": 0,
+          "docx": 0,
+          "xlsx": 3272
+        },
+        "export_ms": {
+          "pptx": 3356,
+          "docx": 3821,
+          "xlsx": 1519
+        },
+        "rss_samples": 40,
+        "idle_mib": {
+          "api_tree": 1135.0,
+          "api_children": 1057.3,
+          "webui_tree": 121.1,
+          "chrome_trees": 2410.0,
+          "server_total": 1256.1,
+          "total": 3666.0
+        },
+        "peak_mib": {
+          "api_tree": 1493.1,
+          "api_children": 1414.1,
+          "webui_tree": 123.4,
+          "chrome_trees": 2450.8,
+          "server_total": 1614.2,
+          "total": 4032.8
+        }
+      },
+      {
+        "viewers": 3,
+        "repeat": 3,
+        "first_ms": {
+          "pptx": 3951,
+          "docx": 5133,
+          "xlsx": 5433
+        },
+        "all_first_ms": 5434,
+        "max_active_exports": 2,
+        "queue_ms": {
+          "pptx": 0,
+          "docx": 0,
+          "xlsx": 3429
+        },
+        "export_ms": {
+          "pptx": 3482,
+          "docx": 4663,
+          "xlsx": 1631
+        },
+        "rss_samples": 41,
+        "idle_mib": {
+          "api_tree": 1208.8,
+          "api_children": 1097.4,
+          "webui_tree": 124.1,
+          "chrome_trees": 2447.5,
+          "server_total": 1332.9,
+          "total": 3780.4
+        },
+        "peak_mib": {
+          "api_tree": 1438.2,
+          "api_children": 1327.0,
+          "webui_tree": 124.1,
+          "chrome_trees": 2448.0,
+          "server_total": 1558.6,
+          "total": 3948.7
+        }
+      }
+    ]
+  },
+  "two_warm_workers_repeat": {
+    "database_dropped": true,
+    "resident_pids_verified_stopped": 2,
+    "prewarm_s": 3.745,
+    "samples": [
+      {
+        "viewers": 1,
+        "repeat": 1,
+        "first_ms": {
+          "docx": 4633
+        },
+        "all_first_ms": 4633,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "docx": 0
+        },
+        "export_ms": {
+          "docx": 3826
+        },
+        "rss_samples": 37,
+        "idle_mib": {
+          "api_tree": 441.6,
+          "api_children": 291.3,
+          "webui_tree": 113.7,
+          "chrome_trees": 844.5,
+          "server_total": 555.3,
+          "total": 1399.8
+        },
+        "peak_mib": {
+          "api_tree": 710.1,
+          "api_children": 598.2,
+          "webui_tree": 118.8,
+          "chrome_trees": 844.5,
+          "server_total": 823.9,
+          "total": 1635.1
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 1,
+        "first_ms": {
+          "xlsx": 1952
+        },
+        "all_first_ms": 1952,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "xlsx": 0
+        },
+        "export_ms": {
+          "xlsx": 1560
+        },
+        "rss_samples": 17,
+        "idle_mib": {
+          "api_tree": 639.5,
+          "api_children": 549.9,
+          "webui_tree": 121.1,
+          "chrome_trees": 885.9,
+          "server_total": 760.6,
+          "total": 1646.6
+        },
+        "peak_mib": {
+          "api_tree": 875.7,
+          "api_children": 786.0,
+          "webui_tree": 121.1,
+          "chrome_trees": 891.6,
+          "server_total": 996.8,
+          "total": 1878.4
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 1,
+        "first_ms": {
+          "pptx": 3520
+        },
+        "all_first_ms": 3520,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "pptx": 0
+        },
+        "export_ms": {
+          "pptx": 3268
+        },
+        "rss_samples": 29,
+        "idle_mib": {
+          "api_tree": 799.0,
+          "api_children": 708.6,
+          "webui_tree": 121.5,
+          "chrome_trees": 892.8,
+          "server_total": 920.6,
+          "total": 1813.4
+        },
+        "peak_mib": {
+          "api_tree": 1106.0,
+          "api_children": 1021.0,
+          "webui_tree": 121.5,
+          "chrome_trees": 892.8,
+          "server_total": 1218.8,
+          "total": 2107.0
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 2,
+        "first_ms": {
+          "xlsx": 1701
+        },
+        "all_first_ms": 1701,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "xlsx": 0
+        },
+        "export_ms": {
+          "xlsx": 1371
+        },
+        "rss_samples": 15,
+        "idle_mib": {
+          "api_tree": 1050.1,
+          "api_children": 965.0,
+          "webui_tree": 113.0,
+          "chrome_trees": 892.2,
+          "server_total": 1163.1,
+          "total": 2055.2
+        },
+        "peak_mib": {
+          "api_tree": 1124.4,
+          "api_children": 1039.2,
+          "webui_tree": 113.8,
+          "chrome_trees": 897.2,
+          "server_total": 1237.4,
+          "total": 2128.9
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 2,
+        "first_ms": {
+          "pptx": 4698
+        },
+        "all_first_ms": 4698,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "pptx": 0
+        },
+        "export_ms": {
+          "pptx": 4402
+        },
+        "rss_samples": 37,
+        "idle_mib": {
+          "api_tree": 1031.6,
+          "api_children": 945.6,
+          "webui_tree": 114.9,
+          "chrome_trees": 895.4,
+          "server_total": 1146.5,
+          "total": 2041.9
+        },
+        "peak_mib": {
+          "api_tree": 1225.8,
+          "api_children": 1139.7,
+          "webui_tree": 114.9,
+          "chrome_trees": 904.5,
+          "server_total": 1340.7,
+          "total": 2241.3
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 2,
+        "first_ms": {
+          "docx": 3965
+        },
+        "all_first_ms": 3965,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "docx": 0
+        },
+        "export_ms": {
+          "docx": 3559
+        },
+        "rss_samples": 32,
+        "idle_mib": {
+          "api_tree": 1157.2,
+          "api_children": 1070.9,
+          "webui_tree": 114.9,
+          "chrome_trees": 902.5,
+          "server_total": 1272.1,
+          "total": 2174.6
+        },
+        "peak_mib": {
+          "api_tree": 1377.0,
+          "api_children": 1290.8,
+          "webui_tree": 114.9,
+          "chrome_trees": 902.5,
+          "server_total": 1491.1,
+          "total": 2361.4
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 3,
+        "first_ms": {
+          "pptx": 3496
+        },
+        "all_first_ms": 3496,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "pptx": 0
+        },
+        "export_ms": {
+          "pptx": 3239
+        },
+        "rss_samples": 29,
+        "idle_mib": {
+          "api_tree": 1306.6,
+          "api_children": 1220.4,
+          "webui_tree": 115.1,
+          "chrome_trees": 887.5,
+          "server_total": 1421.7,
+          "total": 2309.2
+        },
+        "peak_mib": {
+          "api_tree": 1415.4,
+          "api_children": 1329.1,
+          "webui_tree": 115.1,
+          "chrome_trees": 887.6,
+          "server_total": 1530.3,
+          "total": 2413.3
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 3,
+        "first_ms": {
+          "docx": 4066
+        },
+        "all_first_ms": 4066,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "docx": 0
+        },
+        "export_ms": {
+          "docx": 3666
+        },
+        "rss_samples": 33,
+        "idle_mib": {
+          "api_tree": 1345.7,
+          "api_children": 1259.5,
+          "webui_tree": 115.1,
+          "chrome_trees": 882.5,
+          "server_total": 1460.8,
+          "total": 2343.3
+        },
+        "peak_mib": {
+          "api_tree": 1440.8,
+          "api_children": 1354.3,
+          "webui_tree": 115.8,
+          "chrome_trees": 905.8,
+          "server_total": 1555.9,
+          "total": 2435.5
+        }
+      },
+      {
+        "viewers": 1,
+        "repeat": 3,
+        "first_ms": {
+          "xlsx": 1738
+        },
+        "all_first_ms": 1738,
+        "max_active_exports": 1,
+        "queue_ms": {
+          "xlsx": 0
+        },
+        "export_ms": {
+          "xlsx": 1406
+        },
+        "rss_samples": 15,
+        "idle_mib": {
+          "api_tree": 1353.4,
+          "api_children": 1266.8,
+          "webui_tree": 115.9,
+          "chrome_trees": 885.6,
+          "server_total": 1469.2,
+          "total": 2354.9
+        },
+        "peak_mib": {
+          "api_tree": 1427.2,
+          "api_children": 1340.6,
+          "webui_tree": 117.0,
+          "chrome_trees": 885.8,
+          "server_total": 1543.1,
+          "total": 2428.7
+        }
+      },
+      {
+        "viewers": 3,
+        "repeat": 1,
+        "first_ms": {
+          "docx": 4784,
+          "xlsx": 5630,
+          "pptx": 4372
+        },
+        "all_first_ms": 5631,
+        "max_active_exports": 2,
+        "queue_ms": {
+          "pptx": 0,
+          "docx": 0,
+          "xlsx": 3446
+        },
+        "export_ms": {
+          "pptx": 3493,
+          "docx": 3799,
+          "xlsx": 1566
+        },
+        "rss_samples": 42,
+        "idle_mib": {
+          "api_tree": 687.4,
+          "api_children": 553.2,
+          "webui_tree": 106.8,
+          "chrome_trees": 2235.7,
+          "server_total": 794.2,
+          "total": 3029.8
+        },
+        "peak_mib": {
+          "api_tree": 1155.1,
+          "api_children": 1063.2,
+          "webui_tree": 119.2,
+          "chrome_trees": 2345.8,
+          "server_total": 1257.2,
+          "total": 3501.1
+        }
+      },
+      {
+        "viewers": 3,
+        "repeat": 2,
+        "first_ms": {
+          "xlsx": 5427,
+          "pptx": 3994,
+          "docx": 4431
+        },
+        "all_first_ms": 5427,
+        "max_active_exports": 2,
+        "queue_ms": {
+          "pptx": 0,
+          "docx": 0,
+          "xlsx": 3458
+        },
+        "export_ms": {
+          "pptx": 3548,
+          "docx": 3878,
+          "xlsx": 1546
+        },
+        "rss_samples": 42,
+        "idle_mib": {
+          "api_tree": 755.2,
+          "api_children": 677.9,
+          "webui_tree": 120.3,
+          "chrome_trees": 2378.2,
+          "server_total": 875.5,
+          "total": 3253.8
+        },
+        "peak_mib": {
+          "api_tree": 1280.8,
+          "api_children": 1205.5,
+          "webui_tree": 120.3,
+          "chrome_trees": 2379.0,
+          "server_total": 1383.1,
+          "total": 3648.0
+        }
+      },
+      {
+        "viewers": 3,
+        "repeat": 3,
+        "first_ms": {
+          "pptx": 3757,
+          "docx": 6103,
+          "xlsx": 1992
+        },
+        "all_first_ms": 6104,
+        "max_active_exports": 2,
+        "queue_ms": {
+          "xlsx": 0,
+          "pptx": 0,
+          "docx": 1479
+        },
+        "export_ms": {
+          "xlsx": 1495,
+          "pptx": 3408,
+          "docx": 4070
+        },
+        "rss_samples": 47,
+        "idle_mib": {
+          "api_tree": 1020.0,
+          "api_children": 911.2,
+          "webui_tree": 106.2,
+          "chrome_trees": 2274.8,
+          "server_total": 1126.2,
+          "total": 3401.0
+        },
+        "peak_mib": {
+          "api_tree": 1359.7,
+          "api_children": 1249.2,
+          "webui_tree": 108.4,
+          "chrome_trees": 2283.2,
+          "server_total": 1467.7,
+          "total": 3680.8
+        }
+      }
+    ]
+  }
+}

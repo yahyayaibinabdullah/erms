@@ -1,11 +1,13 @@
 """Existing component behavior and per-view state with explicit dependencies."""
 from __future__ import annotations
+import asyncio
 import base64
 import json
 from typing import Any
-from nicegui import context, ui
+from uuid import uuid4
+from nicegui import background_tasks, context, ui
 from .api_client import ApiError
-from .i18n_catalogue import render_message
+from .i18n_catalogue import render_message, render_message_plain
 from .locale_services import current_locale_context
 from .component_presentation import component_file_icon, component_is_previewable, native_preview_kind, requires_document_conversion
 
@@ -58,7 +60,7 @@ def build_component_preview(*, api, error_message):
             previewable[0],
         )
         viewer_state: dict[str, Any] = {
-            "component": selected, "canvas_id": None, "loading_id": None, "request_id": 0, "closed": False,
+            "component": selected, "frame_id": None, "loading_id": None, "request_id": 0, "closed": False,
         }
         dialog = ui.dialog().props("maximized transition-show=fade transition-hide=fade")
 
@@ -92,13 +94,77 @@ def build_component_preview(*, api, error_message):
                 message = error_message(error) if isinstance(error, ApiError) else render_message("webui.print_component.text.the_print_view_did_not_finish_loading_58f6bfd9")
                 ui.notify(message, color="negative", close_button=True)
 
-        def close_viewer() -> None:
+        # The dialog owns the handles. Its current PDF.js frame owns only its reads.
+        renditions: dict[int, str] = {}
+        conversion_locks: dict[int, asyncio.Lock] = {}
+        renewal_timer = None
+
+        async def maintain(ids: list[str], *, release: bool) -> None:
+            if ids:
+                try:
+                    await api.update_viewer_renditions(ids, release=release)
+                except ApiError:
+                    # A disconnected/expired login cannot maintain its copies.
+                    # The API expiry worker reclaims them independently.
+                    pass
+
+        def end_viewer() -> None:
+            if viewer_state["closed"]:
+                return
             viewer_state["closed"] = True
             viewer_state["request_id"] += 1
-            canvas_id = viewer_state.get("canvas_id")
-            if canvas_id:
+            if renewal_timer is not None:
+                renewal_timer.cancel()
+                viewer_client.disconnect_handlers.remove(disconnected)
+            if renditions:
+                ids = list(renditions.values())
+                renditions.clear()
+                background_tasks.create(maintain(ids, release=True))
+
+        async def disconnected() -> None:
+            end_viewer()
+
+        async def renew() -> None:
+            if not dialog.value or (source_active is not None and not source_active()):
+                end_viewer()
+            elif viewer_client.has_socket_connection:
+                await maintain(list(renditions.values()), release=False)
+
+        async def converted_url(component_id: int, request_id: int) -> str | None:
+            nonlocal renewal_timer
+            if renewal_timer is None:
+                with dialog:
+                    renewal_timer = ui.timer(2 * 60, renew, immediate=False)
+                viewer_client.on_disconnect(disconnected)
+            async with conversion_locks.setdefault(component_id, asyncio.Lock()):
+                if viewer_state["closed"] or request_id != viewer_state["request_id"]:
+                    return None
+                previous = renditions.get(component_id)
+                if previous:
+                    try:
+                        return await api.open_converted_pdf(component_id, draft_id, rendition_id=previous, reuse=True)
+                    except ApiError as error:
+                        if error.status_code != 412:
+                            raise
+                        # Expiry or source replacement invalidated this handle.
+                        await maintain([previous], release=True)
+                        if viewer_state["closed"] or request_id != viewer_state["request_id"]:
+                            return None
+                identity = str(uuid4())
+                renditions[component_id] = identity
+                try:
+                    return await api.open_converted_pdf(component_id, draft_id, rendition_id=identity)
+                finally:
+                    # Close may have arrived before the converter committed.
+                    if viewer_state["closed"] or (source_active is not None and not source_active()):
+                        await maintain([identity], release=True)
+
+        def close_viewer() -> None:
+            end_viewer()
+            frame_id = viewer_state.get("frame_id")
+            if frame_id:
                 viewer_client.run_javascript(
-                    f"window.ermsPdfViewer?.close({json.dumps(canvas_id)})"
+                    f"window.ermsPdfViewer?.close({json.dumps(frame_id)})"
                 )
             dialog.close()
 
@@ -208,13 +274,13 @@ def build_component_preview(*, api, error_message):
                 return
             viewer_state["request_id"] += 1
             request_id = viewer_state["request_id"]
-            old_canvas_id = viewer_state.get("canvas_id")
-            if old_canvas_id:
+            old_frame_id = viewer_state.get("frame_id")
+            if old_frame_id:
                 await viewer_client.run_javascript(
-                    f"window.ermsPdfViewer?.close({json.dumps(old_canvas_id)}); true"
+                    f"window.ermsPdfViewer?.close({json.dumps(old_frame_id)}); true"
                 )
-            if viewer_state["closed"] or (source_active is not None and not source_active()):return
-            viewer_state.update(component=component, canvas_id=None, loading_id=component["id"])
+            if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):return
+            viewer_state.update(component=component, frame_id=None, loading_id=component["id"])
             render_switcher()
             toolbar_host.clear()
             content_host.clear()
@@ -232,10 +298,19 @@ def build_component_preview(*, api, error_message):
                     ui.spinner("dots", size="3em", color="primary")
                     ui.label(
                         render_message("webui.select_component.label.converting_this_document_to_pdf_larger_fil_00483fe4")
-                        if converting else render_message("webui.select_component.label.loading_the_document_larger_files_may_take_0e9d50c1")
+                        if converting and component["id"] not in renditions
+                        else render_message("webui.select_component.label.loading_the_document_larger_files_may_take_0e9d50c1")
                     ).classes("text-sm text-slate-500")
             try:
-                preview = await api.view_draft_component(draft_id, component["id"]) if draft_id is not None else await api.view_component_pdf(component["id"])
+                pdf_url = None
+                if (component.get("mime_type") or "").lower() == "application/pdf":
+                    pdf_url = await api.open_original_pdf(component["id"], draft_id)
+                elif converting:
+                    pdf_url = await converted_url(component["id"], request_id)
+                elif draft_id is not None:
+                    preview = await api.view_draft_component(draft_id, component["id"])
+                else:
+                    preview = await api.view_component_pdf(component["id"])
             except ApiError as error:
                 if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):
                     return
@@ -253,8 +328,9 @@ def build_component_preview(*, api, error_message):
 
             if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):
                 return
-            viewer_state["loading_id"] = None
-            render_switcher()
+            if pdf_url is None:
+                viewer_state["loading_id"] = None
+                render_switcher()
 
             preview_kind = native_preview_kind(component.get("mime_type"))
             toolbar_host.clear()
@@ -264,24 +340,6 @@ def build_component_preview(*, api, error_message):
                     "component-viewer-toolbar w-full items-center no-wrap px-4 py-2 bg-white border-b"
                 ):
                     ui.space()
-                    if not preview_kind:
-                        canvas_id = f"erms-pdf-canvas-{record['id']}-{component['id']}"
-                        viewer_state["canvas_id"] = canvas_id
-                        ui.button(icon="chevron_left", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.previous({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.previous_page_9be2e903"))).tooltip(render_message("webui.select_component.tooltip.previous_page_4dc31a67"))
-                        ui.label(render_message("webui.select_component.label.loading_db611d00")).props(f'id={canvas_id}-status').classes(
-                            "text-sm text-slate-500 min-w-32 text-center"
-                        )
-                        ui.button(icon="chevron_right", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.next({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.next_page_7783d4cb"))).tooltip(render_message("webui.select_component.tooltip.next_page_9877cd5a"))
-                        ui.button(icon="zoom_out", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.zoomOut({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.zoom_out_23d40a31"))).tooltip(render_message("webui.select_component.tooltip.zoom_out_011b8edf"))
-                        ui.button(icon="zoom_in", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.zoomIn({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.zoom_in_1db29908"))).tooltip(render_message("webui.select_component.tooltip.zoom_in_5062398d"))
                     if (
                         capabilities.get("print_component")
                         and preview_kind not in {"audio", "video"}
@@ -333,28 +391,63 @@ def build_component_preview(*, api, error_message):
                     await on_viewed()
                 return
 
-            canvas_id = viewer_state["canvas_id"]
             with content_host:
-                with ui.element("div").classes(
-                    "w-full h-full overflow-auto flex justify-center items-start p-5"
-                ):
-                    ui.element("canvas").props(f"id={canvas_id} dir=ltr").classes("bg-white shadow-lg")
-            encoded = base64.b64encode(preview).decode("ascii")
+                language = current_locale_context()[0].split("-")[0]
+                frame = ui.element("iframe").classes("w-full grow min-h-0 border-0")
+                frame.props('sandbox="allow-scripts allow-same-origin allow-popups"')
+                frame.props["src"] = f"/static/pdfjs/web/viewer.html?lang={language}"
+                frame.on("wathiq-close-preview", close_viewer)
+                frame.props["title"] = component["file_name"]
+                status = ui.label(render_message("webui.select_component.label.loading_db611d00")).classes("sr-only")
+                status.props("role=status")
+                labels = {
+                    "previous": [
+                        render_message_plain("webui.select_component.accessible_name.previous_page_9be2e903"),
+                        render_message_plain("webui.select_component.tooltip.previous_page_4dc31a67"),
+                    ],
+                    "next": [
+                        render_message_plain("webui.select_component.accessible_name.next_page_7783d4cb"),
+                        render_message_plain("webui.select_component.tooltip.next_page_9877cd5a"),
+                    ],
+                    "zoomOutButton": [
+                        render_message_plain("webui.select_component.accessible_name.zoom_out_23d40a31"),
+                        render_message_plain("webui.select_component.tooltip.zoom_out_011b8edf"),
+                    ],
+                    "zoomInButton": [
+                        render_message_plain("webui.select_component.accessible_name.zoom_in_1db29908"),
+                        render_message_plain("webui.select_component.tooltip.zoom_in_5062398d"),
+                    ],
+                }
+            frame_id = frame.html_id
+            viewer_state["frame_id"] = frame_id
+            source = {"url": pdf_url}
             try:
                 await viewer_client.run_javascript(
                     "import('/static/pdfjs/erms-viewer.mjs').then(() => true)", timeout=15,
                 )
                 if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):return
-                await viewer_client.run_javascript(
-                    f"window.ermsPdfViewer.open({json.dumps(canvas_id)}, {json.dumps(encoded)})",
+                opened = await viewer_client.run_javascript(
+                    f"window.ermsPdfViewer.open({json.dumps(frame_id)}, {json.dumps(source)}, {json.dumps(labels)})",
                     timeout=30,
                 )
             except TimeoutError:
-                ui.notify(render_message("webui.select_component.notify.the_pdf_viewer_did_not_finish_loading_f32f23d1"), color="negative")
+                opened = False
+            if (request_id != viewer_state["request_id"] or viewer_state["closed"]
+                    or (source_active is not None and not source_active())):
                 return
-            if (draft_id is None and on_viewed is not None
-                    and request_id == viewer_state["request_id"] and not viewer_state["closed"]
-                    and (source_active is None or source_active())):
+            if pdf_url is not None:
+                viewer_state["loading_id"] = None
+                render_switcher()
+            status.delete()
+            if not opened:
+                viewer_client.run_javascript(f"window.ermsPdfViewer?.close({json.dumps(frame_id)})")
+                frame.delete()
+                with content_host:
+                    ui.label(render_message(
+                        "webui.select_component.notify.the_pdf_viewer_did_not_finish_loading_f32f23d1"
+                    )).classes("m-auto text-negative").props("role=alert")
+                return
+            if draft_id is None and on_viewed is not None:
                 await on_viewed()
 
         with dialog, ui.card().classes("w-full h-full p-0 gap-0 bg-slate-100"):

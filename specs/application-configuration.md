@@ -141,6 +141,7 @@ not an automatic conversion feature.
 | `AUTH_COOKIE_SECURE` | `false` locally; `true` in the production example | Depends on the deployment's HTTPS boundary and must not be weakened from the application UI |
 | `APPLICATION_SETTINGS_ENCRYPTION_KEY` | Unset by default; required to save or resolve an SMTP password | API-owned authenticated-encryption key, stored in local `.env` or supplied by the production shell environment, which takes precedence; shared by API instances using the same database; changing it requires API restart |
 | `CONTENT_STORAGE_BACKEND` | `postgresql` | Storage-provider/infrastructure selection |
+| `LIBREOFFICE_WORKERS` | 1, positive integer | Warm LibreOffice workers per API launcher, shared across its API processes. Restart the API to resize. |
 | `LIBREOFFICE_BINARY` | Auto-discovered when unset | Host executable path |
 
 ### 4.4 Service orchestration controls

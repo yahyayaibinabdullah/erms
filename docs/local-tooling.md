@@ -437,3 +437,13 @@ It creates and drops an owned disposable database containing over 50,000
 aggregations and 150,000 records. See the
 [search performance contract](search-performance.md) for counts, criteria,
 ranking checks, per-response timing thresholds and retained evidence.
+
+### Local LibreOffice pool
+
+The managed stack runs the API launcher through `run-api.sh`. The launcher
+starts a separate supervisor. The supervisor owns the warm LibreOffice
+processes and the private socket inherited by API request processes. The WebUI
+sends preview requests to the API. Set `LIBREOFFICE_WORKERS` in the worktree's
+`.env` and restart the stack with `./run-local-stack.sh restart` to resize.
+The default is one worker per launcher. See the
+[deployment guide](deployment.md#libreoffice-conversion-pool) for recovery behavior.

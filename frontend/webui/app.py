@@ -43,6 +43,7 @@ from .aggregation_toolbar import build_aggregation_toolbar
 from .component_presentation import component_is_previewable
 from .upload_buffers import buffer_upload_batch
 from .component_cards import build_component_cards
+from .pdf_transport import router as pdf_transport_router
 from .component_preview import build_component_preview
 from .components import build_components
 from .api_client import ApiError, ErmsApiClient
@@ -106,6 +107,7 @@ from .locale_services import (
 from .rtl import normalize_direction
 
 
+app.include_router(pdf_transport_router)
 app.add_static_files("/static/pdfjs", Path(__file__).with_name("static") / "pdfjs")
 app.add_static_files("/static/brand", Path(__file__).with_name("static") / "brand")
 app.add_static_files("/static/login", Path(__file__).with_name("static") / "login")

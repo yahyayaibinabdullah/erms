@@ -1,4 +1,5 @@
 """Record results, metadata and draft staging in real Chrome/Edge sessions."""
+from tools.webui_browser_components import fixture_pdf
 import base64
 from pathlib import Path
 from selenium.webdriver.common.keys import Keys
@@ -23,7 +24,7 @@ def check_records(page):
             search('records','TEST-REC');capture('results')
             page.one('button[aria-label="Open record"]',scope=page.one('.compact-result-item')).click()
             edit='webui.select_record_details.button.edit_metadata_d7742b94'
-            page.one('.component-list');capture('detail')
+            page.one('.resource-detail-header');capture('detail')
             details=page.button(page.t('resource_details.details'),page.one('.resource-detail-header'))
             page.activate(details)
             drawer=page.one('.q-dialog__inner > .q-card')
@@ -58,6 +59,41 @@ def check_records(page):
             viewer=page.visible('.q-dialog__inner > .q-card')[-1];page.one('.q-img',scope=viewer);capture('staged-preview')
             close=next(b for b in page.visible('button',viewer) if any(i.text=='close' for i in b.find_elements('css selector','.q-icon')))
             page.activate(close);page.wait.until(lambda _:len(page.visible('.q-dialog__inner > .q-card'))==1)
+            # Exercise a native PDF and a converted, text-backed rendition.
+            document = fixture.with_suffix('.txt' if language == 'ar' else '.pdf')
+            if language == 'ar':
+                document.write_text('معاينة المستند', encoding='utf-8')
+            else:
+                document.write_bytes(fixture_pdf(second_page=True))
+            d.find_element('css selector', '.record-uploader input[type=file]').send_keys(str(document.resolve()))
+            page.wait.until(lambda _:len(page.visible('.component-card', d)) == 2)
+            card = next(card for card in page.visible('.component-card', d) if document.name in card.text)
+            button = page.button(page.t('webui.render_compact_resource_result.tooltip.preview_digital_component_71925875'), card)
+            page.activate(button)
+            page.wait.until(lambda _:len(page.visible('.q-dialog__inner > .q-card')) == 2)
+            viewer = page.visible('.q-dialog__inner > .q-card')[-1]
+            frame = page.one('iframe', scope=viewer)
+            page.driver.switch_to.frame(frame)
+            try:
+                page.wait.until(lambda _:page.visible('.page[data-page-number="1"] .textLayer span[role="presentation"]'))
+                assert page.driver.execute_script('return document.documentElement.dir') == ('rtl' if language == 'ar' else 'ltr')
+                assert not page.visible('#editorModeButtons, #printButton, #downloadButton')
+                assert page.driver.execute_script('return PDFViewerApplication.pdfViewer.annotationEditorMode') == -1
+                first_url = page.driver.execute_script('return PDFViewerApplication.url')
+            finally:
+                page.driver.switch_to.default_content()
+            if language == 'ar':
+                page.activate(page.visible('.component-switcher-button', viewer)[0])
+                page.one('.q-img', scope=viewer)
+                page.activate(page.visible('.component-switcher-button', viewer)[1])
+                page.wait.until(lambda _: page.driver.execute_script("""
+                    const app = document.querySelector('.q-dialog iframe')?.contentWindow?.PDFViewerApplication;
+                    return app?.url === arguments[0] && app?.pdfViewer?.getPageView(0)?.renderingState === 3;
+                """, first_url))
+            toolbar = page.one('.component-viewer-toolbar', scope=viewer)
+            assert len(page.visible('button', toolbar)) == 1
+            page.activate(page.one('button', scope=toolbar))
+            page.wait.until(lambda _:len(page.visible('.q-dialog__inner > .q-card')) == 1)
             started=len(page.events());click('webui.open_record_draft_editor.button.cancel_draft_84ea17b5',d);closed()
             assert any(e['method']=='DELETE' and '/record-drafts/' in e['path'] and e['status']==204 for e in page.events()[started:])
             page.errors()

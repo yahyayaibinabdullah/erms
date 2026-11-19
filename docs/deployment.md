@@ -1459,3 +1459,46 @@ complete the task and job together. Downloads and email are optional. Restart
 the local stack after applying the migration; catalogue synchronization imports
 missing Arabic drafts for review without publishing them. No new environment
 settings are required.
+
+
+### Converted preview storage
+
+Apply migration `118_converted_preview_renditions.sql` to existing databases before deploying the updated API, WebUI and session-cleanup worker. Restart those services after the migration. Each viewer retains one temporary PDF per visited converted component until close. While the viewer is open and connected, it renews its renditions every 2 minutes. Each successful renewal or authorized read sets the expiry to 10 minutes from that request. If the viewer is abandoned, the cleanup worker removes expired renditions on its next eligible pass (every 60 seconds by default). After a long sleep or disconnection, returning to the component may require a fresh conversion. Viewer-scoped reuse requires no migration beyond 118. The unlogged rendition tables contain temporary document bytes. For logical backups, exclude their data and retain their schema. See [converted preview cleanup and deployment](../specs/optimize-preview-rendering.md#cleanup-and-deployment) for table names, expiry and backup options.
+
+### LibreOffice conversion pool
+
+Set `LIBREOFFICE_WORKERS=1` in the API deployment environment (local stack:
+`.env`). The value is a positive integer, read by `run-api.sh` at launch.
+Existing installations default to one worker. To resize, edit the API environment
+file and restart the API service. Each API service instance or replica gets its
+own pool. Four Uvicorn request processes under one launcher share the configured
+count. WebUI and indexer services do not start conversion workers.
+
+The launcher starts a supervisor with a private Unix socket. Each slot owns an
+isolated LibreOffice profile. More slots permit more simultaneous exports and
+retain more idle memory. The original conversion timeout includes queueing.
+A worker's startup probe performs an actual PDF export. The supervisor replaces
+exited workers, and retries unavailable startup slots after a delay. Missing
+LibreOffice affects conversions while other API functions remain available. A
+crash during export permits one retry by an available slot within the same
+deadline. An exhausted deadline fails that preview and retires the stuck
+worker. Worker startup and conversion failures appear in the API service log.
+
+A slot checks the resident process on each idle accept cycle (about 250 ms).
+During a job it checks for process exit about every 200 ms. A live but hung
+process is detected by the conversion deadline. If startup fails, that slot
+waits ten seconds and tries again before accepting work. Requests share a Unix
+socket queue. When a resident exits during an export, its slot discards the
+partial PDF and signals the requesting API process to requeue once. The next
+available healthy slot can accept it. With one worker the retry can wait for
+the replacement to finish its readiness export. Queue wait, retry and conversion
+share the original deadline. An ordinary document/export error returns a
+failure and recycles the slot. The supervisor receives the processing-copy
+lock descriptors with the job and holds them until conversion or termination
+of the failed converter completes. On normal launcher shutdown it stops the
+residents and removes their private profiles.
+
+Worker recovery takes place inside the supervisor. If the supervisor itself
+terminates unexpectedly, restart the API service to create a fresh supervisor,
+socket and pool. The API health endpoint checks API availability. Check the API
+service log for converter readiness, worker PID changes and export failures.
