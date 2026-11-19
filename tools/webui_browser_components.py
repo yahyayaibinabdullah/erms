@@ -7,21 +7,26 @@ from selenium.webdriver.support import expected_conditions as EC
 from tools.check_webui_browser import plain
 
 
-def fixture_pdf(text=b'Component preview fixture'):
+def fixture_pdf(text=b'Component preview fixture', *, second_page=False):
     objects=[b'<< /Type /Catalog /Pages 2 0 R >>',b'<< /Type /Pages /Kids [3 0 R] /Count 1 >>',b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 200] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>']
     stream=b'BT /F1 20 Tf 30 100 Td ('+text+b') Tj ET'
     objects.append(b'<< /Length '+str(len(stream)).encode()+b' >>\nstream\n'+stream+b'\nendstream')
+    if second_page:
+        objects[1] = b'<< /Type /Pages /Kids [3 0 R 6 0 R] /Count 2 >>'
+        objects.append(objects[2].replace(b'/Contents', b'/Annots [7 0 R] /Contents'))
+        objects.append(b'<< /Type /Annot /Subtype /Text /Rect [20 20 42 42] /Contents (Review note) >>')
+    size = len(objects) + 1
     data=b'%PDF-1.4\n';offsets=[]
     for i,obj in enumerate(objects,1):offsets.append(len(data));data+=str(i).encode()+b' 0 obj\n'+obj+b'\nendobj\n'
-    start=len(data);data+=b'xref\n0 6\n0000000000 65535 f \n'
+    start=len(data);data+=f'xref\n0 {size}\n0000000000 65535 f \n'.encode()
     for offset in offsets:data+=f'{offset:010d} 00000 n \n'.encode()
-    return data+f'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n{start}\n%%EOF\n'.encode()
+    return data+f'trailer\n<< /Size {size} /Root 1 0 R >>\nstartxref\n{start}\n%%EOF\n'.encode()
 
 
 def check_components(page):
     fixture=Path(page.args.output)/'synthetic-files';fixture.mkdir(exist_ok=True)
     (fixture/'image.png').write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jP1cAAAAASUVORK5CYII='))
-    (fixture/'document.pdf').write_bytes(fixture_pdf())
+    (fixture/'document.pdf').write_bytes(fixture_pdf(second_page=True))
     parent=page.api.post('/api/v1/aggregations/search',json={'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,'offset':0}).json()['items'][0]
     response=page.api.post('/api/v1/aggregations',json={'aggregation_number':'COMP-AGG','title':'Component fixture','classification_id':parent['classification_id'],'medium':'digital'});response.raise_for_status();aggregation=response.json()
     def icon(name,scope=None):return page.wait.until(lambda _:next((b for b in page.visible('button',scope) if any(i.text==name for i in b.find_elements('css selector','.q-icon'))),False))
@@ -147,8 +152,36 @@ with psycopg.connect(url) as c:
             focus=page.driver.switch_to.active_element
             assert 'component-switcher-button' in focus.get_attribute('class')
             page.report.setdefault('focus',[]).append({'language':language,'from':'component 1','to':focus.text})
-            page.activate(focus);page.wait.until(lambda _:page.driver.execute_script('return [...document.querySelectorAll("canvas")].some(c=>c.width>300 && c.height>0)'))
-            capture('pdf');page.activate(icon('zoom_in',d));capture('pdf-zoom')
+            page.activate(focus)
+            frame = page.one('iframe', scope=d)
+            page.driver.switch_to.frame(frame)
+            try:
+                text = page.one('.page[data-page-number="1"] .textLayer span[role="presentation"]')
+                assert page.driver.execute_script("""
+                    const selection = getSelection();
+                    selection.selectAllChildren(arguments[0]);
+                    return selection.toString();
+                """, text) == 'Component preview fixture'
+                assert page.driver.execute_script('return document.documentElement.dir') == ('rtl' if language == 'ar' else 'ltr')
+                assert not page.visible('#editorModeButtons, #printButton, #downloadButton')
+                page.activate(page.one('#viewFindButton'))
+                page.one('#findInput').send_keys('fixture')
+                page.wait.until(lambda _:page.visible('.textLayer .highlight'))
+                page.activate(page.one('#viewFindButton'))
+                page.activate(page.one('#sidebarToggleButton'))
+                page.one('#outerContainer.sidebarOpen:not(.sidebarMoving)')
+                page.activate(page.one('#thumbnailView .thumbnail[data-page-number="2"]'))
+                page.one('.page[data-page-number="2"] .annotationLayer .textAnnotation')
+                page.driver.switch_to.default_content()
+                capture('pdf')
+                page.driver.switch_to.frame(frame)
+                before = page.driver.execute_script('return PDFViewerApplication.pdfViewer.currentScale')
+                page.activate(page.one('#zoomInButton'))
+                page.wait.until(lambda _:page.driver.execute_script('return PDFViewerApplication.pdfViewer.currentScale') > before)
+                page.driver.switch_to.default_content()
+                capture('pdf-zoom')
+            finally:
+                page.driver.switch_to.default_content()
             page.activate(icon('close',d));page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
             assert page.driver.current_url==url and page.driver.execute_script('return history.length')==history
         with page.check('component ordering and removal refresh through the real API'):
@@ -276,7 +309,9 @@ with psycopg.connect(disposable_url()) as c:
 
     def expect_file(dialog, expected_file, position):
         page.one('.component-switcher-filename', expected_file, scope=dialog)
-        page.one('canvas', scope=dialog)
+        frame = page.one('iframe', scope=dialog)
+        page.wait.until(lambda _: page.driver.execute_script(
+            "return !!arguments[0].contentDocument?.querySelector('.page[data-loaded] canvas')", frame))
         position_label = plain(page.one('.component-switcher-position', scope=dialog).text)
         assert position_label == plain(page.t(
             'webui.render_switcher.label.active_index_of_previewable_count_8114d6d6'

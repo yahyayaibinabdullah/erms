@@ -2,14 +2,14 @@
 
 ## Purpose
 
-Deliver record-level digital-component preview improvements in three phases. Phase 1 is approved for implementation. Phases 2 and 3 document future direction only and are explicitly deferred.
+Deliver record-level digital-component preview improvements in three phases. Phases 1 and 2 are approved for implementation. Phase 3 documents future direction.
 
 ## Delivery phases
 
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 1 | Component switching and record-level Preview actions; authorization-aware Print and Download controls | Approved for implementation |
-| 2 | Upgrade the custom renderer to the full PDF.js viewer | Deferred |
+| 2 | Full PDF.js reader for saved and staged components | Approved for implementation, 19 November 2026 |
 | 3 | Multi-user annotations saved to Wathiq | Deferred; detailed product specification required |
 
 ## Phase 1 — Preview navigation and authorized actions
@@ -110,21 +110,28 @@ Print/Download; bounded rendering, abandonment and saved-viewer regressions.
 
 ## Phase 2 — Full PDF.js viewer
 
-**Status: deferred to a future implementation.**
+**Approved 19 November 2026.** The shared maximized preview embeds Mozilla’s full PDF.js viewer for original PDFs and converted PDF renditions. The component switcher selects files. The viewer sidebar selects pages within the current file.
 
-Replace the Phase 1 custom canvas renderer with an appropriately customized integration of the full PDF.js viewer. The future Phase 2 specification must define the exact enabled viewer features and Wathiq integration, including at minimum:
+| Requirement | Acceptance check |
+| --- | --- |
+| PDF-01. Show page thumbnails, page navigation, zoom, selectable text, in-document find, and existing PDF annotations and links. | Open a multi-page text-backed PDF, select text, find a match, navigate by thumbnail, read an embedded annotation, and zoom. Converted text uses the same viewer. Image-only scans require an existing OCR text layer for selection and find. |
+| PDF-02. Disable annotation editing and hide the editor controls. Use the existing Wathiq actions for authorized Print and Download Original. | Verify the read-only annotation layer, disabled editor and absence of alternate save, print, open-file and attachment-export paths, including keyboard commands. Draft preview offers neither Print nor Download. |
+| PDF-03. Use the effective Wathiq language and direction. | Verify English/LTR and Arabic/RTL controls, keyboard access, page content direction, and independent component and page navigation. |
+| PDF-04. Preserve the Phase 1 saved/draft lifecycle and native media paths. | Switch between an image and a PDF, close during loading, reopen, and verify selected-component-only fetches and the existing saved/staged activity behavior. |
 
-- selectable text for text-backed PDFs;
-- text search and the PDF.js text layer;
-- page presentation, navigation, zoom, accessibility, and keyboard behavior;
-- existing PDF annotation and link rendering;
-- Wathiq styling and the Phase 1 component switcher;
-- continued enforcement of Wathiq Preview, Print, and Download authorization; and
-- suppression of any full-viewer tools that are not authorized or approved.
+This phase uses the current authorized, whole-document base64 handoff and the existing API and database contracts. Transport optimization is deferred until after viewer integration. Collaborative annotation storage remains in Phase 3.
 
-Text selection is expected for a `.txt` file converted into a text-backed PDF. An image-only scanned PDF remains non-selectable unless OCR has added a text layer. Phase 2 does not imply an OCR feature.
+### Phase 2 implementation and verification
 
-Phase 2 does not include creating or persisting multi-user annotations. PDF.js annotation-editing controls must remain disabled unless and until Phase 3 is approved and implemented.
+The shared [preview dialog](../frontend/webui/component_preview.py) selects the
+authorized rendition and supplies its bytes and language to the
+[viewer adapter](../frontend/webui/static/pdfjs/erms-viewer.mjs).
+[Reader configuration](../frontend/webui/static/pdfjs/wathiq-viewer-config.mjs)
+sets the annotation and file-operation behavior.
+
+- PDF-01 and PDF-03 are exercised by the [component browser journey](../tools/webui_browser_components.py). Chrome and Edge passed the English and Arabic journeys on 19 November 2026, including page thumbnails, selectable text, find, zoom and an existing annotation on page two.
+- PDF-02 and PDF-04 are covered by the [draft browser journey](../tools/webui_browser_records.py), [shared preview tests](../frontend/webui/tests/test_staged_component_preview.py), and [activity tests](../frontend/webui/interaction/tests/test_aggregation_preview_activity.py). Chrome passed staged preview and cancellation with an English PDF and an Arabic text upload converted by LibreOffice. The draft toolbar exposed only Close.
+- The [saved permission tests](../backend/services/api/tests/test_phase8_content_authorization.py) and [staging API tests](../backend/services/api/tests/test_staged_component_preview.py) exercise the existing authorization boundary. The selected print-denial and staged-preview regressions passed against a disposable database.
 
 ## Phase 3 — Multi-user annotations saved to Wathiq
 

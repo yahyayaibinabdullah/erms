@@ -5,7 +5,7 @@ import json
 from typing import Any
 from nicegui import context, ui
 from .api_client import ApiError
-from .i18n_catalogue import render_message
+from .i18n_catalogue import render_message, render_message_plain
 from .locale_services import current_locale_context
 from .component_presentation import component_file_icon, component_is_previewable, native_preview_kind, requires_document_conversion
 
@@ -58,7 +58,7 @@ def build_component_preview(*, api, error_message):
             previewable[0],
         )
         viewer_state: dict[str, Any] = {
-            "component": selected, "canvas_id": None, "loading_id": None, "request_id": 0, "closed": False,
+            "component": selected, "frame_id": None, "loading_id": None, "request_id": 0, "closed": False,
         }
         dialog = ui.dialog().props("maximized transition-show=fade transition-hide=fade")
 
@@ -95,10 +95,10 @@ def build_component_preview(*, api, error_message):
         def close_viewer() -> None:
             viewer_state["closed"] = True
             viewer_state["request_id"] += 1
-            canvas_id = viewer_state.get("canvas_id")
-            if canvas_id:
+            frame_id = viewer_state.get("frame_id")
+            if frame_id:
                 viewer_client.run_javascript(
-                    f"window.ermsPdfViewer?.close({json.dumps(canvas_id)})"
+                    f"window.ermsPdfViewer?.close({json.dumps(frame_id)})"
                 )
             dialog.close()
 
@@ -208,13 +208,13 @@ def build_component_preview(*, api, error_message):
                 return
             viewer_state["request_id"] += 1
             request_id = viewer_state["request_id"]
-            old_canvas_id = viewer_state.get("canvas_id")
-            if old_canvas_id:
+            old_frame_id = viewer_state.get("frame_id")
+            if old_frame_id:
                 await viewer_client.run_javascript(
-                    f"window.ermsPdfViewer?.close({json.dumps(old_canvas_id)}); true"
+                    f"window.ermsPdfViewer?.close({json.dumps(old_frame_id)}); true"
                 )
-            if viewer_state["closed"] or (source_active is not None and not source_active()):return
-            viewer_state.update(component=component, canvas_id=None, loading_id=component["id"])
+            if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):return
+            viewer_state.update(component=component, frame_id=None, loading_id=component["id"])
             render_switcher()
             toolbar_host.clear()
             content_host.clear()
@@ -264,24 +264,6 @@ def build_component_preview(*, api, error_message):
                     "component-viewer-toolbar w-full items-center no-wrap px-4 py-2 bg-white border-b"
                 ):
                     ui.space()
-                    if not preview_kind:
-                        canvas_id = f"erms-pdf-canvas-{record['id']}-{component['id']}"
-                        viewer_state["canvas_id"] = canvas_id
-                        ui.button(icon="chevron_left", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.previous({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.previous_page_9be2e903"))).tooltip(render_message("webui.select_component.tooltip.previous_page_4dc31a67"))
-                        ui.label(render_message("webui.select_component.label.loading_db611d00")).props(f'id={canvas_id}-status').classes(
-                            "text-sm text-slate-500 min-w-32 text-center"
-                        )
-                        ui.button(icon="chevron_right", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.next({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.next_page_7783d4cb"))).tooltip(render_message("webui.select_component.tooltip.next_page_9877cd5a"))
-                        ui.button(icon="zoom_out", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.zoomOut({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.zoom_out_23d40a31"))).tooltip(render_message("webui.select_component.tooltip.zoom_out_011b8edf"))
-                        ui.button(icon="zoom_in", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.zoomIn({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.zoom_in_1db29908"))).tooltip(render_message("webui.select_component.tooltip.zoom_in_5062398d"))
                     if (
                         capabilities.get("print_component")
                         and preview_kind not in {"audio", "video"}
@@ -333,28 +315,60 @@ def build_component_preview(*, api, error_message):
                     await on_viewed()
                 return
 
-            canvas_id = viewer_state["canvas_id"]
             with content_host:
-                with ui.element("div").classes(
-                    "w-full h-full overflow-auto flex justify-center items-start p-5"
-                ):
-                    ui.element("canvas").props(f"id={canvas_id} dir=ltr").classes("bg-white shadow-lg")
+                language = current_locale_context()[0].split("-")[0]
+                frame = ui.element("iframe").classes("w-full grow min-h-0 border-0")
+                frame.props('sandbox="allow-scripts allow-same-origin allow-popups"')
+                frame.props["src"] = f"/static/pdfjs/web/viewer.html?lang={language}"
+                frame.on("wathiq-close-preview", close_viewer)
+                frame.props["title"] = component["file_name"]
+                status = ui.label(render_message("webui.select_component.label.loading_db611d00")).classes("sr-only")
+                status.props("role=status")
+                labels = {
+                    "previous": [
+                        render_message_plain("webui.select_component.accessible_name.previous_page_9be2e903"),
+                        render_message_plain("webui.select_component.tooltip.previous_page_4dc31a67"),
+                    ],
+                    "next": [
+                        render_message_plain("webui.select_component.accessible_name.next_page_7783d4cb"),
+                        render_message_plain("webui.select_component.tooltip.next_page_9877cd5a"),
+                    ],
+                    "zoomOutButton": [
+                        render_message_plain("webui.select_component.accessible_name.zoom_out_23d40a31"),
+                        render_message_plain("webui.select_component.tooltip.zoom_out_011b8edf"),
+                    ],
+                    "zoomInButton": [
+                        render_message_plain("webui.select_component.accessible_name.zoom_in_1db29908"),
+                        render_message_plain("webui.select_component.tooltip.zoom_in_5062398d"),
+                    ],
+                }
+            frame_id = frame.html_id
+            viewer_state["frame_id"] = frame_id
             encoded = base64.b64encode(preview).decode("ascii")
             try:
                 await viewer_client.run_javascript(
                     "import('/static/pdfjs/erms-viewer.mjs').then(() => true)", timeout=15,
                 )
                 if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):return
-                await viewer_client.run_javascript(
-                    f"window.ermsPdfViewer.open({json.dumps(canvas_id)}, {json.dumps(encoded)})",
+                opened = await viewer_client.run_javascript(
+                    f"window.ermsPdfViewer.open({json.dumps(frame_id)}, {json.dumps(encoded)}, {json.dumps(labels)})",
                     timeout=30,
                 )
             except TimeoutError:
-                ui.notify(render_message("webui.select_component.notify.the_pdf_viewer_did_not_finish_loading_f32f23d1"), color="negative")
+                opened = False
+            if (request_id != viewer_state["request_id"] or viewer_state["closed"]
+                    or (source_active is not None and not source_active())):
                 return
-            if (draft_id is None and on_viewed is not None
-                    and request_id == viewer_state["request_id"] and not viewer_state["closed"]
-                    and (source_active is None or source_active())):
+            status.delete()
+            if not opened:
+                viewer_client.run_javascript(f"window.ermsPdfViewer?.close({json.dumps(frame_id)})")
+                frame.delete()
+                with content_host:
+                    ui.label(render_message(
+                        "webui.select_component.notify.the_pdf_viewer_did_not_finish_loading_f32f23d1"
+                    )).classes("m-auto text-negative").props("role=alert")
+                return
+            if draft_id is None and on_viewed is not None:
                 await on_viewed()
 
         with dialog, ui.card().classes("w-full h-full p-0 gap-0 bg-slate-100"):

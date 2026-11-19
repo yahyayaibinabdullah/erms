@@ -1,0 +1,15 @@
+/* Wathiq supplies authorized Print/Download and selects the only file to open. */
+#editorModeButtons, #editorModeSeparator, #printButton, #downloadButton,
+#secondaryPrint, #secondaryDownload, #secondaryOpenFile, #viewAttachments,
+#viewBookmark, #presentationMode, #imageAltTextSettings,
+#toolbarViewerRight > .verticalToolbarSeparator,
+#secondaryToolbarButtonContainer > .horizontalToolbarSeparator:first-of-type {
+  display: none !important;
+}
+:root.is-light {
+  --toolbar-bg-color: #f8fafc;
+  --body-bg-color: #e8eef5;
+}
+.page canvas, .thumbnail canvas {
+  direction: ltr;
+}

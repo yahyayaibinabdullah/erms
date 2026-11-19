@@ -139,16 +139,6 @@ def test_component_surfaces_use_bounded_server_pages_and_cross_page_moves():
     assert 'preview_page = {"limit": 50, "offset": 0, "total": 0}' in source
 
 
-def test_pdf_preview_is_isolated_from_the_arabic_ui_direction():
-    assert 'ui.element("canvas").props(f"id={canvas_id} dir=ltr")' in APP_SOURCE
-    viewer_source = (
-        Path(__file__).parents[1] / "static" / "pdfjs" / "erms-viewer.mjs"
-    ).read_text(encoding="utf-8")
-    assert "canvas.dir = 'ltr';" in viewer_source
-    assert "context.direction = 'ltr';" in viewer_source
-    assert "page.render({canvasContext: context" in viewer_source
-
-
 def test_pdf_print_does_not_wait_for_animation_frames_in_the_background_viewer():
     viewer_source = (
         Path(__file__).parents[1] / "static" / "pdfjs" / "erms-viewer.mjs"

@@ -86,7 +86,7 @@ async def test_staged_shared_viewer_switches_formats_without_saved_record_privil
         assert image_button._props['aria-pressed']=='true'
         chosen=next(e for e in buttons if e.text=='1')
         await click(chosen)
-        assert any(e.tag=='canvas' for e in dialog.descendants()),(api.calls,[(e.tag,getattr(e,'text','')) for e in dialog.descendants()])
+        assert any(e.tag=='iframe' for e in dialog.descendants()),(api.calls,[(e.tag,getattr(e,'text','')) for e in dialog.descendants()])
         await click(next(e for e in dialog.descendants() if isinstance(e,ui.button) and e._props.get('icon')=='close'))
         assert not dialog.value
     assert api.calls==[(17,1),(17,2)]
@@ -101,7 +101,7 @@ async def test_preview_errors_keep_switcher_and_do_not_change_staged_metadata(ho
         assert any(isinstance(e,ui.label) and e.text=='Preview unavailable' for e in dialog.descendants())
         api.fail=False
         await click(next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text=='2'))
-        assert any(e.tag=='canvas' for e in dialog.descendants()),(api.calls,[(e.tag,getattr(e,'text','')) for e in dialog.descendants()])
+        assert any(e.tag=='iframe' for e in dialog.descendants()),(api.calls,[(e.tag,getattr(e,'text','')) for e in dialog.descendants()])
     assert all(r['content_status']=='staged' for r in rows) and api.calls==[(17,1),(17,2)]
 
 
