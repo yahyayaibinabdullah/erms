@@ -1,8 +1,10 @@
 import os
+import shutil
 
 import uvicorn
 
-from .config import PROJECT_DIR, boolean_environment, required_environment
+from .config import PROJECT_DIR, boolean_environment, integer_environment, required_environment
+from .office_pool import launcher_pool
 
 
 def main() -> None:
@@ -20,14 +22,17 @@ def main() -> None:
     if reload_enabled and workers != 1:
         raise RuntimeError("API_RELOAD=true requires API_WORKERS=1")
 
-    uvicorn.run(
-        "backend.services.api.main:app",
-        app_dir=str(PROJECT_DIR),
-        host=host,
-        port=port,
-        workers=workers,
-        reload=reload_enabled,
-    )
+    office_workers = integer_environment("LIBREOFFICE_WORKERS", 1, minimum=1)
+    office_binary = os.getenv("LIBREOFFICE_BINARY") or shutil.which("soffice") or "libreoffice"
+    with launcher_pool(office_workers, office_binary):
+        uvicorn.run(
+            "backend.services.api.main:app",
+            app_dir=str(PROJECT_DIR),
+            host=host,
+            port=port,
+            workers=workers,
+            reload=reload_enabled,
+        )
 
 
 if __name__ == "__main__":

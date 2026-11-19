@@ -25,8 +25,9 @@ from tools.check_search_performance import AGGREGATIONS, RECORDS, seed
 from tools.initialize_database import initialize
 from tools.verify_canonical_schema import dump_schema
 
-PRE_TYPE_REVISION = "2a5bbb805ba445c3da24e6b399a873e1d2ad3230"
-MIGRATION = ROOT / "database/migrations/118_resource_types.sql"
+# The combined upgrade starts after the published PDF migration, before types.
+PRE_TYPE_REVISION = "50b2aaa07452029344c31e3cd0b2f19dfcd74118"
+MIGRATION = ROOT / "database/migrations/119_resource_types.sql"
 
 
 @contextmanager
@@ -140,6 +141,47 @@ def measure(connection, url, report):
     report["lock_samples"] = locks
 
 
+def measure_text_upgrade(c, report):
+    """Apply the actual next migration to populated Phase 3 data."""
+    for kind in ("record", "aggregation"):
+        c.execute("SELECT set_config('app.event_source','seeding',true)")
+        type_id = c.execute("INSERT INTO resource_types(kind,name) VALUES(%s,'Upgrade') RETURNING id",
+                            (kind,)).fetchone()["id"]
+        field_id = c.execute("""INSERT INTO resource_type_fields(kind,type_id,name,data_type,display_order,max_length)
+                                VALUES(%s,%s,'Reference','text',1,50) RETURNING id""",
+                             (kind, type_id)).fetchone()["id"]
+        # Construct an already-populated Phase 3 fixture with its original index.
+        c.execute("SET LOCAL session_replication_role='replica'")
+        c.execute(f"UPDATE {kind}s SET type_id=%s WHERE id<=15001 AND id%%3=1", (type_id,))
+        count = c.execute(f"""INSERT INTO resource_type_values(kind,resource_id,type_id,field_id,data_type,text_capacity,value)
+                              SELECT %s,id,type_id,%s,'text',50,resource_field_decode('text','"migrationproof"')
+                              FROM {kind}s WHERE type_id=%s""", (kind,field_id,type_id)).rowcount
+        assert count == 5001
+        c.execute(f"CREATE TEMP TABLE previous_{kind}_documents AS TABLE {kind}_search_documents")
+        c.commit()
+
+    migration = ROOT / "database/migrations/121_type_text_search.sql"
+    started = time.perf_counter()
+    c.execute(migration.read_text(), prepare=False)
+    c.commit()
+    report["text_upgrade"] = {"migration_sha256": hashlib.sha256(migration.read_bytes()).hexdigest(),
+                              "migration_and_commit_seconds": time.perf_counter() - started, "documents": {}}
+
+    for kind, total in (("record", RECORDS), ("aggregation", AGGREGATIONS)):
+        # Independently calculate every expected vector from its pre-upgrade bytes.
+        # Untouched owners must also preserve their original indexing timestamps.
+        result = c.execute(f"""SELECT count(*) AS documents,
+            count(*) FILTER (WHERE d.search_vector @@ plainto_tsquery(d.text_search_config,'migrationproof')) AS backfilled,
+            bool_and(d.search_vector = CASE WHEN d.{kind}_id<=15001 AND d.{kind}_id%3=1
+                     THEN old.search_vector || setweight(to_tsvector(old.text_search_config,'migrationproof'),'B')
+                     ELSE old.search_vector END) AS exact_vectors,
+            bool_and(d.text_search_config=old.text_search_config AND d.index_config_version=old.index_config_version
+                     AND (d.search_vector<>old.search_vector OR d.indexed_at=old.indexed_at)) AS preserved
+            FROM {kind}_search_documents d JOIN previous_{kind}_documents old USING({kind}_id)""").fetchone()
+        assert result == {"documents": total, "backfilled": 5001, "exact_vectors": True, "preserved": True}
+        report["text_upgrade"]["documents"][kind] = result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
@@ -163,7 +205,7 @@ def main():
                 c.commit()
                 previous_grants = profile_grants(c)
                 measure(c, old_url, report)
-                access_migration = ROOT / "database/migrations/119_resource_type_access.sql"
+                access_migration = ROOT / "database/migrations/120_resource_type_access.sql"
                 start = time.perf_counter()
                 c.execute(access_migration.read_text(), prepare=False)
                 c.commit()
@@ -187,7 +229,8 @@ def main():
                            (SELECT count(*) FROM resource_type_values) AS field_values
                 """).fetchone()
                 assert all(v == 0 for v in report["new_data"].values())
-                assert c.execute("SELECT count(*) AS n FROM schema_migrations WHERE version='118_resource_types'").fetchone()["n"] == 1
+                assert c.execute("SELECT count(*) AS n FROM schema_migrations WHERE version='119_resource_types'").fetchone()["n"] == 1
+                measure_text_upgrade(c, report)
             pg_dump = shutil.which("pg_dump")
             if not pg_dump:
                 raise RuntimeError("pg_dump matching the server is required")

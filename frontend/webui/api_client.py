@@ -8,6 +8,7 @@ import time
 from collections.abc import Callable
 from datetime import datetime
 from typing import Any
+from uuid import uuid4
 
 import httpx
 
@@ -1327,6 +1328,44 @@ class ErmsApiClient:
 
     async def download_component(self, component_id: int) -> bytes:
         return await self.request("GET", f"/api/v1/digital-components/{component_id}/content")
+
+    async def open_original_pdf(self, component_id: int, draft_id: int | None = None) -> str:
+        return await self._open_pdf(component_id, draft_id, converted=False)
+
+    async def open_converted_pdf(self, component_id: int, draft_id: int | None = None, *,
+                                 rendition_id: str | None = None, reuse: bool = False) -> str:
+        return await self._open_pdf(component_id, draft_id, converted=True,
+                                    rendition_id=rendition_id or str(uuid4()), reuse=reuse)
+
+    async def update_viewer_renditions(self, ids: list[str], *, release: bool) -> None:
+        action = "release" if release else "renew"
+        for offset in range(0, len(ids), 100):
+            await self.request("POST", f"/api/v1/preview-renditions/{action}", json=ids[offset:offset + 100],
+                               _cancellable_read=True)
+
+    async def _open_pdf(self, component_id, draft_id, *, converted, rendition_id=None, reuse=False):
+        """Authorize one viewer open and pin its requests to the returned version."""
+        target = f"record-drafts/{draft_id}/components" if draft_id is not None else "digital-components"
+        receipt = rendition_id if converted and not reuse else str(uuid4())
+        headers = {"X-Wathiq-Open-PDF": "reuse" if reuse else "1", "X-Request-ID": receipt}
+        options = {}
+        if converted:
+            headers["X-Wathiq-Converted-PDF"] = rendition_id
+            # The server owns the configured converter and preparation timeouts.
+            options["timeout"] = httpx.Timeout(None, connect=5, pool=30, write=30)
+        opened = await self.request(
+            "HEAD", f"/api/v1/{target}/{component_id}/rendition",
+            headers=headers, _with_metadata=True, **options,
+        )
+        checksum = (opened["etag"] or "").removeprefix('"sha256-').removesuffix('"')
+        if len(checksum) != 64 or not all(c in "0123456789abcdef" for c in checksum):
+            raise ApiError(502, {"message_key": "webui.select_component.notify.the_pdf_viewer_did_not_finish_loading_f32f23d1"})
+        if converted:
+            scope = f"drafts/{draft_id}" if draft_id is not None else "records"
+            return f"/preview-pdf/converted/{scope}/{component_id}/{checksum}/{rendition_id}"
+        if draft_id is not None:
+            return f"/preview-pdf/drafts/{draft_id}/{component_id}/{checksum}"
+        return f"/preview-pdf/records/{component_id}/{checksum}/{receipt}"
 
     async def view_component_pdf(self, component_id: int) -> bytes:
         return await self.request("GET", f"/api/v1/digital-components/{component_id}/rendition")

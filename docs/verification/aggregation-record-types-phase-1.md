@@ -1,10 +1,14 @@
 # Aggregation and record types, Phase 1
 
+**Identifier note.** Measurements below retain their original migration numbers
+and hashes. The type foundation is now migration 119 after PDF integration;
+see the [identifier mapping](../../database/README.md#type-migration-identifiers-after-pdf-integration).
+
 **Status.** Phase 1 complete on 19 November 2026. Both installation paths passed the foundation tests and the standard large-data gate passed on the new schema.
 
 ## Storage and validation
 
-Migration 118 introduces the aggregation and record type catalogues. Each resource has one nullable foreign key to its own catalogue. The two catalogues share field, translation, choice, grant and validation rules. Fields and choices have stable IDs and administrator-defined order, with ID as the tie-breaker. Resource text and its literal default each have one language-independent value. A role-grant row gives See access. Its Use flag grants that role Use as well. Access decisions and public write routes belong to Phase 2. [Canonical schema](../../database/schema.sql) · [Migration 118](../../database/migrations/118_resource_types.sql)
+Migration 118 introduces the aggregation and record type catalogues. Each resource has one nullable foreign key to its own catalogue. The two catalogues share field, translation, choice, grant and validation rules. Fields and choices have stable IDs and administrator-defined order, with ID as the tie-breaker. Resource text and its literal default each have one language-independent value. A role-grant row gives See access. Its Use flag grants that role Use as well. Access decisions and public write routes belong to Phase 2. [Canonical schema](../../database/schema.sql) · [Current foundation migration (119)](../../database/migrations/119_resource_types.sql)
 
 The seven field types use PostgreSQL native scalar storage. Exact decimals pass directly to `numeric`. Datetimes require an explicit UTC offset or Z on input and are stored as `timestamptz`. A single choice stores its field's choice ID. The translation columns use the existing supported-language validator and the existing entity projection for locale fallback. These columns belong to definitions. [Translation projection](../../backend/services/api/entity_localization.py)
 

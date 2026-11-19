@@ -1,5 +1,9 @@
 # Aggregation and record types, Phase 2
 
+**Identifier note.** The recorded evidence predates migration renumbering. The
+access migration is now 120; see the
+[identifier mapping](../../database/README.md#type-migration-identifiers-after-pdf-integration).
+
 Phase 2 passed on 19 November 2026. It covers type administration, typed resource writes, access enforcement and audit history. The approved historical disclosure rule applies to records and aggregations. [History specification](../../specs/aggregation-and-record-types.md#historical-values-after-reassignment--approved-19-november-2026) · [Auditor example](../event-history.md#when-a-record-or-aggregation-changes-type)
 
 | Final check | Result |
@@ -19,7 +23,7 @@ The regression suites overlap. Every database-backed run above used a disposable
 
 The write transaction preserves the former and new type IDs, type names, resource security levels and type-specific field values. Both the ordinary row-change event and the type-metadata event pass through the authorized audit projection. The stored names let an auditor identify the transition after a catalogue rename. The viewer’s effective permissions at read time determine which values appear. Revocation takes effect on the next request, including direct event reads.
 
-The API regression exercises both resource kinds. A viewer with history access and See on Correspondence can identify the previous Investigation type. The former values are withheld. Granting See on Investigation reveals those values and revoking See withholds them again. An auditor needs the usual resource access and history rights to read the event. [Phase 2 regressions](../../backend/services/api/tests/test_resource_type_access.py) · [Database upgrade](../../database/migrations/119_resource_type_access.sql)
+The API regression exercises both resource kinds. A viewer with history access and See on Correspondence can identify the previous Investigation type. The former values are withheld. Granting See on Investigation reveals those values and revoking See withholds them again. An auditor needs the usual resource access and history rights to read the event. [Phase 2 regressions](../../backend/services/api/tests/test_resource_type_access.py) · [Database upgrade](../../database/migrations/120_resource_type_access.sql)
 
 ## Verification evidence
 

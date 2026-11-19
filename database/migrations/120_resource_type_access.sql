@@ -452,5 +452,5 @@ CREATE OR REPLACE VIEW public.authorized_event_history AS
                     ELSE NULL::jsonb
                 END)) AS allowed OFFSET 0) visible);
 
-INSERT INTO public.schema_migrations(version) VALUES ('119_resource_type_access');
+INSERT INTO public.schema_migrations(version) VALUES ('120_resource_type_access');
 COMMIT;

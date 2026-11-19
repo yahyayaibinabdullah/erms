@@ -233,5 +233,5 @@ BEGIN
     END LOOP;
 END $$;
 
-INSERT INTO public.schema_migrations(version) VALUES ('118_resource_types');
+INSERT INTO public.schema_migrations(version) VALUES ('119_resource_types');
 COMMIT;

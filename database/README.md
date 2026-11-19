@@ -49,7 +49,39 @@ client meta-commands such as `\\i`, `\\ir`, `\\set`, and `\\copy` are prohibited
 
 ## Existing database
 
-Migration [118](migrations/118_resource_types.sql) installs the aggregation and record type foundation. It leaves existing resources untyped and preserves saved searches. The nullable columns require no resource heap rewrite. The migration builds resource indexes and holds an `ACCESS EXCLUSIVE` lock on both resource tables until commit. Schedule a maintenance interval with capacity for the new indexes and WAL. The measured interval and resource-index growth are recorded in the [Phase 1 upgrade report](../docs/verification/aggregation-record-types-phase-1.md#populated-upgrade). The approved plan introduces public type operations in later phases.
+After version 120, apply [migration 121](migrations/121_type_text_search.sql) before deploying the updated API. It installs synchronous indexing for type-specific text and backfills existing records and aggregations that have stored text. The backfill keeps each document's PostgreSQL text configuration and updates its GIN entries in the same transaction. Resources without stored text require no rewrite. Component files and chunks require no re-extraction or reindex.
+
+Schedule the migration during a write maintenance window. It acquires `SHARE ROW EXCLUSIVE` locks on records, aggregations and their type-value tables. Ordinary reads can continue. Resource and field-value writes wait until commit. Allow space for changed metadata rows, GIN entries and WAL. An error rolls back the backfill, trigger definitions and version marker together. Fresh installations get the final definitions from the canonical schema. [Phase 4 measurements](../docs/verification/aggregation-record-types-phase-4.md)
+
+Migration [119](migrations/119_resource_types.sql) installs the aggregation and record type foundation. It leaves existing resources untyped and preserves saved searches. The nullable columns require no resource heap rewrite. The migration builds resource indexes and holds an `ACCESS EXCLUSIVE` lock on both resource tables until commit. Schedule a maintenance interval with capacity for the new indexes and WAL. The measured interval and resource-index growth are recorded in the [Phase 1 upgrade report](../docs/verification/aggregation-record-types-phase-1.md#populated-upgrade). The approved plan introduces public type operations in later phases.
+
+### Type migration identifiers after PDF integration
+
+The published `118_converted_preview_renditions` identifier is unchanged. Apply
+the type migrations in order: `119_resource_types`, `120_resource_type_access`,
+then `121_type_text_search`. Their SQL object definitions and data changes are
+unchanged by renumbering; only filenames and migration receipt values changed.
+
+| Former feature-branch identifier | Current identifier |
+| --- | --- |
+| `118_resource_types` | `119_resource_types` |
+| `119_resource_type_access` | `120_resource_type_access` |
+| `120_type_text_search` | `121_type_text_search` |
+
+Check the complete `schema_migrations.version` strings before upgrading. A
+database that already applied a former type identifier must not rerun that
+migration's DDL. Reconcile only the affected receipt's `version` to the mapping
+above in a reviewed maintenance transaction, preserving its `id` and
+`applied_at`. Resolve any mixed old/new receipt history before proceeding.
+Renaming repository files does not update existing databases automatically.
+
+Retained verification reports and compressed artifacts record the original
+identifiers, source revisions, hashes and measurements. Those historical
+results have not been rewritten or rerun after renumbering. The current
+upgrade runner starts from published `main` including the PDF migration and
+uses the new type identifiers.
+
+### Earlier storage migration
 
 Migration `112_search_vector_storage.sql` changes the physical storage of file
 search vectors to `MAIN` with LZ4 compression. PostgreSQL must be built with LZ4

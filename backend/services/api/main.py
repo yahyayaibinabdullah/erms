@@ -17,6 +17,7 @@ from psycopg.types.json import Jsonb
 from backend.services.component_formats import native_preview_kind
 
 from .dashboard_visibility import visibility_ctes
+from . import converted_previews
 from .operation_policy import operation_policy
 from .component_pages import component_summary, previewable_component_page
 from .audit_context import (
@@ -208,6 +209,7 @@ app = FastAPI(
     description="REST API for the Electronic Records Management System.",
     lifespan=lifespan,
 )
+app.include_router(converted_previews.router)
 app.include_router(messaging_realtime_router)
 app.include_router(notification_administration_router)
 app.include_router(number_suggestions_router)
@@ -350,7 +352,10 @@ async def audit_request_context(request: Request, call_next):
                             worker_id=request.headers.get("X-Worker-ID"),
                         )
                     elif session_token:
-                        principal = resolve_principal(authentication_connection, session_token)
+                        principal = resolve_principal(
+                            authentication_connection, session_token,
+                            activity=request.url.path.rstrip("/") != converted_previews.RENEW_PATH,
+                        )
                         policy_context = (
                             load_policy_context(authentication_connection, principal)
                             if principal else None
@@ -1599,6 +1604,7 @@ def list_record_draft_components(draft_id: int, connection: Connection = Depends
     ).fetchall())
 
 
+@app.delete("/api/v1/record-drafts/{draft_id}/components/{component_id}/rendition", status_code=204, tags=["record drafts"])
 @app.head("/api/v1/record-drafts/{draft_id}/components/{component_id}/rendition", include_in_schema=False)
 @app.get("/api/v1/record-drafts/{draft_id}/components/{component_id}/rendition", tags=["record drafts"])
 @operation_policy("resource_scoped", "record.create")
@@ -2054,6 +2060,33 @@ def _append_content_event(
     )
 
 
+def _audit_rendition(connection, component, request, method, mime):
+    facts = {"rendition_mime_type": mime, "rendering_method": method,
+             "original_checksum": component["checksum_value"]}
+    opening = "x-wathiq-open-pdf" in request.headers
+    receipt = request.headers.get("x-wathiq-preview-event")
+    if opening or receipt is not None:
+        # The open request's indexed audit ID is a receipt, never an access grant.
+        # Authorization locks serialize duplicate opens, including a retried HEAD.
+        try:
+            identity = UUID(request_id_context.get() if opening else receipt)
+        except (TypeError, ValueError):
+            raise HTTPException(403, detail="invalid PDF preview")
+        principal = request.state.principal
+        if connection.execute(
+            """SELECT 1 FROM event_history WHERE request_id=%s AND entity_type='digital_component'
+               AND entity_id=%s AND actor_user_id=%s AND operation='CONTENT_VIEWED'
+               AND metadata->>'preview_session'=%s AND metadata->>'content_set_id'=%s""",
+            (identity, component["id"], principal.user_id, str(principal.session_id),
+             str(component["active_content_set_id"])),
+        ).fetchone():
+            return
+        if not opening:
+            raise HTTPException(412, detail="PDF preview is no longer current")
+        facts.update(preview_session=principal.session_id, content_set_id=component["active_content_set_id"])
+    _append_content_event(connection, component["id"], "CONTENT_VIEWED", facts)
+
+
 def _content_range(value: str | None, total: int) -> tuple[int, int, int]:
     """Return an inclusive-exclusive byte interval and HTTP response status."""
     if value is None:
@@ -2284,34 +2317,54 @@ def _rendition_response(
         size = location.size_in_bytes
         read_content = lambda: storage.read(connection, component_id)
 
-    def viewed(facts):
-        if not draft:_append_content_event(connection, component_id, "CONTENT_VIEWED", facts)
     mime_type = component["mime_type"].lower()
     native_preview = native_preview_kind(mime_type) is not None
+    original_pdf = mime_type == "application/pdf" and not request.url.path.endswith("/print-rendition")
+    opening = "x-wathiq-open-pdf" in request.headers
+    preview_event = request.headers.get("x-wathiq-preview-event")
+    converted_id = request.headers.get("x-wathiq-converted-pdf")
+    if converted_id is not None or request.method == "DELETE":
+        if original_pdf or native_preview or request.url.path.endswith("/print-rendition"):
+            raise HTTPException(412, detail="converted PDF required")
+        if not draft and location.content_set_id != component["active_content_set_id"]:
+            raise HTTPException(412, detail="PDF version changed")
+        return _converted_rendition_response(
+            connection, request, component, storage, size, draft, _temporary_root,
+            converted_previews.open_id(converted_id), opening,
+        )
+    etag = f'"sha256-{component["checksum_value"]}"'
+    if opening or preview_event is not None or "if-match" in request.headers:
+        if not original_pdf or (opening and request.method != "HEAD"):
+            raise HTTPException(412, detail="original PDF required")
+        if request.headers.get("if-match", etag) != etag:
+            raise HTTPException(412, detail="PDF version changed")
+    if original_pdf and not draft and location.content_set_id != component["active_content_set_id"]:
+        raise HTTPException(412, detail="PDF version changed")
     if native_preview or mime_type == "application/pdf":
         rendered_mime = mime_type if native_preview else "application/pdf"
-        viewed({
-            "rendition_mime_type": rendered_mime,
-            "rendering_method": "browser-native" if native_preview else "original",
-            "original_checksum": component["checksum_value"],
-        })
         encoded_name = quote(component["file_name"], safe="")
         start, end, response_status = _content_range(request.headers.get("range"), size)
         headers = {
             "Content-Disposition": f"inline; filename*=UTF-8''{encoded_name}",
             "Content-Length": str(end - start),
             "Accept-Ranges": "bytes",
-            "ETag": f'"sha256-{component["checksum_value"]}"',
+            "ETag": etag,
             "X-Content-Type-Options": "nosniff",
             "Cache-Control": "private, no-store",
             "Content-Security-Policy": "sandbox",
         }
         if response_status == 206:
             headers["Content-Range"] = f"bytes {start}-{end - 1}/{size}"
+        if not draft:
+            _audit_rendition(connection, component, request, "browser-native" if native_preview else "original", rendered_mime)
         if request.method == "HEAD":
             return Response(status_code=response_status, media_type=rendered_mime, headers=headers)
-        # The web viewer buffers renditions before passing them to PDF.js or a
-        # native media control. Finish the database read before the response is
+        if original_pdf:
+            chunks = storage.pdf_chunks(
+                connection, component_id if draft else location.content_set_id, start, end, draft=draft,
+            )
+            return StreamingResponse(chunks, status_code=response_status, media_type=rendered_mime, headers=headers)
+        # Print and native media still use the buffered transport. Finish the database read before the response is
         # sent so an interrupted browser request cannot strand a server-side
         # cursor, poison its pooled connection, or terminate a fixed-length
         # response early.
@@ -2337,10 +2390,11 @@ def _rendition_response(
         raise HTTPException(status_code=415, detail=str(error)) from error
     except ConversionUnavailable as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
-    viewed({
-        "rendition_mime_type": "application/pdf", "rendering_method": method,
-        "original_checksum": component["checksum_value"],
-    })
+    if not draft:
+        _append_content_event(connection, component_id, "CONTENT_VIEWED", {
+            "rendition_mime_type": "application/pdf", "rendering_method": method,
+            "original_checksum": component["checksum_value"],
+        })
     encoded_name = quote(f"{component['file_name']}.pdf", safe="")
     return StreamingResponse(
         BytesIO(rendition),
@@ -2354,6 +2408,52 @@ def _rendition_response(
     )
 
 
+def _converted_rendition_response(connection, request, component, storage, size, draft, root, identity, opening):
+    session = request.state.principal.session_id
+    reuse = request.headers.get("x-wathiq-open-pdf") == "reuse"
+    if opening:
+        if request.method != "HEAD" or (not reuse and str(identity) != request_id_context.get()):
+            raise HTTPException(412, detail="invalid converted preview open")
+        # Serialize network retries even across API replicas. An open ID is private to one login.
+        if not reuse:
+            connection.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))", (str(identity),))
+    row = converted_previews.find(connection, identity, session, component, draft)
+    if row is None:
+        if reuse or not opening or connection.execute(
+            "SELECT 1 FROM preview_renditions WHERE open_id=%s", (identity,)
+        ).fetchone():
+            raise HTTPException(412, detail="converted preview is no longer current")
+        settings = settings_cache.for_connection(connection)
+        if size > settings["MAX_RENDITION_SIZE_BYTES"]:
+            raise HTTPException(413, detail="source document exceeds the configured rendition size limit")
+        converted_previews.cleanup_expired(connection)
+        owner = component["id"] if draft else component["active_content_set_id"]
+        chunks = storage.pdf_chunks(connection, owner, 0, size, draft=draft, in_transaction=True)
+        row = converted_previews.prepare(connection, identity, session, component, draft, chunks, size, settings, root)
+    etag = f'"sha256-{row["checksum"]}"'
+    if not opening and request.headers.get("if-match") != etag:
+        raise HTTPException(412, detail="PDF version changed")
+    if request.method == "DELETE":
+        connection.execute("DELETE FROM preview_renditions WHERE open_id=%s", (identity,))
+        return Response(status_code=204)
+    if opening and not draft:
+        _audit_rendition(connection, component, request, row["rendering_method"], "application/pdf")
+    total = row["size_in_bytes"]
+    start, end, code = _content_range(request.headers.get("range"), total)
+    name = quote(component["file_name"] + ".pdf", safe="")
+    headers = {"Content-Disposition": f"inline; filename*=UTF-8''{name}",
+               "Content-Length": str(end - start), "Accept-Ranges": "bytes", "ETag": etag,
+               "X-Content-Type-Options": "nosniff", "Cache-Control": "private, no-store",
+               "Content-Security-Policy": "sandbox"}
+    if code == 206:
+        headers["Content-Range"] = f"bytes {start}-{end - 1}/{total}"
+    if request.method == "HEAD":
+        return Response(status_code=code, media_type="application/pdf", headers=headers)
+    return StreamingResponse(converted_previews.read_range(identity, start, end),
+                             status_code=code, media_type="application/pdf", headers=headers)
+
+
+@app.delete("/api/v1/digital-components/{component_id}/rendition", status_code=204, tags=["digital component content"])
 @app.head(
     "/api/v1/digital-components/{component_id}/rendition",
     include_in_schema=False,
@@ -2371,6 +2471,12 @@ def view_digital_component_rendition(
     connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     component, _ = require_component_operation(
         connection, component_id, "record.component.view", "record.component.view")
+    if request.method == "DELETE" or (request.method == "HEAD" and (
+        component["mime_type"].lower() == "application/pdf" or (
+            "x-wathiq-converted-pdf" in request.headers and request.headers.get("x-wathiq-open-pdf") in (None, "reuse")
+        )
+    )):
+        return _rendition_response(component, request, connection)
     return _component_rendition_response(component, request, connection)
 
 

@@ -26,6 +26,11 @@ export default {
   methods: {
     isFileDrag(event) { return event.dataTransfer?.types.includes("Files"); },
     isOverPage(element) { return getHtmlElement(this.pageId)?.contains(element); },
+    dropMode(element, fileCount) {
+      if (fileCount === 1) return "single";
+      const target = element.closest('[data-drop-mode="separate"], [data-drop-mode="combined"]');
+      return target && this.$el.contains(target) ? target.dataset.dropMode : null;
+    },
     hide() { clearTimeout(this.hideTimer); this.dragging = false; },
     clear() { this.hide(); this.pendingFiles = null; },
     onDragOver(event) {
@@ -37,8 +42,9 @@ export default {
         return;
       }
       event.stopPropagation();
-      event.dataTransfer.dropEffect = this.physical ? "none" : "copy";
       this.fileCount = Array.from(event.dataTransfer.items || []).filter(item => item.kind === "file").length;
+      const mode = this.dropMode(event.target, this.fileCount || 1);
+      event.dataTransfer.dropEffect = !this.physical && mode ? "copy" : "none";
       this.dragging = true;
       clearTimeout(this.hideTimer);
       this.hideTimer = setTimeout(this.hide, 900);
@@ -52,10 +58,9 @@ export default {
       event.stopPropagation();
       if (this.physical || !this.enabled || this.pendingFiles) return;
       const files = Array.from(event.dataTransfer.files);
-      const target = event.target.closest("[data-drop-mode]");
-      if (!files.length || !target || !this.$el.contains(target)) return;
-      const mode = target.dataset.dropMode;
-      if (files.length > 1 && mode === "single") return;
+      if (!files.length) return;
+      const mode = this.dropMode(event.target, files.length);
+      if (!mode) return;
       this.pendingFiles = files;
       this.$emit("files-dropped", { count: files.length, separate: mode !== "combined", filenames: files.map(file => file.name) });
     },

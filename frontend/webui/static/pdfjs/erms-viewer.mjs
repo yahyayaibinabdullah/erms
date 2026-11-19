@@ -1,9 +1,8 @@
-import * as pdfjsLib from './pdf.min.mjs';
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/static/pdfjs/pdf.worker.min.mjs';
-
-const viewers = new Map();
-let pendingPrintWindow = null;
+const controllers = new WeakMap();
+function frameController(frame) {
+  if (!controllers.has(frame)) controllers.set(frame, new AbortController());
+  return controllers.get(frame);
+}
 
 function decodeBase64(value) {
   const binary = atob(value);
@@ -12,33 +11,8 @@ function decodeBase64(value) {
   return bytes;
 }
 
-async function render(id) {
-  const state = viewers.get(id);
-  if (!state) return;
-  const page = await state.document.getPage(state.page);
-  const viewport = page.getViewport({scale: state.scale});
-  const canvas = document.getElementById(id);
-  if (!canvas) return;
-  const ratio = window.devicePixelRatio || 1;
-  canvas.width = Math.floor(viewport.width * ratio);
-  canvas.height = Math.floor(viewport.height * ratio);
-  canvas.style.width = `${Math.floor(viewport.width)}px`;
-  canvas.style.height = `${Math.floor(viewport.height)}px`;
-  // The surrounding Wathiq UI may be RTL, but a PDF canvas must not inherit
-  // that direction. PDF pages already carry their own glyph positioning and
-  // bidi layout; inherited RTL changes Canvas 2D text shaping and corrupts the
-  // rendered page.
-  canvas.dir = 'ltr';
-  const context = canvas.getContext('2d');
-  context.direction = 'ltr';
-  await page.render({canvasContext: context, viewport, transform: ratio === 1 ? null : [ratio, 0, 0, ratio, 0, 0]}).promise;
-  const status = document.getElementById(`${id}-status`);
-  if (status) status.textContent = `Page ${state.page} of ${state.document.numPages} · ${Math.round(state.scale * 100)}%`;
-}
-
 async function printDocument(encoded, mimeType = 'application/pdf') {
-  const printWindow = pendingPrintWindow || window.__ermsPrintWindow;
-  pendingPrintWindow = null;
+  const printWindow = window.__ermsPrintWindow;
   window.__ermsPrintWindow = null;
   if (!printWindow || printWindow.closed) {
     window.alert('The print window was blocked. Allow pop-ups for Wathiq and try again.');
@@ -81,6 +55,8 @@ async function printDocument(encoded, mimeType = 'application/pdf') {
       window.setTimeout(() => printWindow.print(), 100);
       return;
     }
+    const pdfjsLib = await import('./pdf.min.mjs');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/static/pdfjs/pdf.worker.min.mjs';
     pdfDocument = await pdfjsLib.getDocument({data: decodeBase64(encoded)}).promise;
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
       const page = await pdfDocument.getPage(pageNumber);
@@ -107,26 +83,60 @@ async function printDocument(encoded, mimeType = 'application/pdf') {
 }
 
 window.ermsPdfViewer = {
-  async open(id, encoded) {
-    const document = await pdfjsLib.getDocument({data: decodeBase64(encoded)}).promise;
-    viewers.set(id, {document, page: 1, scale: 1.2});
-    await render(id);
-  },
-  async previous(id) { const state = viewers.get(id); if (state && state.page > 1) { state.page -= 1; await render(id); } },
-  async next(id) { const state = viewers.get(id); if (state && state.page < state.document.numPages) { state.page += 1; await render(id); } },
-  async zoomIn(id) { const state = viewers.get(id); if (state && state.scale < 3) { state.scale += 0.2; await render(id); } },
-  async zoomOut(id) { const state = viewers.get(id); if (state && state.scale > 0.4) { state.scale -= 0.2; await render(id); } },
-  beginPrint() {
-    pendingPrintWindow = window.open('', '_blank');
-    if (pendingPrintWindow) {
-      pendingPrintWindow.document.write('<title>Preparing print view…</title><p style="font:16px Arial;padding:24px">Preparing print view…</p>');
-      pendingPrintWindow.document.close();
+  async open(id, source, labels) {
+    const frame = document.getElementById(id);
+    if (!frame) return false;
+    const reader = frame.contentWindow;
+    const signal = AbortSignal.any([AbortSignal.timeout(29000), frameController(frame).signal]);
+    const cancelled = new Promise((_, reject) =>
+      signal.addEventListener('abort', () => reject(signal.reason), {once: true}));
+    const show = async () => {
+      if (!reader.wathiqViewerReady) {
+        await Promise.race([new Promise(resolve =>
+          frame.addEventListener('load', resolve, {once: true, signal})), cancelled]);
+      }
+      if (!reader.wathiqViewerReady) throw new Error('PDF viewer failed to initialize');
+      await reader.wathiqViewerReady;
+      signal.throwIfAborted();
+      const app = reader.PDFViewerApplication;
+      reader.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !event.defaultPrevented && !app.overlayManager.active) {
+          frame.dispatchEvent(new Event('wathiq-close-preview'));
+        }
+      });
+      for (const [id, [name, tooltip]] of Object.entries(labels)) {
+        const button = frame.contentDocument.getElementById(id);
+        button.removeAttribute('data-l10n-id');
+        button.setAttribute('aria-label', name);
+        button.title = tooltip;
+      }
+      // PDF.js requires both switches to stop downloading the rest of a large
+      // file in the background. Small originals still use one binary GET.
+      await app.open({
+        url: new URL(source.url, location.origin).href,
+        rangeChunkSize: 128 * 1024,
+        disableStream: true,
+        disableAutoFetch: true,
+      });
+      signal.throwIfAborted();
+      await app.pdfViewer.onePageRendered;
+      return true;
+    };
+    try {
+      return await Promise.race([show(), cancelled]);
+    } catch {
+      return false;
     }
-    return Boolean(pendingPrintWindow);
+  },
+  close(id) {
+    const frame = document.getElementById(id);
+    if (!frame) return;
+    frameController(frame).abort();
+    void Promise.resolve(frame.contentWindow?.PDFViewerApplication?.close())
+      .catch(() => {});
   },
   print(encoded, mimeType = 'application/pdf') {
     void printDocument(encoded, mimeType);
     return true;
   },
-  close(id) { const state = viewers.get(id); if (state) state.document.destroy(); viewers.delete(id); },
 };

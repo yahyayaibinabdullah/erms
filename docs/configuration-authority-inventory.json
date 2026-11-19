@@ -9,7 +9,7 @@
       "consumers": [
         {
           "path": "backend/services/api/launcher.py",
-          "line": 11
+          "line": 13
         },
         {
           "path": "backend/services/api/messaging/gateway_health.py",
@@ -34,7 +34,7 @@
       "consumers": [
         {
           "path": "backend/services/api/launcher.py",
-          "line": 12
+          "line": 14
         },
         {
           "path": "backend/services/api/messaging/gateway_health.py",
@@ -59,7 +59,7 @@
       "consumers": [
         {
           "path": "backend/services/api/launcher.py",
-          "line": 14
+          "line": 16
         }
       ],
       "templates": [
@@ -80,7 +80,7 @@
       "consumers": [
         {
           "path": "backend/services/api/launcher.py",
-          "line": 13
+          "line": 15
         }
       ],
       "templates": [
@@ -351,6 +351,24 @@
       "service": "API"
     },
     {
+      "setting": "CHILD_AGGREGATION_PAGE_SIZE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md",
+      "default_or_requirement": 10,
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "frontend/webui/aggregation_details.py",
+          "scope": "Number of child aggregations shown per page in aggregation details."
+        }
+      ],
+      "templates": [],
+      "purpose": "Number of child aggregations shown per page in aggregation details.",
+      "runtime_status": "database_only_interface_limit",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
       "setting": "CLASSIFICATION_RECENT_SELECTION_LIMIT",
       "authority": "database",
       "contract": "specs/application-configuration.md section 5.4",
@@ -371,6 +389,24 @@
       "templates": [],
       "purpose": "Maximum recent classification selections shown.",
       "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CONTAINED_RECORD_PAGE_SIZE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md",
+      "default_or_requirement": 25,
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "frontend/webui/aggregation_details.py",
+          "scope": "Number of records shown per page in aggregation details."
+        }
+      ],
+      "templates": [],
+      "purpose": "Number of records shown per page in aggregation details.",
+      "runtime_status": "database_only_interface_limit",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -565,7 +601,7 @@
       "consumers": [
         {
           "path": "backend/services/api/content_storage.py",
-          "line": 307
+          "line": 356
         }
       ],
       "templates": [
@@ -754,7 +790,7 @@
         },
         {
           "path": "backend/services/api/launcher.py",
-          "line": 9
+          "line": 11
         },
         {
           "path": "backend/services/api/provision_local_text_indexer.py",
@@ -1246,7 +1282,11 @@
       "consumers": [
         {
           "path": "backend/services/api/document_conversion.py",
-          "line": 28
+          "line": 29
+        },
+        {
+          "path": "backend/services/api/launcher.py",
+          "line": 26
         }
       ],
       "templates": [
@@ -1255,6 +1295,27 @@
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Host executable path",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "LIBREOFFICE_WORKERS",
+      "authority": "deployment",
+      "contract": "specs/optimize-preview-rendering.md",
+      "default_or_requirement": "1; positive integer",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/launcher.py",
+          "line": 25
+        }
+      ],
+      "templates": [
+        ".env.example",
+        ".env.example.api",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Maximum number of warm LibreOffice converters shared by API processes under one launcher.",
       "restart": "Restart/relaunch the consuming service after deployment changes",
       "service": "API"
     },
@@ -1322,6 +1383,24 @@
       "templates": [],
       "purpose": "Maximum complete logical file size in bytes.",
       "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGES_PAGE_SIZE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md",
+      "default_or_requirement": 25,
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "frontend/webui/app.py",
+          "scope": "Number of entries per page in Inbox, Outbox, and Drafts. Enter a whole number from 1 to 50. The default is 25. Changes apply when a mailbox is opened again."
+        }
+      ],
+      "templates": [],
+      "purpose": "Number of entries per page in Inbox, Outbox, and Drafts. Enter a whole number from 1 to 50. The default is 25. Changes apply when a mailbox is opened again.",
+      "runtime_status": "database_only_interface_limit",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1891,6 +1970,32 @@
       "templates": [],
       "purpose": "Maximum authenticated search requests per minute.",
       "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SEARCH_RESULTS_PAGE_SIZE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md",
+      "default_or_requirement": 25,
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "frontend/webui/global_search.py",
+          "scope": "Default page size for Global Search, Advanced Search, and aggregation and record filters."
+        },
+        {
+          "path": "frontend/webui/advanced_search.py",
+          "scope": "Default page size for Global Search, Advanced Search, and aggregation and record filters."
+        },
+        {
+          "path": "frontend/webui/collection_controls.py",
+          "scope": "Default page size for Global Search, Advanced Search, and aggregation and record filters."
+        }
+      ],
+      "templates": [],
+      "purpose": "Default page size for Global Search, Advanced Search, and aggregation and record filters.",
+      "runtime_status": "database_only_interface_limit",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -2766,7 +2871,7 @@
     }
   ],
   "reconciliation": [
-    "All 59 database settings have explicit API registry categories.",
+    "All 63 database settings have explicit API registry categories.",
     "All six environment templates are checked, including the generated API and standalone indexer examples.",
     "Later request-presentation settings follow the approved Administration Settings amendment; original phase evidence remains historical.",
     "SSL_CERT_FILE is optional process TLS infrastructure; public certificates use platform trust.",

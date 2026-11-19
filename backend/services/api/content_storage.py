@@ -1,11 +1,11 @@
 import hashlib
 import os
 from dataclasses import dataclass
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from typing import BinaryIO, Iterator, Protocol
 
 from fastapi import HTTPException, UploadFile, status
-from psycopg import Connection
+from psycopg import Connection, sql
 
 from .application_settings import cache as settings_cache
 from .database import pool
@@ -32,6 +32,7 @@ class ContentStorage(Protocol):
     def read_draft(self, connection: Connection, draft_component_id: int) -> bytes | None: ...
     def location(self, connection: Connection, component_id: int) -> ContentLocation | None: ...
     def iter_content(self, location: ContentLocation, start: int = 0, end: int | None = None) -> Iterator[bytes]: ...
+    def pdf_chunks(self, connection: Connection, owner_id: int, start: int, end: int, *, draft: bool, in_transaction: bool = False) -> Iterator[bytes]: ...
     def read(self, connection: Connection, component_id: int) -> bytes | None: ...
     def delete(self, connection: Connection, component_id: int) -> bool: ...
 
@@ -126,6 +127,8 @@ class PostgreSQLContentStorage:
             (uploaded.segment_count, uploaded.size_in_bytes, session["id"]),
         )
         if old["active_content_set_id"] is not None:
+            connection.execute("DELETE FROM preview_renditions WHERE content_set_id=%s",
+                               (old["active_content_set_id"],))
             connection.execute(
                 "UPDATE digital_component_content_sets SET status = 'superseded' WHERE id = %s",
                 (old["active_content_set_id"],),
@@ -285,6 +288,52 @@ class PostgreSQLContentStorage:
                     local_end = min(len(content), stop - segment_start)
                     if local_start < local_end:
                         yield content[local_start:local_end]
+
+    def pdf_chunks(
+        self, connection: Connection, owner_id: int, start: int, end: int, *, draft: bool, in_transaction: bool = False,
+    ) -> Iterator[bytes]:
+        """Resolve the requested slices while the authorized transaction is live."""
+        table, owner = (
+            ("record_draft_component_blobs", "record_draft_component_id") if draft
+            else ("digital_component_blobs", "content_set_id")
+        )
+        segments = connection.execute(
+            sql.SQL("""
+                WITH bounds AS (
+                    SELECT id, segment_no, segment_size,
+                           sum(segment_size) OVER (ORDER BY segment_no) AS stop
+                      FROM {} WHERE {}=%s
+                )
+                SELECT id, greatest(%s - (stop - segment_size), 0) AS local_start,
+                       least(%s, stop) - greatest(%s, stop - segment_size) AS length
+                  FROM bounds WHERE stop > %s AND stop - segment_size < %s
+                 ORDER BY segment_no
+            """).format(sql.Identifier(table), sql.Identifier(owner)),
+            (owner_id, start, end, start, start, end),
+        ).fetchall()
+        if sum(row["length"] for row in segments) != end - start:
+            raise HTTPException(500, detail="incomplete original PDF segment map")
+
+        read_slice = sql.SQL(
+            "SELECT substring(content FROM %s FOR %s) AS payload FROM {} WHERE id=%s AND {}=%s"
+        ).format(sql.Identifier(table), sql.Identifier(owner))
+
+        def chunks():
+            # Immutable IDs pin in-flight bytes to the selected version. Return
+            # connections before yielding so a slow or disconnected reader
+            # cannot strand a cursor or hold a pool slot between network writes.
+            block_size = 256 * 1024
+            for segment in segments:
+                for offset in range(0, segment["length"], block_size):
+                    length = min(block_size, segment["length"] - offset)
+                    params = (segment["local_start"] + offset + 1, length, segment["id"], owner_id)
+                    with (nullcontext(connection) if in_transaction else pool.connection()) as reader:
+                        row = reader.execute(read_slice, params).fetchone()
+                    if row is None or len(row["payload"]) != length:
+                        raise RuntimeError("PDF segment disappeared or changed during preview")
+                    yield bytes(row["payload"])
+
+        return chunks()
 
     def read(self, connection: Connection, component_id: int) -> bytes | None:
         location = self.location(connection, component_id)

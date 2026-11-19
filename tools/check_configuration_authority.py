@@ -77,9 +77,26 @@ def inventory():
             'setting':key,'authority':'database','contract':'specs/application-configuration.md section 5.5',
             'default_or_requirement':setting.default,'category':setting.category,'consumers':[],'templates':[],
         }
+    # Existing WebUI paging settings were added after the original ledger.
+    paging_consumers = {
+        'CHILD_AGGREGATION_PAGE_SIZE': ['aggregation_details.py'],
+        'CONTAINED_RECORD_PAGE_SIZE': ['aggregation_details.py'],
+        'SEARCH_RESULTS_PAGE_SIZE': ['global_search.py', 'advanced_search.py', 'collection_controls.py'],
+        'MESSAGES_PAGE_SIZE': ['app.py'],
+    }
+    for key, files in paging_consumers.items():
+        setting = REGISTRY[key]
+        contracts[key] = {'current_consumers': [{'path': 'frontend/webui/' + f, 'scope': setting.purpose} for f in files],
+                          'runtime_status': 'database_only_interface_limit'}
+        result[key] = {'setting': key, 'authority': 'database', 'contract': 'specs/application-configuration.md',
+                       'default_or_requirement': setting.default, 'category': setting.category, 'consumers': [], 'templates': []}
     registered={key for key,item in result.items() if item['authority']=='database'}
     if registered!=set(REGISTRY):
         raise ValueError('Database registry/ownership contracts differ: '+', '.join(sorted(registered ^ set(REGISTRY))))
+    result['LIBREOFFICE_WORKERS']={
+        'setting':'LIBREOFFICE_WORKERS','authority':'deployment','contract':'specs/optimize-preview-rendering.md',
+        'default_or_requirement':'1; positive integer','category':None,'consumers':[],'templates':[],
+    }
     result['SSL_CERT_FILE']={
         'setting':'SSL_CERT_FILE','authority':'deployment',
         'contract':'docs/local-tooling.md#certificate-trust-and-local-files',
@@ -126,6 +143,8 @@ def inventory():
             item['runtime_status']=contracts[key]['runtime_status']
         else:
             item['purpose']=contracts[key]['contract_cells'][-1] if key in contracts and len(contracts[key]['contract_cells'])>2 else 'Deployment process/extraction control; see the approved contract and service template'
+        if key=='LIBREOFFICE_WORKERS':
+            item['purpose']='Maximum number of warm LibreOffice converters shared by API processes under one launcher.'
         if key=='SSL_CERT_FILE':
             item['purpose']='Optional process TLS trust override; leave unset for valid public certificates. Never disables certificate verification.'
         item['restart']='No; API 30-second cache (current committed capture at specified workflow boundaries)' if item['authority']=='database' else 'Restart/relaunch the consuming service after deployment changes'

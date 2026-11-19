@@ -82,11 +82,12 @@ async def test_preview_refreshes_activity_after_success_without_row_lookups(user
         resource_capabilities=AsyncMock(return_value={'list_components':True,'view_component':True}),
         previewable_component_page=AsyncMock(return_value={'items':[component],'total':1,'offset':0}),
     )
-    async def rendition(_):
+    async def rendition(*_):
         if outcome=='failed':raise ApiError(403, 'Denied')
         if outcome=='abandoned':active[0]=False
         api.recent_resource_activity.return_value=[{**created, '_operation':'CONTENT_VIEWED'}]
-        return PNG
+        return '/preview-pdf/fixture' if outcome=='pdf' else PNG
+    api.open_original_pdf=AsyncMock(side_effect=rendition)
     api.view_component_pdf=AsyncMock(side_effect=rendition)
     state={}
     @ui.page('/aggregation-preview')

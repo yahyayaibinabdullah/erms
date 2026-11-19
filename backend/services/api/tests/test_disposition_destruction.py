@@ -109,9 +109,20 @@ def copies_and_indexes(c,root,record):
 def test_real_storage_all_versions_ocr_indexes_and_evidence_isolation(client,monkeypatch):
     with db() as c:
         job,root,mgr=prepared(c,monkeypatch,before_close=copies_and_indexes);request(c,job,mgr)
+        preview = uuid4()
+        c.execute("""INSERT INTO preview_renditions(open_id,session_id,content_set_id,source_checksum,
+                         size_in_bytes,checksum,rendering_method,expires_at)
+                     SELECT %s,(SELECT min(id) FROM login_sessions),d.active_content_set_id,d.checksum_value,
+                            4,'test','libreoffice',now()+interval '10 minutes'
+                     FROM digital_components d JOIN records r ON r.id=d.record_id
+                     WHERE r.aggregation_id IN (SELECT disposition_private.unit_ids(%s))
+                       AND d.active_content_set_id IS NOT NULL LIMIT 1""", (preview,root))
+        c.execute("INSERT INTO preview_rendition_chunks VALUES (%s,0,%s)", (preview,b'%PDF'))
         evidence=c.execute('SELECT d.id,b.content FROM digital_components d JOIN records r ON r.id=d.record_id JOIN digital_component_content_sets s ON s.digital_component_id=d.id JOIN digital_component_blobs b ON b.content_set_id=s.id WHERE r.aggregation_id NOT IN (SELECT disposition_private.unit_ids(%s)) ORDER BY d.id,b.id',(root,)).fetchall()
     with db() as c:
         run=destruction.claim(c);c.commit();actor(c);erase_fixture(c,run)
+        assert not c.execute("SELECT FROM preview_renditions WHERE open_id=%s", (preview,)).fetchone()
+        assert not c.execute("SELECT FROM preview_rendition_chunks WHERE open_id=%s", (preview,)).fetchone()
         for table in ('digital_components','content_indexing_jobs','digital_component_search_documents'):
             assert not c.execute(f'SELECT 1 FROM {table} WHERE record_id IN (SELECT id FROM records WHERE aggregation_id IN (SELECT disposition_private.unit_ids(%s)))',(root,)).fetchone()
         assert evidence==c.execute('SELECT d.id,b.content FROM digital_components d JOIN records r ON r.id=d.record_id JOIN digital_component_content_sets s ON s.digital_component_id=d.id JOIN digital_component_blobs b ON b.content_set_id=s.id WHERE r.aggregation_id NOT IN (SELECT disposition_private.unit_ids(%s)) ORDER BY d.id,b.id',(root,)).fetchall()
@@ -384,11 +395,17 @@ def test_native_rendition_owns_working_copy_until_response_finishes(client,monke
     with db() as c:
         job,root,mgr=prepared(c,monkeypatch,before_close=source)
         component=c.execute('SELECT d.id FROM digital_components d JOIN records r ON r.id=d.record_id WHERE r.aggregation_id IN (SELECT disposition_private.unit_ids(%s))',(root,)).fetchone()['id']
-    original=PostgreSQLContentStorage.read;observed=[]
-    def observe(storage,c,identity):
-        with db() as other:observed.append(other.execute('SELECT 1 FROM disposition_private.processing_copies WHERE component_id=%s',(identity,)).fetchone() is not None)
-        return original(storage,c,identity)
-    monkeypatch.setattr(PostgreSQLContentStorage,'read',observe)
+    original = PostgreSQLContentStorage.pdf_chunks
+    observed = []
+    def observe(storage, *args, **kwargs):
+        chunks = original(storage, *args, **kwargs)
+        def checked():
+            for chunk in chunks:
+                with db() as other:
+                    observed.append(other.execute('SELECT 1 FROM disposition_private.processing_copies WHERE component_id=%s', (component,)).fetchone() is not None)
+                yield chunk
+        return checked()
+    monkeypatch.setattr(PostgreSQLContentStorage, 'pdf_chunks', observe)
     response=client.get(f'/api/v1/digital-components/{component}/rendition')
     assert response.status_code==200,response.text
     assert response.content.startswith(b'%PDF-') and response.headers['cache-control']=='private, no-store' and observed==[True]
