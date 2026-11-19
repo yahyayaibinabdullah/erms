@@ -128,3 +128,36 @@ Reproduce with the Phase 1 Chrome command above, adding `--pdf-workbook "/path/t
 Chrome opened the 200-page DOCX, switched to its original PDF, opened a second convertible text file, then revisited the DOCX and text. LibreOffice ran exactly twice. Both return visits used their original rendition URLs. After the dialog closed, the disposable database contained zero rendition headers and zero chunks. Separate tests exercise a return during an in-flight conversion, source invalidation, a late conversion completing after close, refresh of hidden components, audit events, and cross-session isolation. Moving database timestamps across the 10-minute boundary verifies that renewal cannot revive an expired row.
 
 One cold DOCX sample in the first browser run hit the existing first-paint transfer limit exactly (3,777,390 WebUI bytes). Completed HTTP bodies accounted for 3,253,102 bytes. The independent repeat passed the transfer gate and the component-switch and deletion checks. The timing of cancellation of PDF.js’s initial GET still affects that byte metric.
+
+### Deployment amendment — warm LibreOffice workers
+
+The API launcher owns one pool per service instance. A private supervisor starts
+`LIBREOFFICE_WORKERS` headless LibreOffice processes and assigns one complete PDF
+export at a time to each. The deployment default is 1. Restart the API service
+after changing this value. All Uvicorn workers in that instance share the pool.
+The viewer continues to retain completed renditions under the existing rules.
+
+Each slot checks its resident by opening a private synthetic document and exporting a
+readiness PDF. Idle slots check process liveness and replace exited workers. During
+export the supervisor monitors both the resident and the forwarding command. On a
+resident crash it discards partial output and permits one requeue within the original
+timeout. A timed-out or failed export retires the resident. Every request retains
+its original source version, workspace and processing-copy locks through conversion.
+
+The WebUI submits an authorized preview request to the API. An API request
+process stages the source and submits a job to the supervisor's private Unix
+socket. A ready slot takes the next job. When a crashed job is requeued, any
+available slot can take it. With a one-worker pool this means waiting for a
+replacement. An idle process is checked about every 250 ms, and an active one
+about every 200 ms. A failed readiness export keeps that slot out of service
+and schedules another startup attempt after ten seconds. Closing the API
+launcher shuts down the supervisor and its residents. The API's HTTP health
+response covers API availability; the functional converter probe runs inside
+the supervisor.
+
+Verification used one- and two-slot pools to export the complete 200-page
+DOCX, 40-page XLSX and 60-slide PPTX. Terminating a real resident during DOCX
+export produced a complete PDF on retry and a new resident PID with a
+successful readiness export. The [deployment regressions](../backend/services/api/tests/test_office_pool.py)
+also exercise one shared slot under two Uvicorn processes, requeue to a
+surviving slot, worker replacement, cleanup and restart-only sizing.

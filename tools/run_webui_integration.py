@@ -61,11 +61,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--preview', action='store_true')
     parser.add_argument('--pdf-workbook', type=Path, help='200-page DOCX with a sibling PDF for the paired preview benchmark')
+    parser.add_argument('--office-fixtures', type=Path, help='Directory containing benchmark.docx, .xlsx and .pptx')
+    parser.add_argument('--office-workers', type=int, choices=(0, 1, 2, 3), default=0,
+                        help='Resident workers in the disposable office-pool scope; zero uses the current converter')
     parser.add_argument('--pdf-baseline', action='store_true', help='Measure the historical base64 preview in the PDF benchmark')
     parser.add_argument('--fixed-fixture', action='store_true',
                         help='Use dated synthetic records, paged branches and published Arabic for browser baselines')
     parser.add_argument('--browser', choices=['chrome', 'edge', 'firefox', 'safari'])
-    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'collection-paging', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'], default='full',
+    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'collection-paging', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'], default='full',
                         help='Subset runs supplement, rather than replace, full browser acceptance')
     parser.add_argument('--maildev', action='store_true',
                         help='Verify local SMTP delivery through the repository-managed MailDev instance')
@@ -75,6 +78,12 @@ def main():
     parser.add_argument('--webui-python', default=str(local_python if local_python.exists() else sys.executable))
     parser.add_argument('pytest_args', nargs='*')
     args = parser.parse_args()
+    if args.browser_scope == 'office-pool':
+        if args.browser != 'chrome' or not args.office_fixtures or not all(
+                (args.office_fixtures / ('benchmark.' + ext)).is_file() for ext in ('docx', 'xlsx', 'pptx')):
+            parser.error('office-pool requires Chrome and the three files from office_preview_benchmark/fixtures.py')
+    elif args.office_fixtures or args.office_workers:
+        parser.error('office benchmark options require the office-pool scope')
     if args.browser_scope == 'pdf-performance' and args.browser != 'chrome':
         parser.error('The PDF memory benchmark uses Chrome process IDs; pass --browser chrome')
     if args.pdf_baseline and args.browser_scope != 'pdf-performance':
@@ -103,6 +112,10 @@ def main():
                 'backend/services/api/processing_copies.py', 'frontend/webui/static/pdfjs/erms-viewer.mjs',
                 'frontend/webui/static/pdfjs/pdf.min.mjs', 'frontend/webui/static/pdfjs/web/viewer.mjs',
             )]
+        if args.browser_scope == 'office-pool':
+            sources += list((ROOT / 'tools/office_preview_benchmark').glob('*.py'))
+            sources += [ROOT / 'backend/services/api' / filename for filename in (
+                'document_conversion.py', 'converted_previews.py', 'xlsx_to_preview.py')]
         if args.pdf_workbook:
             sources += [ROOT / name for name in ('backend/services/api/document_conversion.py',
                         'backend/services/api/converted_previews.py', 'database/schema.sql') if (ROOT / name).is_file()]
@@ -199,6 +212,8 @@ def main():
                                '--fd', str(api_socket.fileno()), '--output', str(output)]
             if args.browser_scope == 'pdf-performance':
                 api_command.append('--observe-pdf')
+            if args.browser_scope == 'office-pool':
+                api_command.extend(['--office-workers', str(args.office_workers)])
             api = start('api', api_command, pass_fds=(api_socket.fileno(),))
             wait_ready(api, api_url + '/health')
             services = [api]
@@ -214,6 +229,8 @@ def main():
                     pass_fds=(ui_socket.fileno(),))
                 wait_ready(webui, ui_url + '/')
                 services.append(webui)
+                if args.browser_scope == 'office-pool':
+                    result.update(api_pid=api.pid, webui_pid=webui.pid)
             result['ready'] = True
             (output / 'lifecycle.json').write_text(json.dumps(result, indent=2) + '\n')
             print(f'Disposable services ready. Evidence: {output}; UI: {ui_url}', flush=True)
@@ -225,6 +242,7 @@ def main():
                 browser = start('browser', [args.browser_python, 'tools/check_webui_browser.py',
                     '--browser', args.browser, '--url', ui_url, '--api', api_url,
                     '--scope', args.browser_scope,
+                    *(['--office-fixtures', str(args.office_fixtures.resolve())] if args.office_fixtures else []),
                     '--output', str(output), '--api-python', sys.executable, *(['--pdf-baseline'] if args.pdf_baseline else []), *(['--pdf-workbook', str(args.pdf_workbook.resolve())] if args.pdf_workbook else []), *maildev_arguments])
                 result['test_exit_code'] = browser.wait(timeout=900)
                 report = output / 'browser-results.json'

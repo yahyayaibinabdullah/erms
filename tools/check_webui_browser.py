@@ -603,6 +603,11 @@ with psycopg.connect(url) as c:
             check_aggregations(self)
             self.report['complete'] = True
             return
+        if self.args.scope == 'office-pool':
+            from tools.office_preview_benchmark.browser import check_office_pool
+            check_office_pool(self)
+            self.report['complete'] = True
+            return
         if self.args.scope == 'pdf-performance':
             from tools.webui_browser_pdf_performance import check_pdf_performance
             check_pdf_performance(self)
@@ -738,7 +743,8 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
+    parser.add_argument('--office-fixtures', type=Path)
     parser.add_argument('--pdf-workbook')
     parser.add_argument('--pdf-baseline', action='store_true')
     parser.add_argument('--maildev-url')

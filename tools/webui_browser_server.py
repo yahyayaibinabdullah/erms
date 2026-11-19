@@ -4,6 +4,7 @@ Records API request metadata, and supports explicitly controlled read failures
 and delays. No headers, cookies, request bodies or response bodies are logged.
 """
 import argparse
+from contextlib import nullcontext
 import asyncio
 import json
 import os
@@ -12,7 +13,8 @@ import time
 from tools.webui_test_events import EventWriter
 
 class ObservedAPI:
-    def __init__(self, app, directory):
+    def __init__(self, app, directory, lifespan_context=None):
+        self.lifespan_context = lifespan_context or nullcontext()
         self.app, self.directory = app, Path(directory)
         self.started_events = EventWriter(self.directory / 'requests-started.jsonl')
         self.finished_events = EventWriter(self.directory / 'requests.jsonl')
@@ -20,7 +22,8 @@ class ObservedAPI:
     async def __call__(self, scope, receive, send):
         if scope['type'] == 'lifespan':
             try:
-                return await self.app(scope, receive, send)
+                with self.lifespan_context:
+                    return await self.app(scope, receive, send)
             finally:
                 self.started_events.close()
                 self.finished_events.close()
@@ -158,6 +161,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--fd', type=int, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--office-workers', type=int, choices=(0, 1, 2, 3))
     parser.add_argument('--observe-pdf', action='store_true')
     args = parser.parse_args()
     if not conninfo_to_dict(os.environ['DATABASE_URL'])['dbname'].startswith('erms_webui_test_'):
@@ -167,7 +171,12 @@ def main():
     if args.observe_pdf:
         from tools.pdf_benchmark_transport import observe_storage
         observe_storage(args.output)
-    uvicorn.run(ObservedAPI(app,args.output), fd=args.fd)
+    if args.office_workers is not None:
+        from tools.office_preview_benchmark.pool import converter
+        observed = ObservedAPI(app, args.output, converter(args.output, args.office_workers))
+        uvicorn.run(observed, fd=args.fd, lifespan="on")
+    else:
+        uvicorn.run(ObservedAPI(app,args.output), fd=args.fd)
 
 
 if __name__ == '__main__':

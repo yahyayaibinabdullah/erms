@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from backend.services.processing_workspace import working_copy_fds
 from backend.services.component_formats import CONVERTIBLE_EXTENSIONS
+from . import office_pool
 
 import os
 import shutil
@@ -111,23 +112,30 @@ def convert_file(source: Path, workspace: Path, settings) -> tuple[Path, str]:
             raise ConversionUnavailable(
                 "prepared preview exceeds the configured rendition size limit"
             )
-    command = [
-        _libreoffice_binary(),
-        "--headless", "--nologo", "--nodefault", "--nolockcheck", "--norestore",
-        f"-env:UserInstallation={profile.as_uri()}",
-        "--convert-to", "pdf", "--outdir", str(output), str(conversion_source),
-    ]
-    try:
-        completed = _run(
-            command, check=False, capture_output=True, timeout=timeout,
-            env={**os.environ, "SAL_DISABLE_OPENCL": "1"},
-        )
-    except subprocess.TimeoutExpired as error:
-        raise ConversionUnavailable("document conversion timed out") from error
     rendition = output / "source.pdf"
-    if completed.returncode != 0 or not rendition.is_file():
-        detail = completed.stderr.decode("utf-8", errors="replace").strip()
-        raise ConversionUnavailable(f"LibreOffice could not convert this document{': ' + detail if detail else ''}")
+    address = office_pool.endpoint()
+    if address is not None:
+        try:
+            office_pool.request_export(address, conversion_source, output, timeout)
+        except (OSError, RuntimeError) as error:
+            raise ConversionUnavailable(str(error)) from error
+    else:
+        command = [
+            _libreoffice_binary(),
+            "--headless", "--nologo", "--nodefault", "--nolockcheck", "--norestore",
+            f"-env:UserInstallation={profile.as_uri()}",
+            "--convert-to", "pdf", "--outdir", str(output), str(conversion_source),
+        ]
+        try:
+            completed = _run(
+                command, check=False, capture_output=True, timeout=timeout,
+                env={**os.environ, "SAL_DISABLE_OPENCL": "1"},
+            )
+        except subprocess.TimeoutExpired as error:
+            raise ConversionUnavailable("document conversion timed out") from error
+        if completed.returncode != 0 or not rendition.is_file():
+            detail = completed.stderr.decode("utf-8", errors="replace").strip()
+            raise ConversionUnavailable(f"LibreOffice could not convert this document{': ' + detail if detail else ''}")
     if rendition.stat().st_size > maximum:
         raise ConversionUnavailable("generated PDF exceeds the configured rendition size limit")
     return rendition, method
