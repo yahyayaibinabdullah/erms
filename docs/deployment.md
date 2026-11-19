@@ -1459,3 +1459,8 @@ complete the task and job together. Downloads and email are optional. Restart
 the local stack after applying the migration; catalogue synchronization imports
 missing Arabic drafts for review without publishing them. No new environment
 settings are required.
+
+
+### Converted preview storage
+
+Apply migration `118_converted_preview_renditions.sql` to existing databases before deploying the updated API, WebUI and session-cleanup worker. Restart those services after the migration. Each viewer retains one temporary PDF per visited converted component until close. While the viewer is open and connected, it renews its renditions every 2 minutes. Each successful renewal or authorized read sets the expiry to 10 minutes from that request. If the viewer is abandoned, the cleanup worker removes expired renditions on its next eligible pass (every 60 seconds by default). After a long sleep or disconnection, returning to the component may require a fresh conversion. Viewer-scoped reuse requires no migration beyond 118. The unlogged rendition tables contain temporary document bytes. For logical backups, exclude their data and retain their schema. See [converted preview cleanup and deployment](../specs/optimize-preview-rendering.md#cleanup-and-deployment) for table names, expiry and backup options.

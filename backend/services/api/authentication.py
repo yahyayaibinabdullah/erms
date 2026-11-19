@@ -94,7 +94,7 @@ def _roles(connection: Connection, user_id: int) -> list[dict[str, Any]]:
     ).fetchall())
 
 
-def resolve_principal(connection: Connection, token: str) -> Principal | None:
+def resolve_principal(connection: Connection, token: str, *, activity: bool = True) -> Principal | None:
     # Serialize simultaneous authentication/expiry/revocation work on this
     # session, but do not take FOR UPDATE: inserting search_results_cache
     # references this row via a foreign key and holds KEY SHARE until commit.
@@ -134,7 +134,7 @@ def resolve_principal(connection: Connection, token: str) -> Principal | None:
             "UPDATE login_sessions SET expires_at=LEAST(expires_at,%s), absolute_expires_at=LEAST(absolute_expires_at,%s) WHERE id=%s",
             (min(idle_deadline,absolute_deadline), absolute_deadline, row['session_id']))
         return None
-    last_seen = now if row['last_seen_at'] < now - timedelta(minutes=1) else row['last_seen_at']
+    last_seen = now if activity and row['last_seen_at'] < now - timedelta(minutes=1) else row['last_seen_at']
     expires_at = min(_deadline(last_seen, settings['AUTH_SESSION_IDLE_MINUTES'], 60), absolute_deadline)
     connection.execute(
         """UPDATE login_sessions SET last_seen_at=%s, expires_at=%s, absolute_expires_at=%s

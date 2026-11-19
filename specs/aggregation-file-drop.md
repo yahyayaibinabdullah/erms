@@ -5,8 +5,10 @@
 ## Drop target and record creation
 
 **AFD-1.** Show a page overlay like the record page’s while files are dragged
-over the aggregation page. Show one **Create record** target for a single
-file. For several files, show both targets below together in the overlay.
+over the aggregation page. A single file can be dropped anywhere in the
+aggregation page content, including on the **Create record** card. For
+several files, show both targets below together in the overlay. Dropping
+several files outside those two targets creates no records.
 Dismiss the overlay on leave, cancellation, or drop. For a **Physical**
 aggregation, disable dropping and show “Physical aggregations cannot accept
 digital files.” Apply the existing **Add record** authorization and
@@ -123,8 +125,10 @@ the submitted filter, if any. Disable the control on the last page.
 
 ## Acceptance checks
 
-- **AFD-1–3.** Verify the Physical overlay and denied creation. Test the single
-  target and both multi-file targets with one and multiple effective roles.
+- **AFD-1–3.** Verify the Physical overlay and denied creation. Drop a single
+  file on the page outside the central card in English and Arabic. Verify
+  that several files dropped there create no records. Test the single target
+  and both multi-file targets with one and multiple effective roles.
   With multiple effective roles but exactly one eligible owning-unit choice,
   verify automatic creation without a dialog for a single file and **Create
   separate records**. For multi-file **Create one record with all files**,

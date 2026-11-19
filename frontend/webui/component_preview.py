@@ -1,9 +1,11 @@
 """Existing component behavior and per-view state with explicit dependencies."""
 from __future__ import annotations
+import asyncio
 import base64
 import json
 from typing import Any
-from nicegui import context, ui
+from uuid import uuid4
+from nicegui import background_tasks, context, ui
 from .api_client import ApiError
 from .i18n_catalogue import render_message, render_message_plain
 from .locale_services import current_locale_context
@@ -92,9 +94,73 @@ def build_component_preview(*, api, error_message):
                 message = error_message(error) if isinstance(error, ApiError) else render_message("webui.print_component.text.the_print_view_did_not_finish_loading_58f6bfd9")
                 ui.notify(message, color="negative", close_button=True)
 
-        def close_viewer() -> None:
+        # The dialog owns the handles. Its current PDF.js frame owns only its reads.
+        renditions: dict[int, str] = {}
+        conversion_locks: dict[int, asyncio.Lock] = {}
+        renewal_timer = None
+
+        async def maintain(ids: list[str], *, release: bool) -> None:
+            if ids:
+                try:
+                    await api.update_viewer_renditions(ids, release=release)
+                except ApiError:
+                    # A disconnected/expired login cannot maintain its copies.
+                    # The API expiry worker reclaims them independently.
+                    pass
+
+        def end_viewer() -> None:
+            if viewer_state["closed"]:
+                return
             viewer_state["closed"] = True
             viewer_state["request_id"] += 1
+            if renewal_timer is not None:
+                renewal_timer.cancel()
+                viewer_client.disconnect_handlers.remove(disconnected)
+            if renditions:
+                ids = list(renditions.values())
+                renditions.clear()
+                background_tasks.create(maintain(ids, release=True))
+
+        async def disconnected() -> None:
+            end_viewer()
+
+        async def renew() -> None:
+            if not dialog.value or (source_active is not None and not source_active()):
+                end_viewer()
+            elif viewer_client.has_socket_connection:
+                await maintain(list(renditions.values()), release=False)
+
+        async def converted_url(component_id: int, request_id: int) -> str | None:
+            nonlocal renewal_timer
+            if renewal_timer is None:
+                with dialog:
+                    renewal_timer = ui.timer(2 * 60, renew, immediate=False)
+                viewer_client.on_disconnect(disconnected)
+            async with conversion_locks.setdefault(component_id, asyncio.Lock()):
+                if viewer_state["closed"] or request_id != viewer_state["request_id"]:
+                    return None
+                previous = renditions.get(component_id)
+                if previous:
+                    try:
+                        return await api.open_converted_pdf(component_id, draft_id, rendition_id=previous, reuse=True)
+                    except ApiError as error:
+                        if error.status_code != 412:
+                            raise
+                        # Expiry or source replacement invalidated this handle.
+                        await maintain([previous], release=True)
+                        if viewer_state["closed"] or request_id != viewer_state["request_id"]:
+                            return None
+                identity = str(uuid4())
+                renditions[component_id] = identity
+                try:
+                    return await api.open_converted_pdf(component_id, draft_id, rendition_id=identity)
+                finally:
+                    # Close may have arrived before the converter committed.
+                    if viewer_state["closed"] or (source_active is not None and not source_active()):
+                        await maintain([identity], release=True)
+
+        def close_viewer() -> None:
+            end_viewer()
             frame_id = viewer_state.get("frame_id")
             if frame_id:
                 viewer_client.run_javascript(
@@ -232,10 +298,19 @@ def build_component_preview(*, api, error_message):
                     ui.spinner("dots", size="3em", color="primary")
                     ui.label(
                         render_message("webui.select_component.label.converting_this_document_to_pdf_larger_fil_00483fe4")
-                        if converting else render_message("webui.select_component.label.loading_the_document_larger_files_may_take_0e9d50c1")
+                        if converting and component["id"] not in renditions
+                        else render_message("webui.select_component.label.loading_the_document_larger_files_may_take_0e9d50c1")
                     ).classes("text-sm text-slate-500")
             try:
-                preview = await api.view_draft_component(draft_id, component["id"]) if draft_id is not None else await api.view_component_pdf(component["id"])
+                pdf_url = None
+                if (component.get("mime_type") or "").lower() == "application/pdf":
+                    pdf_url = await api.open_original_pdf(component["id"], draft_id)
+                elif converting:
+                    pdf_url = await converted_url(component["id"], request_id)
+                elif draft_id is not None:
+                    preview = await api.view_draft_component(draft_id, component["id"])
+                else:
+                    preview = await api.view_component_pdf(component["id"])
             except ApiError as error:
                 if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):
                     return
@@ -253,8 +328,9 @@ def build_component_preview(*, api, error_message):
 
             if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):
                 return
-            viewer_state["loading_id"] = None
-            render_switcher()
+            if pdf_url is None:
+                viewer_state["loading_id"] = None
+                render_switcher()
 
             preview_kind = native_preview_kind(component.get("mime_type"))
             toolbar_host.clear()
@@ -344,14 +420,14 @@ def build_component_preview(*, api, error_message):
                 }
             frame_id = frame.html_id
             viewer_state["frame_id"] = frame_id
-            encoded = base64.b64encode(preview).decode("ascii")
+            source = {"url": pdf_url}
             try:
                 await viewer_client.run_javascript(
                     "import('/static/pdfjs/erms-viewer.mjs').then(() => true)", timeout=15,
                 )
                 if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):return
                 opened = await viewer_client.run_javascript(
-                    f"window.ermsPdfViewer.open({json.dumps(frame_id)}, {json.dumps(encoded)}, {json.dumps(labels)})",
+                    f"window.ermsPdfViewer.open({json.dumps(frame_id)}, {json.dumps(source)}, {json.dumps(labels)})",
                     timeout=30,
                 )
             except TimeoutError:
@@ -359,6 +435,9 @@ def build_component_preview(*, api, error_message):
             if (request_id != viewer_state["request_id"] or viewer_state["closed"]
                     or (source_active is not None and not source_active())):
                 return
+            if pdf_url is not None:
+                viewer_state["loading_id"] = None
+                render_switcher()
             status.delete()
             if not opened:
                 viewer_client.run_javascript(f"window.ermsPdfViewer?.close({json.dumps(frame_id)})")

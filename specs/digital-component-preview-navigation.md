@@ -66,8 +66,8 @@ and do not use saved-record content/print routes. No record, permanent component
 content set, record content-view event or disposition processing-copy entity is
 created by previewing a private staging package. Upload order, original bytes,
 checksums, metadata and draft expiry remain unchanged. Conversion reuses existing
-format/size/time limits and isolated temporary-directory cleanup, with no retained
-rendition cache. Original supported native files remain inline, non-cacheable,
+format/size/time limits and isolated temporary-directory cleanup, with one temporary PDF per visited converted component in each viewer dialog. Returning to a component reuses that PDF. Release and expiry follow the
+[converted-preview transport specification](optimize-preview-rendering.md#cleanup-and-deployment). Original supported native files remain inline, non-cacheable,
 MIME-safe responses with existing HEAD/range semantics.
 
 Use the mounted editor's current component metadata when opening staged Preview;
@@ -119,7 +119,7 @@ Print/Download; bounded rendering, abandonment and saved-viewer regressions.
 | PDF-03. Use the effective Wathiq language and direction. | Verify English/LTR and Arabic/RTL controls, keyboard access, page content direction, and independent component and page navigation. |
 | PDF-04. Preserve the Phase 1 saved/draft lifecycle and native media paths. | Switch between an image and a PDF, close during loading, reopen, and verify selected-component-only fetches and the existing saved/staged activity behavior. |
 
-This phase uses the current authorized, whole-document base64 handoff and the existing API and database contracts. Transport optimization is deferred until after viewer integration. Collaborative annotation storage remains in Phase 3.
+This phase uses the current authorized, whole-document base64 handoff and the existing API and database contracts. The subsequent [Optimize Preview Rendering](optimize-preview-rendering.md) specification governs transport upgrades after viewer integration. Collaborative annotation storage remains in Phase 3.
 
 ### Phase 2 implementation and verification
 

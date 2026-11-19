@@ -54,8 +54,25 @@ def check_aggregation_file_drop(page):
         assert len(targets)==(1 if len(names)==1 else 2)
         page.driver.execute_script('''
           clearInterval(window.dragTimer);
-          document.querySelector(`[data-drop-mode="${arguments[0]}"]`).dispatchEvent(new DragEvent('drop',{bubbles:true,dataTransfer:window.dropTransfer}));
-        ''',mode)
+          const mode = arguments[0];
+          let target = document.querySelector(`[data-drop-mode="${mode}"]`);
+          if (mode === 'single' || mode === 'background') {
+            const surface = document.querySelector(arguments[1] === 'ar' ? '.erms-content > nav' : '.resource-detail-header');
+            surface.scrollIntoView({block: 'center'});
+            const rect = surface.getBoundingClientRect();
+            target = document.elementFromPoint(rect.left + 12, rect.top + rect.height / 2);
+            if (!surface.contains(target) || target.closest('[data-drop-mode]'))
+              throw new Error('Expected a drop on the aggregation page outside the choice cards');
+          }
+          const options = {bubbles:true,cancelable:true,dataTransfer:window.dropTransfer};
+          target.dispatchEvent(new DragEvent('dragover', options));
+          target.dispatchEvent(new DragEvent('drop', options));
+        ''',mode,language)
+        if mode=='background':
+            page.wait.until(lambda _:not page.visible('.record-component-drop-target'))
+            assert not page.visible('.q-dialog__inner > .q-card')
+            assert not any(event['path'].endswith('/records/file-drop') for event in page.events()[start:])
+            return
         # Fixture normally has one effective role. Still exercise the actual
         # selector if other test setup introduces another effective role.
         page.wait.until(lambda _:page.visible('.q-dialog__inner > .q-card') or page.visible('.q-notification'))
@@ -160,6 +177,7 @@ def check_aggregation_file_drop(page):
                 page.wait.until(lambda _:not page.button(page.t('aggregation_file_drop.last_page'),section).is_enabled())
             assert 'Child 01' in plain(page.one('.aggregation-child-preview').text)
             before=len(entries())
+            drag(['background-one.txt','background-two.txt'],'background')
             drag([f'single-{language}.txt'],'single')
             page.wait.until(lambda _:len(entries())==min(25,before+1))
             drag([f'separate-{language}.txt',f'attachment-{language}.txt'],'separate')

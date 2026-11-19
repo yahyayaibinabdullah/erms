@@ -43,79 +43,91 @@ def pdf_rendition(content: bytes, file_name: str, mime_type: str, *, settings, t
     if suffix not in CONVERTIBLE_EXTENSIONS:
         raise UnsupportedPreview(f"in-app preview is not supported for {suffix or mime_type}")
 
-    timeout = settings["DOCUMENT_CONVERSION_TIMEOUT_SECONDS"]
-    maximum = settings["MAX_RENDITION_SIZE_BYTES"]
-    with tempfile.TemporaryDirectory(prefix="erms-rendition-",dir=temporary_root) as temporary:
+    with tempfile.TemporaryDirectory(prefix="erms-rendition-", dir=temporary_root) as temporary:
         workspace = Path(temporary)
         source = workspace / f"source{suffix}"
-        output = workspace / "output"
-        profile = workspace / "profile"
-        output.mkdir()
-        profile.mkdir()
         source.write_bytes(content)
-        conversion_source = source
-        method = "libreoffice"
-        intermediary = None
-        if suffix in {".msg", ".eml"}:
-            intermediary = "email_to_html.py"
-            method = (
-                "extract-msg+libreoffice"
-                if suffix == ".msg"
-                else "stdlib-email+libreoffice"
-            )
-        elif suffix == ".xml":
-            intermediary = "xml_to_html.py"
-            method = "escaped-xml+libreoffice"
-        elif suffix == ".xlsx":
-            intermediary = "xlsx_to_preview.py"
-            prepared = workspace / "prepared"
-            prepared.mkdir()
-            conversion_source = prepared / "source.xlsx"
-            method = "xlsx-fit-to-page+libreoffice"
-        if intermediary:
-            if suffix != ".xlsx":
-                conversion_source = workspace / "source.html"
-            try:
-                extraction = _run(
-                    [
-                        sys.executable,
-                        str(Path(__file__).with_name(intermediary)),
-                        str(source),
-                        str(conversion_source),
-                    ],
-                    check=False,
-                    capture_output=True,
-                    timeout=timeout,
-                    env={**os.environ, "PYTHONIOENCODING": "utf-8"},
-                )
-            except subprocess.TimeoutExpired as error:
-                raise ConversionUnavailable("preview preparation timed out") from error
-            if extraction.returncode != 0 or not conversion_source.is_file():
-                detail = extraction.stderr.decode("utf-8", errors="replace").strip()
-                raise ConversionUnavailable(
-                    f"preview preparation failed{': ' + detail if detail else ''}"
-                )
-            if conversion_source.stat().st_size > maximum:
-                raise ConversionUnavailable(
-                    "prepared preview exceeds the configured rendition size limit"
-                )
-        command = [
-            _libreoffice_binary(),
-            "--headless", "--nologo", "--nodefault", "--nolockcheck", "--norestore",
-            f"-env:UserInstallation={profile.as_uri()}",
-            "--convert-to", "pdf", "--outdir", str(output), str(conversion_source),
-        ]
+        rendition, method = convert_file(source, workspace, settings)
+        return rendition.read_bytes(), method
+
+
+def convert_file(source: Path, workspace: Path, settings) -> tuple[Path, str]:
+    """Convert within the caller's owned workspace; leave the result on disk."""
+    with source.open("rb") as stream:
+        if stream.read(5) == b"%PDF-":
+            return source, "original"
+    suffix = source.suffix.lower()
+    if suffix not in CONVERTIBLE_EXTENSIONS:
+        raise UnsupportedPreview(f"in-app preview is not supported for {suffix}")
+    timeout = settings["DOCUMENT_CONVERSION_TIMEOUT_SECONDS"]
+    maximum = settings["MAX_RENDITION_SIZE_BYTES"]
+    output = workspace / "output"
+    profile = workspace / "profile"
+    output.mkdir()
+    profile.mkdir()
+    conversion_source = source
+    method = "libreoffice"
+    intermediary = None
+    if suffix in {".msg", ".eml"}:
+        intermediary = "email_to_html.py"
+        method = (
+            "extract-msg+libreoffice"
+            if suffix == ".msg"
+            else "stdlib-email+libreoffice"
+        )
+    elif suffix == ".xml":
+        intermediary = "xml_to_html.py"
+        method = "escaped-xml+libreoffice"
+    elif suffix == ".xlsx":
+        intermediary = "xlsx_to_preview.py"
+        prepared = workspace / "prepared"
+        prepared.mkdir()
+        conversion_source = prepared / "source.xlsx"
+        method = "xlsx-fit-to-page+libreoffice"
+    if intermediary:
+        if suffix != ".xlsx":
+            conversion_source = workspace / "source.html"
         try:
-            completed = _run(
-                command, check=False, capture_output=True, timeout=timeout,
-                env={**os.environ, "SAL_DISABLE_OPENCL": "1"},
+            extraction = _run(
+                [
+                    sys.executable,
+                    str(Path(__file__).with_name(intermediary)),
+                    str(source),
+                    str(conversion_source),
+                ],
+                check=False,
+                capture_output=True,
+                timeout=timeout,
+                env={**os.environ, "PYTHONIOENCODING": "utf-8"},
             )
         except subprocess.TimeoutExpired as error:
-            raise ConversionUnavailable("document conversion timed out") from error
-        rendition = output / "source.pdf"
-        if completed.returncode != 0 or not rendition.is_file():
-            detail = completed.stderr.decode("utf-8", errors="replace").strip()
-            raise ConversionUnavailable(f"LibreOffice could not convert this document{': ' + detail if detail else ''}")
-        if rendition.stat().st_size > maximum:
-            raise ConversionUnavailable("generated PDF exceeds the configured rendition size limit")
-        return rendition.read_bytes(), method
+            raise ConversionUnavailable("preview preparation timed out") from error
+        if extraction.returncode != 0 or not conversion_source.is_file():
+            detail = extraction.stderr.decode("utf-8", errors="replace").strip()
+            raise ConversionUnavailable(
+                f"preview preparation failed{': ' + detail if detail else ''}"
+            )
+        if conversion_source.stat().st_size > maximum:
+            raise ConversionUnavailable(
+                "prepared preview exceeds the configured rendition size limit"
+            )
+    command = [
+        _libreoffice_binary(),
+        "--headless", "--nologo", "--nodefault", "--nolockcheck", "--norestore",
+        f"-env:UserInstallation={profile.as_uri()}",
+        "--convert-to", "pdf", "--outdir", str(output), str(conversion_source),
+    ]
+    try:
+        completed = _run(
+            command, check=False, capture_output=True, timeout=timeout,
+            env={**os.environ, "SAL_DISABLE_OPENCL": "1"},
+        )
+    except subprocess.TimeoutExpired as error:
+        raise ConversionUnavailable("document conversion timed out") from error
+    rendition = output / "source.pdf"
+    if completed.returncode != 0 or not rendition.is_file():
+        detail = completed.stderr.decode("utf-8", errors="replace").strip()
+        raise ConversionUnavailable(f"LibreOffice could not convert this document{': ' + detail if detail else ''}")
+    if rendition.stat().st_size > maximum:
+        raise ConversionUnavailable("generated PDF exceeds the configured rendition size limit")
+    return rendition, method

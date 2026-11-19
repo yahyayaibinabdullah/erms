@@ -60,10 +60,12 @@ def interrupted(*_):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--preview', action='store_true')
+    parser.add_argument('--pdf-workbook', type=Path, help='200-page DOCX with a sibling PDF for the paired preview benchmark')
+    parser.add_argument('--pdf-baseline', action='store_true', help='Measure the historical base64 preview in the PDF benchmark')
     parser.add_argument('--fixed-fixture', action='store_true',
                         help='Use dated synthetic records, paged branches and published Arabic for browser baselines')
     parser.add_argument('--browser', choices=['chrome', 'edge', 'firefox', 'safari'])
-    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'collection-paging', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'], default='full',
+    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'collection-paging', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'], default='full',
                         help='Subset runs supplement, rather than replace, full browser acceptance')
     parser.add_argument('--maildev', action='store_true',
                         help='Verify local SMTP delivery through the repository-managed MailDev instance')
@@ -73,6 +75,13 @@ def main():
     parser.add_argument('--webui-python', default=str(local_python if local_python.exists() else sys.executable))
     parser.add_argument('pytest_args', nargs='*')
     args = parser.parse_args()
+    if args.browser_scope == 'pdf-performance' and args.browser != 'chrome':
+        parser.error('The PDF memory benchmark uses Chrome process IDs; pass --browser chrome')
+    if args.pdf_baseline and args.browser_scope != 'pdf-performance':
+        parser.error('--pdf-baseline selects the historical transport for --browser-scope pdf-performance')
+    if args.pdf_workbook and (args.browser_scope != 'pdf-performance' or args.pdf_workbook.suffix.lower() != '.docx'
+                              or not all(args.pdf_workbook.with_suffix(ext).is_file() for ext in ('.docx', '.pdf'))):
+        parser.error('--pdf-workbook requires the PDF benchmark and a DOCX with a sibling PDF')
     if args.browser and args.preview:
         parser.error('--browser owns a finite test run; do not combine with --preview')
     if args.browser:
@@ -85,9 +94,18 @@ def main():
             ROOT / 'frontend/webui/i18n/messages.ar.generated.json',
             *[ROOT / 'tools' / filename for filename in (
                 'run_webui_integration.py', 'check_webui_browser.py',
-                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_shell.py', 'webui_browser_session.py', 'webui_browser_relationships.py', 'webui_browser_audit.py', 'webui_browser_collections.py', 'webui_browser_collection_paging.py', 'webui_browser_classification.py', 'webui_browser_security.py', 'webui_browser_login_sessions.py', 'webui_browser_organization.py', 'webui_browser_text_indexers.py', 'webui_browser_account.py', 'webui_browser_translations.py', 'webui_browser_holds.py', 'webui_browser_components.py', 'webui_browser_aggregation_file_drop.py', 'webui_browser_aggregations.py', 'webui_browser_governed_moves.py', 'webui_browser_records.py', 'webui_browser_security_operations.py', 'webui_browser_governance_custody.py', 'webui_browser_global_search.py', 'webui_browser_advanced_search.py', 'webui_browser_dashboard.py', 'webui_browser_pagination.py', 'webui_browser_disposition.py', 'webui_browser_messaging.py', 'webui_browser_application.py', 'webui_browser_performance.py', 'seed_webui_disposition.py', 'webui_browser_server.py',
+                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_shell.py', 'webui_browser_session.py', 'webui_browser_relationships.py', 'webui_browser_audit.py', 'webui_browser_collections.py', 'webui_browser_collection_paging.py', 'webui_browser_classification.py', 'webui_browser_security.py', 'webui_browser_login_sessions.py', 'webui_browser_organization.py', 'webui_browser_text_indexers.py', 'webui_browser_account.py', 'webui_browser_translations.py', 'webui_browser_holds.py', 'webui_browser_components.py', 'webui_browser_pdf_performance.py', 'pdf_benchmark_transport.py', 'webui_browser_aggregation_file_drop.py', 'webui_browser_aggregations.py', 'webui_browser_governed_moves.py', 'webui_browser_records.py', 'webui_browser_security_operations.py', 'webui_browser_governance_custody.py', 'webui_browser_global_search.py', 'webui_browser_advanced_search.py', 'webui_browser_dashboard.py', 'webui_browser_pagination.py', 'webui_browser_disposition.py', 'webui_browser_messaging.py', 'webui_browser_application.py', 'webui_browser_performance.py', 'seed_webui_disposition.py', 'webui_browser_server.py',
                 'seed_webui_regression.py', 'webui_test_events.py')],
         ]
+        if args.browser_scope == 'pdf-performance':
+            sources += [ROOT / path for path in (
+                'backend/services/api/main.py', 'backend/services/api/content_storage.py',
+                'backend/services/api/processing_copies.py', 'frontend/webui/static/pdfjs/erms-viewer.mjs',
+                'frontend/webui/static/pdfjs/pdf.min.mjs', 'frontend/webui/static/pdfjs/web/viewer.mjs',
+            )]
+        if args.pdf_workbook:
+            sources += [ROOT / name for name in ('backend/services/api/document_conversion.py',
+                        'backend/services/api/converted_previews.py', 'database/schema.sql') if (ROOT / name).is_file()]
         (output / 'source-environment.json').write_text(json.dumps({
             'started_utc': datetime.now(timezone.utc).isoformat(),
             'os': platform.platform(),
@@ -179,6 +197,8 @@ def main():
             if args.browser:
                 api_command = [sys.executable, '-m', 'tools.webui_browser_server',
                                '--fd', str(api_socket.fileno()), '--output', str(output)]
+            if args.browser_scope == 'pdf-performance':
+                api_command.append('--observe-pdf')
             api = start('api', api_command, pass_fds=(api_socket.fileno(),))
             wait_ready(api, api_url + '/health')
             services = [api]
@@ -189,6 +209,7 @@ def main():
                     "app.add_middleware(SessionMiddleware, secret_key=os.environ['WEBUI_STORAGE_SECRET'], session_cookie='erms_refactor_disposable'); "
                     + ("from tools.webui_browser_server import BrowserDiagnostics, install_client_diagnostics; app.add_middleware(BrowserDiagnostics); "
                        f"install_client_diagnostics({str(output)!r}); " if args.browser else "") +
+                    (f"from tools.pdf_benchmark_transport import MeasuredPreviewTransport; app.add_middleware(MeasuredPreviewTransport, directory={str(output)!r}); " if args.browser_scope == 'pdf-performance' else "") +
                     "runpy.run_module('frontend.webui.app',run_name='__main__')"],
                     pass_fds=(ui_socket.fileno(),))
                 wait_ready(webui, ui_url + '/')
@@ -204,7 +225,7 @@ def main():
                 browser = start('browser', [args.browser_python, 'tools/check_webui_browser.py',
                     '--browser', args.browser, '--url', ui_url, '--api', api_url,
                     '--scope', args.browser_scope,
-                    '--output', str(output), '--api-python', sys.executable, *maildev_arguments])
+                    '--output', str(output), '--api-python', sys.executable, *(['--pdf-baseline'] if args.pdf_baseline else []), *(['--pdf-workbook', str(args.pdf_workbook.resolve())] if args.pdf_workbook else []), *maildev_arguments])
                 result['test_exit_code'] = browser.wait(timeout=900)
                 report = output / 'browser-results.json'
                 evidence = json.loads(report.read_text()) if report.exists() else {}

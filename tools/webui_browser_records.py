@@ -79,8 +79,17 @@ def check_records(page):
                 assert page.driver.execute_script('return document.documentElement.dir') == ('rtl' if language == 'ar' else 'ltr')
                 assert not page.visible('#editorModeButtons, #printButton, #downloadButton')
                 assert page.driver.execute_script('return PDFViewerApplication.pdfViewer.annotationEditorMode') == -1
+                first_url = page.driver.execute_script('return PDFViewerApplication.url')
             finally:
                 page.driver.switch_to.default_content()
+            if language == 'ar':
+                page.activate(page.visible('.component-switcher-button', viewer)[0])
+                page.one('.q-img', scope=viewer)
+                page.activate(page.visible('.component-switcher-button', viewer)[1])
+                page.wait.until(lambda _: page.driver.execute_script("""
+                    const app = document.querySelector('.q-dialog iframe')?.contentWindow?.PDFViewerApplication;
+                    return app?.url === arguments[0] && app?.pdfViewer?.getPageView(0)?.renderingState === 3;
+                """, first_url))
             toolbar = page.one('.component-viewer-toolbar', scope=viewer)
             assert len(page.visible('button', toolbar)) == 1
             page.activate(page.one('button', scope=toolbar))

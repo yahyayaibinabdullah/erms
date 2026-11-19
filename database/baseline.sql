@@ -8,6 +8,7 @@ BEGIN
         RAISE EXCEPTION 'Schema baseline is already recorded';
     END IF;
     IF to_regprocedure('disposition_private.complete_certificate_task(bigint,bigint,bigint)') IS NULL
+       OR to_regclass('public.preview_rendition_chunks') IS NULL
        OR to_regclass('public.search_results_cache') IS NULL
        OR NOT application_setting_value_valid('SEARCH_RESULT_LIMIT', '1000'::jsonb, NULL) THEN
         RAISE EXCEPTION 'Load the latest canonical schema before recording its baseline';
@@ -78,5 +79,6 @@ INSERT INTO schema_migrations(version) VALUES
  ('112_search_vector_storage'),
  ('113_aggregation_listing_page_sizes'),
  ('114_message_draft_completion_choice'),
- ('115_messages_page_size');
+ ('115_messages_page_size'),
+ ('118_converted_preview_renditions');
 COMMIT;

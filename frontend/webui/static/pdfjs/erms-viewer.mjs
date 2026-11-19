@@ -83,7 +83,7 @@ async function printDocument(encoded, mimeType = 'application/pdf') {
 }
 
 window.ermsPdfViewer = {
-  async open(id, encoded, labels) {
+  async open(id, source, labels) {
     const frame = document.getElementById(id);
     if (!frame) return false;
     const reader = frame.contentWindow;
@@ -110,7 +110,14 @@ window.ermsPdfViewer = {
         button.setAttribute('aria-label', name);
         button.title = tooltip;
       }
-      await app.open({data: decodeBase64(encoded)});
+      // PDF.js requires both switches to stop downloading the rest of a large
+      // file in the background. Small originals still use one binary GET.
+      await app.open({
+        url: new URL(source.url, location.origin).href,
+        rangeChunkSize: 128 * 1024,
+        disableStream: true,
+        disableAutoFetch: true,
+      });
       signal.throwIfAborted();
       await app.pdfViewer.onePageRendered;
       return true;
@@ -125,7 +132,8 @@ window.ermsPdfViewer = {
     const frame = document.getElementById(id);
     if (!frame) return;
     frameController(frame).abort();
-    void frame.contentWindow?.PDFViewerApplication?.close();
+    void Promise.resolve(frame.contentWindow?.PDFViewerApplication?.close())
+      .catch(() => {});
   },
   print(encoded, mimeType = 'application/pdf') {
     void printDocument(encoded, mimeType);

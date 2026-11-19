@@ -158,11 +158,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--fd', type=int, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--observe-pdf', action='store_true')
     args = parser.parse_args()
     if not conninfo_to_dict(os.environ['DATABASE_URL'])['dbname'].startswith('erms_webui_test_'):
         raise RuntimeError('Browser instrumentation requires the disposable test runner')
     import uvicorn
     from backend.services.api.main import app
+    if args.observe_pdf:
+        from tools.pdf_benchmark_transport import observe_storage
+        observe_storage(args.output)
     uvicorn.run(ObservedAPI(app,args.output), fd=args.fd)
 
 

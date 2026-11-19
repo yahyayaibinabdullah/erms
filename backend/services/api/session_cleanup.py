@@ -17,6 +17,7 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
 from .application_settings import CACHE_SECONDS, cache as settings_cache, load_snapshot
+from .converted_previews import cleanup_expired as cleanup_expired_previews
 from .database import database_url
 from .application_settings_migration import readiness, MigrationInvalid
 
@@ -284,6 +285,8 @@ def _run_due_passes(
         # Commit the short cache batch before doing any audited login cleanup;
         # slow session event writes must not retain cache row/advisory locks.
         if schedule.search_finished is None or time.monotonic() - schedule.search_finished >= search_interval:
+            if not dry_run:
+                cleanup_expired_previews(connection)
             search_result = cleanup_search_cache(
                 connection, batch_size=settings['GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE'], dry_run=dry_run,
             )
