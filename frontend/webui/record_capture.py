@@ -9,6 +9,7 @@ from nicegui import background_tasks
 from .upload_buffers import buffer_upload_batch
 from .component_presentation import component_uploader
 from nicegui import events
+from .type_controls import MetadataForm, t as type_label
 from .entity_editor_controls import field_input
 from .entity_editor_controls import form_payload
 from .entity_editor_controls import medium_options
@@ -174,6 +175,8 @@ def build_record_capture(
                     return
             dialog.close()
 
+        typed = MetadataForm(api,"record")
+
         async def commit() -> None:
             if not capture_preparation["ready"] or capture_preparation["closed"]:
                 return
@@ -190,9 +193,10 @@ def build_record_capture(
                 creator_role_id = controls["creator_acl_role_id"].value
                 if creator_role_id is None:
                     raise ValueError("Select who this record is being created for")
+                assignment = typed.payload()
                 await api.update_record_draft(draft["id"], payload)
                 committed_record = await api.commit_record_draft(
-                    draft["id"], int(creator_role_id), capture=existing_capture_draft is not None,
+                    draft["id"], int(creator_role_id), capture=existing_capture_draft is not None, **({"metadata":assignment} if assignment else {}),
                 )
                 if capture_active is not None and not capture_active():return
                 dialog.close()
@@ -228,6 +232,7 @@ def build_record_capture(
             with ui.element("div").classes("w-full overflow-y-auto px-6 pb-2 max-h-[calc(100vh-190px)]"):
                 ui.label(render_message("webui.open_record_draft_editor.label.record_details_e88ae30c")).classes("text-base font-semibold mt-4 mb-2")
                 ui.label(render_message("webui.open_record_draft_editor.label.required_fields_40cea53e")).classes("text-xs text-slate-500 -mt-1 mb-2")
+                ui.label(type_label("primary")).classes("text-base font-semibold")
                 with ui.grid(columns=2).classes("w-full gap-3"):
                     aggregation_field = next(
                         field for field in spec.fields if field.name == "aggregation_id"
@@ -441,6 +446,7 @@ def build_record_capture(
                         lambda: background_tasks.create(apply_selected_aggregation())
                     )
                     constrain_record_medium()
+                await typed.render()
                 with ui.column().classes("w-full gap-0 mt-5 mb-2"):
                     ui.label(render_message("webui.open_record_draft_editor.label.digital_components_21c9474b")).classes("w-full text-start text-base font-semibold")
                     ui.label(render_message("webui.open_record_draft_editor.label.files_remain_staged_until_you_create_the_r_ec0dd8d9")).classes("w-full text-start text-xs text-slate-500")

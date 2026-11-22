@@ -138,7 +138,10 @@ class Acceptance:
         field.send_keys(Keys.TAB)
     def drawer(self,key):
         label=self.t('navigation.item.'+key)
-        self.activate(self.one('button.erms-nav-link',label))
+        # Several translated navigation labels end in the same noun.
+        button = self.wait.until(lambda _: next((item for item in self.visible('button.erms-nav-link')
+            if plain(item.get_attribute('aria-label')) == label), None), f'Missing navigation item: {label}')
+        self.activate(button)
     def tab(self,category):
         label=self.t('settings.category.'+category)
         def select(_):
@@ -677,6 +680,11 @@ with psycopg.connect(url) as c:
             check_audit(self)
             self.report['complete'] = True
             return
+        if self.args.scope == 'resource-types':
+            from tools.webui_browser_resource_types import check_types
+            check_types(self)
+            self.report['complete'] = True
+            return
         if self.args.scope == 'relationships':
             from tools.webui_browser_relationships import check_relationships
             check_relationships(self)
@@ -743,7 +751,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','resource-types','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
     parser.add_argument('--office-fixtures', type=Path)
     parser.add_argument('--pdf-workbook')
     parser.add_argument('--pdf-baseline', action='store_true')

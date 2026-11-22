@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 
+import psycopg
 import pytest
 
 from .test_disposition_membership import db
@@ -49,6 +50,22 @@ def test_populated_type_text_upgrade(client, aggregation, record):
                     (rid,),
                 )
             before[kind] = doc(kind, rid)
+        # Reject the final receipt after the backfill has executed. All schema
+        # and data changes in that file must roll back before the real retry.
+        c.execute("""CREATE FUNCTION pg_temp.reject_upgrade_receipt() RETURNS trigger
+                     LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'receipt failure fixture'; END $$""")
+        c.execute("""CREATE TRIGGER reject_upgrade_receipt BEFORE INSERT ON schema_migrations
+                     FOR EACH ROW WHEN (NEW.version = '121_type_text_search')
+                     EXECUTE FUNCTION pg_temp.reject_upgrade_receipt()""")
+        c.commit()
+        with pytest.raises(psycopg.errors.RaiseException, match="receipt failure fixture"):
+            c.execute(migration.read_text(), prepare=False)
+        c.rollback()
+        assert c.execute("SELECT to_regprocedure('public.refresh_changed_type_search_text()') AS fn").fetchone()["fn"] is None
+        assert not c.execute("SELECT 1 FROM schema_migrations WHERE version='121_type_text_search'").fetchone()
+        for kind, rid in owners.items():
+            assert doc(kind, rid) == before[kind]
+        c.execute("DROP TRIGGER reject_upgrade_receipt ON schema_migrations")
         c.commit()
         c.execute(migration.read_text(), prepare=False)
         assert doc("record", untouched) == untyped

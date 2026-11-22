@@ -506,3 +506,58 @@ def test_saved_owner_loses_see_and_removed_definition(client, corpus):
     assert client.post(url + "/execute", json={}).status_code == 422
     row = next(r for r in ok(client.get(endpoint))["items"] if r["id"] == saved["id"])
     assert row["capability_reasons"]["open"] == "search_type_reference_unavailable"
+
+
+def test_shared_typed_search_tracks_grant_changes_end_to_end(client, corpus):
+    """The same recipient and cached page follow the administrator's live grant."""
+    from fastapi.testclient import TestClient
+    from .test_phase7_mutation_authorization import _set_aggregation_acl, _set_record_acl
+
+    kind, owner, _, fields, _, choices, ids = corpus
+    _, role = _grant_principal({f"{kind}.view"})
+    set_acl = _set_record_acl if kind == "record" else _set_aggregation_acl
+    set_acl(ids[0], role, {f"{kind}.view"})
+    type_url = f"/api/v1/{kind}-types/{owner}"
+
+    def allow(see):
+        version = ok(client.get(type_url))["version"]
+        ok(client.put(f"{type_url}/role-grants/{role}", headers={"If-Match": str(version)},
+                      json={"can_see": see, "can_use": False}))
+
+    query = {
+        "where": {"and": [condition("title", "contains_ci", "Phase3"),
+                          condition(f"type.{owner}.field.{fields['single_choice']}", "eq", choices[0])]},
+        "sort": [{"field": f"type.{owner}.field.{fields['decimal']}", "direction": "desc"}],
+        "limit": 25,
+    }
+    search = f"/api/v1/{kind}s/advanced-search"
+    assert [row["id"] for row in ok(client.post(search, json=query))["items"]] == ids[:1]
+    shared = ok(client.post("/api/v1/saved-searches", json=_payload(
+        name="Shared typed lookup", audience_mode="shared", role_ids=[role],
+        definition={"schema_version": 1, "resource_type": kind, "request": query})), 201)
+    detail = f"/api/v1/saved-searches/{shared['id']}"
+    resource = f"/api/v1/{kind}s/{ids[0]}"
+    allow(True)
+    # The existing fixture owns the application lifespan. Use separate cookies
+    # so revocation and restoration are observed in the original recipient session.
+    recipient = TestClient(client.app)
+    try:
+        _login_as_phase7(recipient)
+        tab = {"tab_id": str(uuid4())}
+        page = ok(recipient.post(detail + "/execute", json=tab))
+        assert [row["id"] for row in page["items"]] == ids[:1]
+        assert ok(recipient.get(resource))["id"] == ids[0]
+        allow(False)
+        summary = next(r for r in ok(recipient.get("/api/v1/saved-searches"))["items"] if r["id"] == shared["id"])
+        assert "definition" not in summary
+        assert summary["capability_reasons"]["open"] == "saved_search_type_forbidden"
+        assert recipient.get(resource).status_code == 404
+        assert recipient.get(detail).status_code == 403
+        assert recipient.post(detail + "/execute", json={**tab, "search_id": page["search_id"]}).status_code == 403
+        assert recipient.post(search, json=query).status_code == 403
+        assert ok(client.get(resource))["id"] == ids[0]  # Governance retains access.
+        allow(True)
+        assert ok(recipient.get(detail))["definition"] == shared["definition"]
+        assert [r["id"] for r in ok(recipient.post(detail + "/execute", json=tab))["items"]] == ids[:1]
+    finally:
+        recipient.close()

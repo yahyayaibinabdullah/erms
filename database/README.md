@@ -21,27 +21,22 @@ provider. See [collation rationale, measured examples and restore guidance](../d
 Existing databases need an explicit rebuild to change their default locale;
 `schema.sql` does not change it.
 
-Create the complete current structure from the canonical schema, then explicitly
-install required reference data and the fresh-install version baseline:
+Run the fresh initializer with the intended database selected in `DATABASE_URL`:
 
 ```bash
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/schema.sql \
-  -f database/seeds/000_required_reference_data.sql \
-  -f database/baseline.sql
+backend/services/api/.venv/bin/python tools/initialize_database.py
 ```
 
-`database/schema.sql` is complete and self-contained **DDL only**. It creates
-each final object once and does not execute or depend on migrations or seeds.
-The required seed contains current built-in settings, languages, permissions,
-profiles and service-role defaults; it creates audit events with source `seeding`.
-`database/baseline.sql` registers the installation’s version. It executes no
-historical migrations. It records which upgrade versions are already included in
-this fresh schema. Both initialization files
-are for fresh installations only; neither reconciles an existing database.
+The installer applies the canonical DDL, required reference data and included migration receipts in one transaction. Any error rolls the installation back. An existing ERMS schema, including one with an empty receipt table, is refused. Existing databases use the numbered upgrades. Investigate missing or mismatched receipts against the corresponding schema and data before making any repair.
 
-The equivalent Python entry point is
-`backend/services/api/.venv/bin/python tools/initialize_database.py`. It refuses
-a database that already contains the application schema.
+For a deployment that uses `psql`, send the same initializer output to a single session:
+
+```bash
+set -o pipefail
+python3 tools/initialize_database.py --print-sql | psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1
+```
+
+`database/schema.sql` remains independently executable DDL. `database/baseline.sql` records the versions included by a fresh installation and requires the initializer’s transaction-local marker. Required seed events use source `seeding`.
 
 See [canonical maintenance and verification](../docs/database-canonical-baseline.md).
 All SQL files contain portable PostgreSQL SQL;
@@ -53,7 +48,26 @@ After version 120, apply [migration 121](migrations/121_type_text_search.sql) be
 
 Schedule the migration during a write maintenance window. It acquires `SHARE ROW EXCLUSIVE` locks on records, aggregations and their type-value tables. Ordinary reads can continue. Resource and field-value writes wait until commit. Allow space for changed metadata rows, GIN entries and WAL. An error rolls back the backfill, trigger definitions and version marker together. Fresh installations get the final definitions from the canonical schema. [Phase 4 measurements](../docs/verification/aggregation-record-types-phase-4.md)
 
-Migration [119](migrations/119_resource_types.sql) installs the aggregation and record type foundation. It leaves existing resources untyped and preserves saved searches. The nullable columns require no resource heap rewrite. The migration builds resource indexes and holds an `ACCESS EXCLUSIVE` lock on both resource tables until commit. Schedule a maintenance interval with capacity for the new indexes and WAL. The measured interval and resource-index growth are recorded in the [Phase 1 upgrade report](../docs/verification/aggregation-record-types-phase-1.md#populated-upgrade). The approved plan introduces public type operations in later phases.
+Migration [119](migrations/119_resource_types.sql) installs the aggregation and record type foundation. It leaves existing resources untyped and preserves saved searches. The nullable columns require no resource heap rewrite. The migration builds resource indexes and holds an `ACCESS EXCLUSIVE` lock on both resource tables until commit. Schedule a maintenance interval with capacity for the new indexes and WAL. The measured interval and resource-index growth are recorded in the [Phase 1 upgrade report](../docs/verification/aggregation-record-types-phase-1.md#populated-upgrade). Apply the remaining type migrations before starting the updated API or WebUI.
+
+### Resource type upgrade and recovery
+
+For a database at `118_converted_preview_renditions`, take a restorable pre-upgrade backup or record a verified point-in-time recovery target. Check the complete migration names and confirm disk capacity for the new indexes, temporary index builds, changed search documents and WAL, including retained WAL on replicas. Use the installation’s actual data volume to budget the maintenance window. Keep API writers and background workers quiescent through the upgrade.
+
+Apply the files in order with a connection that stops on the first error. Each file commits its own DDL, data changes and receipt. Run this example only after confirming all three files are pending.
+
+```sh
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 \
+  -f database/migrations/119_resource_types.sql \
+  -f database/migrations/120_resource_type_access.sql \
+  -f database/migrations/121_type_text_search.sql
+```
+
+Migration 119 builds two assignment indexes and two unique resource indexes. Its table locks can also block reads. Migration 120 installs the type authorization functions, audit and write triggers, and default profile grants. Migration 121 holds its write locks until the text backfill commits. After the upgrade, verify the three receipts, valid type indexes and enabled triggers. Check an existing untyped resource and saved search, then check a typed resource as an authorized and a restricted viewer. Refresh planner statistics on the affected tables after a substantial backfill. The release uses the existing service configuration and normal catalogue synchronization. Review and publish new Arabic drafts through Translation Administration.
+
+If a file fails, keep the application quiescent and inspect the error and the complete receipts from a new connection. A committed earlier file remains applied. Resolve the cause and resume at the first pending file after verifying its objects. A disconnected client may have lost a commit acknowledgement, so check the receipt before retrying. If the installation must return to the previous release after a commit, restore the database to the verified recovery point and pair it with the previous application build before reopening writes. Account for any writes made after the recovery point. The fresh-install baseline and manual receipt edits cannot undo committed schema or data changes.
+
+[Final rehearsal and observed space, locks and response times](../docs/verification/aggregation-record-types-phase-6.md)
 
 ### Type migration identifiers after PDF integration
 

@@ -42,7 +42,7 @@ def dump(path, value):
 from tools.search_benchmark_support import HostMonitor, sample_waits_and_io
 
 
-def exercise(output, url, repeats, settle_seconds, *, capture_plans=False, predecessor_probe=False,
+def exercise(output, url, repeats, settle_seconds, *, type_text=False, capture_plans=False, predecessor_probe=False,
              ranking_io_concurrency=None):
     with socket.socket() as sock:
         sock.bind(('127.0.0.1', 0))
@@ -161,6 +161,10 @@ def exercise(output, url, repeats, settle_seconds, *, capture_plans=False, prede
                 assert observed['total'] == min(1000, exp['count'])
                 assert observed['truncated'] == (exp['count'] > 1000)
 
+            if type_text:
+                from tools.type_text_search_performance import exercise as exercise_type_text
+                exercise_type_text(client, c, output, repeats, rich_sets=sets)
+
         # The server buffers diagnostics in memory during requests. Normal
         # shutdown flushes them after all timers, avoiding measurement-induced
         # filesystem/antivirus activity on the request path.
@@ -237,6 +241,7 @@ def exercise(output, url, repeats, settle_seconds, *, capture_plans=False, prede
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--type-text', action='store_true', help='Exercise populated resource text, exact ranks and fresh pages')
     parser.add_argument('--resource-types', action='store_true', help='Include equivalent-access typed resources')
     parser.add_argument('--repeats', type=int, default=3)
     parser.add_argument('--settle-seconds', type=int, default=0)
@@ -253,6 +258,7 @@ def main():
     parser.add_argument('--vector-storage', choices=('current', 'uncompressed'), default='current',
                         help='Disposable-only storage comparison; application schema is unchanged')
     args = parser.parse_args()
+    args.resource_types |= args.type_text
     if args.output.exists() or args.repeats < 1 or not 0 <= args.settle_seconds <= 300:
         parser.error('output must be new, repeats positive and settle-seconds in 0..300')
     output = args.output.resolve()
@@ -279,6 +285,9 @@ def main():
             from tools.search_storage_experiment import configure, inspect
             configure(c, args.vector_storage)
             sets = fixture(c, typed=args.resource_types)
+            if args.type_text:
+                from tools.type_text_search_performance import seed_type_text
+                seed_type_text(c,output)
             dump(output / 'fixture-sets.json', sets)
             environment = {'database': name, 'postgres': c.execute('SELECT version() v').fetchone()['v'],
                            'platform': platform.platform(), 'cpu_count': os.cpu_count(),
@@ -301,7 +310,7 @@ def main():
                                ROOT / 'database/seeds/000_required_reference_data.sql', ROOT / 'tools/initialize_database.py',
                                ROOT / 'tools/search_memory_probe.py',
                                ROOT / 'tools/search_storage_experiment.py', ROOT / 'tools/search_benchmark_support.py',
-                               ROOT / 'database/schema.sql', Path(__file__), ROOT / 'tools/search_large_text_fixture.py',
+                               ROOT / 'database/schema.sql', Path(__file__), ROOT / 'tools/search_large_text_fixture.py', ROOT / 'tools/type_text_search_performance.py',
                                ROOT / 'tools/check_search_performance.py')}}
             for setting in ('jit', 'work_mem', 'shared_buffers', 'fsync', 'data_checksums', 'full_page_writes',
                             'effective_io_concurrency', 'io_method', 'io_workers', 'synchronize_seqscans'):
@@ -335,7 +344,7 @@ def main():
         print('Large-text fixture ready: ' + name, flush=True)
         with sample_waits_and_io(output, url) if args.sample_waits_and_io else nullcontext():
             exercise(output, url, args.repeats, args.settle_seconds,
-                     capture_plans=args.capture_ranking_plans, predecessor_probe=args.predecessor_probe,
+                     type_text=args.type_text, capture_plans=args.capture_ranking_plans, predecessor_probe=args.predecessor_probe,
                      ranking_io_concurrency=args.ranking_io_concurrency)
         if args.probe_concurrency:
             from tools.search_memory_probe import probe

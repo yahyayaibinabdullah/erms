@@ -420,10 +420,9 @@ database explicitly or use a controlled rebuild; pulling code or restarting
 does not change the provider. See [creation commands, inspection, examples and
 restore verification](database-collation.md) and the [clone setup guide](clone-and-setup.md#6-set-up-postgresql-and-its-tools).
 
-The Docker fallback mounts the canonical DDL, required reference-data seed and
-version-baseline file as three ordered init scripts. Existing database volumes
-are reused without applying any of these fresh-install scripts. The standalone
-`tools/bootstrap-local-dev.sh` uses the same order. For manual initialization,
+The Docker fallback mounts one SQL transaction emitted by the fresh initializer.
+Existing database volumes are reused. The standalone bootstrap uses the same
+transaction for a reachable, uninitialized database. For manual initialization,
 follow `database/README.md` or run `tools/initialize_database.py` using the API
 Python environment. Migration history remains under `database/migrations`;
 `schema.sql` no longer doubles as an upgrade-test fixture. Historical upgrade

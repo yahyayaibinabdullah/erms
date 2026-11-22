@@ -1,5 +1,6 @@
 """Existing advanced-query fields, grammar, validation and localized options."""
 from __future__ import annotations
+import re
 from typing import Any
 from .i18n_catalogue import render_message
 
@@ -153,6 +154,16 @@ def advanced_search_has_component_field(node: dict[str, Any]) -> bool:
     return any(advanced_search_has_component_field(child) for child in node.get("children", []))
 
 
+def workspace_sort(workspace):
+    first = {"field": workspace["sort_field"], "direction": workspace["sort_direction"]}
+    return [first, *(item for item in workspace.get("sort_tail", ()) if item["field"] != first["field"])]
+
+
+def typed_field_ids(name):
+    match = re.fullmatch(r"type\.([1-9][0-9]{0,18})\.field\.([1-9][0-9]{0,18})", name or "")
+    return tuple(map(int, match.groups())) if match else None
+
+
 def compile_advanced_search_node(node: dict[str, Any], resource: str) -> dict[str, Any]:
     if node.get("type") == "condition":
         if node.get("kind") == "full_text":
@@ -162,6 +173,21 @@ def compile_advanced_search_node(node: dict[str, Any], resource: str) -> dict[st
             sources = node.get("sources") or (["metadata", "components"] if resource == "records" else ["metadata"])
             return {"full_text": {"query": query, "sources": sources}}
         field = node.get("field")
+        if node.get("kind") in {"assigned", "type_field"}:
+            if not (field == "type_id" or typed_field_ids(field)):
+                raise ValueError(render_message("advanced_search.validation.field_required"))
+            op = node.get("operator")
+            result = {"field": field, "operator": op}
+            if node.get("invalid_value"):
+                raise ValueError(render_message("advanced_search.validation.value_required"))
+            if op not in {"is_null", "is_not_null"}:
+                value = node.get("value")
+                values = value if isinstance(value, list) else [value]
+                if (not values or any(v in (None, "") for v in values)
+                        or (op == "between" and len(values) != 2)):
+                    raise ValueError(render_message("advanced_search.validation.value_required"))
+                result["value"] = value
+            return result
         if field not in ADVANCED_SEARCH_FIELDS[resource]:
             raise ValueError(render_message("advanced_search.validation.field_required"))
         _, kind, nullable = ADVANCED_SEARCH_FIELDS[resource][field]
@@ -223,6 +249,10 @@ def advanced_search_node_from_expression(expression: dict[str, Any]) -> dict[str
             "type": "condition", "kind": "structured",
             "field": expression["field"], "operator": expression["operator"],
         }
+        if expression["field"] == "type_id":
+            node["kind"] = "assigned"
+        elif typed_field_ids(expression["field"]):
+            node["kind"] = "type_field"
         if "value" in expression:
             node["value"] = expression["value"]
         return node

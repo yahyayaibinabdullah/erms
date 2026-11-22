@@ -9,12 +9,13 @@ HOLDS_API = Path(__file__).parents[3] / "backend" / "services" / "api" / "holds.
 
 def hold_sources():
     return "\n".join(APP.with_name(name+".py").read_text() for name in
-        ("app", "hold_editor", "hold_resources", "holds", "hold_details", "hold_navigation", "holds_people", "aggregation_details", "record_details", "entity_editor"))
+        ("app", "application_shell", "hold_editor", "hold_resources", "holds", "hold_details", "hold_navigation", "holds_people", "aggregation_details", "record_details", "entity_editor"))
 
 
 def test_holds_workspace_and_navigation_are_wired():
     source = with_english_messages(hold_sources() + APP.with_name("application_shell.py").read_text() + APP.with_name("login_sessions.py").read_text())
-    assert '"Holds", "gavel", navigation_key="holds"' in source
+    assert '"Holds", navigation_key="holds"' in source
+    assert '"holds": "gavel"' in APP.with_name("navigation_data.py").read_text()
     assert 'async def select_holds()' in source
     assert 'async def select_hold_details(hold_id: int)' in source
     assert 'async def open_hold_editor(' in source

@@ -190,7 +190,8 @@ def oracle(c, query, sources, maximum_id=None, kind=None, order_by_id=False):
     return rows
 
 
-def exercise(output, repeats):
+def exercise(output, repeats, *, type_text=False, upgraded_reader_check=None):
+    """The populated-upgrade rehearsal reuses the three broad cases and the reader session."""
     from fastapi.testclient import TestClient
     from backend.services.api.main import app
     from backend.services.api import search
@@ -221,6 +222,8 @@ def exercise(output, repeats):
             assert login.status_code==200,login.text
             client.headers['X-CSRF-Token']=client.cookies['erms_csrf']
             for label,query,count,sources in CASES:
+                if upgraded_reader_check is not None and not label.startswith('broad_'):
+                    continue
                 expected=None
                 leaf={'full_text':{'query':query}}
                 if sources:leaf['full_text']['sources']=[sources]
@@ -290,6 +293,10 @@ def exercise(output, repeats):
                         if label == 'content' and resource == 'records':
                             assert 'component_search_chunks_vector_gin' in used
                     c.commit()
+            if upgraded_reader_check is not None:
+                if identity == 'reader':
+                    upgraded_reader_check(client, c, repeats)
+                continue
             from tools.search_aggregation_activity_performance import exercise as exercise_aggregation_activity
             failures.extend(exercise_aggregation_activity(client, c, output, repeats, identity))
             from tools.search_cache_performance import exercise as exercise_tab_cache
@@ -300,6 +307,9 @@ def exercise(output, repeats):
             failures.extend(exercise_child_aggregations(client, c, output, repeats, identity))
             failures.extend(exercise_global_ui_pages(client, output, repeats, identity))
         (output/'results.json').write_text(json.dumps({'results':results,'failures':failures},indent=2))
+        if type_text:
+            from tools.type_text_search_performance import exercise as exercise_type_text
+            exercise_type_text(client, c, output, repeats)
         assert not failures, f'{len(failures)} responses exceeded their time limit; see {output}/results.json'
 
 
@@ -311,6 +321,7 @@ def main():
                         help='Disposable-only storage comparison; application schema is unchanged')
     parser.add_argument('--settle-seconds',type=int,default=0,
                         help='Explicit idle interval after fixture maintenance, before any search; recorded in evidence')
+    parser.add_argument('--type-text', action='store_true', help='Populate and verify resource text fields, rankings and current-page access')
     parser.add_argument('--typed-search-only', action='store_true', help='Measure typed structured searches, saved searches and selectors')
     parser.add_argument('--type-visibility-only',action='store_true',help='Exercise broad lists, revocation, governance and writes on the typed fixture')
     parser.add_argument('--resource-types',action='store_true',help='Seed mixed typed/untyped resources with equivalent reader access')
@@ -318,7 +329,10 @@ def main():
                         help='Measure Inbox, Outbox and Drafts against the same document corpus')
     parser.add_argument('--mailbox-page-size', type=int, default=25,
                         help='Page size for the mailbox workload (1–50)')
+    parser.add_argument('--type-ui', action='store_true', help='Run the structured type benchmark and the WebUI catalogue request shapes')
     args=parser.parse_args()
+    args.typed_search_only |= args.type_ui
+    args.resource_types |= args.type_text
     if args.type_visibility_only or args.typed_search_only:
         args.resource_types=True
     if args.repeats<1:parser.error('repeats must be positive')
@@ -329,7 +343,7 @@ def main():
     source_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in (
         'tools/check_search_performance.py', 'backend/services/api/search.py',
         'backend/services/api/type_search.py', 'backend/services/api/saved_searches.py',
-        'tools/structured_type_search_performance.py',
+        'tools/structured_type_search_performance.py', 'tools/type_text_search_performance.py',
         'backend/services/api/search_page.py', 'backend/services/api/search_cache.py',
         'backend/services/api/search_projections.py',
         'backend/services/api/search_execution.py',
@@ -341,6 +355,9 @@ def main():
         'backend/services/api/recent_activity.py', 'tools/search_aggregation_activity_performance.py',
         'backend/services/api/creator_attribution.py', 'backend/services/api/application_settings_registry.py',
         'database/seeds/000_required_reference_data.sql',
+        *(['tools/type_ui_performance.py', 'backend/services/api/resource_types.py',
+           'frontend/webui/type_controls.py', 'frontend/webui/type_administration.py',
+           'frontend/webui/advanced_search.py'] if args.type_ui else []),
         *(['tools/search_mailbox_performance.py', 'backend/services/api/messaging/text_filters.py',
            'backend/services/api/messaging/reading.py', 'backend/services/api/messaging/drafts.py',
            'backend/services/api/messaging/routes.py'] if args.mailbox_only else []))}
@@ -366,6 +383,9 @@ def main():
             from tools.search_storage_experiment import configure, inspect
             configure(c, args.vector_storage)
             seed(c, typed=args.resource_types, structured_types=args.typed_search_only)
+            if args.type_text:
+                from tools.type_text_search_performance import seed_type_text
+                seed_type_text(c,args.output)
             if args.mailbox_only:
                 from tools.search_mailbox_performance import seed_mailboxes
                 seed_mailboxes(c)
@@ -405,12 +425,12 @@ def main():
                 exercise_mailboxes(buffered, args.repeats, args.mailbox_page_size)
             elif args.typed_search_only:
                 from tools.structured_type_search_performance import exercise as exercise_structured
-                exercise_structured(url, buffered, args.repeats)
+                exercise_structured(url, buffered, args.repeats, type_ui=args.type_ui)
             elif args.type_visibility_only:
                 from tools.resource_type_visibility_performance import exercise as exercise_visibility
                 exercise_visibility(url,buffered,args.repeats)
             else:
-                exercise(buffered,args.repeats)
+                exercise(buffered,args.repeats,type_text=args.type_text)
         finally:
             buffered.flush()
     except BaseException as error:

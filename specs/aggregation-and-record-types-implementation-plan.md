@@ -1,6 +1,6 @@
 # Aggregation and Record Types — Phased Implementation Plan
 
-**Status:** Approved. Phases 0–3 passed their applicable regression and performance gates on 19 November 2026. Phase 4 awaits authorization. [Phase 3 report](../docs/verification/aggregation-record-types-phase-3.md)
+**Status:** Approved. Phases 0–4 passed their applicable regression and performance gates. Phase 4 passed again after the 21 November merge. Phase 5 passed its WebUI, API and large-dataset gates on 21 November. Phase 6 passed the integrated regression, populated-upgrade and large-dataset gates on 21 November. All planned phases are complete. [Final verification and operator handoff](../docs/verification/aggregation-record-types-phase-6.md) [Phase 5 report](../docs/verification/aggregation-record-types-phase-5.md) [Phase 4 report](../docs/verification/aggregation-record-types-phase-4.md)
 
 **Prepared:** 18 November 2026
 
@@ -370,6 +370,6 @@ for the user to test and decide what to commit or deploy.
 | 1 — schema/validation | Passed | [Schema, validation and upgrade](../docs/verification/aggregation-record-types-phase-1.md) |
 | 2 — APIs/authorization | Passed | [Authorization, regression and performance evidence](../docs/verification/aggregation-record-types-phase-2.md) |
 | 3 — structured/saved search | Passed | [Phase 3 report](../docs/verification/aggregation-record-types-phase-3.md) |
-| 4 — text search/freshness | Not started | None |
-| 5 — UI | Not started | None |
-| 6 — integration/upgrade | Not started | None |
+| 4 — text search/freshness | Passed | [Phase 4 report](../docs/verification/aggregation-record-types-phase-4.md) |
+| 5 — UI | Passed | [Administration, resource forms, search, translation and performance](../docs/verification/aggregation-record-types-phase-5.md) |
+| 6 — integration/upgrade | Passed | [Fresh install, populated upgrade, recovery, regression and performance results](../docs/verification/aggregation-record-types-phase-6.md) |

@@ -228,6 +228,8 @@ def build_drawer(initial_direction: str) -> DrawerControls:
             "messages-outbox": render_message("messaging.navigation.outbox"),
             "messages-drafts": render_message("messaging.navigation.drafts"),
             "messages-notifications": render_message("messaging.admin.title"),
+            "aggregation-types": render_message("resource_types.ui.aggregation_catalogue"),
+            "record-types": render_message("resource_types.ui.record_catalogue"),
             "relationship-types": render_message("relationships.ui.catalogue"),
             "messages-monitor": render_message("messaging.monitor.title"),
             "advanced-search": render_message("navigation.item.advanced_search"),
@@ -244,7 +246,7 @@ def build_drawer(initial_direction: str) -> DrawerControls:
                     render_message("navigation.item.dashboard"), navigation_key="dashboard", extra_classes="mt-4",
                 )
                 for heading_key, entries in (
-                    ("records_heading", ("advanced-search", "aggregations", "records", "classification-schemes", "relationship-types")),
+                    ("records_heading", ("advanced-search", "aggregations", "records", "classification-schemes", "aggregation-types", "record-types", "relationship-types")),
                     ("disposition_heading", ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-templates")),
                     ("messages_heading", ("messages-inbox", "messages-outbox", "messages-drafts", "messages-monitor", "messages-notifications")),
                     ("organization_heading", ("org-units", "roles", "users")),

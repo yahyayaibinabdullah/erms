@@ -321,10 +321,12 @@ def test_records_and_aggregations_landing_use_dashboard_personal_panel_treatment
 
 def test_personal_view_all_dialogs_use_dedicated_scroll_container():
     assert ".dashboard-personal-dialog-list" in APP_SOURCE
-    assert (APP_SOURCE + PERSONAL_VIEWS_SOURCE + inspect.getsource(hold_details)).count("dashboard-personal-dialog-list") >= 6
-    assert (APP_SOURCE + PERSONAL_VIEWS_SOURCE + inspect.getsource(hold_details)).count("ui.scroll_area()") >= 6
-    assert (APP_SOURCE + PERSONAL_VIEWS_SOURCE + inspect.getsource(hold_details)).count('.props("visible")') >= 5
-    assert (APP_SOURCE + PERSONAL_VIEWS_SOURCE + inspect.getsource(hold_details)).count("height:min(65vh,") >= 5
+    from frontend.webui.personal_resource_views import favourite_pages
+    paged_list = inspect.getsource(favourite_pages)
+    assert 'ui.scroll_area().classes("dashboard-personal-dialog-list w-full")' in paged_list
+    assert 'height:min(58vh,' in paged_list
+    assert 'ui.pagination(1, last' in paged_list
+    assert 'dashboard-personal-dialog-list' in PERSONAL_VIEWS_SOURCE
     assert "dashboard-personal-panel w-full max-h-[65vh] overflow-y-auto" not in APP_SOURCE
 
 
@@ -907,7 +909,7 @@ def test_entity_translations_are_saved_by_the_main_entity_action_for_all_seven_e
 
 def test_profile_uses_one_reason_for_canonical_and_translation_changes():
     editor = with_english_messages(inspect.getsource(entity_editor))
-    assert 'None if uses_external_reason else ui.input(' in TRANSLATION_SOURCE
+    assert 'None if uses_external_reason or definition_translations is not None else ui.input(' in TRANSLATION_SOURCE
     assert 'uses_external_reason=spec.key == "profiles"' in editor
     assert 'get_external_reason() if uses_external_reason else translation_reason' in ' '.join(TRANSLATION_SOURCE.split())
     assert 'get_external_reason=lambda: profile_change_reason' in editor
@@ -999,7 +1001,8 @@ def test_application_shell_is_flat_and_uses_one_background():
 
 def test_aggregation_records_use_compact_rows_with_page_capabilities():
     source = aggregation_sources()
-    assert 'child_limit, record_limit = 10, 25' in source
+    assert 'child_limit = configuration["CHILD_AGGREGATION_PAGE_SIZE"]' in source
+    assert 'record_limit = configuration["CONTAINED_RECORD_PAGE_SIZE"]' in source
     assert '"include": ["record_capabilities"]' in source
     assert 'render_compact_resource_result(' in source
     assert 'can_expand_components=bool(count)' in source
@@ -1707,7 +1710,7 @@ def test_required_fields_are_visually_marked_and_explained():
 def test_governed_move_and_root_ownership_correction_are_exposed():
     source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())))
     assert source.count('classes("resource-advanced-actions w-full")') == 2
-    assert source.count('value=False).props("dense").classes("resource-advanced-actions w-full")') == 2
+    assert source.count('.props("dense").classes("resource-advanced-actions w-full")') == 2
     assert "show_aggregation_move" in source
     assert "show_ownership_correction_action" in source
     assert "show_acl_defaults" in source

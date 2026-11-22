@@ -17,6 +17,8 @@ PAGE_ICONS = {
     "classification-workspace": "account_tree",
     "classification-scheme-details": "account_tree",
     "classification-details": "schema",
+    "aggregation-types": "account_tree",
+    "record-types": "description",
     "relationship-types": "link",
     "disposition-tasks": "task_alt",
     "disposition-task": "task_alt",

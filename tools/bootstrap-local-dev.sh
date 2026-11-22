@@ -147,12 +147,12 @@ initialize_database() {
   fi
 
   DATABASE_URL="${DATABASE_URL:-postgresql://erms:replace-with-a-secure-password@127.0.0.1:5432/erms}"
-  if ! psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -Atc 'SELECT 1' >/dev/null 2>&1; then
-    info "Initializing PostgreSQL database from database/schema.sql"
-    psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 \
-      -f "${PROJECT_DIR}/database/schema.sql" \
-      -f "${PROJECT_DIR}/database/seeds/000_required_reference_data.sql" \
-      -f "${PROJECT_DIR}/database/baseline.sql" >/dev/null
+  local initialized
+  initialized="$(psql "${DATABASE_URL}" -XAt -v ON_ERROR_STOP=1 -c "SELECT to_regclass('public.schema_migrations') IS NOT NULL")"
+  if [[ "${initialized}" == "f" ]]; then
+    info "Initializing fresh PostgreSQL database"
+    python3 "${PROJECT_DIR}/tools/initialize_database.py" --print-sql |
+      psql "${DATABASE_URL}" -X -v ON_ERROR_STOP=1 >/dev/null
   fi
 }
 

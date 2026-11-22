@@ -3,12 +3,13 @@
 **Status:** Approved
 **Project:** ERMS / Wathiq  
 **Prepared:** 24 September 2026  
-**Revision:** 0.45 — Connection-local synchronous reads for Global Search ranking
+**Revision:** 0.46 — Resource type text in metadata search
 
 ### Revision history
 
 | Revision | Date | Change |
 | --- | --- | --- |
+| 0.46 | 19 November 2026 | Index each resource’s populated type-specific text with its descriptive metadata and refresh it in the resource write transaction |
 | 0.45 | 19 November 2026 | Apply synchronous reads to the initial Global Search ranking SELECT and restore the caller’s exact setting before cache and page work |
 | 0.44 | 14 November 2026 | Recorded user acceptance of the current compressed-storage performance baseline on the shared MacBook; deferred further tuning while preserving failed samples and the three-second threshold for future changes |
 | 0.43 | 13 November 2026 | Prefer MAIN/LZ4 storage for file-text vectors; require exact value preservation when rewriting existing storage and verify actual stored compression |
@@ -137,7 +138,7 @@ The initial weights are:
 | Record number | A |
 | Record title | A |
 | Digital-component file name | B |
-| Record description | B |
+| Record description and populated record-type text values | B |
 | Extracted component body text | D |
 
 Dates, checksums, storage keys, internal IDs, lifecycle state, security labels,
@@ -157,7 +158,7 @@ The unified results page shall group or clearly label **Aggregations** and
 An aggregation result navigates to the existing aggregation detail page; a
 record result navigates to the existing record detail page.
 
-Aggregation number and title use weight A; description uses weight B.
+Aggregation number and title use weight A. Description and populated aggregation-type text values use weight B. A matching assigned text value counts as an aggregation metadata match.
 
 ### 2.3 Extraction technology
 
@@ -815,14 +816,12 @@ record_id (PK/FK), search_vector, text_search_config, indexed_at,
 index_config_version
 ```
 
-The vector combines record number and title at weight A and description at
-weight B. A GIN index covers `search_vector`. It is refreshed in the same
+The vector combines record number and title at weight A with description and stored record-type text values at weight B. A GIN index covers `search_vector`. It is refreshed in the same
 transaction as relevant record metadata changes and deleted by cascade.
 
 ### 6.4 `aggregation_search_documents`
 
-One row per aggregation stores weighted aggregation number/title/description
-using the weights in section 2.2. Its lifecycle and indexing match the record
+One row per aggregation stores its weighted number, title, description and populated aggregation-type text fields using the weights in section 2.2. Its lifecycle and indexing match the record
 metadata table. Ancestor or descendant metadata is not copied into the vector.
 
 ### 6.5 `content_indexing_jobs`

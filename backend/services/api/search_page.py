@@ -187,7 +187,8 @@ def page_details(connection, page, leaves_by_kind):
                    WHERE document.aggregation_id=page.id AND document.search_vector @@ query.query
                ) AS aggregation_metadata_matched,
                CASE WHEN page.kind='aggregation' THEN (
-                   SELECT ts_headline('pg_catalog.simple',concat_ws(' ',aggregation_number,title,description),
+                   SELECT ts_headline('pg_catalog.simple',concat_ws(' ',aggregation_number,title,description,
+                       CASE WHEN aggregation.type_id IS NOT NULL THEN resource_type_search_text('aggregation',aggregation.id) END),
                        (SELECT query FROM parsed WHERE kind='aggregation' AND ordinal=0
                           AND config='pg_catalog.simple'::regconfig),
                        'StartSel=⟦,StopSel=⟧,MaxWords=35,MinWords=12,MaxFragments=1')

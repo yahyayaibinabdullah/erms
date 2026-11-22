@@ -1,5 +1,26 @@
 # Aggregation and record types, Phase 4
 
+## Rerun after merging main on 21 November 2026
+
+The rerun used merge revision `a16df902` and the local type implementation. Each database-backed runner created and dropped its own disposable databases. The search benchmarks ran consecutively after the regressions and upgrade rehearsal finished. The standard run used a 30-second settle and three rounds. The larger-text run used a 60-second settle, three rounds and wait-event and host I/O sampling. Both used PostgreSQL 18.4 without LLVM JIT.
+
+| Complete HTTP responses | Count | Slowest on 19 November | Slowest after merge |
+| --- | ---: | ---: | ---: |
+| Standard, existing searches | 1,524 | 2.5671 s | 2.5297 s |
+| Standard, type-text searches | 188 | 0.6074 s | 0.5629 s |
+| Larger text, existing searches | 428 | 2.5107 s | 2.3829 s |
+| Larger text, type-text searches | 215 | 0.6602 s | 0.5993 s |
+
+All 2,355 responses met the three-second threshold. The 296 standard and 19 larger-text ranking and expectation files matched their pre-feature baselines byte for byte. [Standard measurements and plans](postmerge-p4-standard.json.gz) · [Larger-text measurements and plans](postmerge-p4-rich.json.gz) · [Wait events and host I/O](postmerge-p4-rich-waits-and-io.jsonl.gz)
+
+The five focused search regressions passed. The populated upgrade test passed with `--baseline-ref=a16df902` and `--migration=database/migrations/121_type_text_search.sql`. The large rehearsal initialized the published PDF schema, applied migrations 119–121 and compared it with a fresh installation. Migration 121 and commit took 0.9272 s for 5,001 text-bearing records and 5,001 text-bearing aggregations. All 204,012 vectors matched the expected values, and the schema dumps matched. [Upgrade measurements](postmerge-p4-upgrade.json.gz)
+
+The first 41-module run passed 486 cases and failed one on import. An `await` in the aggregation details action menu prevented the WebUI from loading. Moving the renderer below the primary metadata in the first tab fixed the import. All 40 Advanced Search builder tests then passed. A clean rerun on a new database passed all 487 tests in 19 minutes 33 seconds. [Regression logs and module list](postmerge-p4-regressions.json.gz)
+
+The record draft editor already contained the checkpoint indentation correction and compiled successfully.
+
+## Original verification
+
 **Identifier note.** Measurements, hashes and commands below are historical
 evidence from before PDF integration. Type-text migration 120 is now 121;
 see the [identifier mapping](../../database/README.md#type-migration-identifiers-after-pdf-integration).

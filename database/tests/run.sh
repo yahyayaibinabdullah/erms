@@ -257,9 +257,7 @@ psql "${I18N_HARDENING_MIGRATION_DATABASE_URL}" --set ON_ERROR_STOP=on --command
 docker exec "${CONTAINER_NAME}" dropdb --force --username "${POSTGRES_USER}" "${I18N_HARDENING_MIGRATION_DB}"
 I18N_HARDENING_MIGRATION_DB_CREATED=false
 
-psql "${DATABASE_URL}" --set ON_ERROR_STOP=on --file "${DATABASE_DIR}/schema.sql" \
-    --file "${DATABASE_DIR}/seeds/000_required_reference_data.sql" \
-    --file "${DATABASE_DIR}/baseline.sql"
+DATABASE_URL="${DATABASE_URL}" "${API_VENV}/bin/python" "${PROJECT_DIR}/tools/initialize_database.py"
 psql "${DATABASE_URL}" --set ON_ERROR_STOP=on \
     --file "${DATABASE_DIR}/migrations/031_allow_governed_security_changes_on_closed_resources.sql"
 psql "${DATABASE_URL}" --set ON_ERROR_STOP=on --command \

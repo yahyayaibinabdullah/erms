@@ -17,7 +17,7 @@ def test_untouched_translation_fields_do_not_block_unrelated_metadata_save():
         'fields': ('name', 'description'),
     })
     controls = {field: SimpleNamespace(value=None) for field in ('name', 'description')}
-    namespace = {'translation_state': state, 'translation_controls': controls,
+    namespace = {'definition_translations': None, 'translation_state': state, 'translation_controls': controls,
                  'language_control': SimpleNamespace(value=None), 'render_message': lambda key: key}
     exec(compile(ast.Module(body=[pending], type_ignores=[]), 'pending', 'exec'), namespace)
     assert namespace['pending_entity_translation']() is None
@@ -69,7 +69,7 @@ async def test_failed_entity_translation_load_displays_error_in_editor_context(l
         notices.append(localized_error(error))
     controls={'name':Control(),'description':Control()}
     state={'loaded_language':None,'load_generation':0,'baseline':{}}
-    namespace={'language_control':SimpleNamespace(value=language),'translation_state':state,
+    namespace={'definition_translations':None,'stage_definition_translation':lambda:None,'language_control':SimpleNamespace(value=language),'translation_state':state,
                'translation_controls':controls,'translation_status':SimpleNamespace(client=client,set_text=statuses.append),
                'translation_loading_status':'Loading','translation_loaded_status':'Loaded',
                'api':SimpleNamespace(entity_translation=denied),'resource':'users',

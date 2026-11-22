@@ -4,7 +4,7 @@
   "model_version": "GPT-6",
   "prompt_version": "wathiq-mailbox-reading-panes-v1",
   "specification_sha256": "79d67905df41c0c5e8dc760b45fec0ba9a5aeafc60b5eba622d5ea359d3f91f2",
-  "catalogue_sha256": "f6dd4135b153aa4d8018a7e691f1cc6ed56fd2401944a2db57c9eff5a6831a2b",
+  "catalogue_sha256": "d71b0eea3485668cbc6171ac5ea41311d98f5a8587cc6aed236d1bd122e9e81a",
   "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
   "batch_id": "wathiq-mailbox-reading-panes-20261116",
   "generated_at": "2026-11-16T08:52:26.800179+00:00",
@@ -435,6 +435,9 @@
     ],
     "settings.field.search_result_limit.description": [
       "الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم."
+    ],
+    "resource_types.ui.aggregation_catalogue": [
+      "أنواع التجميعات"
     ]
   },
   "items": [
@@ -3132,6 +3135,17 @@
         "source_status": "published",
         "date_reviewed": "2026-09-28T10:30:03.437443+00:00",
         "date_published": "2026-09-28T10:30:03.437443+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.type_metadata_changed",
+      "translated_text": "تغيّرت البيانات الوصفية الخاصة بالنوع",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
       }
     },
     {
@@ -25186,6 +25200,600 @@
         "source_status": "published",
         "date_reviewed": "2026-10-03T21:50:38.386434+00:00",
         "date_published": "2026-10-03T21:50:38.386434+00:00"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.access",
+      "translated_text": "صلاحيات الأدوار",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.add",
+      "translated_text": "إضافة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.admin_help",
+      "translated_text": "إدارة تعريفات الأنواع والحقول والخيارات وصلاحيات الأدوار.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.aggregation_catalogue",
+      "translated_text": "أنواع الملفات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.assigned",
+      "translated_text": "النوع المسند",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.boolean",
+      "translated_text": "قيمة منطقية",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.cancel",
+      "translated_text": "إلغاء",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.choice",
+      "translated_text": "الخيار",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.choices",
+      "translated_text": "الخيارات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.clear",
+      "translated_text": "مسح",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.close",
+      "translated_text": "إغلاق",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.condition",
+      "translated_text": "حقل خاص بالنوع",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.conflict",
+      "translated_text": "تغيّر هذا النوع. أعد فتحه لمراجعة أحدث تعريف.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.data_type",
+      "translated_text": "نوع البيانات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.date",
+      "translated_text": "تاريخ",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.datetime",
+      "translated_text": "التاريخ والوقت",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.decimal",
+      "translated_text": "عدد عشري",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.default",
+      "translated_text": "القيمة الافتراضية",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.default_choice",
+      "translated_text": "أضف الخيارات قبل تحديد الخيار الافتراضي.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.delete",
+      "translated_text": "حذف",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.delete_confirm",
+      "translated_text": "هل تريد حذف هذا التعريف؟",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.description",
+      "translated_text": "الوصف",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.discard",
+      "translated_text": "سيؤدي تغيير النوع إلى مسح قيم حقوله المخزنة عند الحفظ. هل تريد المتابعة؟",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.edit",
+      "translated_text": "تعديل",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.empty",
+      "translated_text": "لا توجد نتائج مطابقة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.field",
+      "translated_text": "الحقل",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.fields",
+      "translated_text": "الحقول",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.integer",
+      "translated_text": "عدد صحيح",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.invalid",
+      "translated_text": "تحقق من الحقول المطلوبة وتنسيق كل قيمة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.matches",
+      "translated_text": "يطابق النمط",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.maximum",
+      "translated_text": "الحد الأقصى للأحرف",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.name",
+      "translated_text": "الاسم",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.next",
+      "translated_text": "التالي",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.no",
+      "translated_text": "لا",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.order",
+      "translated_text": "ترتيب العرض",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.policy_help",
+      "translated_text": "يتيح العرض الاطلاع والبحث، ويتيح الاستخدام إجراء التغييرات أيضًا. تتجاوز أدوار حوكمة المعلومات قيدي النوع، وتظل فحوص الوصول الأخرى سارية.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.previous",
+      "translated_text": "السابق",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.primary",
+      "translated_text": "البيانات الوصفية الأساسية",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.record_catalogue",
+      "translated_text": "أنواع الوثائق",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.required",
+      "translated_text": "مطلوب",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.required_help",
+      "translated_text": "يجب إدخال هذه القيمة للموارد القائمة عند تعديل بياناتها الوصفية في المرة القادمة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.save",
+      "translated_text": "حفظ",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.saved",
+      "translated_text": "تم حفظ التغييرات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.search",
+      "translated_text": "بحث",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.section",
+      "translated_text": "البيانات الوصفية الخاصة بالنوع",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.see",
+      "translated_text": "عرض",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.select",
+      "translated_text": "تحديد",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.single_choice",
+      "translated_text": "خيار واحد",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.text",
+      "translated_text": "نص",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.type",
+      "translated_text": "النوع",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.unset",
+      "translated_text": "بلا قيمة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.untyped",
+      "translated_text": "بلا نوع",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.use",
+      "translated_text": "استخدام",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.yes",
+      "translated_text": "نعم",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
       }
     },
     {

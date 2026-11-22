@@ -27,7 +27,7 @@ def save_scope(*, creating=False, values=None, rule=None, translation=None, fail
     api=SimpleNamespace(create=lambda *a,**k:write('create',*a,**k),update=lambda *a,**k:write('update',*a,**k),
                         put_classification_retention_rule=lambda *a,**k:write('rule',*a,**k),
                         update_entity_translation=lambda *a,**k:write('translation',*a,**k))
-    scope=dict(prepare_retention_payload=prepare_retention_payload,ApiError=ApiError,spec=ENTITIES['classifications'],row=row,creating=creating,controls={},
+    scope=dict(typed=None,prepare_retention_payload=prepare_retention_payload,ApiError=ApiError,spec=ENTITIES['classifications'],row=row,creating=creating,controls={},
                translation_only=False,prepare_entity_translation_update=lambda:translation,
                form_payload=lambda *a,**k:deepcopy(values or {'title':'Changed','classification_scheme_id':2}),
                retention_rule=rule,api=api,resource_change_reason=None, lookup_rows_by_field={}, security_change_reason=None, organization_change_reason=organization_change_reason,profile_change_reason=None,

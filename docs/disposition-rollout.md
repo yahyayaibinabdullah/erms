@@ -180,9 +180,7 @@ an automatic business-settings import.
 Use this path only on a newly created empty database, after deployment approval:
 
 ```sh
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f database/schema.sql \
-  -f database/seeds/000_required_reference_data.sql \
-  -f database/baseline.sql
+backend/services/api/.venv/bin/python tools/initialize_database.py
 backend/services/api/.venv/bin/python -m backend.services.api.manage_auth bootstrap \
   --name 'Initial administrator' --email 'administrator@example.invalid'
 ```

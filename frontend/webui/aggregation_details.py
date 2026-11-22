@@ -20,6 +20,7 @@ from nicegui import ui
 from .creator_labels import render_creator_name
 from .aggregation_file_drop import AggregationFileDrop
 from .aggregation_recent_activity import AggregationRecentActivity
+from .type_controls import MetadataForm, t as type_label
 from .resource_detail_header import detail_action_group, detail_read, metadata_layout, open_details_dialog, read_closure, render_resource_detail_header
 
 def build_aggregation_details(
@@ -285,6 +286,8 @@ def build_aggregation_details(
                         return
                     facts, actions = metadata_layout()
                     with facts:
+                        if current.get("type_id") is not None:
+                            ui.label(type_label("primary")).classes("text-base font-semibold")
                         if closure:
                             with ui.row().classes(
                                 "detail-status-notice w-full items-center gap-3 rounded-xl border border-amber-200 "
@@ -460,6 +463,8 @@ def build_aggregation_details(
                             with ui.expansion(render_message("resource_details.advanced_metadata")).classes("w-full col-span-full"):
                                 with ui.grid(columns=2).classes("w-full gap-x-4"):
                                     render_fields(field for field in aggregation_metadata if field[0] in secondary)
+
+                        await MetadataForm(api, "aggregation", current, readonly=True).render()
 
                     def render_advanced_actions():
                         with detail_action_group(render_message("webui.open_aggregation.label.metadata_and_review_8b297ce3")) as metadata_review:

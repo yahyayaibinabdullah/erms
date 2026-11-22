@@ -105,7 +105,7 @@ async def test_dialog_opens_before_even_the_capture_manifest_returns(user):
     scope=dict({**vars(webapp), **vars(feature_owner)},api=SimpleNamespace(request=request),
         auth_state={'principal':principal},principal=principal,
         state={'messaging_workspace_token':'token'},token='token',mailbox='inbox',
-        select_messages=AsyncMock(),open_record_draft_editor=editor)
+        workspace_active=lambda:True,select_messages=AsyncMock(),open_record_draft_editor=editor)
     scope.update(get_principal=lambda:scope['auth_state'].get('principal'),messaging_state=scope['state'])
     node=next(n for n in ast.walk(ast.parse((Path(__file__).parents[2] / 'messaging_controller.py').read_text())) if isinstance(n,ast.AsyncFunctionDef) and n.name=='capture_message')
     exec(compile(ast.Module(body=[node],type_ignores=[]),'<capture>','exec'),scope)

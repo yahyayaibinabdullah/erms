@@ -17,7 +17,7 @@ commands, measured libc differences, `ar` versus `und` rationale and conversion
 checks. Provider selection is outside the canonical DDL. Existing databases and
 local volumes retain their locale until an operator deliberately rebuilds them.
 
-Run these independent files in order:
+The fresh initializer reads these three maintained SQL inputs in order:
 
 1. `database/schema.sql`: current object definitions only.
 2. `database/seeds/000_required_reference_data.sql`: required built-in settings,
@@ -27,12 +27,7 @@ Run these independent files in order:
    historical migrations. It records one explicit list of upgrade versions
    already included in this fresh schema.
 
-`tools/initialize_database.py` performs these steps using the API Python
-runtime and refuses an existing application schema. Docker local initialization
-and the standalone bootstrap helper use the same order. Optional feature,
-classification, demonstration and load seeds remain separate. Required-reference
-seeding refuses an existing populated catalogue and must never be used to
-reconcile or overwrite a colleague's database.
+Run `tools/initialize_database.py` with the API Python runtime. It checks the target, creates a temporary marker and executes all three inputs under one transaction. Receipt recording consumes the marker. The Python CLI, emitted SQL for `psql`, Docker bootstrap and local setup use the same transaction body. Optional feature and tenant seeds remain separate. See the [installation commands](../database/README.md#new-database).
 
 Fresh seed events use source `seeding`. The previous schema created a mixture
 of seed, database and migration audit rows while replaying its construction
@@ -54,6 +49,14 @@ object followed by `CREATE OR REPLACE`, `DROP`, repeated column changes or data
 repairs. Change the required reference seed only when fresh-install defaults
 change. Keep the included-version list in `baseline.sql` current. Schema creation
 must never invoke either a seed or a migration.
+
+Run the migration regression tests locally whenever a migration changes. The tests build disposable databases from the current installer and from the released pre-type revision, apply subsequent migrations in order, and compare the resulting schemas. They check each full receipt name against the released list plus newer migration filenames, preserving intentional historical gaps. They also verify rollback after a receipt failure through both Python and `psql` and confirm that an older schema with empty history is rejected. With PostgreSQL 18 clients on your PATH, run the following command.
+
+```sh
+backend/services/api/.venv/bin/python -m pytest -qs tools/tests/test_fresh_database_install.py tools/tests/test_canonical_schema.py tools/tests/test_canonical_schema_verifier.py
+```
+
+For a migration that leaves the schema dump unchanged, add `database/tests/migration_checks/<migration-name>.after.sql` containing a query that returns one true boolean for the expected data change. An optional `.before.sql` can seed representative pre-upgrade rows. The same mechanism can verify data changed by a structural migration. The privilege-grant check for migration 120 is an example. [Regression gate](../tools/tests/test_fresh_database_install.py)
 
 The seed is not a dump of a development tenancy: it contains no users,
 organization hierarchy, records, aggregations, credentials or environment values.

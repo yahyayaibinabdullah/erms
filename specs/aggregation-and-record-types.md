@@ -1,6 +1,6 @@
 # Aggregation and Record Types
 
-**Status:** Approved. Phases 0–3 verified on 19 November 2026. [Phase 3 verification](../docs/verification/aggregation-record-types-phase-3.md)
+**Status:** Approved. All planned phases verified locally as of 21 November 2026. [Final implementation, upgrade and performance evidence](../docs/verification/aggregation-record-types-phase-6.md)
 
 **Prepared:** 22 October 2026  
 **Updated specification approved:** 18 November 2026 — includes the revised
@@ -443,7 +443,7 @@ keyword/full-text indexing in this version.
 
 Search each resource's own assigned type and values, without parent inheritance.
 Existing authorization, Boolean-expression rules, pagination, and synchronous
-metadata-index freshness requirements continue to apply.
+metadata-index freshness requirements continue to apply. Stored type text uses the description weight. Values follow stable field-ID order so renaming or translating a field preserves existing phrase positions. Changes to stored text and its search document commit together. Clearing a value, reassigning a type, or destroying the descriptive metadata removes the old terms from the resource’s index. A record metadata hit and an aggregation snippet use the existing result conventions.
 
 #### 9.1.1 Type-field sorting — approved 18 November 2026
 

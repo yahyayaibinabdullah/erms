@@ -107,7 +107,7 @@ def seed(c):
     c.commit()
 
 
-def exercise(url, output, repeats):
+def exercise(url, output, repeats, *, type_ui=False):
     from backend.services.api.main import app
 
     samples, plans, failures = [], {}, []
@@ -488,6 +488,10 @@ def exercise(url, output, repeats):
                     ).fetchone()["QUERY PLAN"],
                 }
                 c.commit()
+            if type_ui:
+                from tools.type_ui_performance import exercise as measure_ui_pages
+
+                measure_ui_pages(c, client, output, repeats)
         assert not failures, failures
     finally:
         (output / "typed-search.json").write_text(

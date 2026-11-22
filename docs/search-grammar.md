@@ -115,6 +115,8 @@ SQL wildcard characters. Null checks are accepted only for nullable fields.
 Datetime values must be ISO 8601 timestamps with a timezone, such as
 `2026-09-14T10:00:00Z`.
 
+A `full_text` condition with `"sources": ["metadata"]` also searches the resource’s stored type-specific **text** values. The header search includes that same source. For example, entering `"signed agreement"` as a quoted phrase can find it in a contract’s text field. In a record result it counts as a metadata match. An aggregation can show the matching words in its snippet. Choice labels, numbers, booleans and dates use structured criteria. A new search sees committed edits immediately. Paging rechecks the current criteria and permissions against the submitted list.
+
 ## Type-specific criteria and sort keys
 
 Record and aggregation searches use the same field strings in a condition and a sort. `type_id` compares the assigned type. `type.12.field.45` identifies field 45 owned by type 12, in the resource kind selected by the endpoint. The numbers are stable database IDs. Fetch eligible types, then fields and choices, from that kind’s paged options endpoints. Catalogue labels may be translated or renamed.

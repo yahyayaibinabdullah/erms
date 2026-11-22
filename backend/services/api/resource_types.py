@@ -14,6 +14,7 @@ from .authorization_policy import require_global_privilege
 from .concurrency import expected_version
 from .continuity_lock import acquire_continuity_lock
 from .database import get_connection
+from .dashboard_visibility import AUTHORITY_CTES
 from .entity_localization import preferred_language, localized_projection
 from .metadata_json import JsonSource
 from .operation_policy import operation_policy
@@ -43,6 +44,11 @@ class FieldDefinition(ChoiceDefinition):
     required: bool = False
     # Decimal strings keep full precision through JSON transports.
     default: str | int | bool | float | None = None
+
+
+class RoleGrant(BaseModel):
+    can_see: bool
+    can_use: bool
 
 
 class TypeGrants(BaseModel):
@@ -121,21 +127,53 @@ def catalogue(kind):
         },
     )
 
-    def options_for(c, access, q, limit, offset, type_id=None):
-        return c.execute(
-            """WITH effective AS MATERIALIZED (
-                SELECT r.id,r.is_information_governance FROM roles r JOIN user_role_assignments a ON a.role_id=r.id
-                WHERE a.user_id=current_user_id() AND a.valid_from<=CURRENT_TIMESTAMP
-                  AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP) AND role_effectively_active(r.id))
-            SELECT t.* FROM resource_types t WHERE kind=%s AND (%s::bigint IS NULL OR t.id=%s)
-              AND (EXISTS (SELECT FROM effective WHERE is_information_governance)
-                   OR t.id IN (SELECT g.type_id FROM resource_type_role_grants g JOIN effective r ON r.id=g.role_id
-                               WHERE g.kind=t.kind AND (NOT %s OR g.can_use)))
-              AND (position(lower(%s) IN lower(t.name))>0 OR EXISTS (
-                  SELECT FROM jsonb_each(t.translations) l WHERE position(lower(%s) IN lower(l.value->>'name'))>0))
-            ORDER BY t.name,t.id LIMIT %s OFFSET %s""",
-            (kind, type_id, type_id, access == "use", q, q, limit, offset),
+    def definition_page(
+        c, request, source, args, order, limit, offset, q, selected, paged, descending
+    ):
+        # Callers supply fixed SQL and sort columns. Count and page share one snapshot.
+        language = preferred_language(c, request)
+        ordering = (
+            ("localized_name" if order == "name" else order)
+            + (" DESC" if descending else " ASC")
+            + ", id"
+        )
+        rows = c.execute(
+            f"""WITH eligible AS ({source}), matches AS MATERIALIZED (
+            SELECT e.*, coalesce(nullif(translations->%s->>'name',''),nullif(translations->%s->>'name',''),name)
+                        AS localized_name
+            FROM eligible e WHERE (%s::bigint IS NULL OR id=%s)
+            AND (position(lower(%s) IN lower(name))>0 OR EXISTS (
+                SELECT FROM jsonb_each(translations) l WHERE position(lower(%s) IN lower(l.value->>'name'))>0))
+            ), page AS (SELECT * FROM matches ORDER BY {ordering} LIMIT %s OFFSET %s)
+            SELECT page.*, count_rows.total FROM (SELECT count(*) AS total FROM matches) count_rows
+            LEFT JOIN page ON true ORDER BY {ordering}""",
+            (
+                *args,
+                language,
+                language.split("-")[0],
+                selected,
+                selected,
+                q,
+                q,
+                limit,
+                offset,
+            ),
         ).fetchall()
+        total = rows[0]["total"]
+        items = []
+        for row in rows:
+            row.pop("total")
+            row.pop("localized_name")
+            if row["id"] is not None:
+                items.append(translated(row, language))
+        return {"items": items, "total": total} if paged else items
+
+    # Resolve role membership once for the catalogue page.
+    eligible_types = f"""WITH RECURSIVE {AUTHORITY_CTES}
+        SELECT t.* FROM resource_types t WHERE kind=%s AND
+        (EXISTS (SELECT FROM effective_roles WHERE is_information_governance) OR
+         t.id IN (SELECT g.type_id FROM accessible_types g
+                  WHERE g.kind=t.kind AND (NOT %s OR g.can_use)))"""
 
     @options.get("/options")
     @selector_policy
@@ -144,20 +182,34 @@ def catalogue(kind):
         c: Database,
         access: Literal["see", "use"] = "see",
         q: str = "",
+        selected: int | None = None,
         limit: PageSize = 25,
         offset: Offset = 0,
+        paged: bool = False,
+        descending: bool = False,
     ):
-        language = preferred_language(c, request)
-        return [
-            translated(row, language)
-            for row in options_for(c, access, q, limit, offset)
-        ]
+        return definition_page(
+            c,
+            request,
+            eligible_types,
+            (kind, access == "use"),
+            "name",
+            limit,
+            offset,
+            q,
+            selected,
+            paged,
+            descending,
+        )
 
     def visible_type(c, type_id, access):
-        rows = options_for(c, access, "", 1, 0, type_id)
-        if not rows:
+        row = c.execute(
+            "SELECT * FROM (" + eligible_types + ") visible WHERE id=%s",
+            (kind, access == "use", type_id),
+        ).fetchone()
+        if row is None:
             raise HTTPException(404, detail="Type not found")
-        return rows[0]
+        return row
 
     @options.get("/options/{type_id}")
     @selector_policy
@@ -171,55 +223,155 @@ def catalogue(kind):
             visible_type(c, type_id, access), preferred_language(c, request)
         )
 
+    field_source = """SELECT id,name,translations,display_order,required,max_length,data_type,
+                       resource_field_json(default_value) AS "default" FROM resource_type_fields WHERE kind=%s AND type_id=%s"""
+    choice_source = """SELECT id,name,translations,display_order FROM resource_field_choices WHERE field_id=%s"""
+
     @options.get("/options/{type_id}/fields")
     @selector_policy
-    def selected_fields(
+    def options_fields(
         type_id: int,
         request: Request,
         c: Database,
         access: Literal["see", "use"] = "see",
+        q: str = "",
+        selected: int | None = None,
         limit: PageSize = 25,
         offset: Offset = 0,
+        paged: bool = False,
+        descending: bool = False,
+        sort: Literal["name", "display_order"] = "display_order",
     ):
         visible_type(c, type_id, access)
-        language = preferred_language(c, request)
-        return [translated(row, language) for row in fields(type_id, c, limit, offset)]
+        return definition_page(
+            c,
+            request,
+            field_source,
+            (kind, type_id),
+            sort,
+            limit,
+            offset,
+            q,
+            selected,
+            paged,
+            descending,
+        )
 
     @options.get("/options/{type_id}/fields/{field_id}/choices")
     @selector_policy
-    def selected_choices(
+    def options_choices(
         type_id: int,
         field_id: int,
         request: Request,
         c: Database,
         access: Literal["see", "use"] = "see",
+        q: str = "",
+        selected: int | None = None,
         limit: PageSize = 25,
         offset: Offset = 0,
+        paged: bool = False,
+        descending: bool = False,
+        sort: Literal["name", "display_order"] = "display_order",
     ):
         visible_type(c, type_id, access)
-        language = preferred_language(c, request)
-        return [
-            translated(row, language)
-            for row in choices(type_id, field_id, c, limit, offset)
-        ]
+        field_row(c, kind, type_id, field_id)
+        return definition_page(
+            c,
+            request,
+            choice_source,
+            (field_id,),
+            sort,
+            limit,
+            offset,
+            q,
+            selected,
+            paged,
+            descending,
+        )
 
     @admin.get("")
-    def list_types(
+    def admin_types(
         request: Request,
         c: Database,
         q: str = "",
+        selected: int | None = None,
         limit: PageSize = 25,
         offset: Offset = 0,
+        paged: bool = False,
+        descending: bool = False,
+        sort: Literal["name", "display_order"] = "display_order",
     ):
-        rows = c.execute(
-            """SELECT * FROM resource_types WHERE kind=%s AND
-            (position(lower(%s) IN lower(name))>0 OR EXISTS (SELECT FROM jsonb_each(translations) l
-                WHERE position(lower(%s) IN lower(l.value->>'name'))>0))
-            ORDER BY name,id LIMIT %s OFFSET %s""",
-            (kind, q, q, limit, offset),
-        ).fetchall()
-        language = preferred_language(c, request)
-        return [translated(row, language) for row in rows]
+        return definition_page(
+            c,
+            request,
+            "SELECT * FROM resource_types WHERE kind=%s",
+            (kind,),
+            "name",
+            limit,
+            offset,
+            q,
+            selected,
+            paged,
+            descending,
+        )
+
+    @admin.get("/{type_id}/fields")
+    def admin_fields(
+        type_id: int,
+        request: Request,
+        c: Database,
+        q: str = "",
+        selected: int | None = None,
+        limit: PageSize = 25,
+        offset: Offset = 0,
+        paged: bool = False,
+        descending: bool = False,
+        sort: Literal["name", "display_order"] = "display_order",
+    ):
+        read_type(type_id, c)
+        return definition_page(
+            c,
+            request,
+            field_source,
+            (kind, type_id),
+            sort,
+            limit,
+            offset,
+            q,
+            selected,
+            paged,
+            descending,
+        )
+
+    @admin.get("/{type_id}/fields/{field_id}/choices")
+    def admin_choices(
+        type_id: int,
+        field_id: int,
+        request: Request,
+        c: Database,
+        q: str = "",
+        selected: int | None = None,
+        limit: PageSize = 25,
+        offset: Offset = 0,
+        paged: bool = False,
+        descending: bool = False,
+        sort: Literal["name", "display_order"] = "display_order",
+    ):
+        read_type(type_id, c)
+        field_row(c, kind, type_id, field_id)
+        return definition_page(
+            c,
+            request,
+            choice_source,
+            (field_id,),
+            sort,
+            limit,
+            offset,
+            q,
+            selected,
+            paged,
+            descending,
+        )
 
     @admin.post("", status_code=201)
     def create_type(body: TypeDefinition, c: Database):
@@ -262,16 +414,6 @@ def catalogue(kind):
     def delete_type(type_id: int, version: Version, c: Database):
         type_locked(c, kind, type_id, version)
         c.execute("DELETE FROM resource_types WHERE kind=%s AND id=%s", (kind, type_id))
-
-    @admin.get("/{type_id}/fields")
-    def fields(type_id: int, c: Database, limit: PageSize = 25, offset: Offset = 0):
-        read_type(type_id, c)
-        return c.execute(
-            """SELECT id,name,translations,display_order,required,max_length,data_type,
-                            resource_field_json(default_value) AS "default" FROM resource_type_fields
-                            WHERE kind=%s AND type_id=%s ORDER BY display_order,id LIMIT %s OFFSET %s""",
-            (kind, type_id, limit, offset),
-        ).fetchall()
 
     @admin.post("/{type_id}/fields", status_code=201)
     def create_field(
@@ -341,21 +483,6 @@ def catalogue(kind):
         c.execute("DELETE FROM resource_type_fields WHERE id=%s", (field_id,))
         touch(c, kind, type_id)
 
-    @admin.get("/{type_id}/fields/{field_id}/choices")
-    def choices(
-        type_id: int,
-        field_id: int,
-        c: Database,
-        limit: PageSize = 25,
-        offset: Offset = 0,
-    ):
-        field_row(c, kind, type_id, field_id)
-        return c.execute(
-            """SELECT id,name,translations,display_order FROM resource_field_choices
-                            WHERE field_id=%s ORDER BY display_order,id LIMIT %s OFFSET %s""",
-            (field_id, limit, offset),
-        ).fetchall()
-
     @admin.post("/{type_id}/fields/{field_id}/choices", status_code=201)
     def create_choice(
         type_id: int,
@@ -417,6 +544,65 @@ def catalogue(kind):
             raise HTTPException(404, detail="Choice not found")
         touch(c, kind, type_id)
 
+    @admin.get("/{type_id}/role-options")
+    def role_options(
+        type_id: int,
+        request: Request,
+        c: Database,
+        q: str = "",
+        limit: PageSize = 25,
+        offset: Offset = 0,
+        descending: bool = False,
+    ):
+        read_type(type_id, c)
+        return definition_page(
+            c,
+            request,
+            """SELECT r.id,r.name,r.translations,
+            g.role_id IS NOT NULL AS can_see,coalesce(g.can_use,false) AS can_use
+            FROM roles r LEFT JOIN resource_type_role_grants g ON g.role_id=r.id AND g.kind=%s AND g.type_id=%s""",
+            (kind, type_id),
+            "name",
+            limit,
+            offset,
+            q,
+            None,
+            True,
+            descending,
+        )
+
+    def check_policy_custody(c, type_id):
+        level = c.execute(
+            f"""SELECT l.id FROM security_levels l WHERE EXISTS
+            (SELECT FROM {table} r WHERE r.security_level_id=l.id AND r.type_id=%s)
+            ORDER BY l.level_number DESC LIMIT 1""",
+            (type_id,),
+        ).fetchone()
+        if level:
+            check_custodian(c, level["id"])
+
+    @admin.put("/{type_id}/role-grants/{role_id}")
+    def set_role_grant(
+        type_id: int, role_id: int, body: RoleGrant, version: Version, c: Database
+    ):
+        type_locked(c, kind, type_id, version)
+        if body.can_use and not body.can_see:
+            raise HTTPException(422, detail="Use requires See for the same role")
+        check_policy_custody(c, type_id)
+        if not body.can_see:
+            c.execute(
+                "DELETE FROM resource_type_role_grants WHERE kind=%s AND type_id=%s AND role_id=%s",
+                (kind, type_id, role_id),
+            )
+        else:
+            c.execute(
+                """INSERT INTO resource_type_role_grants(kind,type_id,role_id,can_use) VALUES(%s,%s,%s,%s)
+                         ON CONFLICT(kind,type_id,role_id) DO UPDATE SET can_use=excluded.can_use
+                         WHERE resource_type_role_grants.can_use IS DISTINCT FROM excluded.can_use""",
+                (kind, type_id, role_id, body.can_use),
+            )
+        return {"version": touch(c, kind, type_id)}
+
     @admin.get("/{type_id}/role-grants")
     def grants(type_id: int, c: Database, limit: PageSize = 25, offset: Offset = 0):
         read_type(type_id, c)
@@ -431,14 +617,7 @@ def catalogue(kind):
         type_locked(c, kind, type_id, version)
         if not body.use_role_ids <= body.see_role_ids:
             raise HTTPException(422, detail="Use requires See for the same role")
-        level = c.execute(
-            f"""SELECT l.id FROM security_levels l WHERE EXISTS
-                        (SELECT FROM {table} r WHERE r.security_level_id=l.id AND r.type_id=%s)
-                        ORDER BY l.level_number DESC LIMIT 1""",
-            (type_id,),
-        ).fetchone()
-        if level:
-            check_custodian(c, level["id"])
+        check_policy_custody(c, type_id)
         c.execute(
             """DELETE FROM resource_type_role_grants WHERE kind=%s AND type_id=%s
                      AND NOT (role_id=ANY(%s::bigint[]))""",
