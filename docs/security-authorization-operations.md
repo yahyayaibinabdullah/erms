@@ -23,6 +23,43 @@ safeguards continue to apply. Run reconciliation after relevant configuration
 changes as described below. This guidance changes no stored data or access rule.
 See the [governance designation rationale](../specs/security-and-authorization-subsystem.md#371-why-governance-status-belongs-to-the-role).
 
+## Configure access to aggregation and record types
+
+Open **Aggregation types** or **Record types**, then choose **Role access** on
+the type. The table shows its existing grants. Choose **Add** to see the roles
+still available, including **Everyone** if it has no explicit grant. The picker
+shows 25 entries per page by default. In both tables, Search matches any part
+of a role code, name or translated name across all pages, regardless of case.
+For example, entering `hr-04` finds the role with code `SA-HR-042` even when its
+display name is **Personnel Officer**. If a role is missing, clear the search and check the
+existing grants. A new role must first be created in **Roles**.
+
+Check **See** beside each role that may view and search. Check **Use** beside
+each role that may also change resources. Checking Use selects See automatically.
+Clearing Use leaves See selected. Clearing See removes that row from the
+selection. You can select different permissions for several roles across pages
+and searches. **Add (n)** saves all selected grants together. **Cancel** discards
+the selection. To revoke a saved grant, edit its row, clear **See**, and save.
+
+For example, grant **Everyone → See** and **Personnel Officer → Use** on
+Employee File. An authenticated user with an effective role can then reference
+Employee File in Advanced Search. Each result must also pass the ordinary
+privilege, clearance, and ACL checks. Removing Everyone keeps the Personnel
+Officer grant. A recipient who loses See on an explicitly referenced type can
+still see the shared saved search in their list, but cannot open or run it.
+Each subsequent page of a general search checks current access again. The
+existing information-governance bypass and custody checks apply to both kinds.
+
+For API clients, `GET .../role-options?scope=granted` pages through the
+complete explicit policy. Use `scope=available` for the picker. To add several
+grants, send `POST .../role-grants` with the type version in `If-Match`.
+For example, `[{"role_id":"everyone","can_use":false},{"role_id":42,"can_use":true}]`
+grants Everyone See and role 42 See and Use. The transaction preserves existing
+grants and advances the version once. A stale version or unavailable role
+rejects the whole batch. To edit one existing grant, use
+`PUT .../role-grants/{role_id}`. The legacy `PUT .../role-grants` replaces named
+role grants only.
+
 ## Daily monitoring
 
 The **Security operations** page requires `audit.view`. It reports a rolling 24-hour aggregate of authorization denials, authentication failures, lockouts, governance bypasses, access explanations, security-level changes, ACL changes, and profile changes. It never returns event snapshots, request bodies, credentials, tokens, component content, or protected resource metadata.

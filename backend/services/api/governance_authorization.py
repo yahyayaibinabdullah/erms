@@ -274,7 +274,7 @@ def explain_access(
     )) if resource["type_id"] is not None else frozenset()
     decision = authorize(subject, AuthorizationRequest(
         type_access="use" if need_use else "see", resource_typed=resource["type_id"] is not None,
-        type_grant_roles=type_roles,
+        type_grant_roles=type_roles - {None}, type_everyone_grant=None in type_roles,
         operation=payload.operation, required_privilege=privilege,
         required_permissions=(permission,),
         resource_levels=(connection.execute(

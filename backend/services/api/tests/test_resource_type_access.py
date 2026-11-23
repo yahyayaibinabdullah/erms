@@ -352,25 +352,18 @@ def test_governance_has_to_supply_its_own_clearance(client, record, catalogue):
         assert client.get(url).status_code == 404
 
 
-def test_delegated_catalogue_permission_is_kind_specific(client, catalogue):
-    _grant_principal({"records.administer"})
+@pytest.mark.parametrize(("kind", "other"), [("aggregation", "record"), ("record", "aggregation")])
+def test_delegated_catalogue_permission_is_kind_specific(client, catalogue, kind, other):
+    _grant_principal({f"{kind}_types.administer"})
     _login_as_phase7(client)
-    t = ok(client.post("/api/v1/record-types", json={"name": "Delegated"}), 201)
-    assert ok(client.get("/api/v1/record-types/options")) == []
-    assert (
-        client.get(f"/api/v1/record-types/options/{t['id']}/fields").status_code == 404
-    )
-    assert client.get("/api/v1/aggregation-types").status_code == 403
-    assert (
-        client.post("/api/v1/aggregation-types", json={"name": "Forbidden"}).status_code
-        == 403
-    )
-    assert (
-        client.put(
-            f"/api/v1/record-types/{t['id']}", json={"name": "Changed"}
-        ).status_code
-        == 428
-    )
+    root = f"/api/v1/{kind}-types"
+    other_root = f"/api/v1/{other}-types"
+    t = ok(client.post(root, json={"name": "Delegated"}), 201)
+    assert ok(client.get(f"{root}/options")) == []
+    assert client.get(f"{root}/options/{t['id']}/fields").status_code == 404
+    assert client.get(other_root).status_code == 403
+    assert client.post(other_root, json={"name": "Forbidden"}).status_code == 403
+    assert client.put(f"{root}/{t['id']}", json={"name": "Changed"}).status_code == 428
 
 
 def test_role_revoke_while_writer_waits(client, record, catalogue):

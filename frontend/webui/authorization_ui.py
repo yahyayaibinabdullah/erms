@@ -295,6 +295,8 @@ def gate_detail(gate: dict[str, Any]) -> str:
         if gate.get("detail") == "resource_is_effectively_closed":
             return render_message('authorization.explanation.state_closed')
         return render_message('authorization.explanation.state_denied')
+    if gate.get("gate") == "resource_type" and gate.get("detail") == "everyone":
+        return render_message("webui.render_principals.label.everyone_8d69f084")
     if gate.get("detail") == "information_governance_bypass":
         return render_message('authorization.explanation.bypass')
     if gate.get("gate") == "resource_acl" and gate.get("detail"):

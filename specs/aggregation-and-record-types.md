@@ -81,11 +81,21 @@ translation of text-field content. The same stored text is presented to all
 users, regardless of interface language. Other scalar values remain
 language-independent and use the application's existing localized presentation.
 
+The definition editor, resource editor and Advanced Search criterion editor
+share type-aware controls. Signed integers retain the full PostgreSQL bigint
+range. Decimal entry preserves the literal precision, including exponents.
+Allow intermediate numeric edits such as a leading minus sign and reject
+incomplete values on submission. Date and datetime controls validate calendar
+values. Boolean and single-choice controls accept only the offered values.
+
 ## 4. Text length and required fields
 
 Text fields require a positive maximum character length. The field-definition
-form initially suggests 255 characters. Length is counted in Unicode
-characters, not bytes, in both API and UI validation.
+form initially suggests 255 characters. Both type editors use a number control
+with direct digit entry and increment/decrement buttons. An edit that would
+put the limit outside 1 through 2,147,483,647 leaves the previous value in
+place. Administrators can clear the control while editing. Saving requires
+a value in range. The API and UI count text length in Unicode characters.
 
 - A maximum of 255 characters or fewer uses a single-line text box.
 - A maximum above 255 uses a multiline text area.
@@ -167,12 +177,15 @@ later specification. The dropdown accepts predefined choice IDs only.
 
 ### 7.1 Definition administration
 
-Introduce the global privilege `aggregations.administer` to authorize creating
-and maintaining aggregation types, fields, choices, translations, defaults,
-and their See/Use role grants. Introduce `records.administer` for the same scope
-over record types. These are new catalogue entries: the earlier description
-of them as existing privileges was incorrect. No additional field-, choice-,
-or translation-specific administration privileges are required.
+The resource-type implementation introduced two global privileges.
+
+| Privilege code | English display name | UI group |
+| --- | --- | --- |
+| `aggregation_types.administer` | Administer aggregation types | Administration |
+| `record_types.administer` | Administer record types | Administration |
+
+Each privilege authorizes creating and maintaining definitions for its resource
+kind, including fields, choices, translations, defaults, and See/Use role grants.
 
 Grant both by default to `INFO_GOV_MGR`, `INFO_GOV_OFFICER`, and `ALL_PRIVS`.
 Other profiles receive them only through explicit profile administration.
@@ -192,7 +205,7 @@ requiring `authorization.administer`. Default grants to both governance
 profiles fit their existing classification-administration duties; `ALL_PRIVS`
 continues to contain the full catalogue.
 
-**Examples:** An administrator with `records.administer` can add a record-type
+**Examples:** An administrator with `record_types.administer` can add a record-type
 field or configure its See roles, but must still pass all resource gates to
 open a record. A role with `record.modify` and Use access can edit an authorized
 record's values but cannot change its field definitions. A custom governance
@@ -213,7 +226,25 @@ See requires removing Use. The server enforces this invariant. An empty See
 list grants no ordinary visibility; an empty Use list grants no ordinary
 mutation authority. Governance bypass is defined in section 7.4.
 
-Evaluate these grants against the user's **current effective roles**, using the
+The **Role access** dialog lists configured grants. **Add** opens a server-paged
+directory of all principals still available, including Everyone. Both the
+configured-grants table and the picker support case-insensitive substring
+searches across role codes, names and translated names before pagination.
+Everyone is searchable by its name and translations. An administrator can choose See for one
+role and See and Use for another in the same dialog. Selections survive paging,
+sorting and new searches. Add saves the entire selection in one version-checked
+transaction so a stale policy or an unavailable role cannot leave a partially
+applied change. Cancel discards all pending selections. To remove an existing
+grant, edit its row and clear See. Other grants are preserved. Existing types
+acquire no Everyone grant on upgrade. [Role access guide](../docs/security-authorization-operations.md#configure-access-to-aggregation-and-record-types)
+
+Everyone matches an authenticated account that has passed the effective-role
+gate. Its grant combines with named-role grants. For example, Everyone can See
+Employee File while only Personnel Officers have an explicit Use grant. An officer
+still needs the applicable privilege, clearance and resource ACL. Removing Everyone
+immediately restores the named-role policy, including on the next search page.
+
+Evaluate named grants against the user's **current effective roles**, using the
 existing assignment, account, role, and organization rules. Any matching role
 satisfies the relevant grant; a nonmatching role never vetoes another role.
 Keep the complete effective-role set for subsequent gates. The role supplying
@@ -365,6 +396,10 @@ will be cleared, require explicit confirmation. Do not map values by matching
 field names. Save the type change and values atomically and capture the change
 and affected values through existing event-history conventions. Defaults for a
 newly assigned type follow section 5.
+
+Field positions start at 1 and are unique and consecutive within each aggregation or record type. A new field goes last by default. For a type with N fields, Display order accepts whole numbers from 1 through N when editing and 1 through N + 1 when adding. The editor enforces this range during entry and on Save, using the total field count across all pages and filters. Entering an occupied position inserts the field there and shifts the intervening fields. Moving or deleting a field closes its previous position. The Fields table provides Move earlier and Move later arrows in the unfiltered ascending display order, including across page boundaries. Each arrow swaps the field with its immediate neighbor. Each move uses the current type version so concurrent edits cannot silently overwrite one another.
+
+For example, inserting a field at position 2 in a three-field type moves the former second and third fields to 3 and 4. Migration 122 gives existing fields consecutive positions in their previously displayed order, breaking old ties by field ID. Field IDs, stored values, and choice order are preserved.
 
 Administrators may add fields and rename, translate, or reorder definitions.
 Existing resources initially have no value for added fields. A field's data
@@ -563,6 +598,8 @@ effect until then.
 
 ## 11. Acceptance and traceability
 
+See the [role grant and typed input regression matrix](../docs/verification/resource-type-grants-and-dialog-inputs.md) for the administration, data entry and search dialogs.
+
 Implementation must maintain requirement-to-implementation-to-test traceability.
 This specification's approval does not constitute implementation or verification
 evidence. No feature may be declared complete while an approved requirement
@@ -578,9 +615,9 @@ lacks implementation and verification evidence.
 | ART-06 | Required/optional validation, including null, blank text, zero, false, and next-metadata-update enforcement after definition changes |
 | ART-07 | Literal default validation, initial assignment, explicit overrides/clearing, no update-time reapplication or backfill, and future-only default changes |
 | ART-08 | Single-choice membership validation, translated labels, stable saved filters, default references, and deletion safeguards |
-| ART-09 | New `aggregations.administer` / `records.administer` catalogue entries and default grants to the two governance profiles and `ALL_PRIVS`; explicit delegation elsewhere; definition/resource authorization separation and negative tests |
+| ART-09 | New `aggregation_types.administer` / `record_types.administer` catalogue entries and default grants to the two governance profiles and `ALL_PRIVS`; explicit delegation elsewhere; definition/resource authorization separation and negative tests |
 | ART-10 | Confirmed clearing on type changes/removal, atomic saves, event history, and no name-based mapping or inheritance |
-| ART-11 | Safe field/type definition changes and clear saved-search errors for removed definitions |
+| ART-11 | Safe field/type definition changes and clear saved-search errors for removed definitions. For both kinds, verify consecutive field positions after insertion, moves and deletion, stable ordering across the upgrade, and rejection of stale concurrent moves. |
 | ART-12 | Delineated metadata sections and correct form/detail controls in live English/LTR and Arabic/RTL views; existing aggregation and record details dialogs retained, with type-specific metadata below primary metadata in the first tab |
 | ART-13 | Typed advanced filters, untyped/unset semantics, text-value full-text matching, exclusion of choice labels, authorization, pagination, and index freshness |
 | ART-14 | See/Use grants, Use-implies-See, empty grants, untyped resources, union of effective roles, expiry/inactive ancestry, and the new gate order |

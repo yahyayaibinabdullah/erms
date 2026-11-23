@@ -137,6 +137,7 @@ class AuthorizationRequest:
     resource_typed: bool = False
     integrity_allowed: bool = True
     integrity_reason: str | None = None
+    type_everyone_grant: bool = False
 
 
 @dataclass(frozen=True)
@@ -278,14 +279,18 @@ def authorize(context: PolicyContext, request: AuthorizationRequest) -> Authoriz
         detail = "not_applicable"
         if request.resource_typed:
             type_roles = tuple(role.role_id for role in context.effective_roles if role.role_id in request.type_grant_roles)
-            if not type_roles:
+            if request.type_everyone_grant:
+                detail = "everyone"
+            elif type_roles:
+                detail = request.type_access
+            else:
                 level = max(request.resource_levels, default=None)
                 type_bypass = tuple(role.role_id for role in context.effective_roles if role.is_information_governance
                                     and (level is None or role.clearance >= level))
-            if not type_roles and not type_bypass:
-                gates.append(GateResult("resource_type", False, DecisionCode.INSUFFICIENT_TYPE_ACCESS.value, request.type_access))
-                return _deny(context, request, DecisionCode.INSUFFICIENT_TYPE_ACCESS, gates)
-            detail = "information_governance_bypass" if type_bypass else request.type_access
+                if not type_bypass:
+                    gates.append(GateResult("resource_type", False, DecisionCode.INSUFFICIENT_TYPE_ACCESS.value, request.type_access))
+                    return _deny(context, request, DecisionCode.INSUFFICIENT_TYPE_ACCESS, gates)
+                detail = "information_governance_bypass"
         gates.append(GateResult("resource_type", True, DecisionCode.ALLOWED.value, detail))
 
     type_contributors = {"type_role_ids": type_roles, "type_bypass_role_ids": type_bypass}

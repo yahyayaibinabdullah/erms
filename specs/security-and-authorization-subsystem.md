@@ -383,7 +383,11 @@ Privilege codes are immutable lowercase dotted identifiers. Display names and
 descriptions may change. Privileges are seeded system definitions, not
 free-form administrator input.
 
-The initial catalogue is:
+Migration 125 is the approved one-time rename of the two resource-type
+administration codes. It preserves privilege IDs, profile grants and audit
+history. Both privileges appear in the Administration group.
+
+The privilege catalogue includes the following entries.
 
 #### Platform and administration
 
@@ -396,13 +400,14 @@ The initial catalogue is:
 | `identity.sessions.administer` | Inspect and revoke other users' login sessions |
 | `organization.browse` | Browse the organization hierarchy and view concise organizational-unit, role, and user summaries without receiving administration rights |
 | `organization.administer` | Create, edit, activate, deactivate, and eventually delete organizational units and roles; maintain role supervision and assignments |
+| `aggregation_types.administer` | Maintain aggregation types, fields, choices, translations, defaults, and type See/Use role grants |
+| `record_types.administer` | Maintain record types, fields, choices, translations, defaults, and type See/Use role grants |
 | `classifications.administer` | Create, edit, publish, unpublish, activate, deactivate, migrate, and delete classification schemes and classifications |
-| `aggregations.administer` | Maintain aggregation types, fields, choices, translations, defaults, and type See/Use role grants; does not grant resource-instance access |
-| `records.administer` | Maintain record types, fields, choices, translations, defaults, and type See/Use role grants; does not grant resource-instance access |
 | `audit.view` | View the system-wide audit trail and entity histories |
 
-The two type-administration privileges are approved new catalogue entries,
-not previously existing privileges. Seed/upgrade their default grants for
+The resource-type implementation introduced `aggregation_types.administer`
+(**Administer aggregation types**) and `record_types.administer`
+(**Administer record types**). Seed/upgrade their default grants for
 `INFO_GOV_MGR`, `INFO_GOV_OFFICER`, and `ALL_PRIVS`; other profiles require
 explicit delegation. Preserve unrelated profile grants and assignments.
 Definition administration is distinct from instance editing and from global
@@ -1154,6 +1159,12 @@ or deny decision with an internal reason code.
    narrowly defined information-governance ACL bypass applies.
 8. **Allow.** Execute the operation transactionally and audit it as required.
 
+An administrator may grant See or Use to Everyone on a particular aggregation
+or record type. Everyone applies after authentication and effective-role
+assignment. It combines with explicit named-role grants, and Use includes
+See. The remaining privilege, state, clearance, and ACL checks still apply.
+The access explanation identifies Everyone when its grant satisfies this gate.
+
 The roles supplying type access, global privilege, clearance, and ACL
 permission may differ. This is intentional union-based RBAC and matches the
 rule that a user receives the union of all effective role
@@ -1313,7 +1324,7 @@ their duties and can exercise those duties across all in-clearance content
 without maintaining repetitive type grants or ACL entries. Type catalogue
 configuration must not prevent qualified governance staff from performing
 their custody duties. Type-definition administration still requires the
-corresponding existing administration privilege.
+corresponding type-administration privilege listed in section 5.1.
 
 The reserved System Administrator role is not automatically an information-
 governance role and is not automatically entitled to protected business

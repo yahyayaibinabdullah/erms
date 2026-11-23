@@ -44,6 +44,26 @@ client meta-commands such as `\\i`, `\\ir`, `\\set`, and `\\copy` are prohibited
 
 ## Existing database
 
+Apply [migration 125](migrations/125_type_administration_privilege_codes.sql)
+with the updated API and WebUI in the same maintenance window. It renames
+`aggregations.administer` to `aggregation_types.administer` and
+`records.administer` to `record_types.administer` on their existing privilege
+IDs and places both under Administration. Update integrations that check codes
+directly. Existing profile grants still refer to the same IDs. The migration
+carries translations to the new keys and retains the old keys for audit history.
+
+[Migration 124](migrations/124_type_privilege_categories.sql) groups **Administer
+aggregation types** under **Aggregation** and **Administer record types** under
+**Record** in role details and the profile privilege editor.
+
+For a database at version 122, back up the database and apply
+[migration 123](migrations/123_resource_type_everyone.sql) before deploying the
+updated Role access dialog. Each existing row keeps its named role and grants.
+A null role ID represents an explicitly configured Everyone grant. The upgrade
+creates none. The unique constraint permits at most one Everyone grant per type.
+
+For a database at version 121, apply [migration 122](migrations/122_resource_field_positions.sql) before using the updated Fields administration dialog. The migration locks type and field definitions while it numbers fields consecutively within each type, in ascending former display order and then field ID. It updates the version of each affected type so already-open editors detect the change. Existing field IDs and resource values are preserved. Take a restorable backup and quiesce writers for the upgrade. Check the complete receipt and compare field IDs in display order before and after upgrading.
+
 After version 120, apply [migration 121](migrations/121_type_text_search.sql) before deploying the updated API. It installs synchronous indexing for type-specific text and backfills existing records and aggregations that have stored text. The backfill keeps each document's PostgreSQL text configuration and updates its GIN entries in the same transaction. Resources without stored text require no rewrite. Component files and chunks require no re-extraction or reindex.
 
 Schedule the migration during a write maintenance window. It acquires `SHARE ROW EXCLUSIVE` locks on records, aggregations and their type-value tables. Ordinary reads can continue. Resource and field-value writes wait until commit. Allow space for changed metadata rows, GIN entries and WAL. An error rolls back the backfill, trigger definitions and version marker together. Fresh installations get the final definitions from the canonical schema. [Phase 4 measurements](../docs/verification/aggregation-record-types-phase-4.md)

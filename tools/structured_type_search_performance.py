@@ -57,7 +57,7 @@ def seed(c):
         )
         f = c.execute(
             """INSERT INTO resource_type_fields(kind,type_id,name,data_type,display_order) VALUES
-                   (%s,%s,'Reference','integer',0) RETURNING id""",
+                   (%s,%s,'Reference','integer',1) RETURNING id""",
             (kind, a),
         ).fetchone()["id"]
         choice = c.execute(

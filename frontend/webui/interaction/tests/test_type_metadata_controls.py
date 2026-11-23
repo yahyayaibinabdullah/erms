@@ -194,3 +194,65 @@ async def test_catalogue_pages_use_submitted_filter_and_ignore_old_navigation(us
     assert (
         api.requests[-1]["q"] == "submitted" and api.requests[-1]["offset"] == 25
     ), api.requests
+
+
+@pytest.mark.parametrize("kind", ["aggregation", "record"])
+@pytest.mark.parametrize(("dtype", "valid", "wire", "bad"), [
+    ("text", "ع😀", "ع😀", "ع😀x"),
+    ("integer", "-9223372036854775808", -(2**63), "9223372036854775808"),
+    ("decimal", "-1.230000000000000001e-12", "-1.230000000000000001e-12", "1e-"),
+    ("boolean", False, False, None),
+    ("date", "2028-02-29", "2028-02-29", "2027-02-29"),
+    ("datetime", "2028-02-29T14:15", "2028-02-29T10:15:00+00:00", "2028-02-29"),
+    ("single_choice", 17, 17, None),
+])
+async def test_resource_editor_and_search_condition_values(user, kind, dtype, valid, wire, bad):
+    from frontend.webui.locale_services import set_locale_context
+    from frontend.webui.type_search_controls import render_type_condition
+
+    field = definition(1, dtype, max_length=2 if dtype == "text" else None,
+                       default=17 if dtype == "single_choice" else None)
+    choice = {"id": 17, "name": "Closed"}
+    owner = {"id": 5, "name": "Case"}
+
+    async def request(method, path, *, params=None):
+        if path.endswith("/5"):
+            return owner
+        items = [choice] if path.endswith("/choices") else [field]
+        return {"items": items, "total": len(items)} if (params or {}).get("paged") else items
+
+    api = SimpleNamespace(request=request)
+    form = MetadataForm(api, kind)
+    node = {"kind": "type_field", "field": "type.5.field.1", "operator": "eq",
+            "value": 17 if dtype == "single_choice" else None}
+    search_panel = []
+    @ui.page("/")
+    async def page():
+        set_locale_context("en", "Asia/Dubai")
+        await form.render()
+        await form.assign(owner)
+        with ui.column() as panel:
+            search_panel.append(panel)
+            render_type_condition(api, kind + "s", node, lambda: None, lambda: None, str)
+
+    await user.open("/")
+    await user.should_see("Value")
+    with user:
+        editor = next(e for e in form.fields.descendants() if getattr(e, "label", "") == dtype.title())
+        criterion = next(e for e in search_panel[0].descendants() if getattr(e, "label", "") == "Value")
+        if dtype in {"boolean", "single_choice"}:
+            assert isinstance(editor, ui.select) and isinstance(criterion, ui.select)
+            assert "new-value-mode" not in editor.props and "new-value-mode" not in criterion.props
+        if bad is not None:
+            editor.value = bad
+            with pytest.raises(ValueError):
+                form.payload()
+            # Search terms can exceed a stored text field's limit.
+            if dtype != "text":
+                criterion.value = bad
+                assert node["invalid_value"]
+        if dtype == "single_choice":
+            editor.value = criterion.value = None
+        editor.value = criterion.value = valid
+        assert form.payload()["field_values"] == {"1": wire}
+        assert node["value"] == wire and not node["invalid_value"]

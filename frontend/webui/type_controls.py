@@ -63,6 +63,8 @@ TYPE_MESSAGES = {
     "search": "resource_types.ui.search",
     "add": "resource_types.ui.add",
     "edit": "resource_types.ui.edit",
+    "earlier": "webui.render_component_cards.tooltip.move_earlier_0de89c72",
+    "later": "webui.render_component_cards.tooltip.move_later_71077211",
     "delete": "resource_types.ui.delete",
     "close": "resource_types.ui.close",
     "continue": "disposition.ui.continue",
@@ -323,6 +325,31 @@ def scalar_input(dtype, title, value, maximum=None):
             control.props(
                 "inputmode=" + ("numeric" if dtype == "integer" else "decimal")
             )
+    if dtype in {"integer", "decimal"} or (dtype == "text" and maximum):
+        # Validate the browser's actual edit, including selection replacement and paste.
+        # Keep decimal strings exact and allow incomplete signs/exponents until Save.
+        if dtype == "integer":
+            predicate = r"""if (/^[+-]?$/.test(v)) return true;
+                if (!/^[+-]?[0-9]+$/.test(v)) return false;
+                const n = BigInt(v);
+                return n >= -9223372036854775808n && n <= 9223372036854775807n;"""
+        elif dtype == "decimal":
+            predicate = r"""return /^[+-]?(?:\.?|(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]*)?)$/.test(v);"""
+        else:
+            control.props(f"data-character-limit={int(maximum)}")
+            predicate = "return event.inputType?.startsWith('delete') || Array.from(v).length <= Number(field.dataset.characterLimit);"
+        control.on("beforeinput", js_handler="""event => {
+            const field = event.target;
+            field.dataset.previousValue = field.value;
+        }""")
+        control.on("input.capture", js_handler="""event => {
+            const field = event.target;
+            const valid = v => {""" + predicate + """};
+            if (!valid(field.value)) {
+                field.value = field.dataset.previousValue ?? field.defaultValue;
+            }
+            field.dataset.previousValue = field.value;
+        }""")
     return control.classes("w-full")
 
 
@@ -330,6 +357,8 @@ def literal(dtype, value, maximum=None):
     if value is None or value == "":
         return None
     try:
+        if dtype in {"text", "date", "datetime"} and not isinstance(value, str):
+            raise ValueError
         if dtype == "integer":
             if (
                 not re.fullmatch(r"[+-]?[0-9]+", str(value))
@@ -354,6 +383,8 @@ def literal(dtype, value, maximum=None):
                 raise ValueError
             return str(value)
         if dtype == "datetime":
+            if not re.match(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt ][0-9]{2}:[0-9]{2}", value):
+                raise ValueError
             moment = datetime.fromisoformat(value)
             return (
                 moment

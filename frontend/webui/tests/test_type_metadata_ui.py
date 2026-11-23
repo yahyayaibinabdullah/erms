@@ -6,6 +6,7 @@ from frontend.webui.advanced_search_model import (
     advanced_search_node_from_expression,
     compile_advanced_search_node,
 )
+from frontend.webui.type_administration import MAX_INT32, _positive_integer
 from frontend.webui.type_controls import MetadataForm, literal
 
 
@@ -84,3 +85,30 @@ def test_saved_definition_preserves_secondary_typed_sort_and_stable_ties():
         {"field": "type.5.field.2", "direction": "desc"},
         {"field": "id", "direction": "desc"},
     ]
+
+
+@pytest.mark.parametrize(("typed", "limit"), [
+    ("255", 255), (" ١٠٢٤ ", 1024), ("۱۲۸", 128), ("2147483647", 2147483647),
+    ("", None), ("٠", None), ("-1", None), ("1.5", None), ("1e3", None),
+    ("2147483648", None),
+])
+def test_maximum_characters_requires_a_positive_database_integer(typed, limit):
+    assert _positive_integer(typed, MAX_INT32) == limit
+
+
+@pytest.mark.parametrize(("typed", "position"), [
+    ("1", 1), ("3", 3), ("٣", 3), ("4", None), ("0", None),
+    ("", None), ("-2", None), ("2.5", None), ("1e0", None),
+])
+def test_display_order_respects_the_current_last_position(typed, position):
+    assert _positive_integer(typed, 3) == position
+
+@pytest.mark.parametrize(("dtype", "invalid"), [
+    ("text", {"ar": "نص"}), ("integer", str(-(2**63)-1)), ("integer", "1.0"),
+    ("integer", True), ("decimal", "NaN"), ("decimal", "Infinity"),
+    ("boolean", 1), ("boolean", "false"), ("date", "2026-02-29"),
+    ("datetime", "2026-11-23"), ("datetime", "2026-11-23T25:60"),
+])
+def test_invalid_metadata_literals_cannot_be_submitted(dtype, invalid):
+    with pytest.raises(ValueError):
+        literal(dtype, invalid)

@@ -508,7 +508,8 @@ def test_saved_owner_loses_see_and_removed_definition(client, corpus):
     assert row["capability_reasons"]["open"] == "search_type_reference_unavailable"
 
 
-def test_shared_typed_search_tracks_grant_changes_end_to_end(client, corpus):
+@pytest.mark.parametrize("everyone", [False, True], ids=["named-role", "everyone"])
+def test_shared_typed_search_tracks_grant_changes_end_to_end(client, corpus, everyone):
     """The same recipient and cached page follow the administrator's live grant."""
     from fastapi.testclient import TestClient
     from .test_phase7_mutation_authorization import _set_aggregation_acl, _set_record_acl
@@ -521,7 +522,8 @@ def test_shared_typed_search_tracks_grant_changes_end_to_end(client, corpus):
 
     def allow(see):
         version = ok(client.get(type_url))["version"]
-        ok(client.put(f"{type_url}/role-grants/{role}", headers={"If-Match": str(version)},
+        principal = "everyone" if everyone else role
+        ok(client.put(f"{type_url}/role-grants/{principal}", headers={"If-Match": str(version)},
                       json={"can_see": see, "can_use": False}))
 
     query = {
@@ -544,6 +546,14 @@ def test_shared_typed_search_tracks_grant_changes_end_to_end(client, corpus):
     try:
         _login_as_phase7(recipient)
         tab = {"tab_id": str(uuid4())}
+        def global_hits():
+            body = ok(recipient.post("/api/v1/full-text-search", json={
+                "result_types": [kind + "s"], kind + "_where": {
+                    "full_text": {"query": "Phase3", "sources": ["metadata"]}},
+                "tab_id": str(uuid4())}))
+            return [hit[kind]["id"] for hit in body["items"]]
+
+        assert ids[0] in global_hits()
         page = ok(recipient.post(detail + "/execute", json=tab))
         assert [row["id"] for row in page["items"]] == ids[:1]
         assert ok(recipient.get(resource))["id"] == ids[0]
@@ -551,6 +561,7 @@ def test_shared_typed_search_tracks_grant_changes_end_to_end(client, corpus):
         summary = next(r for r in ok(recipient.get("/api/v1/saved-searches"))["items"] if r["id"] == shared["id"])
         assert "definition" not in summary
         assert summary["capability_reasons"]["open"] == "saved_search_type_forbidden"
+        assert ids[0] not in global_hits()
         assert recipient.get(resource).status_code == 404
         assert recipient.get(detail).status_code == 403
         assert recipient.post(detail + "/execute", json={**tab, "search_id": page["search_id"]}).status_code == 403

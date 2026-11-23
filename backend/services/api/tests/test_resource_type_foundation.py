@@ -30,8 +30,9 @@ def create_type(db, kind="record", name="Inspection"):
 def add_field(db, type_id, data_type, name=None, *, kind="record", required=False, limit=None, default=None):
     return db.execute("""
         INSERT INTO resource_type_fields(kind,type_id,name,data_type,required,display_order,max_length,default_value)
-        VALUES (%s,%s,%s,%s,%s,1,%s,resource_field_decode(%s,%s)) RETURNING id
-        """, (kind, type_id, name or data_type, data_type, required, limit, data_type, Jsonb(default))).fetchone()["id"]
+        SELECT %s,%s,%s,%s,%s,coalesce(max(display_order),0)+1,%s,resource_field_decode(%s,%s)
+        FROM resource_type_fields WHERE kind=%s AND type_id=%s RETURNING id
+        """, (kind, type_id, name or data_type, data_type, required, limit, data_type, Jsonb(default), kind, type_id)).fetchone()["id"]
 
 
 def choice(db, field_id, name, order=1):

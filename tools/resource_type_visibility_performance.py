@@ -137,6 +137,26 @@ def exercise(url, output, repeats):
                     ),
                 )
                 assert all(row["id"] % 3 != 2 for row in page["items"])
+                everyone = catalogue + "/role-grants/everyone"
+                def set_everyone(see, use):
+                    version = governor.get(catalogue).json()["version"]
+                    governor.put(everyone, headers={"If-Match": str(version)},
+                                 json={"can_see": see, "can_use": use}).raise_for_status()
+
+                set_everyone(True, False)
+                explicit = {"where": {"field": "type_id", "operator": "eq", "value": data["id"]},
+                            "limit": 25, "sort": query["sort"]}
+                for _ in range(repeats):
+                    body = measured(kind + "_everyone_broad", lambda: reader.post(
+                        f"/api/v1/{table}/search", json={"where": leaf, "limit": 25, "sort": query["sort"]}))
+                    assert body["total"] == count and [r["id"] for r in body["items"]] == list(range(1,26))
+                    tab = str(uuid4())
+                    public = measured(kind + "_everyone_advanced", lambda: reader.post(
+                        path, json={**explicit, "tab_id": tab}))
+                    assert [r["id"] for r in public["items"]] == list(range(2, 76, 3))
+                set_everyone(False, False)
+                denied = reader.post(path, json={**explicit, "tab_id": tab, "offset": 25, "search_id": public["search_id"]})
+                assert not denied.is_success, (denied.status_code, denied.text[:200])
                 # Entire population is known from fixture IDs, independently
                 # of ACL, type functions, search SQL and query projections.
                 for client, identity in [

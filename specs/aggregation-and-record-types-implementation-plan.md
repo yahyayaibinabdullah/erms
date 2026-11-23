@@ -103,7 +103,7 @@ fails, fix the phase and retain both failed and corrected reports.
 
 **Contract points resolved by approval — 18 November 2026**
 
-1. Introduce `aggregations.administer` and `records.administer` with the scope
+1. Introduce `aggregation_types.administer` and `record_types.administer` with the scope
    in type-specification section 7.1. Grant both by default to `INFO_GOV_MGR`,
    `INFO_GOV_OFFICER`, and `ALL_PRIVS`; delegate to other profiles explicitly.
    Include fresh seeds and populated upgrades without changing unrelated

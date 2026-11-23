@@ -16,10 +16,20 @@ def seed_language():
             """INSERT INTO supported_languages(language_tag,english_name,native_name,direction,is_enabled)
             VALUES('fr','French','Français','ltr',true) ON CONFLICT(language_tag) DO NOTHING"""
         )
+        c.execute("""INSERT INTO roles(code,name,org_unit_id,profile_id,security_level_id)
+            SELECT 'picker-'||n, 'Picker '||lpad(n::text,2,'0'), r.org_unit_id,r.profile_id,r.security_level_id
+            FROM (SELECT * FROM roles WHERE org_unit_id IS NOT NULL ORDER BY id LIMIT 1) r
+            CROSS JOIN generate_series(1,32) n""")
 
 
 def check_types(page):
+    from selenium.webdriver.common.keys import Keys
+
     def t(key):
+        if key in {"earlier", "later"}:
+            message = {"earlier": "webui.render_component_cards.tooltip.move_earlier_0de89c72",
+                       "later": "webui.render_component_cards.tooltip.move_later_71077211"}
+            return page.t(message[key])
         return page.t("resource_types.ui." + key)
 
     def dialog():
@@ -187,6 +197,168 @@ def check_types(page):
     )
     saved.raise_for_status()
 
+    def check_field_editor(lang, fields):
+        action("add", fields)
+        page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2)
+        field_name = "Keyboard limit " + lang
+        page.fill(t("name"), field_name)
+        order = page.field(t("order"))
+        assert [order.get_attribute(key) for key in ("type", "min", "max", "value")] == ["number", "1", "3", "3"]
+        page.activate(order)
+        order.send_keys(Keys.BACKSPACE, "0-.e4")
+        assert order.get_property("value") == ""
+        action("save", dialog())
+        page.see(t("invalid"))
+        page.activate(order)
+        order.send_keys("2", "9")
+        assert order.get_property("value") == "2"
+        order.send_keys(Keys.ARROW_UP, Keys.ARROW_UP)
+        assert order.get_property("value") == "3"
+        maximum = page.field(t("maximum"))
+        assert maximum.get_attribute("type") == "number"
+        assert maximum.get_attribute("step") == "1"
+        assert maximum.get_attribute("value") == "255"
+        page.fill(t("default"), "abc")
+        page.activate(maximum)
+        maximum.send_keys("1024")
+        page.wait.until(lambda _: maximum.get_attribute("value") == "1024",
+                        "Typing directly should replace the initial suggestion")
+        page.select_field_text(maximum)
+        maximum.send_keys(Keys.BACKSPACE)
+        action("save", dialog())
+        page.see(t("invalid"))
+        page.activate(maximum)
+        maximum.send_keys("abcd")
+        assert maximum.get_attribute("value") == ""
+        maximum.send_keys("11--")
+        assert maximum.get_property("value") == "11", "Hyphens must leave the entered digits intact"
+        maximum.send_keys("+.eE")
+        assert maximum.get_property("value") == "11"
+        assert not page.driver.execute_script("return arguments[0].validity.badInput", maximum)
+        # Check the complete transferred string without touching the user's clipboard.
+        for event in ("paste", "drop"):
+            for text, allowed in (("1e3", False), ("2048", True)):
+                assert page.driver.execute_script("""
+                    const [field, name, text] = arguments;
+                    const transfer = new DataTransfer();
+                    transfer.setData('text/plain', text);
+                    const init = {bubbles: true, cancelable: true};
+                    const event = name === 'paste'
+                        ? new ClipboardEvent(name, {...init, clipboardData: transfer})
+                        : new DragEvent(name, {...init, dataTransfer: transfer});
+                    return field.dispatchEvent(event);
+                """, maximum, event, text) == allowed
+        page.select_field_text(maximum)
+        maximum.send_keys("2147483647")
+        assert maximum.get_property("value") == "2147483647"
+        maximum.send_keys("0", Keys.ARROW_UP)
+        assert maximum.get_property("value") == "2147483647"
+        # Replacing the last digit must validate the resulting number.
+        maximum.send_keys(Keys.END, Keys.SHIFT, Keys.ARROW_LEFT, Keys.NULL, "6")
+        assert maximum.get_property("value") == "2147483646"
+        maximum.send_keys(Keys.END, Keys.SHIFT, Keys.ARROW_LEFT, Keys.NULL, "8")
+        assert maximum.get_property("value") == "2147483646"
+        # Insert a complete string in one browser edit, as with paste.
+        for digits, expected in (("2147483648", "2147483646"), ("2147483647", "2147483647")):
+            page.select_field_text(maximum)
+            page.driver.execute_script("document.execCommand('insertText', false, arguments[0])", digits)
+            assert maximum.get_property("value") == expected
+        page.select_field_text(maximum)
+        maximum.send_keys(Keys.BACKSPACE, "0")
+        assert maximum.get_property("value") == ""
+        page.select_field_text(maximum)
+        maximum.send_keys("1024")
+        maximum.send_keys(Keys.ARROW_UP)
+        page.wait.until(lambda _: maximum.get_attribute("value") == "1025")
+        maximum.send_keys(Keys.ARROW_DOWN)
+        page.wait.until(lambda _: maximum.get_attribute("value") == "1024")
+        page.wait.until(lambda _: page.field(t("default")).tag_name == "textarea")
+        assert page.field(t("default")).get_attribute("value") == "abc"
+        action("save", dialog())
+        def wait_position(position):
+            page.wait.until(lambda _: row(field_name, fields).find_elements("css selector", "td")[1].text == str(position))
+
+        wait_position(3)
+        row_action("earlier", field_name, fields)
+        wait_position(2)
+        row_action("later", field_name, fields)
+        wait_position(3)
+        # Show just the test field. Its editor still has all three positions.
+        search = fields.find_element("css selector", "input[type=text]")
+        search.send_keys(field_name, Keys.ENTER)
+        page.wait.until(lambda _: len(page.visible(".erms-page-table tbody tr", fields)) == 1)
+        row_action("edit", field_name, fields)
+        page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2)
+        order = page.field(t("order"))
+        assert order.get_attribute("max") == "3"
+        page.select_field_text(order)
+        page.driver.execute_script("document.execCommand('insertText', false, '4')")
+        assert order.get_property("value") == "3"
+        assert page.field(t("maximum")).get_attribute("value") == "1024"
+        assert page.field(t("default")).get_attribute("value") == "abc"
+        page.fill(t("order"), "1")
+        page.fill(t("maximum"), "255")
+        page.wait.until(lambda _: page.field(t("default")).tag_name == "input")
+        assert page.field(t("default")).get_attribute("value") == "abc"
+        action("save", dialog())
+        page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 1)
+        wait_position(1)
+        row_action("delete", field_name, fields)
+        page.see(t("delete_confirm"))
+        action("delete", dialog())
+        page.wait.until(lambda _: field_name not in fields.text)
+        page.select_field_text(search)
+        search.send_keys(Keys.BACKSPACE, Keys.ENTER)
+        page.wait.until(lambda _: len(page.visible(".erms-page-table tbody tr", fields)) == 2)
+
+    def check_typed_defaults(fields):
+        action("add", fields)
+        page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2)
+        page.fill(t("name"), "Input regression")
+        def open_select(key):
+            control = page.wait.until(lambda _: next((item for item in page.visible(".q-select", dialog())
+                if item.find_element("css selector", ".q-field__label").text == t(key)), False))
+            page.activate(control)
+
+        def select_type(dtype):
+            open_select("data_type")
+            choose(t(dtype))
+
+        page.fill(t("maximum"), "2")
+        value = page.field(t("default"))
+        value.send_keys("abx")
+        assert value.get_property("value") == "ab"
+        for dtype, valid, appended, invalid in (
+            ("integer", "-9223372036854775808", "1", "-"),
+            ("decimal", "-1.234567890123456789e-2", "x", "1e-"),
+        ):
+            select_type(dtype)
+            value = page.field(t("default"))
+            page.wait.until(lambda _: value.get_attribute("inputmode") == ("numeric" if dtype == "integer" else "decimal"))
+            value.send_keys(valid)
+            value.send_keys(appended)
+            assert value.get_property("value") == valid
+            page.select_field_text(value)
+            value.send_keys(invalid)
+            action("save", dialog())
+            page.see(t("invalid"))
+        for dtype, native_type, valid, invalid in (
+            ("date", "date", "2028-02-29", "2027-02-29"),
+            ("datetime", "datetime-local", "2028-02-29T13:14", "2028-02-29T25:14"),
+        ):
+            select_type(dtype)
+            value = page.field(t("default"))
+            assert value.get_attribute("type") == native_type
+            for typed, expected in ((invalid, ""), (valid, valid)):
+                assert page.driver.execute_script("arguments[0].value=arguments[1]; return arguments[0].value",
+                                                  value, typed) == expected
+        select_type("boolean")
+        open_select("default")
+        choose(t("no"))
+        select_type("single_choice")
+        page.see(t("default_choice"))
+        action("cancel", dialog())
+
     def table_style():
         header = page.one(".erms-page-table thead tr")
         return page.driver.execute_script(
@@ -234,6 +406,8 @@ def check_types(page):
                 )
                 row_action("fields", owner_label)
                 fields = dialog()
+                check_field_editor(lang, fields)
+                check_typed_defaults(fields)
                 row_action("choices", field_label, fields)
                 page.wait.until(
                     lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2
@@ -246,7 +420,16 @@ def check_types(page):
                         lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 3
                     )
                     page.fill(t("name"), "Expedited")
+                    order = page.field(t("order"))
+                    page.select_field_text(order)
+                    order.send_keys(Keys.BACKSPACE, "x.e")
+                    assert order.get_property("value") == ""
+                    order.send_keys("-2147483648", "0")
+                    assert order.get_property("value") == "-2147483648"
                     page.fill(t("order"), "2")
+                    order.send_keys(Keys.END, "--")
+                    assert order.get_property("value") == "2"
+
                     action("save", dialog())
                     row("Expedited", choices)
                     row_action("edit", "Expedited", choices)
@@ -297,25 +480,68 @@ def check_types(page):
                 row_action("access", owner_label)
                 page.see(t("policy_help"))
                 policy = dialog()
-                if kind == "record" and lang == "en":
-                    row_action("edit", "Test officer", policy)
-                    page.wait.until(
-                        lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2
-                    )
-                    grant = dialog()
-                    use = page.one("[role=checkbox]", t("use"), scope=grant)
-                    see = page.one("[role=checkbox]", t("see"), scope=grant)
-                    page.activate(use)
-                    page.wait.until(
-                        lambda _: see.get_attribute("aria-checked") == "true"
-                    )
-                    action("save", grant)
-                    page.wait.until(
-                        lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 1
-                    )
-                    page.wait.until(
-                        lambda _: row("Test officer", policy).text.count(t("yes")) == 2
-                    )
+                action("add", policy)
+                page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2)
+                picker = dialog()
+                everyone = page.t("webui.render_principals.label.everyone_8d69f084")
+                # Select another role on a later page, then find both selections by search.
+                named = "Picker 32" if lang == "en" else "Picker 31"
+                def box(name, permission):
+                    return page.one("[role=checkbox]", t(permission), scope=row(name, picker))
+
+                def toggle_box(name, permission):
+                    # Page loads can replace a row between locating and clicking it.
+                    def click_current(_):
+                        page.activate(box(name, permission))
+                        return True
+                    page.wait.until(click_current)
+
+                def filter_roles(panel, term, name):
+                    query = panel.find_element("css selector", "input[type=text]")
+                    page.select_field_text(query)
+                    query.send_keys(term, Keys.ENTER)
+                    def one_matching_row(_):
+                        rows = page.visible(".erms-page-table tbody tr", panel)
+                        return len(rows) == 1 and name in rows[0].text
+                    page.wait.until(one_matching_row)
+
+                assert not page.button(t("add") + " (0)", picker).is_enabled()
+                toggle_box(everyone, "see")
+                page.click(page.t("relationships.ui.next"), scope=picker)
+                toggle_box(named, "use")
+                page.wait.until(lambda _: box(named, "see").get_attribute("aria-checked") == "true")
+                filter_roles(picker, everyone, everyone)
+                assert box(everyone, "see").get_attribute("aria-checked") == "true"
+                assert box(everyone, "use").get_attribute("aria-checked") == "false"
+                # Mixed-case interior of the role code (the display name has a space).
+                code_fragment = "KeR-" + named.split()[-1]
+                filter_roles(picker, code_fragment, named)
+                toggle_box(named, "use")
+                assert box(named, "see").get_attribute("aria-checked") == "true"
+                toggle_box(named, "see")
+                page.button(t("add") + " (1)", picker)
+                toggle_box(named, "use")
+                page.capture("types-" + kind + "-role-picker-" + lang)
+                page.click(t("add") + " (2)", scope=picker)
+                page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 1)
+                assert row(named, policy).text.count(t("yes")) == 2
+                assert t("no") in row(everyone, policy).text
+                cells = row(everyone, policy).find_elements("css selector", "td")
+                assert [c.text for c in cells[:-1]] == [everyone, t("yes"), t("no")]
+                edit_button = page.one("button", t("edit"), scope=cells[-1])
+                use_x, edit_x = cells[-2].rect["x"], edit_button.rect["x"]
+                assert edit_x > use_x if lang == "en" else edit_x < use_x
+                page.capture(f"types-{kind}-role-access-{lang}")
+                filter_roles(policy, code_fragment, named)
+                filter_roles(policy, everyone, everyone)
+                row_action("edit", everyone, policy)
+                page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2)
+                grant = dialog()
+                page.activate(page.one("[role=checkbox]", t("see"), scope=grant))
+                action("save", grant)
+                page.wait.until(lambda _: everyone not in policy.text)
+                filter_roles(policy, code_fragment, named)
+                assert row(named, policy).text.count(t("yes")) == 2
                 action("close", policy)
                 page.settings()
                 enter(kind)

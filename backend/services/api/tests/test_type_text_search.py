@@ -164,8 +164,9 @@ def test_two_writers_refresh_the_committed_text(client, corpus):
     with db() as c:
         second = c.execute(
             """INSERT INTO resource_type_fields(kind,type_id,name,data_type,display_order,max_length)
-                              VALUES(%s,%s,'Second text','text',1,100) RETURNING id""",
-            (kind, owner),
+                              SELECT %s,%s,'Second text','text',coalesce(max(display_order),0)+1,100
+                              FROM resource_type_fields WHERE type_id=%s AND kind=%s RETURNING id""",
+            (kind, owner, owner, kind),
         ).fetchone()["id"]
     with ThreadPoolExecutor(max_workers=1) as pool, db() as a, db() as b:
         # Different field rows have no row-lock conflict of their own. The owner

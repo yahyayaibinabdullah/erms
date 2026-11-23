@@ -27,8 +27,10 @@ def test_seeded_catalogue_profiles_and_existing_role_backfill(client: TestClient
         "messaging.user_messages.exchange", "messaging.monitor",
         "messaging.notifications.administer",
     }
-    type_privileges = {"aggregations.administer", "records.administer"}
+    type_privileges = {"aggregation_types.administer", "record_types.administer"}
     assert type_privileges <= set(privileges)
+    assert all(privileges[code]["category"] == "administration" for code in type_privileges)
+    assert {"aggregations.administer", "records.administer"}.isdisjoint(privileges)
     assert len(set(privileges) - separately_seeded) == 66
     assert {"relationships.link", "relationships.administer", "app.settings.manage", "disposition.jobs.manage"} <= set(privileges)
     assert privileges["localization.administer"]["is_reserved"] is True

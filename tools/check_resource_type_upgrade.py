@@ -309,6 +309,16 @@ def main():
                 assert all(v == 0 for v in report["new_data"].values())
                 assert c.execute("SELECT count(*) AS n FROM schema_migrations WHERE version='119_resource_types'").fetchone()["n"] == 1
                 measure_text_upgrade(c, report)
+                c.execute((ROOT / "database/migrations/122_resource_field_positions.sql").read_text(), prepare=False)
+                c.execute((ROOT / "database/migrations/123_resource_type_everyone.sql").read_text(), prepare=False)
+                c.execute((ROOT / "database/migrations/124_type_privilege_categories.sql").read_text(), prepare=False)
+                c.execute((ROOT / "database/migrations/125_type_administration_privilege_codes.sql").read_text(), prepare=False)
+                assert profile_grants(c) == previous_grants | {
+                    (profile, code)
+                    for profile in ("INFO_GOV_MGR", "INFO_GOV_OFFICER", "ALL_PRIVS")
+                    for code in ("aggregation_types.administer", "record_types.administer")
+                }
+                c.commit()
                 assert preserved_content(c, last_event) == report["legacy_content"]
                 report["preserved_legacy_content"] = True
                 report["fresh_baseline_rejected_on_old_schema"] = True

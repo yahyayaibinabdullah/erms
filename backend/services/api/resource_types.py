@@ -15,7 +15,7 @@ from .concurrency import expected_version
 from .continuity_lock import acquire_continuity_lock
 from .database import get_connection
 from .dashboard_visibility import AUTHORITY_CTES
-from .entity_localization import preferred_language, localized_projection
+from .entity_localization import localized_labels, localized_projection, preferred_language
 from .metadata_json import JsonSource
 from .operation_policy import operation_policy
 from .schemas import NonBlankString
@@ -36,18 +36,30 @@ class ChoiceDefinition(Definition):
     display_order: int
 
 
-class FieldDefinition(ChoiceDefinition):
+class FieldDefinition(Definition):
+    display_order: int | None = None
     data_type: Literal[
         "text", "integer", "decimal", "boolean", "date", "datetime", "single_choice"
     ]
-    max_length: int | None = Field(default=None, gt=0)
+    max_length: int | None = Field(default=None, gt=0, le=2_147_483_647)
     required: bool = False
     # Decimal strings keep full precision through JSON transports.
     default: str | int | bool | float | None = None
 
 
+class FieldPosition(BaseModel):
+    position: int = Field(ge=1)
+
+
 class RoleGrant(BaseModel):
     can_see: bool
+    can_use: bool
+
+
+class NewRoleGrant(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    role_id: Annotated[int, Field(gt=0, le=2**63 - 1)] | Literal["everyone"]
+    # Every entry grants See. Use adds mutation access for this principal.
     can_use: bool
 
 
@@ -70,9 +82,13 @@ def check_custodian(c, level_id):
         )
 
 
+def administration_privilege(kind):
+    return f"{kind}_types.administer"
+
+
 def lock_administration(c, kind):
     acquire_continuity_lock(c)
-    require_global(c, kind + "s.administer")
+    require_global(c, administration_privilege(kind))
 
 
 def type_locked(c, kind, type_id, version):
@@ -93,6 +109,31 @@ def touch(c, kind, type_id):
         "UPDATE resource_types SET name=name WHERE kind=%s AND id=%s RETURNING version",
         (kind, type_id),
     ).fetchone()["version"]
+
+
+def field_position(c, kind, type_id, requested, previous=None):
+    """The caller holds the type lock. Open a slot before writing the target field."""
+    if requested is None and previous is not None:
+        return previous
+    last = c.execute(
+        "SELECT coalesce(max(display_order),0) AS last FROM resource_type_fields WHERE kind=%s AND type_id=%s",
+        (kind, type_id),
+    ).fetchone()["last"]
+    end = last + 1 if previous is None else last
+    target = end if requested is None else min(end, max(1, requested))
+    origin = end if previous is None else previous
+    if target != origin:
+        c.execute("SET CONSTRAINTS resource_field_position_unique DEFERRED")
+        if target < origin:
+            start, stop, delta = target, origin - 1, 1
+        else:
+            start, stop, delta = origin + 1, target, -1
+        c.execute(
+            """UPDATE resource_type_fields SET display_order=display_order+%s
+               WHERE kind=%s AND type_id=%s AND display_order BETWEEN %s AND %s""",
+            (delta, kind, type_id, start, stop),
+        )
+    return target
 
 
 def translated(row, language):
@@ -116,7 +157,7 @@ def catalogue(kind):
     prefix = f"/api/v1/{kind}-types"
     admin = APIRouter(
         prefix=prefix,
-        dependencies=[Depends(require_global_privilege(table + ".administer"))],
+        dependencies=[Depends(require_global_privilege(administration_privilege(kind)))],
     )
     options = APIRouter(prefix=prefix)
 
@@ -128,7 +169,8 @@ def catalogue(kind):
     )
 
     def definition_page(
-        c, request, source, args, order, limit, offset, q, selected, paged, descending
+        c, request, source, args, order, limit, offset, q, selected, paged, descending, *,
+        search_columns=("name",), pin_everyone=False
     ):
         # Callers supply fixed SQL and sort columns. Count and page share one snapshot.
         language = preferred_language(c, request)
@@ -137,12 +179,16 @@ def catalogue(kind):
             + (" DESC" if descending else " ASC")
             + ", id"
         )
+        if pin_everyone:
+            ordering = "(principal_type='everyone') DESC, " + ordering
+        # The columns are fixed by each endpoint. Only the search term comes from the client.
+        text_match = " OR ".join(f"position(lower(%s) IN lower(e.{column}))>0" for column in search_columns)
         rows = c.execute(
             f"""WITH eligible AS ({source}), matches AS MATERIALIZED (
             SELECT e.*, coalesce(nullif(translations->%s->>'name',''),nullif(translations->%s->>'name',''),name)
                         AS localized_name
             FROM eligible e WHERE (%s::bigint IS NULL OR id=%s)
-            AND (position(lower(%s) IN lower(name))>0 OR EXISTS (
+            AND ({text_match} OR EXISTS (
                 SELECT FROM jsonb_each(translations) l WHERE position(lower(%s) IN lower(l.value->>'name'))>0))
             ), page AS (SELECT * FROM matches ORDER BY {ordering} LIMIT %s OFFSET %s)
             SELECT page.*, count_rows.total FROM (SELECT count(*) AS total FROM matches) count_rows
@@ -153,7 +199,7 @@ def catalogue(kind):
                 language.split("-")[0],
                 selected,
                 selected,
-                q,
+                *(q for _ in search_columns),
                 q,
                 limit,
                 offset,
@@ -164,6 +210,8 @@ def catalogue(kind):
         for row in rows:
             row.pop("total")
             row.pop("localized_name")
+            if row.get("principal_type") == "everyone":
+                row["id"] = "everyone"
             if row["id"] is not None:
                 items.append(translated(row, language))
         return {"items": items, "total": total} if paged else items
@@ -432,7 +480,7 @@ def catalogue(kind):
                 type_id,
                 body.name,
                 Jsonb(body.translations) if body.translations else None,
-                body.display_order,
+                field_position(c, kind, type_id, body.display_order),
                 body.required,
                 body.max_length,
                 body.data_type,
@@ -455,14 +503,14 @@ def catalogue(kind):
         c: Database,
     ):
         type_locked(c, kind, type_id, version)
-        field_row(c, kind, type_id, field_id)
+        existing = field_row(c, kind, type_id, field_id)
         c.execute(
             """UPDATE resource_type_fields SET name=%s,translations=%s,display_order=%s,required=%s,
                      max_length=%s,data_type=%s,default_value=resource_field_decode(%s,(%s::jsonb)->'default') WHERE id=%s""",
             (
                 body.name,
                 Jsonb(body.translations) if body.translations else None,
-                body.display_order,
+                field_position(c, kind, type_id, body.display_order, existing["display_order"]),
                 body.required,
                 body.max_length,
                 body.data_type,
@@ -476,11 +524,26 @@ def catalogue(kind):
             "type_version": touch(c, kind, type_id),
         }
 
+    @admin.put("/{type_id}/fields/{field_id}/position")
+    def move_field(type_id: int, field_id: int, body: FieldPosition, version: Version, c: Database):
+        type_locked(c, kind, type_id, version)
+        existing = field_row(c, kind, type_id, field_id)
+        target = field_position(c, kind, type_id, body.position, existing["display_order"])
+        if target == existing["display_order"]:
+            return {"type_version": version}
+        c.execute("UPDATE resource_type_fields SET display_order=%s WHERE id=%s", (target, field_id))
+        return {"type_version": touch(c, kind, type_id)}
+
     @admin.delete("/{type_id}/fields/{field_id}", status_code=204)
     def delete_field(type_id: int, field_id: int, version: Version, c: Database):
         type_locked(c, kind, type_id, version)
-        field_row(c, kind, type_id, field_id)
+        existing = field_row(c, kind, type_id, field_id)
         c.execute("DELETE FROM resource_type_fields WHERE id=%s", (field_id,))
+        c.execute(
+            """UPDATE resource_type_fields SET display_order=display_order-1
+               WHERE kind=%s AND type_id=%s AND display_order>%s""",
+            (kind, type_id, existing["display_order"]),
+        )
         touch(c, kind, type_id)
 
     @admin.post("/{type_id}/fields/{field_id}/choices", status_code=201)
@@ -553,23 +616,24 @@ def catalogue(kind):
         limit: PageSize = 25,
         offset: Offset = 0,
         descending: bool = False,
+        scope: Literal["all", "granted", "available"] = "all",
     ):
         read_type(type_id, c)
-        return definition_page(
-            c,
-            request,
-            """SELECT r.id,r.name,r.translations,
-            g.role_id IS NOT NULL AS can_see,coalesce(g.can_use,false) AS can_use
-            FROM roles r LEFT JOIN resource_type_role_grants g ON g.role_id=r.id AND g.kind=%s AND g.type_id=%s""",
-            (kind, type_id),
-            "name",
-            limit,
-            offset,
-            q,
-            None,
-            True,
-            descending,
-        )
+        source = """SELECT r.id,r.code,r.name,r.translations,'role'::text AS principal_type,
+                    g.role_id IS NOT NULL AS can_see,coalesce(g.can_use,false) AS can_use
+                    FROM roles r LEFT JOIN resource_type_role_grants g
+                    ON g.role_id=r.id AND g.kind=%s AND g.type_id=%s"""
+        args = (kind, type_id)
+        if scope != "all":
+            source += " WHERE g.role_id IS " + ("NOT NULL" if scope == "granted" else "NULL")
+            labels = localized_labels(c, "webui.render_principals.label.everyone_8d69f084")
+            source += """ UNION ALL SELECT NULL::bigint,NULL::text,'Everyone',%s::jsonb,'everyone',
+                      g.type_id IS NOT NULL,coalesce(g.can_use,false) FROM (VALUES (1)) AS singleton(n)
+                      LEFT JOIN resource_type_role_grants g ON g.kind=%s AND g.type_id=%s AND g.role_id IS NULL
+                      WHERE g.type_id IS """ + ("NOT NULL" if scope == "granted" else "NULL")
+            args += (Jsonb({tag: {"name": text} for tag, text in labels.items()}), kind, type_id)
+        return definition_page(c, request, source, args, "name", limit, offset, q.strip(), None, True,
+                               descending, search_columns=("code", "name"), pin_everyone=scope != "all")
 
     def check_policy_custody(c, type_id):
         level = c.execute(
@@ -583,15 +647,16 @@ def catalogue(kind):
 
     @admin.put("/{type_id}/role-grants/{role_id}")
     def set_role_grant(
-        type_id: int, role_id: int, body: RoleGrant, version: Version, c: Database
+        type_id: int, role_id: int | Literal["everyone"], body: RoleGrant, version: Version, c: Database
     ):
         type_locked(c, kind, type_id, version)
         if body.can_use and not body.can_see:
             raise HTTPException(422, detail="Use requires See for the same role")
         check_policy_custody(c, type_id)
+        role_id = None if role_id == "everyone" else role_id
         if not body.can_see:
             c.execute(
-                "DELETE FROM resource_type_role_grants WHERE kind=%s AND type_id=%s AND role_id=%s",
+                "DELETE FROM resource_type_role_grants WHERE kind=%s AND type_id=%s AND role_id IS NOT DISTINCT FROM %s",
                 (kind, type_id, role_id),
             )
         else:
@@ -603,11 +668,33 @@ def catalogue(kind):
             )
         return {"version": touch(c, kind, type_id)}
 
+    @admin.post("/{type_id}/role-grants")
+    def add_role_grants(type_id: int, body: Annotated[list[NewRoleGrant], Field(min_length=1)],
+                        version: Version, c: Database):
+        type_locked(c, kind, type_id, version)
+        ids = [None if grant.role_id == "everyone" else grant.role_id for grant in body]
+        if len(set(ids)) != len(ids):
+            raise HTTPException(422, detail="Select each role only once")
+        check_policy_custody(c, type_id)
+        inserted = c.execute(
+            """INSERT INTO resource_type_role_grants(kind,type_id,role_id,can_use)
+               SELECT %s,%s,g.role_id,g.can_use
+               FROM unnest(%s::bigint[],%s::boolean[]) AS g(role_id,can_use)
+               WHERE g.role_id IS NULL OR EXISTS (SELECT FROM roles r WHERE r.id=g.role_id)
+               ON CONFLICT (kind,type_id,role_id) DO NOTHING""",
+            (kind, type_id, ids, [grant.can_use for grant in body]),
+        ).rowcount
+        if inserted != len(ids):
+            # Raising inside the request transaction rolls back the entire batch.
+            raise HTTPException(409, detail="One or more roles are no longer available")
+        return {"version": touch(c, kind, type_id)}
+
     @admin.get("/{type_id}/role-grants")
     def grants(type_id: int, c: Database, limit: PageSize = 25, offset: Offset = 0):
         read_type(type_id, c)
+        # This legacy bulk interface reads and replaces named roles only.
         return c.execute(
-            """SELECT role_id,can_use FROM resource_type_role_grants WHERE kind=%s AND type_id=%s
+            """SELECT role_id,can_use FROM resource_type_role_grants WHERE kind=%s AND type_id=%s AND role_id IS NOT NULL
                             ORDER BY role_id LIMIT %s OFFSET %s""",
             (kind, type_id, limit, offset),
         ).fetchall()
@@ -620,7 +707,7 @@ def catalogue(kind):
         check_policy_custody(c, type_id)
         c.execute(
             """DELETE FROM resource_type_role_grants WHERE kind=%s AND type_id=%s
-                     AND NOT (role_id=ANY(%s::bigint[]))""",
+                     AND role_id IS NOT NULL AND NOT (role_id=ANY(%s::bigint[]))""",
             (kind, type_id, list(body.see_role_ids)),
         )
         c.execute(

@@ -109,20 +109,19 @@ def test_acl_permission_and_source_labels_use_arabic_catalogue():
 def test_access_explanation_uses_arabic_catalogue_for_gates_and_decisions():
     import json
     from pathlib import Path
-    from nicegui import ui
     from frontend.webui.i18n_catalogue import set_active_messages
     from frontend.webui.authorization_ui import GATE_LABELS, DECISION_CODE_LABELS, gate_label
     artifact = json.loads((Path(__file__).parents[1] / 'i18n/messages.ar.generated.json').read_text())
     messages = {item['message_key']: item['translated_text'] for item in artifact['items']}
-    with ui.column():
-        set_active_messages(messages)
-        try:
-            for code in GATE_LABELS:
-                assert gate_label(code) == messages['authorization.explanation.gate.' + code]
-            for code in DECISION_CODE_LABELS:
-                assert decision_code_label(code) == messages['authorization.explanation.decision.' + code]
-            assert gate_detail({'gate': 'authentication', 'code': 'allowed', 'passed': True}) == 'مسموح'
-            assert gate_detail({'gate': 'operation_integrity', 'passed': True}) == messages['authorization.explanation.state_allowed']
-            assert 'سري' in security_level_label({'code': 'S', 'name': 'Secret', 'localized': {'name': 'سري'}, 'level_number': 75})
-        finally:
-            set_active_messages({})
+    set_active_messages(messages)
+    try:
+        for code in GATE_LABELS:
+            assert gate_label(code) == messages['authorization.explanation.gate.' + code]
+        for code in DECISION_CODE_LABELS:
+            assert decision_code_label(code) == messages['authorization.explanation.decision.' + code]
+        assert gate_detail({'gate': 'resource_type', 'passed': True, 'detail': 'everyone'}) == messages['webui.render_principals.label.everyone_8d69f084']
+        assert gate_detail({'gate': 'authentication', 'code': 'allowed', 'passed': True}) == 'مسموح'
+        assert gate_detail({'gate': 'operation_integrity', 'passed': True}) == messages['authorization.explanation.state_allowed']
+        assert 'سري' in security_level_label({'code': 'S', 'name': 'Secret', 'localized': {'name': 'سري'}, 'level_number': 75})
+    finally:
+        set_active_messages({})

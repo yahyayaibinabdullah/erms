@@ -116,8 +116,8 @@ def test_upgrade_matches_fresh_and_standalone_baseline_cannot_stamp_existing_sch
     with psycopg.connect(fresh, autocommit=True) as f, psycopg.connect(old, autocommit=True) as u:
         installer.initialize(f)
         # These seeded reference grants also have to exist on a fresh install.
-        grants = CHECKS / '120_resource_type_access.after.sql'
-        assert f.execute(grants.read_text()).fetchall() == [(True,)]
+        categories = CHECKS / '125_type_administration_privilege_codes.after.sql'
+        assert f.execute(categories.read_text()).fetchall() == [(True,)]
         # The anchor freezes the intentional historical gaps. Derive all newer
         # expected receipts from migration filenames, independently of baseline.sql.
         for path in installer.INSTALL_FILES:

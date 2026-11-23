@@ -129,8 +129,8 @@ INSERT INTO public."privileges" ("id", "code", "name", "description", "category"
  (65, 'messaging.user_messages.exchange', 'Exchange messages', 'Send and receive human-authored messages.', 'administration', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 'person');
 SELECT pg_catalog.setval('public.privileges_id_seq', (SELECT max("id") FROM public."privileges"), true);
 INSERT INTO public.privileges(code,name,description,category)
-VALUES ('aggregations.administer','Administer aggregation types','Maintain aggregation types, fields, choices and role grants.','administration'),
-       ('records.administer','Administer record types','Maintain record types, fields, choices and role grants.','administration')
+VALUES ('aggregation_types.administer','Administer aggregation types','Maintain aggregation types, fields, choices and role grants.','administration'),
+       ('record_types.administer','Administer record types','Maintain record types, fields, choices and role grants.','administration')
 ON CONFLICT DO NOTHING;
 
 -- profiles
@@ -441,7 +441,7 @@ SELECT pg_catalog.setval('public.profile_privileges_id_seq', (SELECT max("id") F
 INSERT INTO public.profile_privileges(profile_id,privilege_id)
 SELECT profile.id, privilege.id FROM public.profiles profile CROSS JOIN public.privileges privilege
 WHERE profile.code IN ('ALL_PRIVS','INFO_GOV_MGR','INFO_GOV_OFFICER')
-  AND privilege.code IN ('aggregations.administer','records.administer')
+  AND privilege.code IN ('aggregation_types.administer','record_types.administer')
 ON CONFLICT (profile_id,privilege_id) DO NOTHING;
 
 -- roles

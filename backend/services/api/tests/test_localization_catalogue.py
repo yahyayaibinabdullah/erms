@@ -14,6 +14,41 @@ from backend.services.api.localization import ARABIC_TERMINOLOGY, synchronize_ge
 MESSAGE_KEY = "preferences.validation.language.unsupported"
 
 
+def test_installed_privilege_names_and_tooltips_render_in_both_catalogues(client):
+    from contextvars import Context
+    from frontend.webui.i18n_catalogue import render_message, set_active_messages
+    from frontend.webui.security_administration import localized_privilege_name, localized_privilege_description
+
+    response = client.get("/api/v1/privileges", params={"limit": 500})
+    assert response.status_code == 200
+    privileges = response.json()
+    with psycopg.connect(os.environ["DATABASE_URL"]) as c:
+        assert len(privileges) == c.execute("SELECT count(*) FROM privileges").fetchone()[0]
+    directory = Path(__file__).parents[4] / "frontend/webui/i18n"
+    artifact = json.loads((directory / "messages.ar.generated.json").read_text())
+    arabic = {item["message_key"]: item["translated_text"] for item in artifact["items"]}
+
+    def check(messages):
+        set_active_messages(messages)
+        unexpected = render_message("shared.errors.unexpected")
+        labels = {}
+        for privilege in privileges:
+            name = localized_privilege_name(privilege)
+            for text in (name, localized_privilege_description(privilege)):
+                assert text.strip() and text != unexpected, privilege["code"]
+                if messages:
+                    assert re.search(r"[\u0600-\u06ff]", text), privilege["code"]
+            labels[privilege["code"]] = name
+        return labels
+
+    english = Context().run(check, {})
+    translated = Context().run(check, arabic)
+    assert english["aggregation_types.administer"] == "Administer aggregation types"
+    assert english["record_types.administer"] == "Administer record types"
+    assert translated["aggregation_types.administer"] == arabic["privilege.aggregation_types.administer.name"]
+    assert translated["record_types.administer"] == arabic["privilege.record_types.administer.name"]
+
+
 def test_generated_arabic_artifact_is_complete_contextual_and_placeholder_safe():
     root = Path(__file__).parents[4]
     catalogue = (root / "frontend/webui/i18n/messages.en.json").read_bytes()

@@ -46,6 +46,9 @@ org_tree AS (
 ), accessible_types AS MATERIALIZED (
     SELECT DISTINCT g.kind,g.type_id,g.can_use FROM resource_type_role_grants g
       JOIN effective_roles role ON role.id=g.role_id
+    UNION ALL
+    SELECT g.kind,g.type_id,g.can_use FROM resource_type_role_grants g
+     WHERE g.role_id IS NULL AND EXISTS (SELECT FROM effective_roles)
 ), manager_units(id) AS (
     SELECT unit.id FROM org_units unit JOIN effective_roles role ON role.id=unit.managing_role_id
      WHERE role.org_unit_id=unit.id AND NOT role.is_system

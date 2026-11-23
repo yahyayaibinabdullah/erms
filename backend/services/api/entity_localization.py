@@ -74,3 +74,19 @@ def sort_localized_rows(rows: list[dict[str, Any]], primary_field: str) -> list[
         str(row.get("code") or "").casefold(),
         row.get("id", 0),
     ))
+
+
+def localized_labels(c, key):
+    return {
+        row["language_tag"]: row["text"]
+        for row in c.execute(
+            """SELECT l.language_tag,COALESCE(t.published_text,b.published_text,d.default_text) AS text
+        FROM supported_languages l CROSS JOIN ui_message_definitions d
+        LEFT JOIN ui_message_translations t ON t.message_key=d.message_key
+          AND t.language_tag=l.language_tag AND t.published_text IS NOT NULL AND NOT t.needs_review
+        LEFT JOIN ui_message_translations b ON b.message_key=d.message_key
+          AND b.language_tag=split_part(l.language_tag,'-',1) AND b.published_text IS NOT NULL AND NOT b.needs_review
+        WHERE l.is_enabled AND d.message_key=%s""",
+            (key,),
+        )
+    }

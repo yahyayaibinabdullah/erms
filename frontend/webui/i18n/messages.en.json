@@ -26810,6 +26810,36 @@
     "is_html": false
   },
   {
+    "message_key": "privilege.aggregation_types.administer.description",
+    "context_group": "privilege.aggregation_types.administer",
+    "default_text": "Maintain aggregation types, fields, choices and role grants.",
+    "semantic_meaning": "Accessible explanation of what the immutable system privilege aggregation_types.administer permits.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maintain aggregation types, fields, choices and role grants.",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.aggregation_types.administer.name",
+    "context_group": "privilege.aggregation_types.administer",
+    "default_text": "Administer aggregation types",
+    "semantic_meaning": "Friendly name of the immutable system privilege aggregation_types.administer.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Administer aggregation types",
+    "is_html": false
+  },
+  {
     "message_key": "privilege.app.settings.manage.description",
     "context_group": "privilege.app.settings.manage",
     "default_text": "Manage validated application configuration and protected SMTP credentials.",
@@ -28179,6 +28209,36 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Change Record Vital Status",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.record_types.administer.description",
+    "context_group": "privilege.record_types.administer",
+    "default_text": "Maintain record types, fields, choices and role grants.",
+    "semantic_meaning": "Accessible explanation of what the immutable system privilege record_types.administer permits.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maintain record types, fields, choices and role grants.",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.record_types.administer.name",
+    "context_group": "privilege.record_types.administer",
+    "default_text": "Administer record types",
+    "semantic_meaning": "Friendly name of the immutable system privilege record_types.administer.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Administer record types",
     "is_html": false
   },
   {

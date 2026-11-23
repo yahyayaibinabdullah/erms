@@ -7882,7 +7882,8 @@ BEGIN
     )
     SELECT jsonb_build_object(
         'types', (SELECT jsonb_object_agg(g.kind || '/' || g.type_id,true) FROM resource_type_role_grants g
-                   WHERE g.role_id IN (SELECT id FROM effective)),
+                   WHERE g.role_id IN (SELECT id FROM effective)
+                      OR (g.role_id IS NULL AND EXISTS (SELECT FROM effective))),
         'levels', (SELECT jsonb_object_agg(id,true) FROM security_levels WHERE level_number<=clearance.ordinary),
         'governance', (SELECT jsonb_object_agg(id,true) FROM security_levels WHERE level_number<=clearance.governance))
       FROM clearance);
@@ -13437,9 +13438,9 @@ CREATE INDEX record_type_assignments ON public.records (type_id) WHERE type_id I
 CREATE TABLE public.resource_type_role_grants (
     kind text NOT NULL,
     type_id bigint NOT NULL,
-    role_id bigint NOT NULL REFERENCES public.roles (id) ON DELETE CASCADE,
+    role_id bigint REFERENCES public.roles (id) ON DELETE CASCADE,
     can_use boolean NOT NULL DEFAULT false,
-    PRIMARY KEY (kind, type_id, role_id),
+    CONSTRAINT resource_type_principal_unique UNIQUE NULLS NOT DISTINCT (kind, type_id, role_id),
     FOREIGN KEY (kind, type_id) REFERENCES public.resource_types ON DELETE CASCADE
 );
 CREATE INDEX resource_type_grants_by_role ON public.resource_type_role_grants (role_id, kind, type_id);
@@ -13479,7 +13480,8 @@ CREATE TABLE public.resource_type_fields (
     translations jsonb CHECK (public.resource_type_names_present(translations)
                               AND NOT jsonb_path_exists(translations, '$.*.description')),
     version bigint NOT NULL DEFAULT 1,
-    display_order integer NOT NULL,
+    display_order integer NOT NULL CONSTRAINT resource_field_position_positive CHECK (display_order >= 1),
+    CONSTRAINT resource_field_position_unique UNIQUE (kind,type_id,display_order) DEFERRABLE,
     required boolean NOT NULL DEFAULT false,
     data_type text NOT NULL CHECK (data_type IN ('text','integer','decimal','boolean','date','datetime','single_choice')),
     max_length integer,
@@ -13632,12 +13634,11 @@ CREATE FUNCTION public.user_has_type_grant(p_user bigint, p_kind text, p_type bi
 RETURNS boolean LANGUAGE sql STABLE AS $$
     SELECT p_type IS NULL OR EXISTS (
         SELECT FROM resource_type_role_grants g
-        JOIN user_role_assignments a ON a.role_id = g.role_id
-        WHERE (g.kind, g.type_id) = (p_kind, p_type)
-          AND (NOT p_use OR g.can_use) AND a.user_id = p_user
-          AND a.valid_from <= CURRENT_TIMESTAMP
-          AND (a.valid_until IS NULL OR a.valid_until > CURRENT_TIMESTAMP)
-          AND role_effectively_active(a.role_id)
+        WHERE (g.kind, g.type_id) = (p_kind, p_type) AND (NOT p_use OR g.can_use)
+          AND EXISTS (SELECT FROM user_role_assignments a WHERE a.user_id=p_user
+              AND (g.role_id IS NULL OR a.role_id=g.role_id)
+              AND a.valid_from<=CURRENT_TIMESTAMP AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP)
+              AND role_effectively_active(a.role_id))
     )
 $$;
 

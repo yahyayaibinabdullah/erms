@@ -4,7 +4,7 @@
   "model_version": "GPT-6",
   "prompt_version": "wathiq-mailbox-reading-panes-v1",
   "specification_sha256": "79d67905df41c0c5e8dc760b45fec0ba9a5aeafc60b5eba622d5ea359d3f91f2",
-  "catalogue_sha256": "d71b0eea3485668cbc6171ac5ea41311d98f5a8587cc6aed236d1bd122e9e81a",
+  "catalogue_sha256": "3032e7a76c5e8ee9cf2d5519dae386cead7f8078544ec9bff8ec070fcfeac9ef",
   "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
   "batch_id": "wathiq-mailbox-reading-panes-20261116",
   "generated_at": "2026-11-16T08:52:26.800179+00:00",
@@ -22596,6 +22596,28 @@
       }
     },
     {
+      "message_key": "privilege.aggregation_types.administer.description",
+      "translated_text": "إدارة أنواع الملفات وحقولها وخياراتها وصلاحيات الأدوار الخاصة بها.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "privilege.aggregation_types.administer.name",
+      "translated_text": "إدارة أنواع الملفات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
       "message_key": "privilege.app.settings.manage.description",
       "translated_text": "إدارة إعدادات التطبيق المعتمدة وبيانات اعتماد البريد المحمية.",
       "quality_flags": [],
@@ -23697,6 +23719,28 @@
         "source_status": "published",
         "date_reviewed": "2026-09-27T08:04:19.834791+00:00",
         "date_published": "2026-09-27T08:04:19.834791+00:00"
+      }
+    },
+    {
+      "message_key": "privilege.record_types.administer.description",
+      "translated_text": "إدارة أنواع الوثائق وحقولها وخياراتها وصلاحيات الأدوار الخاصة بها.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "privilege.record_types.administer.name",
+      "translated_text": "إدارة أنواع الوثائق",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
       }
     },
     {

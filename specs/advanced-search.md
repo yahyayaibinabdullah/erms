@@ -18,6 +18,11 @@ is required for every explicit type reference, including sort and nested
 Boolean conditions. Resource visibility is additionally enforced in SQL for
 every query, including queries without explicit type references.
 
+See may come from a named effective role or from Everyone on that type.
+Removing the last qualifying grant applies to new searches, saved-query
+disclosure and execution, and subsequent pages. Resolve Everyone in the same
+set-based type check used for Global Search and listings.
+
 **Approved query approach — 18 November 2026:** Derive type access from the
 query's shared effective-role, privilege, and clearance context and apply it
 with ACL checks before counts, ranking, paging, and caps. The new gate must not

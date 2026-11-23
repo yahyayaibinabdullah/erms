@@ -80,6 +80,10 @@ INSERT INTO schema_migrations(version) VALUES
  ('118_converted_preview_renditions'),
  ('119_resource_types'),
  ('120_resource_type_access'),
- ('121_type_text_search');
+ ('121_type_text_search'),
+ ('122_resource_field_positions'),
+ ('123_resource_type_everyone'),
+ ('124_type_privilege_categories'),
+ ('125_type_administration_privilege_codes');
 DROP TABLE pg_temp.erms_fresh_install;
 COMMIT;

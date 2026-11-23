@@ -115,6 +115,15 @@ SQL wildcard characters. Null checks are accepted only for nullable fields.
 Datetime values must be ISO 8601 timestamps with a timezone, such as
 `2026-09-14T10:00:00Z`.
 
+An explicit type condition or type-field sort requires **See** on that type.
+An administrator can grant See to a named effective role or to **Everyone**.
+For example, sharing a saved search for Employee File does not grant its
+recipient See. A recipient with Everyone See can open the definition and run
+the search, subject to the remaining authorization gates. After revocation,
+the shared search stays listed and opening or running it requires another
+qualifying grant or the existing governance bypass. General searches and
+later pages always check current visibility before returning resources.
+
 A `full_text` condition with `"sources": ["metadata"]` also searches the resource’s stored type-specific **text** values. The header search includes that same source. For example, entering `"signed agreement"` as a quoted phrase can find it in a contract’s text field. In a record result it counts as a metadata match. An aggregation can show the matching words in its snippet. Choice labels, numbers, booleans and dates use structured criteria. A new search sees committed edits immediately. Paging rechecks the current criteria and permissions against the submitted list.
 
 ## Type-specific criteria and sort keys
