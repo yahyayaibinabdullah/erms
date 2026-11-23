@@ -69,10 +69,14 @@ class Api:
         return rule
 
 
-async def open_workspace(user, *, preferences=None, direction='ltr', can_transfer=False, empty=False):
+async def open_workspace(user, *, preferences=None, direction='ltr', can_transfer=False, empty=False, localized=False):
     api = Api()
     if empty:
         api.schemes = []
+    if localized:
+        api.schemes[0]["localized"] = {"title": "مخطط الاختبار"}
+        api.nodes[0]["localized"] = {"title": "فرع الاختبار"}
+        api.nodes[-1]["localized"] = {"title": "تصنيف الاختبار"}
     editor = AsyncMock()
     pages = []
     live = {'active': True}
@@ -258,3 +262,43 @@ async def test_import_refresh_preserves_sort_filter_and_loaded_pages(user: User)
     searches = [payload for kind,payload in api.calls if kind=='search']
     assert searches[-1]['offset'] == 25
     assert searches[-1]['sort'] == original_search_sort
+
+
+async def test_localized_tree_details_paths_and_refresh_preserve_canonical_editor_values(user: User):
+    api, editor, pages, _ = await open_workspace(
+        user, preferences={'expanded_schemes': [1], 'expanded': [1]},
+        localized=True, direction='rtl',
+    )
+    await user.should_see('— مخطط الاختبار')
+    await user.should_see('— فرع الاختبار')
+    await user.should_see('— تصنيف الاختبار')
+    # A nontranslated sibling falls back while codes and ordering stay stable.
+    await user.should_see('— Node 2')
+    node = next(b for b in user.find(ui.button).elements if b.props.get('aria-label') == '1000 — تصنيف الاختبار')
+    assert any(getattr(e, 'text', None) == 'تصنيف الاختبار' for e in node.descendants())
+    button(user, label='1000 — تصنيف الاختبار').click()
+    await user.should_see('تصنيف الاختبار')
+    await user.should_see('0001 — فرع الاختبار')
+    assert pages[-1][1]['title'] == 'Child'
+    button(user, label='Edit').click()
+    await asyncio.sleep(.03)
+    assert editor.call_args.args[0]['title'] == 'Child'
+    # Return reloads localized paths/branches after a translation change.
+    api.nodes[0]['localized']['title'] = 'فرع محدث'
+    api.nodes[-1]['localized']['title'] = 'تصنيف محدث'
+    button(user, label='Back to classification tree').click()
+    await user.should_see('— تصنيف محدث')
+    button(user, label='1000 — تصنيف محدث').click()
+    await user.should_see('0001 — فرع محدث')
+    assert api.nodes[-1]['title'] == 'Child'
+
+
+async def test_search_result_titles_use_localized_projection_with_canonical_fallback(user: User):
+    api, _, _, _ = await open_workspace(
+        user, preferences={'search_scheme_id': 1, 'query': '0001'}, localized=True,
+    )
+    await user.should_see('— فرع الاختبار')
+    await user.should_see('— Node 2')
+    button(user, label='0001 — فرع الاختبار').click()
+    await user.should_see('فرع الاختبار')
+    assert api.nodes[0]['title'] == 'Node 1'

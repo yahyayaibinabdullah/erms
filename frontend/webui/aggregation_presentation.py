@@ -1,6 +1,7 @@
 """Existing aggregation labels, closure lookup and layout constants."""
 from __future__ import annotations
 from typing import Any
+from .classification_labels import classification_title
 from .i18n_catalogue import render_message
 
 CHILD_AGGREGATION_CLASSIFICATION_HELP = (
@@ -13,7 +14,7 @@ def direct_classification_label(classification_path: list[dict[str, Any]]) -> st
     if not classification_path:
         return "—"
     classification = classification_path[-1]
-    return f"{classification['code']} — {classification['title']}"
+    return f"{classification['code']} — {classification_title(classification)}"
 
 
 def effective_closure(

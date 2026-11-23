@@ -91,6 +91,7 @@ from .collection_controls import build_collection_loader
 from .personal_resources import PersonalResourceState, build_personal_resources
 from .personal_resource_views import build_personal_resource_views
 from .compact_resource_view import build_compact_resource_view
+from .classification_labels import update_classification_navigation
 from .classification_controller import ClassificationController
 from .classification_selectors import build_scheme_selector, build_classification_pickers
 from .application_settings_controller import ApplicationSettingsController
@@ -3501,6 +3502,9 @@ def index(q: str = "") -> None:
 
     def register_classification_page(page, label, item, subtitle_text) -> None:
         register_navigation(page, label, entity_id=item["id"] if item else None, dynamic_label=bool(item))
+        update_classification_navigation(navigation_controller.trail, page, item)
+        navigation_controller.persist()
+        render_navigation_breadcrumbs()
         state["resource"] = page
         title.text = label
         subtitle.text = subtitle_text

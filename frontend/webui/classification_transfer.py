@@ -2,6 +2,7 @@
 
 from nicegui import ui
 from .api_client import ApiError
+from .classification_labels import classification_title
 from .i18n_catalogue import render_message
 
 MAX_BYTES = 32 * 1024 * 1024
@@ -169,7 +170,7 @@ def export_control(api, scheme, active, error_message):
             ui.label(render_message("classification_transfer.word_title")).classes(
                 "text-xl font-semibold"
             )
-            ui.label(scheme["code"] + " — " + scheme["title"])
+            ui.label(scheme["code"] + " — " + classification_title(scheme))
             languages = {
                 item["language_tag"]: item["native_name"]
                 for item in bootstrap["supported_languages"]

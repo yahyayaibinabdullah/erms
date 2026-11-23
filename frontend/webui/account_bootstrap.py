@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 from nicegui import app, background_tasks
 from .api_client import ApiError
+from .classification_labels import refresh_classification_navigation
 
 
 def build_account_bootstrap(
@@ -69,6 +70,8 @@ def build_account_bootstrap(
                     navigation_controller.trail = []
                     await run_global_search(q)
                 elif navigation_controller.trail:
+                    await refresh_classification_navigation(api, navigation_controller.trail)
+                    navigation_controller.persist()
                     navigation_controller.restoring = True
                     try:
                         await restore_navigation_entry(navigation_controller.trail[-1])
