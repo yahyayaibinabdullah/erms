@@ -30,6 +30,12 @@ def test_missing_id_or_unidentified_prose_cannot_pass(ledger, identity):
     assert any("unowned source requirements" in error for error in check(ledger))
 
 
+def test_misplaced_acceptance_id_is_reported(ledger):
+    entry = next(row for row in ledger["requirements"] if row["id"] == "DEST-42")
+    entry["source"]["start_line"] += 1
+    assert "acceptance requirement location changed: DEST-42" in check(ledger)
+
+
 def test_parent_introductory_prose_is_not_lost_between_leaf_sections():
     source = "## 2. Parent\nRequired parent prose.\n### 2.1 Child\nRequired child prose.\n"
     result = sections(source)

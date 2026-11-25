@@ -377,7 +377,7 @@ def test_upgrade_reopens_only_jobs_with_outstanding_final_task(client,monkeypatc
 def test_certificate_preview_permission_is_distinct_from_download(client,monkeypatch):
     job,root,mgr=ready(monkeypatch)
     assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1,'operations_processed':0}
-    with db() as c:
+    with db() as c, c.transaction(force_rollback=True):
         actor(c)
         current=c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()
         before=completion.view(c,current)['certificate']

@@ -77,6 +77,7 @@ def gateways(count=2, on_start=None):
             if on_start is not None:
                 on_start()
             url = f"http://127.0.0.1:{port}"
+            readiness = {}
             for attempt in range(150):
                 if process.poll() is not None:
                     pytest.fail("isolated gateway failed to start")
@@ -87,11 +88,13 @@ def gateways(count=2, on_start=None):
                         and response.json()["messaging_realtime"]["listener_connected"]
                     ):
                         break
-                except httpx.HTTPError:
-                    pass
+                    state = f"HTTP {response.status_code}, listener not ready"
+                except httpx.HTTPError as error:
+                    state = type(error).__name__
+                readiness[state] = readiness.get(state, 0) + 1
                 time.sleep(0.1)
             else:
-                pytest.fail("isolated gateway startup timeout")
+                pytest.fail(f"isolated gateway startup timeout ({readiness})")
             urls.append(url)
         yield urls, processes
     finally:

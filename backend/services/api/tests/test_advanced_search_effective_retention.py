@@ -1,7 +1,6 @@
 """AS-ER: effective rules are resolved before authorization-aware pagination."""
 import json
 import os
-from datetime import datetime, timezone
 
 import psycopg
 from psycopg import sql
@@ -113,7 +112,7 @@ def test_operators_boolean_pagination_and_closed_aggregations(client):
     assert page['total'] == 4 and [x['id'] for x in page['items']] == [roots[1]['id'], roots[2]['id']]
     assert all(not any(key.startswith(PREFIX) or key=='current_period_years' for key in x) for x in page['items'])
     root = roots[0]
-    closed = client.patch(f"/api/v1/aggregations/{root['id']}", json={'date_closed':datetime.now(timezone.utc).isoformat()}, headers={'If-Match': str(client.get(f"/api/v1/aggregations/{root['id']}").json()['version'])})
+    closed = client.patch(f"/api/v1/aggregations/{root['id']}", json={'date_closed':root['date_created']}, headers={'If-Match': str(client.get(f"/api/v1/aggregations/{root['id']}").json()['version'])})
     assert closed.status_code == 200, closed.text
     assert [x['id'] for x in search(client, leaf(value=0))['items']] == [root['id']]
 

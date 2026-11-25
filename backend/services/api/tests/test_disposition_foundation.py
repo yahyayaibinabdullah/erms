@@ -47,11 +47,11 @@ def ensure_officer(c, user=1):
 
 
 @contextmanager
-def configured_creation_roles(c, owner=1, kind='destruction'):
+def configured_creation_roles(c, owner=1, kind='destruction', *, retain=False):
     """Create legacy workflow fixtures through today's valid creation contract.
 
-    Restore the previous configuration afterward to exercise existing jobs when
-    assignments/designations change. Creation-gate tests do not use this helper.
+    Tests of lost designations restore the previous setup after creation. Tests
+    that progress the job can retain staffed review roles for subsequent stages.
     """
     if kind!='destruction' or c.execute("SELECT value#>>'{}' route FROM application_settings WHERE key='DISPOSITION_DESTRUCTION_REVIEW_ROUTE'").fetchone()['route']!='standard' or c.execute("SELECT to_regprocedure('disposition_private.owner_review_setup(bigint)') installed").fetchone()['installed'] is None:
         yield
@@ -69,20 +69,21 @@ def configured_creation_roles(c, owner=1, kind='destruction'):
     c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=%s',(candidate['id'],candidate['id'],owner))
     try:yield
     finally:
-        c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=%s',(previous['file_administrator_role_id'],previous['managing_role_id'],owner))
-        if created:c.execute('DELETE FROM user_role_assignments WHERE role_id=%s',(candidate['id'],))
+        if not retain:
+            c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=%s',(previous['file_administrator_role_id'],previous['managing_role_id'],owner))
+            if created:c.execute('DELETE FROM user_role_assignments WHERE role_id=%s',(candidate['id'],))
         # A created role remains as an auditable reference to the creation setup.
 
 
 def make_job(c, number=None, *, assigned=1, kind='destruction'):
-    if kind=='destruction': ensure_officer(c)
+    ensure_officer(c)
     def apply(c):
         row=c.execute("""INSERT INTO disposition_jobs(job_number,job_type,workflow_stage,disposition_status,owning_org_unit_id,assigned_user_id,created_by_user_id)
          VALUES(%s,%s,%s,%s,1,%s,1) RETURNING id""",
          (number or str(uuid4()),kind,'officer_preparation' if kind=='destruction' else None,
           {'destruction':6,'permanent_transfer':7,'selective_transfer':8,'local_archives':9}[kind],assigned)).fetchone()
         return {'id':row['id']}
-    with configured_creation_roles(c,kind=kind):return command(c,'job_create',apply)['id']
+    with configured_creation_roles(c,kind=kind,retain=True):return command(c,'job_create',apply)['id']
 
 
 def prepare_unit(c, *, status=2):
@@ -271,10 +272,17 @@ def test_historical_foundation_fixture_matches_independent_migration(client):
     assert 'UPDATE event_history' not in migration and 'DELETE FROM event_history' not in migration
 
 
+def add_queue_reviewer(c, role):
+    other = c.execute("INSERT INTO users(name,email) VALUES('Second reviewer',%s) RETURNING id",
+                      (str(uuid4())+'@test.invalid',)).fetchone()['id']
+    c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)', (other,role))
+
+
 def make_task(c, job, *, role=1, user=None):
     def apply(c):
         stage='officer_preparation';kind='preparation'
         if role is not None:
+            add_queue_reviewer(c, role)
             # Phase 13 prepares by direct assignment; queues belong to actual
             # configured review stages, rather than synthetic preparation queues.
             c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=1',(role,))
@@ -448,6 +456,7 @@ def test_round_decisions_keep_actor_role_snapshot_and_are_immutable(client):
         actor(c); root,*_=prepare_unit(c); job=make_job(c); add(c,job,root)
         snapshot=c.execute('SELECT disposition_private.membership_snapshot(%s) s',(job,)).fetchone()['s']
         c.execute('UPDATE org_units SET managing_role_id=1 WHERE id=1')
+        add_queue_reviewer(c, 1)
         def submit(c):
             c.execute("UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=%s",(job,))
             c.execute("UPDATE disposition_jobs SET workflow_stage='unit_manager_review' WHERE id=%s",(job,))
@@ -720,6 +729,7 @@ def test_review_decision_rejects_changed_membership_snapshot(client):
         actor(c); root,*_=prepare_unit(c); job=make_job(c); member=add(c,job,root)
         snapshot=c.execute('SELECT disposition_private.membership_snapshot(%s) s',(job,)).fetchone()['s']
         c.execute('UPDATE org_units SET managing_role_id=1 WHERE id=1')
+        add_queue_reviewer(c, 1)
         def submit(c):
             c.execute("UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=%s",(job,))
             c.execute("UPDATE disposition_jobs SET workflow_stage='unit_manager_review' WHERE id=%s",(job,))

@@ -1,13 +1,17 @@
 """Independent cache maintenance; run only through the disposable DB runner."""
+from contextlib import contextmanager
 import os
 from pathlib import Path
 import signal
 import subprocess
 import sys
 import time
+from uuid import uuid4
 
 import pytest
 import psycopg
+from psycopg import sql
+from psycopg.conninfo import make_conninfo
 
 from backend.services.api import session_cleanup as worker
 from backend.services.api.application_settings import cache
@@ -181,23 +185,45 @@ def test_watch_process_starts_cleans_and_stops_promptly_on_sigterm(client, tmp_p
                 process.wait(timeout=5)
 
 
+@contextmanager
+def release_schema(revision):
+    root = Path(__file__).resolve().parents[4]
+    schema = subprocess.check_output(['git', 'show', revision + ':database/schema.sql'], cwd=root, text=True)
+    name = 'erms_messaging_test_acl_cache_upgrade_' + uuid4().hex
+    url = os.environ['DATABASE_URL']
+    with psycopg.connect(make_conninfo(url, dbname='postgres'), autocommit=True) as admin:
+        admin.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)))
+        try:
+            with psycopg.connect(make_conninfo(url, dbname=name), autocommit=True) as connection:
+                connection.execute(schema, prepare=False)
+                yield connection
+        finally:
+            admin.execute(sql.SQL('DROP DATABASE {} WITH (FORCE)').format(sql.Identifier(name)))
+
+
 @pytest.mark.parametrize('configured', [False, True])
 def test_migration_110_defaults_or_preserves_values_and_matches_canonical_validator(client, configured):
-    if configured:
-        assert save(client, {INTERVAL: 13, BATCH: 27}).status_code == 200
+    # Later releases extend the same validator. Compare with the canonical
+    # release-110 definition and leave the main suite database untouched.
+    release = '92c52447678ccb716a0fa979f0ac59fb305839ef'
     root = Path(__file__).resolve().parents[4]
-    with db() as c:
-        before = c.execute("SELECT pg_get_functiondef('application_setting_value_valid(text,jsonb,bytea)'::regprocedure) AS ddl").fetchone()['ddl']
-        if not configured:
-            # Recreate the pre-110 absence in this disposable fixture only.
-            c.execute('ALTER TABLE application_settings DISABLE TRIGGER USER')
-            c.execute('DELETE FROM application_settings WHERE key=ANY(%s)', ([INTERVAL, BATCH],))
-            c.execute('ALTER TABLE application_settings ENABLE TRIGGER USER')
-        c.execute("DELETE FROM schema_migrations WHERE version='110_search_cache_cleanup_settings'")
-        c.commit()
-        c.execute((root / 'database/migrations/110_search_cache_cleanup_settings.sql').read_text(), prepare=False)
-        after = c.execute("SELECT pg_get_functiondef('application_setting_value_valid(text,jsonb,bytea)'::regprocedure) AS ddl").fetchone()['ddl']
-        assert before == after
-    cache.invalidate()
-    assert items(client)[INTERVAL]['value'] == (13 if configured else 60)
-    assert items(client)[BATCH]['value'] == (27 if configured else 5000)
+    migration = (root / 'database/migrations/110_search_cache_cleanup_settings.sql').read_text()
+    definition = "SELECT pg_get_functiondef('application_setting_value_valid(text,jsonb,bytea)'::regprocedure)"
+    values = 'SELECT key,value FROM application_settings WHERE key=ANY(%s)'
+    keys = ([INTERVAL, BATCH],)
+    with release_schema(release) as reference:
+        expected = reference.execute(definition).fetchone()[0]
+    with release_schema(release if configured else release + '^') as connection:
+        if configured:
+            # The schema snapshot contains no seed rows. Model a populated
+            # installation with explicit values before replaying the defaults.
+            with connection.transaction():
+                connection.execute("SELECT set_config('app.event_source','seeding',true)")
+                connection.execute('INSERT INTO application_settings(key,value) VALUES'
+                                   "(%s,'13'::jsonb),(%s,'27'::jsonb)", (INTERVAL, BATCH))
+                connection.execute("DELETE FROM schema_migrations WHERE version='110_search_cache_cleanup_settings'")
+        connection.execute(migration, prepare=False)
+        assert connection.execute(definition).fetchone()[0] == expected
+        assert dict(connection.execute(values, keys)) == {
+            INTERVAL: 13 if configured else 60, BATCH: 27 if configured else 5000,
+        }

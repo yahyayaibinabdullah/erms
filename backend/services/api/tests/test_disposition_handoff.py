@@ -1,5 +1,6 @@
 """Actual recipients throughout post-review stages, including automated completion."""
 import pytest
+from uuid import uuid4
 from backend.services.api.disposition import handoff, documents, destruction, completion
 from backend.services.api.tests.test_disposition_membership import db, actor
 from backend.services.api.tests.test_disposition_review import claim, task
@@ -46,11 +47,21 @@ def test_post_review_handoffs_and_certificate_download_use_actual_tasks(client, 
     assert completion.process_one(db)
     with db() as c:
         actor(c)
-        check(c,{},job,'certificate_generation',completed=True)
-        assert task(c,job['id'])['task_type']=='certificate_download'
+        check(c,{},job,'certificate_generation')
+        final_task = task(c,job['id'])
+        assert final_task['task_type']=='certificate_download'
+        version = c.execute('SELECT version FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()['version']
     response=client.get(f"/api/v1/disposition/jobs/{job['id']}/completion-progress")
     assert response.status_code==200, response.text
-    assert response.json()['workflow_completed'] and response.json()['next_recipients']==[{'kind':'person','name':'المراجع' if language=='ar' else 'Test Administrator'}]
+    assert response.json()['completed'] is False
+    response=client.post(f"/api/v1/disposition/jobs/{job['id']}/complete-certificate-task",
+                         headers={'If-Match':str(version)},
+                         json={'command_id':str(uuid4()),'acting_role_id':mgr,
+                               'task_id':final_task['id'],'task_version':final_task['version']})
+    assert response.status_code==200, response.text
+    finished=client.get(f"/api/v1/disposition/jobs/{job['id']}/completion-progress")
+    assert finished.status_code==200
+    assert finished.json()['workflow_completed'] and finished.json()['next_recipients']==[]
 
 
 def test_external_rejection_returns_to_actual_assigned_officer(client, monkeypatch):

@@ -189,7 +189,7 @@ def test_designations_same_unit_governed_versioned_and_audited(client, field):
 
 def test_both_designations_survive_save_readback_summary_tree_and_unrelated_edit(client):
     from types import SimpleNamespace
-    from frontend.webui.app import form_payload
+    from frontend.webui.entity_editor_controls import form_payload
     from frontend.webui.entities import ENTITIES
 
     with db() as c:

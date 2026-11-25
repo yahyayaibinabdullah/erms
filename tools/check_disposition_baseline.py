@@ -143,8 +143,16 @@ def check(ledger: dict, root: Path = ROOT) -> list[str]:
             entry = by_id.get(identity)
             if entry and entry.get("source") != {"path": path, **locator}:
                 errors.append(f"source range changed: {identity}")
+        lines = source.splitlines()
         for identity in requirement_ids(source, prefix):
             expected.add(identity)
+            entry = by_id.get(identity)
+            if entry:
+                location = entry.get("source", {})
+                line = location.get("start_line", 0)
+                if (location.get("path") != path or not 1 <= line <= len(lines)
+                        or not re.match(rf"^(?:\|\s*)?{identity}\b", lines[line - 1])):
+                    errors.append(f"acceptance requirement location changed: {identity}")
     missing = expected - by_id.keys()
     if missing:
         errors.append(f"unowned source requirements: {', '.join(sorted(missing))}")

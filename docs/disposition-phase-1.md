@@ -12,7 +12,7 @@ Measured session: 2026-10-14 04:24:21 to 2026-10-14 05:41:29 UTC (1.29 active ho
 
 ## Requirement ledger and completion evidence
 
-The maintained [requirement ledger](disposition-requirement-ledger.json) contains:
+At the October 14 baseline, the [requirement ledger](disposition-requirement-ledger.json) covered the following scope.
 
 - all 100 acceptance IDs: ACFG-01–17, DISP-01–42, and DEST-01–41;
 - every numbered source section's own prose, tables, fields, and invariants,
@@ -252,3 +252,33 @@ later blocking phase. The implementation plan records this phase's measured
 UTC session and completion. **Phase 2** is the next recommended phase: shared
 settings registry, protected administration API, audit, provenance, cache and
 fresh operation reads.
+
+
+## November 25 reconciliation
+
+The ledger now tracks 388 entries and 100 settings. Each acceptance ID points to
+its current specification row or paragraph. Historical test results retain their
+dates. The selector reconciliation records where tests moved or an approved
+amendment superseded the behavior they exercised.
+
+The exceptional-acceleration notification in DISP-43 and Disposition §11.1
+remains pending under the approved Phase 9 follow-up. It requires notifying
+the active Information Governance role holders and the governing root’s owning
+Unit Manager once per person after a committed acceleration. The five shipped
+disposition producers handle task assignment, eligibility reminders, destruction
+outcomes, completion outcomes and operation outcomes. The baseline checker can
+pass while the product acceptance checker continues to report that open work.
+
+Run `python3 tools/check_disposition_baseline.py` to verify coverage and
+`python3 tools/check_disposition_acceptance.py` to audit the recorded product
+evidence. For the three occupied historical workflow upgrades, run the following
+commands from the repository root with the API virtual environment. Each command
+creates and drops its own disposable PostgreSQL database. The runner reads the
+release-matched workflow fixtures from Git and uses the current migration files
+and test assertions.
+
+```sh
+backend/services/api/.venv/bin/python tools/run_disposable_acl_tests.py --occupied-workflow=066
+backend/services/api/.venv/bin/python tools/run_disposable_acl_tests.py --occupied-workflow=082
+backend/services/api/.venv/bin/python tools/run_disposable_acl_tests.py --occupied-workflow=094
+```
