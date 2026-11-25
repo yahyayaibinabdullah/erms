@@ -7,6 +7,7 @@ from frontend.webui.disposition.screens import accelerate_dialog
 import asyncio
 from .locale_services import current_locale_context
 from datetime import datetime
+from .classification_labels import classification_title
 from .aggregation_presentation import direct_classification_label
 from frontend.webui.disposition.messages import status_label as disposition_status_label
 from frontend.webui.disposition.messages import text as disposition_text
@@ -422,7 +423,7 @@ def build_aggregation_details(
                                                 "flat dense no-caps color=primary"
                                             ).classes("detail-linked-entity self-start -m-2 p-2"):
                                                 with ui.column().classes("detail-linked-entity-content"):
-                                                    ui.label(value.get("title") or "—").classes(
+                                                    ui.label(classification_title(value) or "—").classes(
                                                         "detail-linked-entity-title"
                                                     )
                                                     if value.get("code"):
@@ -791,7 +792,7 @@ def build_aggregation_details(
                                                 for item in classification_path:
                                                     with ui.row().classes("w-full items-baseline no-wrap gap-2", remove="row"):
                                                         ui.label(item['code']).classes("text-xs text-slate-600 break-all max-w-[40%]").props("dir=ltr")
-                                                        ui.label(item['title']).classes("text-sm text-slate-800 min-w-0 break-words").props("dir=auto")
+                                                        ui.label(classification_title(item)).classes("text-sm text-slate-800 min-w-0 break-words").props("dir=auto")
                                     instructions = effective_rule.get("instructions") or ""
                                     with ui.column().classes("retention-rule-instructions w-full gap-1 min-w-0"):
                                         ui.label(render_message("entity_metadata.field.retention_disposal_instructions")).classes("text-xs font-semibold text-slate-600")

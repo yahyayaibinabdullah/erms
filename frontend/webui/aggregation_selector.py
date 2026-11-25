@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing import Any, Callable
 from .api_client import ApiError
+from .classification_labels import classification_title
 from .entity_selectors import apply_relationship_selection
 import asyncio
 from .i18n_catalogue import render_message
@@ -64,7 +65,7 @@ def build_aggregation_selector(
                         ui.notify(error_message(error), color="negative")
                     return
             else:
-                apply_relationship_selection(target_control, item["id"], f"{item['aggregation_number']} · {item['title']}")
+                apply_relationship_selection(target_control, item["id"], f"{item['aggregation_number']} · {classification_title(item)}")
             if current():
                 dialog.close()
 
@@ -94,7 +95,7 @@ def build_aggregation_selector(
                         with ui.column().classes(
                             "advanced-relationship-tree-content min-w-0 gap-0"
                         ):
-                            ui.label(item["title"]).classes("text-sm font-semibold")
+                            ui.label(classification_title(item) if node_kind == "classification" else item["title"]).classes("text-sm font-semibold")
                             ui.label(item.get("code") or item.get(node_kind + "_number")).classes(
                                 "text-xs text-slate-500"
                             )
@@ -162,7 +163,7 @@ def build_aggregation_selector(
             schemes = await api.browse_schemes()
             if not current():
                 return
-            scheme_control.options = {item["id"]: f"{item['code']} — {item['title']}" for item in schemes}
+            scheme_control.options = {item["id"]: f"{item['code']} — {classification_title(item)}" for item in schemes}
             scheme_control.update()
             if schemes:
                 scheme_control.value = schemes[0]["id"]

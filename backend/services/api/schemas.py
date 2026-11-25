@@ -668,6 +668,7 @@ class BrowseClassificationNode(ApiModel):
     parent_classification_id: int | None
     code: str
     title: str
+    localized: dict[str, Any] | None = None
     description: str | None
     is_terminal: bool
     date_deactivated: datetime | None

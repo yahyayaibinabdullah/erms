@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Callable
 from .creator_labels import render_creator_name
 from .api_client import ApiError
+from .classification_labels import classification_title
 from .entities import ENTITIES
 import asyncio
 from .capabilities import can_add_from_collection
@@ -289,14 +290,14 @@ def build_aggregation_browser(
                     icon=tree_expander_icon(expanded),
                     on_click=lambda: toggle_classification(item),
                 ).props("flat round dense size=sm color=blue-grey")
-                disclosure.props["aria-label"] = item["title"]
+                disclosure.props["aria-label"] = classification_title(item)
                 disclosure.props["aria-expanded"] = str(expanded).lower()
                 ui.icon("label" if item["is_terminal"] else "schema", color="primary").classes("w-6")
                 with ui.button(on_click=lambda: toggle_classification(item)).props(
                     f"flat no-caps align={'right' if current_direction['value'] == 'rtl' else 'left'}"
                 ).classes("aggregation-browser-node-link grow min-w-0"):
                     with ui.column().classes("min-w-0 gap-0 text-start"):
-                        ui.label(item["title"]).classes("text-sm font-semibold whitespace-normal break-words")
+                        ui.label(classification_title(item)).classes("text-sm font-semibold whitespace-normal break-words")
                         ui.label(item["code"]).classes("text-xs text-slate-400")
                 ui.badge(render_message("webui.render_classification.badge.terminal_c550b780") if item["is_terminal"] else render_message("webui.render_classification.badge.branch_dd50f161"), color="primary").props("outline")
             if not expanded:
@@ -510,7 +511,7 @@ def build_aggregation_browser(
             browse["schemes"] = schemes
             scheme_select.options = {
                 item["id"]: (
-                    f"{item['code']} — {item['title']}"
+                    f"{item['code']} — {classification_title(item)}"
                     + (render_message("common.status.inactive_suffix") if item.get("date_deactivated") else "")
                 ) for item in browse["schemes"]
             }

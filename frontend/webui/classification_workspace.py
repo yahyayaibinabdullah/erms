@@ -8,6 +8,7 @@ from typing import Any, Callable
 from nicegui import ui
 
 from .api_client import ApiError, ErmsApiClient
+from .classification_labels import classification_title
 from .i18n_catalogue import render_message
 from .retention_timeline import render_retention_stages
 
@@ -352,8 +353,8 @@ async def classification_workspace(
         ).classes("classification-node-button min-w-0 max-w-full text-start")
         if icon:
             button.classes("w-full")
-        button.props["aria-label"] = f"{item['code']} — {item['title']}"
-        button.tooltip(item["title"])
+        button.props["aria-label"] = f"{item['code']} — {classification_title(item)}"
+        button.tooltip(classification_title(item))
         if icon in {"label", "schema", "account_tree"}:
             button.classes("classification-directional-icon")
         # Explicit NiceGUI children avoid Quasar's physical on-left icon margin.
@@ -363,7 +364,7 @@ async def classification_workspace(
                 ui.icon(icon, size="20px").classes("shrink-0")
             with ui.row(wrap=False).classes("grow min-w-0 items-center gap-1"):
                 ui.label(item["code"]).props("dir=auto").classes("shrink-0 whitespace-nowrap")
-                ui.label(f"— {item['title']}").props("dir=auto").classes("min-w-0 truncate")
+                ui.label(f"— {classification_title(item)}").props("dir=auto").classes("min-w-0 truncate")
 
     def render_tree_level(scheme: dict[str, Any], parent_id: int | None, depth: int = 1, ancestor_inactive: bool = False) -> None:
         key = (scheme["id"], parent_id)
@@ -381,7 +382,7 @@ async def classification_workspace(
                     text = render_message("webui.render_tree_level.badge.terminal_522c0184") if item["is_terminal"] else render_message("webui.render_tree_level.badge.branch_e37cab95")
                 ui.badge(text, color="grey-7" if inactive else "primary").props("outline")
                 if not item["is_terminal"]:
-                    icon_action("add", render_message("webui.render_workspace_right.tooltip.add_child_classification_beneath_title_b82facfa", title=item["title"]), lambda _, s=scheme, n=item: create_classification(n, scheme=s))
+                    icon_action("add", render_message("webui.render_workspace_right.tooltip.add_child_classification_beneath_title_b82facfa", title=classification_title(item)), lambda _, s=scheme, n=item: create_classification(n, scheme=s))
             if not item["is_terminal"] and item["id"] in workspace["expanded"]:
                 render_tree_level(scheme, item["id"], depth + 1, inactive)
         if not workspace["children"].get(key):
@@ -565,7 +566,7 @@ async def classification_workspace(
                 ui.avatar(icon="label" if selected and selected["is_terminal"] else "schema" if selected else "account_tree", color="blue-1", text_color="primary", size="48px").classes("classification-directional-icon")
                 with ui.column().classes("grow min-w-0 gap-1"):
                     ui.label(item["code"]).classes("text-sm text-primary font-semibold whitespace-normal break-all")
-                    ui.label(item["title"]).classes("text-xl font-semibold whitespace-normal break-words")
+                    ui.label(classification_title(item)).classes("text-xl font-semibold whitespace-normal break-words")
                 ui.button(render_message("classification_browser.back_to_tree"), icon="arrow_forward" if direction() == "rtl" else "arrow_back", on_click=show_tree).props("flat dense no-caps")
             if selected is None:
                 label, color = scheme_lifecycle(scheme)
@@ -670,13 +671,13 @@ async def classification_workspace(
                 inactive_ancestor = next((node for node in path[:-1] if node.get("date_deactivated")), None)
                 if scheme.get("date_deactivated"):
                     effective_status = render_message("webui.render_workspace_right.text.inactive_via_scheme_84b8722d")
-                    explanation = render_message("webui.render_workspace_right.text.the_scheme_code_title_is_deactivated_24061b49", code=scheme["code"], title=scheme["title"])
+                    explanation = render_message("webui.render_workspace_right.text.the_scheme_code_title_is_deactivated_24061b49", code=scheme["code"], title=classification_title(scheme))
                 elif selected.get("date_deactivated"):
                     effective_status = render_message("webui.render_workspace_right.text.inactive_f9285c80")
                     explanation = render_message("webui.render_workspace_right.text.this_classification_is_directly_deactivate_1511167f")
                 elif inactive_ancestor:
                     effective_status = render_message("webui.render_workspace_right.text.inactive_via_ancestor_bf38d6fa")
-                    explanation = render_message("webui.render_workspace_right.text.ancestor_code_title_is_deactivated_aae4022c", code=inactive_ancestor["code"], title=inactive_ancestor["title"])
+                    explanation = render_message("webui.render_workspace_right.text.ancestor_code_title_is_deactivated_aae4022c", code=inactive_ancestor["code"], title=classification_title(inactive_ancestor))
                 else:
                     effective_status = render_message("webui.render_workspace_right.text.active_78e7cbf5")
                     explanation = render_message("webui.render_workspace_right.text.this_classification_has_no_direct_or_inher_7ee3a26e")
@@ -693,7 +694,7 @@ async def classification_workspace(
                             ui.badge(render_message("webui.render_workspace_right.badge.inherited_47a9f6bf") if inherited else render_message("webui.render_workspace_right.badge.direct_5942e4ad"), color="indigo").props("outline")
                             source = next((node for node in path if node["id"] == effective_result["defined_by_classification_id"]), None)
                             if inherited and source:
-                                ui.label(render_message("webui.render_workspace_right.text.inherited_from_code_title_5a7d1fa5", code=source["code"], title=source["title"])).classes("text-sm text-slate-500")
+                                ui.label(render_message("webui.render_workspace_right.text.inherited_from_code_title_5a7d1fa5", code=source["code"], title=classification_title(source))).classes("text-sm text-slate-500")
                             else:
                                 ui.label(render_message("webui.render_workspace_right.text.inherited_from_an_ancestor_classification_4b3d7b4b") if inherited else render_message("webui.render_workspace_right.text.defined_on_this_classification_c28d511d")).classes("text-sm text-slate-500")
                         render_rule_details(effective_result)
@@ -710,7 +711,7 @@ async def classification_workspace(
                         metadata_value(entity_metadata_label("Authority"), selected.get("authority"))
                         metadata_value(entity_metadata_label("Keywords"), selected.get("keywords"))
                         parent = path[-2] if len(path) > 1 else None
-                        metadata_value(entity_metadata_label("Parent classification"), f"{parent['code']} — {parent['title']}" if parent else None)
+                        metadata_value(entity_metadata_label("Parent classification"), f"{parent['code']} — {classification_title(parent)}" if parent else None)
                         metadata_value(render_message("dashboard.activity.created"), selected.get("date_created"), timestamp=True)
                         metadata_value(render_message("webui.render_governance_cards.text.last_updated_fdb63867"), selected.get("date_updated"), timestamp=True)
                         metadata_value(render_message("classification_workspace.metadata.first_used"), selected.get("date_first_used"), timestamp=True)
@@ -782,7 +783,7 @@ async def classification_workspace(
         dialog = ui.dialog()
         with dialog, ui.card().classes("w-[540px] max-w-full"):
             ui.label(render_message("webui.change_classification_lifecycle.label.title_classification_22f782a8", title=action.title())).classes("text-xl font-semibold")
-            ui.label(render_message("webui.change_classification_lifecycle.label.code_title_58726667", code=item['code'], title=item['title'])).classes("font-semibold")
+            ui.label(render_message("webui.change_classification_lifecycle.label.code_title_58726667", code=item['code'], title=classification_title(item))).classes("font-semibold")
             ui.label(
                 render_message(
                     "webui.change_classification_lifecycle.guidance.reactivate"
@@ -821,7 +822,7 @@ async def classification_workspace(
         dialog = ui.dialog()
         with dialog, ui.card().classes("w-[540px] max-w-full"):
             ui.label(render_message("webui.confirm_delete_classification.label.delete_classification_permanently_71a3ad1f")).classes("text-xl font-semibold")
-            ui.label(render_message("webui.confirm_delete_classification.label.code_title_339d0b48", code=item['code'], title=item['title'])).classes("font-semibold")
+            ui.label(render_message("webui.confirm_delete_classification.label.code_title_339d0b48", code=item['code'], title=classification_title(item))).classes("font-semibold")
             ui.label(
                 render_message("webui.confirm_delete_classification.label.its_directly_owned_retention_rule_and_rece_a6bb530e")
             ).classes("text-sm text-slate-600")
@@ -869,7 +870,7 @@ async def classification_workspace(
         with dialog, ui.card().classes("w-[520px] max-w-full"):
             ui.label(render_message("webui.unpublish_workspace_scheme.label.unpublish_classification_scheme_6e0dafdd")).classes("text-xl font-semibold")
             ui.label(
-                render_message("webui.unpublish_workspace_scheme.label.code_title_will_no_longer_be_available_for_c0a23502", code=scheme['code'], title=scheme['title'])
+                render_message("webui.unpublish_workspace_scheme.label.code_title_will_no_longer_be_available_for_c0a23502", code=scheme['code'], title=classification_title(scheme))
             ).classes("text-sm text-slate-700")
             reason = ui.textarea(render_message("webui.unpublish_workspace_scheme.textarea.reason_for_unpublishing_62fcf4eb")).props("outlined autogrow").classes("w-full")
 
@@ -904,7 +905,7 @@ async def classification_workspace(
         dialog = ui.dialog()
         with dialog, ui.card().classes("w-[560px] max-w-full"):
             ui.label(render_message("webui.confirm_delete_workspace_scheme.label.delete_classification_scheme_35b63adb")).classes("text-xl font-semibold")
-            ui.label(render_message("webui.confirm_delete_workspace_scheme.label.code_title_7a072c4b", code=scheme['code'], title=scheme['title'])).classes(
+            ui.label(render_message("webui.confirm_delete_workspace_scheme.label.code_title_7a072c4b", code=scheme['code'], title=classification_title(scheme))).classes(
                 "font-semibold text-slate-800"
             )
             if total:
@@ -952,7 +953,7 @@ async def classification_workspace(
         dialog = ui.dialog()
         with dialog, ui.card().classes("w-[540px] max-w-full"):
             ui.label(action.title()).classes("text-xl font-semibold")
-            ui.label(f"{scheme['code']} — {scheme['title']}").classes("font-semibold")
+            ui.label(f"{scheme['code']} — {classification_title(scheme)}").classes("font-semibold")
             reason = ui.textarea(render_message("webui.change_classification_lifecycle.textarea.reason_for_action_8ac9320f", action=action)).props("outlined autogrow").classes("w-full")
 
             async def apply_change() -> None:

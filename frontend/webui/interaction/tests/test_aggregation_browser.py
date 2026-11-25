@@ -48,10 +48,19 @@ class Api:
         return dict(items=rows[offset:offset+25], total=len(rows), next_cursor=str(offset+25) if offset+25<len(rows) else None)
 
 
-async def setup(user, direction='ltr'):
+async def setup(user, direction='ltr', localized=False):
     api=Api(); state={'resource':'aggregations'}; opened=[]; aggregation_state=new_aggregation_state()
     async def destination(kind,item):
         opened.append((kind,item['id'])); state['resource']=kind
+    if localized:
+        api.browse_schemes = AsyncMock(return_value=[dict(id=1, code='SA', title='Scheme', localized={'title': 'المخطط'})])
+        original_page = api.browse_page
+        async def localized_page(path, **params):
+            result = await original_page(path, **params)
+            for item in result['items']:
+                item['localized'] = {'title': 'التصنيف' if path.endswith('/roots') else 'Must not replace stored content'}
+            return result
+        api.browse_page = localized_page
     namespace={}
     @ui.page('/aggregation-test')
     async def page():
@@ -132,3 +141,13 @@ async def test_abandoned_branch_response_does_not_update_browser(user:User):
     await asyncio.sleep(.05)
     branch=state['aggregation_browse']['collections']['classification:1:aggregations']
     assert branch['items']==[]
+
+
+async def test_localized_classification_references_preserve_stored_aggregation_titles(user):
+    api, _, _ = await setup(user, 'rtl', localized=True)
+    await user.should_see('التصنيف')
+    scheme = next(iter(user.find(ui.select).elements))
+    assert scheme.options == {1: 'SA — المخطط'}
+    button(user, title='التصنيف', icon='chevron_left').click()
+    await user.should_see('Meeting files')
+    await user.should_not_see('Must not replace stored content')

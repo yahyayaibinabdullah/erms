@@ -65,3 +65,32 @@ async def test_failed_picker_request_keeps_selected_relationship(user,kind):
     await user.open('/failed-classification-picker')
     assert holder['control'].value==99 and holder['control'].options=={99:'Existing'}
     assert user.notify.messages
+
+
+@pytest.mark.parametrize('kind', ['editor', 'advanced'])
+async def test_picker_uses_effective_titles_and_returns_stable_id(user, kind):
+    rows = {
+        'classification-schemes': [dict(id=1, code='S', title='Scheme', localized={'title': 'المخطط'})],
+        'classifications': [dict(id=2, code='C', title='Canonical', is_terminal=True, localized={'title': 'التصنيف'})],
+    }
+    api = SimpleNamespace(list=AsyncMock(side_effect=lambda resource, **_: rows[resource]))
+    holder = {}
+    @ui.page('/localized-picker')
+    async def page():
+        holder['control'] = ui.select({})
+        await picker(api, kind, 'rtl')(holder['control'])
+    await user.open('/localized-picker')
+    def choose(text):
+        label = next(e for e in user.find(ui.label).elements if e.text == text)
+        card = label.parent_slot.parent
+        while not isinstance(card, ui.card):
+            card = card.parent_slot.parent
+        card.mark('localized-choice')
+        user.find(marker='localized-choice').click()
+    choose('المخطط')
+    await user.should_see('التصنيف')
+    choose('التصنيف')
+    await asyncio.sleep(.03)
+    assert holder['control'].value == 2
+    assert holder['control'].options[2] == 'C · التصنيف'
+    assert rows['classifications'][0]['title'] == 'Canonical'

@@ -7,7 +7,8 @@ import asyncio
 from typing import Any
 from nicegui import ui
 from .api_client import ApiError
-from .entity_selectors import apply_relationship_selection, relationship_options
+from .entity_selectors import apply_relationship_selection
+from .classification_labels import classification_title
 from .i18n_catalogue import render_message
 
 
@@ -27,7 +28,7 @@ def build_scheme_selector(api):
                 return
             selected = control.value
             options = {
-                item["id"]: f"{item['code']} — {item['title']}" for item in rows
+                item["id"]: f"{item['code']} — {classification_title(item)}" for item in rows
             }
             if selected is not None and selected not in options:
                 options[selected] = dict(control.options).get(selected, str(selected))
@@ -84,7 +85,7 @@ def build_classification_pickers(api, *, direction, tree_expander_icon, error_me
                                 icon="account_tree", color="blue-1", text_color="primary"
                             ).classes("shrink-0")
                             with ui.column().classes("gap-0 grow min-w-0"):
-                                ui.label(scheme["title"]).classes(
+                                ui.label(classification_title(scheme)).classes(
                                     "w-full font-semibold whitespace-normal break-words"
                                 )
                                 ui.label(scheme["code"]).classes(
@@ -130,7 +131,7 @@ def build_classification_pickers(api, *, direction, tree_expander_icon, error_me
             with content:
                 with ui.row().classes("w-full items-center gap-1"):
                     ui.button(icon="arrow_forward" if direction() == "rtl" else "arrow_back", on_click=show_schemes if not path else lambda: show_level(scheme, path[-1] if path else None, path[:-1])).props("flat round dense").tooltip(render_message("webui.show_level.tooltip.back_f6d07119"))
-                    ui.label(scheme["title"]).classes("font-semibold")
+                    ui.label(classification_title(scheme)).classes("font-semibold")
                     for ancestor in path:
                         ui.icon(tree_expander_icon(False), size="16px").classes("text-slate-400")
                         ui.label(ancestor["code"]).classes("text-xs text-slate-500")
@@ -144,7 +145,7 @@ def build_classification_pickers(api, *, direction, tree_expander_icon, error_me
                         if item["is_terminal"]:
                             apply_relationship_selection(
                                 target_control, item["id"],
-                                relationship_options([item], ("code", "title"))[item["id"]],
+                                f"{item['code']} · {classification_title(item)}",
                             )
                             browser.close()
                         else:
@@ -160,7 +161,7 @@ def build_classification_pickers(api, *, direction, tree_expander_icon, error_me
                             )
                             with ui.column().classes("gap-0 grow"):
                                 with ui.row().classes("items-center gap-2"):
-                                    ui.label(classification["title"]).classes("font-semibold")
+                                    ui.label(classification_title(classification)).classes("font-semibold")
                                     ui.badge(
                                         render_message("webui.show_level.badge.terminal_06982bf6") if classification["is_terminal"] else render_message("webui.show_level.badge.branch_f3904c54"),
                                         color="primary",
@@ -209,7 +210,7 @@ def build_classification_pickers(api, *, direction, tree_expander_icon, error_me
                     with ui.card().classes("w-full shadow-none border border-slate-200 cursor-pointer p-3").on(
                         "click", lambda _, item=scheme: show_level(item, None, [])
                     ):
-                        ui.label(scheme["title"]).classes("font-semibold")
+                        ui.label(classification_title(scheme)).classes("font-semibold")
                         ui.badge(scheme["code"], color="primary").props("outline")
                 if has_more:
                     ui.button(
@@ -244,7 +245,7 @@ def build_classification_pickers(api, *, direction, tree_expander_icon, error_me
                             scheme, path[-1] if path else None, path[:-1],
                         ),
                     ).props('flat round dense aria-label=' + repr(render_message("webui.show_level.accessible_name.back_1d2eb652")))
-                    ui.label(scheme["title"]).classes("font-semibold")
+                    ui.label(classification_title(scheme)).classes("font-semibold")
                     if parent_item:
                         ui.badge(parent_item["code"], color="primary").props("outline")
                 if not rows:
@@ -254,7 +255,7 @@ def build_classification_pickers(api, *, direction, tree_expander_icon, error_me
                         if selected["is_terminal"]:
                             apply_relationship_selection(
                                 target_control, selected["id"],
-                                f"{selected['code']} · {selected['title']}",
+                                f"{selected['code']} · {classification_title(selected)}",
                             )
                             dialog.close()
                         else:
@@ -266,7 +267,7 @@ def build_classification_pickers(api, *, direction, tree_expander_icon, error_me
                         with ui.row().classes("w-full items-center gap-3"):
                             ui.avatar(icon="label" if item["is_terminal"] else "schema", color="blue-1", text_color="primary")
                             with ui.column().classes("grow min-w-0 gap-0"):
-                                ui.label(item["title"]).classes("font-semibold")
+                                ui.label(classification_title(item)).classes("font-semibold")
                                 ui.badge(item["code"], color="primary").props("outline")
                             ui.icon("check_circle" if item["is_terminal"] else tree_expander_icon(False), color="primary")
                 if has_more:

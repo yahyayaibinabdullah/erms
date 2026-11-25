@@ -8,6 +8,7 @@ from collections.abc import Callable
 from typing import Any
 
 from .classification_workspace import classification_workspace
+from .classification_labels import classification_title
 from .i18n_catalogue import render_message
 
 
@@ -57,7 +58,7 @@ class ClassificationController:
 
         def register_classification_page(page: str, item: dict[str, Any] | None) -> None:
             label = (
-                f"{item['code']} — {item['title']}"
+                f"{item['code']} — {classification_title(item)}"
                 if item and item.get("title") else
                 render_message("navigation.item.classification_schemes")
             )

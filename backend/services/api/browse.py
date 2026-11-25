@@ -11,7 +11,7 @@ from .dashboard_visibility import visibility_ctes
 from .operation_policy import operation_policy
 from .saved_searches import audience_eligibility_sql
 from .database import get_connection
-from .entity_localization import localized_projection, preferred_language
+from .entity_localization import localized_projection, localize_rows, preferred_language
 from .authorization_policy import require_organization_browse
 from .creator_attribution import add_creator_names
 from .schemas import (
@@ -185,7 +185,7 @@ BROWSE_ACCESS = f"WITH RECURSIVE {visibility_ctes(ordinary_access=True)} "
 
 CLASSIFICATION_SOURCE = BROWSE_ACCESS + """
     SELECT c.id, c.classification_scheme_id, c.parent_classification_id,
-           c.code, c.title, c.description, c.is_terminal, c.date_deactivated,
+           c.code, c.title, c.description, c.translations, c.is_terminal, c.date_deactivated,
            (SELECT count(*) FROM classifications child
              WHERE child.parent_classification_id = c.id) AS child_classification_count,
            (SELECT count(*) FROM aggregations aggregation
@@ -285,17 +285,19 @@ RECORD_SOURCE = BROWSE_ACCESS + """
 @router.get("/classification-schemes", response_model=list[ClassificationSchemeRead])
 @operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def browse_schemes(
+    request: Request,
     q: str = Query("", max_length=200),
     limit: int = Query(25, ge=1, le=50), offset: int = Query(0, ge=0),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return list(connection.execute(
+    rows = list(connection.execute(
         """SELECT * FROM classification_schemes
             WHERE date_published IS NOT NULL AND date_published <= CURRENT_TIMESTAMP
               AND (%s = '' OR code ILIKE '%%'||%s||'%%' OR title ILIKE '%%'||%s||'%%')
             ORDER BY title COLLATE \"C\", id LIMIT %s OFFSET %s""",
         (q, q, q, limit, offset),
     ).fetchall())
+    return localize_rows(rows, preferred_language(connection, request), "title")
 
 
 @router.get(
@@ -304,7 +306,7 @@ def browse_schemes(
 )
 @operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def browse_classification_roots(
-    scheme_id: int, limit: int = Query(50, ge=1, le=100), cursor: str | None = None,
+    request: Request, scheme_id: int, limit: int = Query(50, ge=1, le=100), cursor: str | None = None,
     query: str = Query("", max_length=200),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
@@ -314,12 +316,16 @@ def browse_classification_roots(
     ).fetchone()
     if scheme is None:
         raise HTTPException(status_code=404, detail="published classification scheme not found")
-    return _page(
+    page = _page(
         connection, scope=f"scheme:{scheme_id}:roots",
         source_sql=CLASSIFICATION_SOURCE + " WHERE c.classification_scheme_id=%s AND c.parent_classification_id IS NULL",
         parameters=[scheme_id], key_column="code", query=query,
         query_columns=("code", "title"), limit=limit, cursor=cursor,
     )
+    localize_rows(page["items"], preferred_language(connection, request), "title")
+    for item in page["items"]:
+        item.pop("translations", None)
+    return page
 
 
 @router.get(
@@ -328,18 +334,22 @@ def browse_classification_roots(
 )
 @operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def browse_classification_children(
-    classification_id: int, limit: int = Query(50, ge=1, le=100), cursor: str | None = None,
+    request: Request, classification_id: int, limit: int = Query(50, ge=1, le=100), cursor: str | None = None,
     query: str = Query("", max_length=200),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     if connection.execute("SELECT 1 FROM classifications WHERE id=%s", (classification_id,)).fetchone() is None:
         raise HTTPException(status_code=404, detail="classification not found")
-    return _page(
+    page = _page(
         connection, scope=f"classification:{classification_id}:children",
         source_sql=CLASSIFICATION_SOURCE + " WHERE c.parent_classification_id=%s",
         parameters=[classification_id], key_column="code", query=query,
         query_columns=("code", "title"), limit=limit, cursor=cursor,
     )
+    localize_rows(page["items"], preferred_language(connection, request), "title")
+    for item in page["items"]:
+        item.pop("translations", None)
+    return page
 
 
 @router.get(

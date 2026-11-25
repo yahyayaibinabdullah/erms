@@ -399,3 +399,69 @@ def test_organization_users_sort_displayed_names_before_pagination(client, monke
         'user_id': fallback['id'], 'role_id': role['id'],
     }).status_code == 201
     assert [row['name'] for row in client.get(url).json()] == ['أحمد', 'باسم', 'باسم', 'داليا', 'زيد']
+
+
+def test_classification_browse_preserves_canonical_values_and_resolves_each_request_language(client):
+    scheme = _published_scheme(client)
+    branch = _classification(client, scheme['id'], 'B-01')
+    terminal = _classification(client, scheme['id'], 'B-01.01', parent_id=branch['id'], terminal=True)
+    fallback = _classification(client, scheme['id'], 'B-02')
+    for resource, row, title in (
+        ('classification-schemes', scheme, 'مخطط الاختبار'),
+        ('classifications', branch, 'فرع الاختبار'),
+        ('classifications', terminal, 'تصنيف الاختبار'),
+    ):
+        response = client.patch(
+            f"/api/v1/entity-translations/{resource}/{row['id']}/ar",
+            json={'title': title},
+            headers={'If-Match': str(row['version']), 'X-Change-Reason': 'Verify classification display'},
+        )
+        assert response.status_code == 200, response.text
+    paths = (
+        ('/api/v1/browse/classification-schemes', scheme, 'مخطط الاختبار'),
+        (f"/api/v1/browse/classification-schemes/{scheme['id']}/roots", branch, 'فرع الاختبار'),
+        (f"/api/v1/browse/classifications/{branch['id']}/children", terminal, 'تصنيف الاختبار'),
+    )
+    for language in ('ar', 'en', 'ar'):
+        preference = client.get('/api/v1/preferences').json()
+        response = client.put('/api/v1/preferences', headers={'If-Match': str(preference['version'])},
+                              json={'language_tag': language, 'working_timezone': 'Asia/Dubai'})
+        assert response.status_code == 200, response.text
+        for path, canonical, arabic in paths:
+            response = client.get(path)
+            assert response.status_code == 200, response.text
+            body = response.json()
+            rows = body if isinstance(body, list) else body['items']
+            row = next(row for row in rows if row['id'] == canonical['id'])
+            assert row['title'] == canonical['title']
+            assert row['code'] == canonical['code']
+            assert row['localized']['title'] == (arabic if language == 'ar' else canonical['title'])
+        roots = client.get(paths[1][0], params={'limit': 1}).json()
+        assert roots['items'][0]['id'] == branch['id']
+        second = client.get(paths[1][0], params={'limit': 1, 'cursor': roots['next_cursor']}).json()
+        assert second['items'][0]['id'] == fallback['id']
+        assert second['items'][0]['localized']['title'] == fallback['title']
+    # A separate English identity must not reuse the administrator's Arabic projection.
+    person = client.post('/api/v1/users', json={'name': 'Classification reader', 'email': 'classification.reader@test.invalid'}).json()
+    import os
+    import psycopg
+    from backend.services.api.authentication import hash_password
+    with psycopg.connect(os.environ['DATABASE_URL']) as connection:
+        connection.execute('INSERT INTO user_credentials(user_id,password_hash,must_change_password) VALUES(%s,%s,false)',
+                           (person['id'], hash_password('Temporary-Test-Password-123!')))
+    reader = TestClient(client.app)
+    login = reader.post('/api/v1/auth/login', json={'email': 'classification.reader@test.invalid', 'password': 'Temporary-Test-Password-123!'})
+    assert login.status_code == 200, login.text
+    for path, canonical, _ in paths:
+        result = reader.get(path)
+        assert result.status_code == 200, result.text
+        body = result.json()
+        rows = body if isinstance(body, list) else body['items']
+        row = next(row for row in rows if row['id'] == canonical['id'])
+        assert row['localized']['title'] == canonical['title']
+    reader.close()
+    # These browse routes allow signed-in readers; anonymous requests remain denied.
+    anonymous = TestClient(client.app)
+    for path, _, _ in paths:
+        assert anonymous.get(path).status_code == 401
+    anonymous.close()
