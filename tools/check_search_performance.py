@@ -330,7 +330,13 @@ def main():
     parser.add_argument('--mailbox-page-size', type=int, default=25,
                         help='Page size for the mailbox workload (1–50)')
     parser.add_argument('--type-ui', action='store_true', help='Run the structured type benchmark and the WebUI catalogue request shapes')
+    parser.add_argument('--classification-schemes-only', action='store_true',
+                        help='Measure localized scheme type-ahead and ordering on the document fixture')
     args=parser.parse_args()
+    if args.classification_schemes_only and any((args.mailbox_only, args.type_ui, args.type_text,
+                                                args.typed_search_only, args.type_visibility_only,
+                                                args.resource_types)):
+        parser.error('--classification-schemes-only cannot be combined with another workload')
     args.typed_search_only |= args.type_ui
     args.resource_types |= args.type_text
     if args.type_visibility_only or args.typed_search_only:
@@ -355,6 +361,8 @@ def main():
         'backend/services/api/recent_activity.py', 'tools/search_aggregation_activity_performance.py',
         'backend/services/api/creator_attribution.py', 'backend/services/api/application_settings_registry.py',
         'database/seeds/000_required_reference_data.sql',
+        *(['backend/services/api/browse.py', 'backend/services/api/entity_localization.py',
+           'tools/classification_scheme_browse_performance.py'] if args.classification_schemes_only else []),
         *(['tools/type_ui_performance.py', 'backend/services/api/resource_types.py',
            'frontend/webui/type_controls.py', 'frontend/webui/type_administration.py',
            'frontend/webui/advanced_search.py'] if args.type_ui else []),
@@ -383,6 +391,9 @@ def main():
             from tools.search_storage_experiment import configure, inspect
             configure(c, args.vector_storage)
             seed(c, typed=args.resource_types, structured_types=args.typed_search_only)
+            if args.classification_schemes_only:
+                from tools.classification_scheme_browse_performance import seed as seed_scheme_browse
+                seed_scheme_browse(c)
             if args.type_text:
                 from tools.type_text_search_performance import seed_type_text
                 seed_type_text(c,args.output)
@@ -398,8 +409,10 @@ def main():
                 'database':name,'postgres':c.execute('SELECT version() AS v').fetchone()['v'],
                 'platform':platform.platform(),'aggregations':AGGREGATIONS,'records':RECORDS,
                 'mixed_resource_types':args.resource_types,'components':RECORDS,'chunks':RECORDS*2,'repeats':args.repeats,
-                'threshold_seconds':3,'page_size':args.mailbox_page_size if args.mailbox_only else 100,
-                'result_cap':None if args.mailbox_only else 1000,
+                'threshold_seconds':3,'page_size':(args.mailbox_page_size if args.mailbox_only else
+                                                50 if args.classification_schemes_only else 100),
+                'result_cap':None if args.mailbox_only or args.classification_schemes_only else 1000,
+                'classification_scheme_browse':args.classification_schemes_only,
                 'mailbox_rows_per_folder':2400 if args.mailbox_only else None,
                 'source_sha256':source_hashes,
                 'storage_experiment':inspect(c, args.vector_storage),
@@ -407,7 +420,8 @@ def main():
                 'search_execution':search_settings,
                 'jit_default':c.execute('SHOW jit').fetchone()['jit'],
                 'jit_available':c.execute('SELECT pg_jit_available() AS value').fetchone()['value'],
-                'search_jit':'disabled only within search execution; previous setting restored',
+                'search_jit':('scheme browse preserves the pooled connection setting' if args.classification_schemes_only
+                              else 'disabled only within search execution; previous setting restored'),
                 'data_checksums':c.execute('SHOW data_checksums').fetchone()['data_checksums'],
                 'wal_log_hints':c.execute('SHOW wal_log_hints').fetchone()['wal_log_hints'],
                 'fixture_maintenance':'VACUUM ANALYZE after bulk load; no search warm-up',
@@ -423,6 +437,9 @@ def main():
             if args.mailbox_only:
                 from tools.search_mailbox_performance import exercise_mailboxes
                 exercise_mailboxes(buffered, args.repeats, args.mailbox_page_size)
+            elif args.classification_schemes_only:
+                from tools.classification_scheme_browse_performance import exercise as exercise_scheme_browse
+                exercise_scheme_browse(url, buffered, args.repeats)
             elif args.typed_search_only:
                 from tools.structured_type_search_performance import exercise as exercise_structured
                 exercise_structured(url, buffered, args.repeats, type_ui=args.type_ui)

@@ -282,6 +282,54 @@ RECORD_SOURCE = BROWSE_ACCESS + """
 """
 
 
+def _scheme_browse_collation(connection: Connection, language_tag: str) -> str:
+    parts = language_tag.split("-")
+    candidates = ["-".join(parts[:length]) + "-x-icu" for length in range(len(parts), 0, -1)]
+    candidates.append("und-x-icu")
+    row = connection.execute(
+        "SELECT collname FROM pg_catalog.pg_collation "
+        "WHERE collnamespace='pg_catalog'::regnamespace AND collprovider='i' "
+        "AND collname=ANY(%s) ORDER BY array_position(%s, collname::text) LIMIT 1",
+        (candidates, candidates),
+    ).fetchone()
+    # Explicit Unicode ordering is deterministic on installations without ICU.
+    return row["collname"] if row else "C"
+
+
+def _scheme_browse_query(
+    language_tag: str, collation: str, query: str, limit: int, offset: int,
+) -> tuple[sql.Composable, list[Any]]:
+    # The trigram predicate narrows translated candidates before the field- and
+    # enabled-language check. Do not match JSON keys or description-only hits.
+    prefix = sql.SQL("")
+    predicate = sql.SQL("")
+    parameters: list[Any] = []
+    if query:
+        prefix = sql.SQL("WITH enabled_languages AS MATERIALIZED ("
+                         "SELECT language_tag FROM supported_languages WHERE is_enabled) ")
+        predicate = sql.SQL(""" AND (
+            scheme.code ILIKE %s OR scheme.title ILIKE %s OR
+            (scheme.translations::text ILIKE %s AND EXISTS (
+                SELECT 1 FROM jsonb_each(COALESCE(scheme.translations, '{}'::jsonb)) translation
+                JOIN enabled_languages language ON language.language_tag=translation.key
+                WHERE translation.value->>'title' ILIKE %s)))""")
+        parameters.extend([f"%{query}%"] * 4)
+    # Match localized_projection's exact/base locale-object selection and
+    # canonical field fallback, so ordering and the displayed page agree.
+    statement = prefix + sql.SQL("""
+        SELECT scheme.* FROM classification_schemes scheme
+         WHERE scheme.date_published IS NOT NULL AND scheme.date_published <= CURRENT_TIMESTAMP
+         {predicate}
+         ORDER BY COALESCE(NULLIF(COALESCE(
+             NULLIF(NULLIF(scheme.translations -> %s, '{{}}'::jsonb), 'null'::jsonb),
+             scheme.translations -> %s, '{{}}'::jsonb) ->> 'title', ''), scheme.title)
+             COLLATE {collation}, scheme.code COLLATE "C", scheme.id
+         LIMIT %s OFFSET %s
+    """).format(predicate=predicate, collation=sql.Identifier("pg_catalog", collation))
+    parameters.extend([language_tag, language_tag.split("-", 1)[0], limit, offset])
+    return statement, parameters
+
+
 @router.get("/classification-schemes", response_model=list[ClassificationSchemeRead])
 @operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def browse_schemes(
@@ -290,14 +338,12 @@ def browse_schemes(
     limit: int = Query(25, ge=1, le=50), offset: int = Query(0, ge=0),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    rows = list(connection.execute(
-        """SELECT * FROM classification_schemes
-            WHERE date_published IS NOT NULL AND date_published <= CURRENT_TIMESTAMP
-              AND (%s = '' OR code ILIKE '%%'||%s||'%%' OR title ILIKE '%%'||%s||'%%')
-            ORDER BY title COLLATE \"C\", id LIMIT %s OFFSET %s""",
-        (q, q, q, limit, offset),
-    ).fetchall())
-    return localize_rows(rows, preferred_language(connection, request), "title")
+    language_tag = preferred_language(connection, request)
+    statement, parameters = _scheme_browse_query(
+        language_tag, _scheme_browse_collation(connection, language_tag), q, limit, offset,
+    )
+    rows = list(connection.execute(statement, parameters).fetchall())
+    return localize_rows(rows, language_tag, "title")
 
 
 @router.get(
