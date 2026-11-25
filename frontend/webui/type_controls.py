@@ -66,6 +66,8 @@ TYPE_MESSAGES = {
     "earlier": "webui.render_component_cards.tooltip.move_earlier_0de89c72",
     "later": "webui.render_component_cards.tooltip.move_later_71077211",
     "delete": "resource_types.ui.delete",
+    "remove_access": "resource_types.ui.remove_access",
+    "remove_access_confirm": "resource_types.ui.remove_access_confirm",
     "close": "resource_types.ui.close",
     "continue": "disposition.ui.continue",
     "next": "resource_types.ui.next",
@@ -81,8 +83,8 @@ TYPE_MESSAGES = {
 }
 
 
-def t(key):
-    return render_message_plain(TYPE_MESSAGES[key])
+def t(key, **parameters):
+    return render_message_plain(TYPE_MESSAGES[key], **parameters)
 
 
 def label(row):
@@ -103,15 +105,15 @@ def col(name, title, sortable=False):
     )
 
 
-async def confirmed(message):
+async def confirmed(message, *, action=None, **parameters):
     with ui.dialog() as dialog, ui.card():
-        ui.label(t(message))
+        ui.label(t(message, **parameters))
         with ui.row().classes("w-full justify-end"):
             ui.button(t("cancel"), on_click=lambda: dialog.submit(False)).props(
                 "flat no-caps"
             )
             ui.button(
-                t("continue") if message == "discard" else t("delete"),
+                t(action or ("continue" if message == "discard" else "delete")),
                 on_click=lambda: dialog.submit(True),
             ).props("unelevated no-caps")
     return bool(await dialog)
@@ -399,34 +401,48 @@ def literal(dtype, value, maximum=None):
 
 
 class MetadataForm:
-    def __init__(self, api, kind, row=None, readonly=False):
+    def __init__(self, api, kind, row=None, readonly=False, *, initial_type=None, filenames=()):
         self.api, self.kind, self.row, self.readonly = api, kind, row or {}, readonly
         self.original = self.row.get("type_id")
-        self.selected = self.original
+        self.selected = self.original if row else initial_type
         self.existing = self.row.get("field_values") or {}
+        self.filenames = filenames
+        self.batch_changes = [{} for _ in filenames]
         self.changes = {}
         self.definitions = {}
         self.revision = 0
         self.assignment_revision = 0
         self.loading = False
+        self.shortcut = None
         self.access = "see" if readonly else "use"
         self.path = base(kind) + "/options"
+
+    def jump_button(self):
+        def jump():
+            ui.run_javascript(f"getHtmlElement({self.host.id}).scrollIntoView({{block: 'center'}}); getHtmlElement({self.host.id}).focus({{preventScroll:true}})")
+
+        self.shortcut = ui.button(t("type") + " · " + t("unset"), icon="arrow_downward",
+                                  on_click=jump).props("outline dense no-caps")
 
     async def render(self):
         if self.readonly and self.selected is None:
             return
-        self.host = ui.column().classes("type-metadata-section w-full gap-2")
+        self.host = ui.column().classes("type-metadata-section w-full gap-2").props("tabindex=-1")
         with self.host:
             ui.label(t("section")).classes("text-base font-semibold")
             current = None
             if self.selected is not None:
-                current = await self.api.request(
-                    "GET",
-                    self.path + f"/{self.selected}",
-                    params={"access": self.access},
-                )
+                try:
+                    current = await self.api.request("GET", self.path + f"/{self.selected}", params={"access": self.access})
+                except ApiError as error:
+                    if self.original is not None:
+                        raise
+                    self.selected = None
+                    ui.notify(str(error), color="negative")
                 if self.host.is_deleted:
                     return
+                if self.shortcut and current:
+                    self.shortcut.set_text(t("type") + " · " + label(current))
             if self.readonly:
                 ui.label(label(current)).classes("font-medium")
             else:
@@ -439,7 +455,7 @@ class MetadataForm:
                     params={"access": self.access},
                 )
             self.fields = ui.column().classes("w-full gap-2")
-        if current:
+        if current or self.filenames:
             await self.page(0)
 
     async def assign(self, row):
@@ -449,15 +465,18 @@ class MetadataForm:
         if target == self.selected:
             return True
         if (
-            (self.existing or self.changes)
+            (self.existing or self.changes or any(self.batch_changes))
             and self.selected is not None
             and not await confirmed("discard")
         ):
             return False
         if self.host.is_deleted or revision != self.assignment_revision:
             return False
+        if self.shortcut:
+            self.shortcut.set_text(t("type") + " · " + (label(row) if row else t("unset")))
         self.selected = target
         self.changes = {}
+        self.batch_changes = [{} for _ in self.filenames]
         self.definitions.clear()
         await self.page(0)
         return True
@@ -470,6 +489,9 @@ class MetadataForm:
         self.fields.clear()
         self.loading = self.selected is not None
         if not self.loading:
+            with self.fields:
+                for filename in self.filenames:
+                    ui.label(filename).classes("break-all").props("dir=auto")
             return
         path = f"{self.path}/{self.selected}/fields"
         with self.fields:
@@ -489,77 +511,80 @@ class MetadataForm:
                 return
             self.definitions.update({str(f["id"]): f for f in data["items"]})
 
-            def raw(f):
+            def raw(f, changes):
                 fid = str(f["id"])
-                if fid in self.changes:
-                    return self.changes[fid]
+                if fid in changes:
+                    return changes[fid]
                 return (
                     self.existing.get(fid)
                     if self.selected == self.original
                     else f.get("default")
                 )
 
-            async def choice(f):
-                if f["data_type"] == "single_choice" and raw(f) is not None:
-                    return await find_option(
-                        self.api, f"{path}/{f['id']}/choices", raw(f), self.access
-                    )
-
-            choices = await asyncio.gather(*(choice(f) for f in data["items"]))
+            owners = list(zip(self.filenames, self.batch_changes)) or [(None, self.changes)]
+            choice_keys = {(f["id"], raw(f, changes)) for _, changes in owners
+                           for f in data["items"] if f["data_type"] == "single_choice" and raw(f, changes) is not None}
+            choices = dict(zip(choice_keys, await asyncio.gather(*(
+                find_option(self.api, f"{path}/{fid}/choices", value, self.access)
+                for fid, value in choice_keys))))
             if self.fields.is_deleted or rev != self.revision:
                 return
             with self.fields:
-                for f, chosen in zip(data["items"], choices):
-                    fid = str(f["id"])
-                    title = label(f) + (" *" if f["required"] else "")
-                    dtype = f["data_type"]
-                    value = raw(f)
-                    if self.readonly:
-                        lang, zone = current_locale_context()
-                        shown = (
-                            label(chosen)
-                            if chosen
-                            else (
-                                t("unset")
-                                if value is None
+                for filename, changes in owners:
+                    if filename is not None:
+                        ui.label(filename).classes("font-semibold break-all").props("dir=auto")
+                    for f in data["items"]:
+                        chosen = choices.get((f["id"], raw(f, changes))) if f["data_type"] == "single_choice" else None
+                        fid = str(f["id"])
+                        title = label(f) + (" *" if f["required"] else "")
+                        dtype = f["data_type"]
+                        value = raw(f, changes)
+                        if self.readonly:
+                            lang, zone = current_locale_context()
+                            shown = (
+                                label(chosen)
+                                if chosen
                                 else (
-                                    t("yes" if value else "no")
-                                    if dtype == "boolean"
+                                    t("unset")
+                                    if value is None
                                     else (
-                                        format_instant(value, zone, lang)
-                                        if dtype == "datetime"
+                                        t("yes" if value else "no")
+                                        if dtype == "boolean"
                                         else (
-                                            format_local_date(value, lang)
-                                            if dtype == "date"
-                                            else str(value)
+                                            format_instant(value, zone, lang)
+                                            if dtype == "datetime"
+                                            else (
+                                                format_local_date(value, lang)
+                                                if dtype == "date"
+                                                else str(value)
+                                            )
                                         )
                                     )
                                 )
                             )
-                        )
-                        ui.label(title).classes("text-xs text-slate-500")
-                        ui.label(shown).classes("whitespace-pre-wrap break-words")
-                    elif dtype == "single_choice":
-                        selector(
-                            self.api,
-                            f"{path}/{fid}/choices",
-                            title,
-                            chosen,
-                            lambda r, k=fid: self.changes.update(
-                                {k: r["id"] if r else None}
-                            ),
-                            params={"access": self.access},
-                        )
-                    else:
-                        c = scalar_input(dtype, title, value, f["max_length"])
+                            ui.label(title).classes("text-xs text-slate-500")
+                            ui.label(shown).classes("whitespace-pre-wrap break-words")
+                        elif dtype == "single_choice":
+                            selector(
+                                self.api,
+                                f"{path}/{fid}/choices",
+                                title,
+                                chosen,
+                                lambda r, k=fid, values=changes: values.update(
+                                    {k: r["id"] if r else None}
+                                ),
+                                params={"access": self.access},
+                            )
+                        else:
+                            c = scalar_input(dtype, title, value, f["max_length"])
 
-                        def changed(e, k=fid, d=dtype, m=f["max_length"]):
-                            try:
-                                self.changes[k] = literal(d, e.value, m)
-                            except ValueError:
-                                self.changes[k] = e.value
+                            def changed(e, k=fid, d=dtype, m=f["max_length"], values=changes):
+                                try:
+                                    values[k] = literal(d, e.value, m)
+                                except ValueError:
+                                    values[k] = e.value
 
-                        c.on_value_change(changed)
+                            c.on_value_change(changed)
                 if data["total"] > 25:
                     with ui.row():
                         ui.button(
@@ -583,19 +608,22 @@ class MetadataForm:
     def payload(self):
         if self.loading:
             raise ValueError(t("invalid"))
-        for fid, definition in self.definitions.items():
-            original = (
-                self.existing.get(fid)
-                if self.original == self.selected
-                else definition.get("default")
-            )
-            value = self.changes.get(fid, original)
-            if definition["required"] and (
-                value is None or isinstance(value, str) and not value.strip()
-            ):
-                raise ValueError(f"{label(definition)} · {t('required')}")
-            if fid in self.changes and definition["data_type"] != "single_choice":
-                literal(definition["data_type"], value, definition["max_length"])
+        for filename, changes in (list(zip(self.filenames, self.batch_changes)) or [(None, self.changes)]):
+            for fid, definition in self.definitions.items():
+                original = (
+                    self.existing.get(fid)
+                    if self.original == self.selected
+                    else definition.get("default")
+                )
+                value = changes.get(fid, original)
+                if definition["required"] and (
+                    value is None or isinstance(value, str) and not value.strip()
+                ):
+                    raise ValueError(" · ".join(filter(None, (filename, label(definition), t("required")))))
+                if fid in changes and definition["data_type"] != "single_choice":
+                    literal(definition["data_type"], value, definition["max_length"])
+        if self.filenames and self.selected is not None:
+            return {"type_id": self.selected, "record_field_values": self.batch_changes}
         if self.selected == self.original and not self.changes:
             return {}
         return {

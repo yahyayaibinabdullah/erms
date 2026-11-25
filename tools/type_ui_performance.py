@@ -168,6 +168,32 @@ def exercise(db, client, output, repeats):
                         total=len(received),
                     )
                 )
+        # Creation probes Use once for visibility, then reads a bounded menu.
+        # Exercise populated pages as well as the See-only result above.
+        db.execute("SELECT set_config('app.event_source','seeding',true)")
+        db.execute("""UPDATE resource_type_role_grants SET can_use=true
+                      WHERE kind=%s AND role_id=(SELECT id FROM roles WHERE code='PERF')""", (kind,))
+        db.commit()
+        for n in range(repeats):
+            for params in ({"access": "use", "limit": 1},
+                           {"access": "use", "paged": True, "limit": 25, "offset": 0},
+                           {"access": "use", "paged": True, "limit": 25, "offset": 25}):
+                start = perf_counter()
+                response = client.get(root + "/options", params=params)
+                elapsed = perf_counter() - start
+                response.raise_for_status()
+                data = response.json()
+                if params.get("paged"):
+                    assert data["total"] == len(allowed)
+                items = data["items"] if params.get("paged") else data
+                offset = params.get("offset", 0)
+                assert [r["id"] for r in items] == allowed[offset:offset + params["limit"]]
+                samples.append(dict(route=root + "/options", params=params, round=n + 1, seconds=elapsed,
+                                    ids=[r["id"] for r in items], total=len(allowed)))
+        db.execute("SELECT set_config('app.event_source','seeding',true)")
+        db.execute("""UPDATE resource_type_role_grants SET can_use=false
+                      WHERE kind=%s AND role_id=(SELECT id FROM roles WHERE code='PERF')""", (kind,))
+        db.commit()
         grant_path = root + f"/{reference['type_id']}/role-options"
         db.execute("SELECT set_config('app.event_source','seeding',true)")
         db.execute("""INSERT INTO resource_type_role_grants(kind,type_id,role_id)

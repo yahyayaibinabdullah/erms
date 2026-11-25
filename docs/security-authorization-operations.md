@@ -34,12 +34,16 @@ For example, entering `hr-04` finds the role with code `SA-HR-042` even when its
 display name is **Personnel Officer**. If a role is missing, clear the search and check the
 existing grants. A new role must first be created in **Roles**.
 
-Check **See** beside each role that may view and search. Check **Use** beside
-each role that may also change resources. Checking Use selects See automatically.
-Clearing Use leaves See selected. Clearing See removes that row from the
-selection. You can select different permissions for several roles across pages
-and searches. **Add (n)** saves all selected grants together. **Cancel** discards
-the selection. To revoke a saved grant, edit its row, clear **See**, and save.
+Check **Select** beside each role to add. **See** is checked automatically
+and is read-only. **Use** starts unchecked for each selected role. Check it
+for the roles that may also change resources. Deselecting a row drops its
+pending grant. Other selections carry across pages and searches.
+**Add (n)** saves all selected grants together. **Cancel** discards
+the selection. To revoke a saved grant, choose **Remove role access** beside
+the role, check the role and type in the prompt, and confirm. This removes its
+explicit See and Use permissions for this type. The role can be added again.
+In **Edit**, See is always checked and read-only. Set or clear **Use** and
+save to change the role’s access while keeping it in the list.
 
 For example, grant **Everyone → See** and **Personnel Officer → Use** on
 Employee File. An authenticated user with an effective role can then reference

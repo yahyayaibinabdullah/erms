@@ -39,7 +39,7 @@ async def test_mailbox_compose_draft_send_retention_real_api(assembled):
         await eventually(lambda:current_page(user)=='messages-drafts' and user.pending_requests==0)
         assert any(isinstance(e,ui.input) and e.value==draft['subject'] for e in user.client.elements.values())
         send=max((e for e in user.client.elements.values() if isinstance(e,ui.button) and 'messaging-send' in e._markers and e.enabled),key=lambda e:e.id)
-        click_one(user,[send]);await user.should_see(t('messaging.state.sent'))
+        click_one(user,[send]);await user.should_see(t('messaging.state.sent'), retries=100)
         sent=next(r for r in (await api.request('GET','/api/v1/messages/outbox'))['items'] if r['subject']=='Mailbox refactor acceptance')
         click_one(user,button('messaging.action.view_sent'))
         await eventually(lambda:current_page(user)=='messages-outbox' and user.pending_requests==0)

@@ -2190,6 +2190,7 @@ def create_records_from_file_drop(
     title: NonBlankString | None = Form(None),
     type_id: int | None = Form(None, gt=0),
     field_values: str | None = Form(None),
+    record_field_values: str | None = Form(None),
     connection: Connection = Depends(get_connection, scope="function"),
 ) -> dict[str, int]:
     acquire_continuity_shared_lock(connection)
@@ -2213,9 +2214,24 @@ def create_records_from_file_drop(
                                        "msg": "Field required", "input": None}])
 
     prepared = None
-    if type_id is not None or field_values is not None:
-        # The multipart adapter carries the same JSON field map as record
-        # creation. PostgreSQL preserves the precision of numeric literals.
+    per_record = []
+    if record_field_values is not None:
+        if not separate_records or type_id is None or field_values is not None:
+            raise HTTPException(422, detail="Per-record fields require separate typed records")
+        try:
+            values = json.loads(record_field_values, parse_float=str)
+        except ValueError as error:
+            raise HTTPException(422, detail="Invalid per-record field values") from error
+        if not isinstance(values, list) or len(values) != len(files) or not all(isinstance(v, dict) for v in values):
+            raise HTTPException(422, detail="Supply one field map for each file")
+        # Keep exact numeric literals in PostgreSQL, including values supplied by API callers.
+        rows = connection.execute(
+            "SELECT jsonb_build_object('field_values',value)::text AS body FROM jsonb_array_elements(%s::jsonb) WITH ORDINALITY ORDER BY ordinality",
+            (record_field_values,),
+        ).fetchall()
+        per_record = [typed_metadata.prepare_metadata(connection, "record", None, type_id, level_id, row["body"], False)
+                      for row in rows]
+    elif type_id is not None or field_values is not None:
         raw = connection.execute(
             "SELECT jsonb_build_object('field_values',coalesce(%s::jsonb,'{}'::jsonb))::text AS body",
             (field_values,),
@@ -2230,7 +2246,9 @@ def create_records_from_file_drop(
 
     settings = settings_cache.for_connection(connection)
     _set_record_creator(connection, selected_role)
-    for number, group in zip(numbers, groups, strict=True):
+    for index, (number, group) in enumerate(zip(numbers, groups, strict=True)):
+        if per_record:
+            prepared = per_record[index]
         record = create_row(connection, "records", {
             "aggregation_id": aggregation_id, "type_id": type_id,
             "record_number": number,

@@ -77,3 +77,28 @@ Both staged and committed reorder endpoints accept the complete desired order:
 
 The list must contain every component exactly once and positions must be
 contiguous from 1. Removal automatically closes any numbering gap.
+
+### Creating from a type or a file drop
+
+On Records, select **Add** for an untyped draft or open the adjacent arrow
+to start with a type you can Use. You can change or clear the type in the
+draft. On an aggregation, **Add record** also sets the destination.
+
+Drop files on **Records** to stage them together in one draft. Review the
+suggested title, choose a destination, check the suggested record number and
+complete any required type fields. Failed uploads can be retried or removed.
+**Cancel draft** discards staged content. **Create record** commits it with
+the metadata. Dropping on an existing record attaches components.
+
+On an aggregation, dropping multiple files offers separate records or one
+combined record. When choosing a type for separate records, review the
+fields under each filename. The complete batch must pass validation.
+
+The aggregation file-drop endpoint accepts the optional multipart field
+`type_id`. A combined record takes one JSON object in `field_values`.
+For separate records, `record_field_values` takes one object for each file,
+in multipart order. For example, `[{"17": 10}, {"17": 25}]` assigns field
+17 separately to the first and second records. This also works when both
+files have the same name. Omitted values follow the selected type's default
+and required-field rules. Existing callers can still supply one shared
+`field_values` object for the entire batch.

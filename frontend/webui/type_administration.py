@@ -104,27 +104,32 @@ async def _add_role_grants(api, type_path, owner, grants_page, current, on_error
                 "offset": (p.page - 1) * p.size, "descending": p.descending,
             })
             for row in result["items"]:
-                row.update(display_name=label(row), see=row["id"] in selected, use=selected.get(row["id"], False))
+                row.update(display_name=label(row), selected=row["id"] in selected, use=selected.get(row["id"], False))
             return result
 
-        page = PageTable(columns=[col("display_name", "name", True), col("see", "see"), col("use", "use")],
+        page = PageTable(columns=[col("selected", "select"), col("display_name", "name", True),
+                                  col("see", "see"), col("use", "use")],
                          fetch=fetch, active=lambda: dialog.value and current(), on_error=on_error,
                          empty="", empty_text=lambda: t("empty"), wrap_cells=True)
-        for permission in ("see", "use"):
-            # Reflect dependent checkboxes immediately, including on rapid keyboard changes.
-            sync = "if (!$event) props.row.use=false" if permission == "see" else "if ($event) props.row.see=true"
-            page.table.add_slot(f"body-cell-{permission}",
-                f'<q-td :props="props"><q-checkbox :model-value="props.row.{permission}" '
-                f'aria-label="{escape(t(permission))}" :aria-description="props.row.display_name" '
-                f'@update:model-value="props.row.{permission}=$event; {sync}; '
-                "$parent.$emit('grant_change', [props.row.id, props.row.see, props.row.use])"
-                '"/></q-td>')
+        page.table.add_slot("body-cell-selected", f"""
+            <q-td :props="props"><q-checkbox :model-value="props.row.selected"
+                aria-label="{escape(t('select'))}" :aria-description="props.row.display_name"
+                @update:model-value="props.row.selected=$event; props.row.use=false;
+                    $parent.$emit('grant_change', [props.row.id, $event, false])"/></q-td>""")
+        page.table.add_slot("body-cell-see", f"""
+            <q-td :props="props"><q-checkbox :model-value="props.row.selected" disable
+                aria-label="{escape(t('see'))}" :aria-description="props.row.display_name"/></q-td>""")
+        page.table.add_slot("body-cell-use", f"""
+            <q-td :props="props"><q-checkbox :model-value="props.row.use" :disable="!props.row.selected"
+                aria-label="{escape(t('use'))}" :aria-description="props.row.display_name"
+                @update:model-value="props.row.use=$event;
+                    $parent.$emit('grant_change', [props.row.id, props.row.selected, $event])"/></q-td>""")
 
         def change(event):
             if saving or not dialog.value:
                 return
-            identity, see, use = event.args
-            if see:
+            identity, is_selected, use = event.args
+            if is_selected:
                 selected[identity] = use
             else:
                 selected.pop(identity, None)
@@ -257,8 +262,7 @@ async def type_administration(*, api, kind, container, languages, active, on_err
         if level == "field":
             actions = [("earlier", "arrow_upward"), ("later", "arrow_downward"), *actions,
                        ("choices", "format_list_bulleted")]
-        if level != "access":
-            actions.append(("delete", "delete_outline"))
+        actions.append(("remove_access" if level == "access" else "delete", "delete_outline"))
         buttons = []
         for action, icon in actions:
             visible = (
@@ -307,6 +311,31 @@ async def type_administration(*, api, kind, container, languages, active, on_err
                     await page.load()
             elif action == "edit":
                 await edit(row)
+            elif action == "remove_access" and level == "access":
+                version = owner["version"]
+                if not await confirmed("remove_access_confirm", action="remove_access",
+                                       role=label(row), type_name=label(owner)) or not current():
+                    return
+                type_path = f"{root}/{owner['id']}"
+                try:
+                    result = await api.request("PUT", f"{type_path}/role-grants/{identity}",
+                                               headers={"If-Match": str(version)},
+                                               json={"can_see": False, "can_use": False})
+                    owner["version"] = result["version"]
+                except ApiError as error:
+                    if not current():
+                        return
+                    if error.status_code != 412:
+                        ui.notify(on_error(error), color="negative")
+                        return
+                    ui.notify(t("conflict"), color="negative")
+                    try:
+                        owner.update(await api.request("GET", type_path))
+                    except ApiError as refresh_error:
+                        ui.notify(on_error(refresh_error), color="negative")
+                        return
+                if current():
+                    await page.load()
             elif action == "delete":
                 version = (owner or row)["version"]
                 if not await confirmed("delete_confirm") or not current():
@@ -376,14 +405,8 @@ async def type_administration(*, api, kind, container, languages, active, on_err
                 )
                 if level == "access":
                     ui.label(label(row))
-                    see = ui.checkbox(t("see"), value=row["can_see"])
+                    ui.checkbox(t("see"), value=True).disable()
                     use = ui.checkbox(t("use"), value=row["can_use"])
-                    use.on_value_change(
-                        lambda e: see.set_value(True) if e.value else None
-                    )
-                    see.on_value_change(
-                        lambda e: use.set_value(False) if not e.value else None
-                    )
                 else:
                     name = (
                         ui.input(t("name"), value=row.get("name", ""))
@@ -514,7 +537,7 @@ async def type_administration(*, api, kind, container, languages, active, on_err
                         target = path if creating else f"{path}/{row['id']}"
                         if level == "access":
                             target = f"{root}/{owner['id']}/role-grants/{row['id']}"
-                            body = {"can_see": see.value, "can_use": use.value}
+                            body = {"can_see": True, "can_use": use.value}
                         else:
                             stage()
                             body = {

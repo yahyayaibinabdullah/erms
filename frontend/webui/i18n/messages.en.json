@@ -28710,6 +28710,20 @@
     "is_html": false
   },
   {
+    "message_key": "records.collection.drop_files",
+    "context_group": "records.collection",
+    "default_text": "Drop files to create a record",
+    "semantic_meaning": "Overlay on the Records page while dragging files to start one record draft.",
+    "common_locations": [
+      "Records collection"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Drop files to create a record",
+    "is_html": false
+  },
+  {
     "message_key": "relationships.error.access_denied",
     "context_group": "relationships.error",
     "default_text": "You are not authorized to change this relationship.",
@@ -30550,6 +30564,37 @@
     "grammatical_role": "ui_text",
     "parameter_schema": {},
     "rendered_example": "Record types",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.remove_access",
+    "context_group": "resource_types.ui",
+    "default_text": "Remove role access",
+    "semantic_meaning": "Row action and confirmation button for revoking one explicit grant on a resource type.",
+    "common_locations": [
+      "Role access for aggregation and record types"
+    ],
+    "translator_guidance": "Refers to removing the explicit permission on this type. The role itself continues to exist.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Remove role access",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.remove_access_confirm",
+    "context_group": "resource_types.ui",
+    "default_text": "Remove the access grant for {role} on {type_name}?",
+    "semantic_meaning": "Confirmation naming the principal (a role or Everyone) and the affected type.",
+    "common_locations": [
+      "Role access for aggregation and record types"
+    ],
+    "translator_guidance": "Refers to removing the explicit permission on this type. The role itself continues to exist.",
+    "grammatical_role": "confirmation question",
+    "parameter_schema": {
+      "role": "text",
+      "type_name": "text"
+    },
+    "rendered_example": "Remove the access grant for Personnel Officer on Employee File?",
     "is_html": false
   },
   {

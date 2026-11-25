@@ -1385,8 +1385,8 @@ class ErmsApiClient:
     async def component_indexing_status(self, component_id: int) -> dict[str, Any]:
         return await self.request("GET", f"/api/v1/digital-components/{component_id}/indexing-status")
 
-    async def create_record_draft(self) -> dict[str, Any]:
-        return await self.request("POST", "/api/v1/record-drafts", json={})
+    async def create_record_draft(self, *, medium=None) -> dict[str, Any]:
+        return await self.request("POST", "/api/v1/record-drafts", json={"medium": medium} if medium else {})
 
     async def update_record_draft(self, draft_id: int, payload: dict[str, Any]) -> dict[str, Any]:
         return await self.request("PATCH", f"/api/v1/record-drafts/{draft_id}", json=payload)
@@ -1426,12 +1426,15 @@ class ErmsApiClient:
 
     async def create_records_from_file_drop(
         self, aggregation_id: int, files, *, separate_records: bool, creator_acl_role_id: int,
-        title: str | None = None,
+        title: str | None = None, type_id=None, field_values=None, record_field_values=None,
     ) -> int:
         result = await self.request(
             "POST", f"/api/v1/aggregations/{aggregation_id}/records/file-drop",
             data={"separate_records": str(separate_records).lower(), "creator_acl_role_id": str(creator_acl_role_id),
-                  **({"title": title} if title is not None else {})},
+                  **({"title": title} if title is not None else {}),
+                  **({"type_id": str(type_id)} if type_id is not None else {}),
+                  **({"field_values": json.dumps(field_values)} if field_values is not None else {}),
+                  **({"record_field_values": json.dumps(record_field_values)} if record_field_values is not None else {})},
             files=[("files", (name, content, mime_type or "application/octet-stream"))
                    for name, content, mime_type in files],
             timeout=660,

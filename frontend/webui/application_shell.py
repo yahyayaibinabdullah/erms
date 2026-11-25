@@ -334,6 +334,7 @@ def build_drawer(initial_direction: str) -> DrawerControls:
 
 @dataclass(frozen=True)
 class ContentControls:
+    add_group: Any
     add_button: Any
     add_record_button: Any
     aggregation_browse_mode: Any
@@ -366,7 +367,10 @@ def build_content() -> ContentControls:
                     title = ui.label().classes("text-2xl font-semibold")
                 subtitle = ui.label().classes("text-sm text-slate-500")
             with ui.row().classes("items-center no-wrap gap-2 flex-none"):
-                add_button = ui.button(render_message("webui.index.button.add_5cee7302"), icon="add", color="primary").props("unelevated rounded")
+                # QBtnGroup supplies its own row class. Keep DOM order in the document direction.
+                with ui.button_group().props("unelevated rounded").style("flex-direction: row") as add_group:
+                    add_button = ui.button(render_message("webui.index.button.add_5cee7302"), icon="add", color="primary").props("unelevated rounded")
+                add_group.bind_visibility_from(add_button, "visible")
                 add_record_button = ui.button(
                     render_message("webui.index.button.add_record_fc8125c4"), icon="note_add", color="secondary"
                 ).props("unelevated rounded")
@@ -400,6 +404,7 @@ def build_content() -> ContentControls:
     page_title_icon.set_visibility(False)
 
     return ContentControls(
+        add_group=add_group,
         add_button=add_button,
         add_record_button=add_record_button,
         aggregation_browse_mode=aggregation_browse_mode,

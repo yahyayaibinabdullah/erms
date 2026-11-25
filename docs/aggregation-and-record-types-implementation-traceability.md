@@ -67,3 +67,24 @@ Phase 0 evidence is recorded in the [baseline report](verification/aggregation-r
 ## Approved Phase 2 audit scenario
 
 ART-10, ART-15, ART-17 and ART-18 cover history after reassignment. An authorized auditor may identify both types in the transition. Each side’s record or aggregation values require current See on that side. This preserves an intelligible chronology while protecting instance data, including which choice the user selected. Verify ordinary UPDATE snapshots and the type-metadata event through both entity history and the system audit view. Exercise See on B alone, subsequent grant and revocation on A, governance clearance and denied resource access. [Approved rule and example](../specs/aggregation-and-record-types.md#historical-values-after-reassignment--approved-19-november-2026)
+
+### Creation and reassignment regressions
+
+| Scenario | Verification |
+|---|---|
+| Collection Add, translated type shortcut and editable initial assignment | The focused Chromium `creation-buttons` scope checks both languages, both kinds, standalone corners, split-button placement, hover and the editors opened by each action. Shared form tests check the submitted payloads |
+| Add, edit or remove roles, including Everyone | The focused Chromium `type-role-removal` scope checks multi-selection across pages, automatic read-only See, independent Use settings, deselection and re-selection, editing, and confirmed removal in both languages and both type catalogues |
+| Aggregation drop with one eligible creator role | Drop interaction tests cover immediate creation without usable types, review with usable types, and cancellation before upload |
+| Separate typed records | Multipart API tests cover distinct field maps for duplicate filenames, required-field rollback and revoked Use |
+| Files dropped on Records | Chromium checks one untyped draft, staged files, the suggested title and cancellation in English and Arabic. The assembled Records test selects a destination, commits the draft and checks the saved components in order |
+| Files dropped into an open draft on an aggregation | Chromium checks that the native uploader stages the component on that draft and that the drop does not submit a separate record-creation request |
+| Existing record or aggregation changes from A to B | API tests cover authorization on both sides, confirmation, stale versions, snapshots, redaction and full-text freshness. The Chromium resource-types scope exercises cancel and confirm through each resource editor |
+
+The 23 November 2026 large-data rerun used 51,003 aggregations, 153,009
+records and 182 usable types of each kind. Across three rounds, the one-row
+availability probes took 9.1–10.4 ms for aggregations and 7.0–7.9 ms for
+records. The first and second 25-item menu pages took 10.9–14.2 ms and
+7.9–8.5 ms respectively. All 240 type UI samples and all 237 structured
+search samples met the existing three-second limit. The slowest structured
+search took 2.7463 seconds. Reproduce with
+`tools/check_search_performance.py --type-ui`.

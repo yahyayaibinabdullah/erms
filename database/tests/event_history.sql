@@ -1,6 +1,22 @@
 
 BEGIN;
 
+-- Exercise truncation before fixture writes queue deferred constraint triggers.
+DO $$
+BEGIN
+    BEGIN
+        -- Include FK dependents so PostgreSQL reaches the immutability trigger.
+        TRUNCATE event_history CASCADE;
+        RAISE EXCEPTION 'event history TRUNCATE was accepted';
+    EXCEPTION
+        WHEN raise_exception THEN
+            IF SQLERRM <> 'event history is immutable' THEN
+                RAISE;
+            END IF;
+    END;
+END;
+$$;
+
 INSERT INTO org_units(code,name)
 VALUES ('PHASE2-SEGMENT','Event history test unit');
 
@@ -94,15 +110,6 @@ BEGIN
             END IF;
     END;
 
-    BEGIN
-        TRUNCATE event_history;
-        RAISE EXCEPTION 'event history TRUNCATE was accepted';
-    EXCEPTION
-        WHEN raise_exception THEN
-            IF SQLERRM <> 'event history is immutable' THEN
-                RAISE;
-            END IF;
-    END;
 END;
 $$;
 

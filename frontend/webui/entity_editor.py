@@ -48,7 +48,7 @@ def build_entity_editor(
         row: dict[str, Any] | None = None, on_saved=None,
         initial_values: dict[str, Any] | None = None,
         locked_fields: set[str] | None = None,
-        resource_key: str | None = None,
+        resource_key: str | None = None, initial_type=None,
     ) -> None:
         resolved_resource = resource_key or {
             "aggregation-details": "aggregations",
@@ -110,7 +110,7 @@ def build_entity_editor(
         if row and spec.key == "aggregations" and row.get("date_closed") is None:
             lock_aggregation_close_field(editor_capabilities, effective_locked_fields)
         if creating and spec.key == "records":
-            await open_record_draft_editor()
+            await open_record_draft_editor(**({'initial_type': initial_type} if initial_type is not None else {}))
             return
         lookup_options: dict[str, dict[int, str]] = {}
         lookup_rows_by_field: dict[str, list[dict[str, Any]]] = {}
@@ -179,7 +179,9 @@ def build_entity_editor(
                 singular=editor_entity,
             )).classes("text-xl font-semibold")
             ui.label(render_message("webui.open_editor.label.required_fields_73ed8b5b")).classes("text-xs text-slate-500 -mt-2")
-            typed = MetadataForm(api, spec.key[:-1], row) if spec.key in {"aggregations","records"} else None
+            typed = MetadataForm(api, spec.key[:-1], row, initial_type=initial_type) if spec.key in {"aggregations","records"} else None
+            if typed and creating:
+                typed.jump_button()
             with ui.column().classes("w-full gap-3"):
                 if typed:
                     ui.label(type_label("primary")).classes("text-base font-semibold")

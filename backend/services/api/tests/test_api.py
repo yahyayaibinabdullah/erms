@@ -1329,7 +1329,8 @@ def test_browser_native_image_preview_preserves_mime_type_and_is_audited(client:
         viewed = next(item for item in scoped.json() if item["operation"] == "CONTENT_VIEWED")
         assert viewed["entity_id"] == identifier
         assert viewed["title"] and viewed["number"]
-        assert set(viewed) == {"entity_type", "entity_id", "operation", "occurred_at", "title", "number"}
+        assert viewed["created_by"] == "Test Administrator"
+        assert set(viewed) == {"entity_type", "entity_id", "operation", "occurred_at", "title", "number", "created_by"}
 
 
 def test_upload_size_limit(client: TestClient, record: dict, monkeypatch):

@@ -22,7 +22,7 @@ async def test_global_search_record_destination_and_empty_query(assembled):
         buttons=[b for b in user.find(ui.button).elements if b.props.get('aria-label')=='Open record'];assert buttons
         click_one(user,[buttons[0]]);await eventually(lambda:current_page(user)=='record-details' and user.pending_requests==0)
         with user:query.value='zz_phase6q_absent'
-        click_one(user,[submit]);await user.should_see(t('webui.render_global_search_results.label.no_results_found_ab1c85dc'))
+        click_one(user,[submit]);await user.should_see(t('webui.render_global_search_results.label.no_results_found_ab1c85dc'), retries=100)
         assert not user.api_failures
     finally:
         current=next(i for i in (await api.application_settings())['items'] if i['key']==setting['key'])

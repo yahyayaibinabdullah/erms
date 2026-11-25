@@ -1,8 +1,11 @@
 """One ordered multipart request and transaction for an aggregation file drop."""
+import asyncio
+
 from nicegui import ui
 from nicegui.element import Element
 
 from .api_client import ApiError
+from .type_controls import MetadataForm, base
 from .i18n_catalogue import render_message
 
 
@@ -72,7 +75,10 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
                         "title": first_filename if confirm_title else None, "confirmed": False,
                         "order": list(range(count))}
         try:
-            roles = await self.api.creation_role_options()
+            roles, usable = await asyncio.gather(
+                self.api.creation_role_options(),
+                self.api.request("GET", base("record") + "/options", params={"access": "use", "limit": 1}),
+            )
         except ApiError as error:
             self.clear()
             if self.active():
@@ -89,10 +95,18 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
             return
         if len(eligible) == 1:
             self.pending["role"] = next(iter(eligible))
-            if not confirm_title:
+            if not confirm_title and not usable:
                 self.pending["confirmed"] = True
                 self.run_method("upload")
                 return
+        separate = count > 1 and event.args["separate"]
+        if usable and (not isinstance(filenames, list) or len(filenames) != count
+                       or any(not isinstance(name, str) or not name.strip() for name in filenames)):
+            self.clear()
+            return
+        if filenames is not None:
+            self.pending["filenames"] = filenames
+        typed = MetadataForm(self.api, "record", filenames=filenames if separate else ()) if usable else None
         submitted = False
         dialog = ui.dialog()
         selector = title_input = None
@@ -109,6 +123,12 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
             nonlocal submitted
             if submitted or not self.active() or not self.pending or not valid():
                 return
+            if typed:
+                try:
+                    self.pending["metadata"] = typed.payload()
+                except ValueError as error:
+                    ui.notify(str(error), color="warning")
+                    return
             submitted = True
             if selector is not None:
                 self.pending["role"] = selector.value
@@ -119,6 +139,11 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
             self.run_method("upload")
 
         with dialog, ui.card().classes("w-[600px] max-w-full"):
+            if typed:
+                ui.label(render_message("aggregation_file_drop.create_records" if separate else "aggregation_file_drop.create_record")).classes("text-lg font-semibold")
+                ui.label(" · ".join(filter(None, (self.aggregation.get("aggregation_number"), self.aggregation.get("title")))))
+                if len(eligible) == 1:
+                    ui.label(render_message("webui.open_record_draft_editor.select.create_for_857b2d59") + " · " + next(iter(eligible.values())))
             if confirm_title:
                 title_input = ui.input(label=render_message("entity_metadata.field.title") + " *",
                                        value=first_filename).props("outlined").classes("w-full")
@@ -177,6 +202,10 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
                                     button.set_enabled(0 <= index + step < count)
                                     controls.append(button)
                                 rows[index] = (row, badge, *controls)
+            if typed:
+                if not separate and not confirm_title:
+                    ui.label(filenames[0]).classes("font-semibold break-all").props("dir=auto")
+                await typed.render()
             if len(eligible) > 1:
                 selector = ui.select(eligible, label=render_message("webui.open_record_draft_editor.select.create_for_857b2d59")).props("outlined").classes("w-full")
             with ui.row().classes("w-full justify-end gap-2", remove="row"):
@@ -201,14 +230,15 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
             return
         self.saving = True
         try:
-            if len(event.names) != pending["count"]:
+            if (len(event.names) != pending["count"]
+                    or ("filenames" in pending and list(event.names) != pending["filenames"])):
                 ui.notify(render_message("aggregation_file_drop.upload_failed"), color="negative", close_button=True)
                 return
             files = list(zip(event.names, event.contents, event.types, strict=True))
             count = await self.api.create_records_from_file_drop(
                 self.aggregation["id"], [files[index] for index in pending["order"]],
                 separate_records=pending["separate"], creator_acl_role_id=pending["role"],
-                title=pending["title"],
+                title=pending["title"], **pending.get("metadata", {}),
             )
             if self.active():
                 ui.notify(render_message("aggregation_file_drop.created", count=count), color="positive")

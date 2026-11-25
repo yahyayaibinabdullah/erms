@@ -5,10 +5,11 @@ from typing import Any, Callable
 def build_aggregation_toolbar(
     *, aggregation_state, open_aggregation, open_editor, open_record_draft_editor,
 ):
-    async def add_for_current_context() -> None:
+    async def add_for_current_context(initial_type=None) -> None:
+        options = {'initial_type': initial_type} if initial_type is not None else {}
         current = aggregation_state.get("aggregation_detail")
         if not current:
-            await open_editor()
+            await open_editor(**options)
             return
 
         async def refresh_parent(_: dict[str, Any]) -> None:
@@ -17,11 +18,12 @@ def build_aggregation_toolbar(
         await open_editor(
             initial_values={"parent_aggregation_id": current["id"]},
             locked_fields={"parent_aggregation_id"},
-            on_saved=refresh_parent, resource_key="aggregations",
+            on_saved=refresh_parent, resource_key="aggregations", **options,
         )
 
 
-    async def add_record_for_current_aggregation() -> None:
+    async def add_record_for_current_aggregation(initial_type=None) -> None:
+        options = {'initial_type': initial_type} if initial_type is not None else {}
         current = aggregation_state.get("aggregation_detail")
         if current is None:
             return
@@ -30,7 +32,7 @@ def build_aggregation_toolbar(
             await open_aggregation(current, refresh_contents=True)
 
         await open_record_draft_editor(
-            target_aggregation_id=current["id"], on_committed=refresh_parent,
+            target_aggregation_id=current["id"], on_committed=refresh_parent, **options,
         )
 
 

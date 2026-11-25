@@ -32,7 +32,7 @@ def roles(n):
 
 @pytest.mark.parametrize('number_roles,separate', [(1, True),(1, False),(3, True),(3, False)])
 async def test_drop_uses_one_atomic_request_and_only_eligible_role_choices(user, number_roles, separate):
-    api = SimpleNamespace(creation_role_options=AsyncMock(return_value=roles(number_roles)),
+    api = SimpleNamespace(request=AsyncMock(return_value=[]), creation_role_options=AsyncMock(return_value=roles(number_roles)),
                           create_records_from_file_drop=AsyncMock(return_value=2 if separate else 1))
     committed = AsyncMock()
     state = {}
@@ -81,7 +81,7 @@ async def test_drop_uses_one_atomic_request_and_only_eligible_role_choices(user,
 
 @pytest.mark.parametrize('failure', ['physical','owner','upload','api','abandoned'])
 async def test_drop_failures_do_not_refresh_or_save_partial_batches(user, failure):
-    api = SimpleNamespace(creation_role_options=AsyncMock(return_value=[] if failure=='owner' else roles(1)),
+    api = SimpleNamespace(request=AsyncMock(return_value=[]), creation_role_options=AsyncMock(return_value=[] if failure=='owner' else roles(1)),
                           create_records_from_file_drop=AsyncMock(side_effect=ApiError(422,'Rejected')))
     active = [True]
     committed = AsyncMock()
@@ -142,7 +142,7 @@ async def test_one_eligible_choice_only_requires_combined_title_confirmation(use
         dict(role_id=20,org_unit_id=1,label='Owning unit role'),
         dict(role_id=30,org_unit_id=3,label='Another unit role'),
     ]
-    api = SimpleNamespace(creation_role_options=AsyncMock(return_value=effective_roles),
+    api = SimpleNamespace(request=AsyncMock(return_value=[]), creation_role_options=AsyncMock(return_value=effective_roles),
                           create_records_from_file_drop=AsyncMock(return_value=file_count if separate else 1))
     committed=AsyncMock();state={}
     @ui.page('/drop-one-eligible')
@@ -176,7 +176,7 @@ async def test_one_eligible_choice_only_requires_combined_title_confirmation(use
 @pytest.mark.parametrize('number_roles', [1, 3])
 @pytest.mark.parametrize('action', ['edit', 'reorder', 'cancel', 'dismiss', 'abandon'])
 async def test_combined_title_requires_confirmation_and_preserves_files(user, number_roles, action):
-    api = SimpleNamespace(creation_role_options=AsyncMock(return_value=roles(number_roles)),
+    api = SimpleNamespace(request=AsyncMock(return_value=[]), creation_role_options=AsyncMock(return_value=roles(number_roles)),
                           create_records_from_file_drop=AsyncMock(return_value=1))
     committed = AsyncMock(); state = {}; active = [True]
     @ui.page('/confirm-title')
@@ -259,7 +259,7 @@ async def test_reorder_many_files_preserves_duplicate_names_and_distinct_content
         seen['files']=[(name,content.read(),mime) for name,content,mime in files]
         seen['title']=kwargs['title']
         return 1
-    api=SimpleNamespace(creation_role_options=AsyncMock(return_value=roles(1)),
+    api=SimpleNamespace(request=AsyncMock(return_value=[]), creation_role_options=AsyncMock(return_value=roles(1)),
                         create_records_from_file_drop=AsyncMock(side_effect=create))
     state={}
     @ui.page('/many-files')
@@ -291,3 +291,26 @@ async def test_reorder_many_files_preserves_duplicate_names_and_distinct_content
     assert seen['files']==[(names[i],f'bytes-{i}'.encode(),'application/pdf') for i in order]
     assert seen['title']=='same.pdf'
     assert all(content.closed for content in contents)
+
+
+@pytest.mark.parametrize("count,separate", [(1, True), (2, True), (2, False)])
+async def test_one_role_and_usable_type_always_review_before_upload(user, count, separate):
+    api = SimpleNamespace(request=AsyncMock(return_value=[{"id": 41, "name": "Invoice"}]),
+                          creation_role_options=AsyncMock(return_value=roles(1)))
+    @ui.page("/typed-drop")
+    def page():
+        with ui.column() as host:
+            target = AggregationFileDrop(page=host, aggregation={"id": 7, "owning_org_unit_id": 1},
+                                        api=api, active=lambda: True, on_committed=AsyncMock(), error_message=str)
+            target.set_enabled(True)
+    await user.open("/typed-drop")
+    target = next(e for e in user.client.elements.values() if isinstance(e, AggregationFileDrop))
+    target.run_method = Mock()
+    with user:
+        await target.choose_role(SimpleNamespace(args={"count": count, "separate": separate,
+                                                       "filenames": ["a.pdf", "b.pdf"][:count]}))
+    target.run_method.assert_not_called()
+    await user.should_see(t("resource_types.ui.type") + " · " + t("resource_types.ui.unset"))
+    user.find(t("common.action.cancel")).click()
+    await asyncio.sleep(.05)
+    assert target.pending is None

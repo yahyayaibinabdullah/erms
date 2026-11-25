@@ -733,6 +733,18 @@ def test_bulk_drop_and_draft_apply_type_before_writing(client, aggregation, cata
     )
     rows = ok(client.get("/api/v1/records"))
     assert all(r["type_id"] == t and r["field_values"] == {str(field): 0} for r in rows)
+    # Filename order identifies the owner, even when the two filenames are identical.
+    files = [("files", ("duplicate.txt", content, "text/plain")) for content in (b"one", b"two")]
+    def by_file(values, **extra):
+        return drop(client, aggregation, files=files, data={"type_id": str(t),
+                    "record_field_values": json.dumps(values), **extra})
+    for invalid in ([{str(field): 11}, {}], [], {}, [1, 2]):
+        assert by_file(invalid).status_code == 422
+    assert len(ok(client.get("/api/v1/records"))) == 2
+    assert ok(by_file([{str(field): 11}, {str(field): 22}]), 201)["count"] == 2
+    created_batch = sorted((r for r in ok(client.get("/api/v1/records")) if r["title"] == "duplicate.txt"),
+                           key=lambda r: r["id"])
+    assert [r["field_values"] for r in created_batch] == [{str(field): 11}, {str(field): 22}]
     draft = ok(
         client.post(
             "/api/v1/record-drafts",
@@ -776,6 +788,7 @@ def test_bulk_drop_and_draft_apply_type_before_writing(client, aggregation, cata
             denied.status_code == 403
             and denied.json()["detail"]["code"] == "insufficient_type_access"
         )
+        assert by_file([{str(field): 11}, {str(field): 22}]).status_code == 403
         assert c.execute(counts).fetchone() == before
 
 

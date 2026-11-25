@@ -53,16 +53,22 @@ each record in drop order and enforce uniqueness at save.
 currently effective roles to the aggregation's owning organizational unit.
 With exactly one eligible choice, use that role and its direct organizational
 unit, even if the user has other effective roles in other units. For a single
-file or **Create separate records**, save automatically. For multi-file
+file or **Create separate records**, save automatically only when the caller has no usable record types. For multi-file
 **Create one record with all files**, show the editable **Title** and reorderable file
 list and require confirmation as specified in AFD-2.
 
 With multiple eligible choices, require **Create for** selection. For
 multi-file **Create one record with all files**, show **Title**, the reorderable file
 list and **Create for** together in the same dialog; for the other drop cases, show
-only **Create for**. Submit with **Create record** when creating one record
+**Create for** and the optional type section when available. Submit with **Create record** when creating one record
 or **Create records** when creating several. With no eligible choice, deny
 creation. The selection applies to the entire drop.
+
+If a usable record type exists, review before uploading. Start untyped. The
+creator can choose a type, complete its fields, or cancel. For separate
+records, repeat the selected type’s fields for each filename in drop order.
+Duplicate filenames represent distinct records. A missing required value,
+a revoked grant or a component failure rejects the whole batch.
 
 Every new record inherits the aggregation’s owning organizational unit.
 **Create for** lists the user’s currently effective roles that belong directly
@@ -130,7 +136,7 @@ the submitted filter, if any. Disable the control on the last page.
   that several files dropped there create no records. Test the single target
   and both multi-file targets with one and multiple effective roles.
   With multiple effective roles but exactly one eligible owning-unit choice,
-  verify automatic creation without a dialog for a single file and **Create
+  with no usable record type verify automatic creation without a dialog for a single file and **Create
   separate records**. For multi-file **Create one record with all files**,
   verify a title-and-file-order confirmation dialog with that role assigned
   automatically. With several eligible choices, require selection and show

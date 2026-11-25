@@ -1,4 +1,5 @@
 from __future__ import annotations
+from .type_creation import creation_shortcut
 from .message_live_state import new_message_live_state
 from .messaging_controller import build_messaging_controller
 from .message_stream import build_message_stream
@@ -1318,6 +1319,17 @@ def index(q: str = "") -> None:
         }
         html[dir="rtl"] .erms-page-title-row {
             direction: rtl; flex-direction: row !important;
+        }
+        /* QBtnGroup's rounded prop uses physical corners even in a mirrored row. */
+        html[dir="rtl"] .creation-button-group > .q-btn:first-child:not(:last-child) {
+            border-radius: 0;
+            border-start-start-radius: inherit;
+            border-end-start-radius: inherit;
+        }
+        html[dir="rtl"] .creation-button-group > .q-btn:last-child:not(:first-child) {
+            border-radius: 0;
+            border-start-end-radius: inherit;
+            border-end-end-radius: inherit;
         }
         .erms-content { max-width: 1540px; margin: 0 auto; }
         .erms-card {
@@ -3041,8 +3053,8 @@ def index(q: str = "") -> None:
     open_aggregation = build_aggregation_details(
         add_button=add_button,
         add_record_button=add_record_button,
-        add_child=lambda: add_for_current_context(),
-        add_record=lambda: add_record_for_current_aggregation(),
+        add_child=lambda initial_type=None: add_for_current_context(initial_type),
+        add_record=lambda initial_type=None: add_record_for_current_aggregation(initial_type),
         add_resource_to_hold_dialog=lambda *args, **kwargs: add_resource_to_hold_dialog(*args, **kwargs),
         aggregation_mode_bar=aggregation_mode_bar,
         aggregation_state=aggregation_state,
@@ -3105,6 +3117,8 @@ def index(q: str = "") -> None:
     )
 
     render_table = build_collection_table(
+        records_drop_page=content_card.parent_slot.parent,
+        open_record_draft_editor=lambda **kwargs: open_record_draft_editor(**kwargs),
         RELATIONSHIP_DISPLAY_FIELDS=RELATIONSHIP_DISPLAY_FIELDS,
         add_timestamp_slots=lambda *args, **kwargs: add_timestamp_slots(*args, **kwargs),
         api=api,
@@ -3469,6 +3483,7 @@ def index(q: str = "") -> None:
     )
 
     select_entity, refresh_personal_sections = build_collection_navigation(
+        refresh_creation_types=lambda: refresh_creation_types(),
         add_button=add_button,
         add_record_button=add_record_button,
         aggregation_mode_bar=aggregation_mode_bar,
@@ -4025,8 +4040,16 @@ def index(q: str = "") -> None:
     )
 
 
-    add_button.on("click", add_for_current_context)
-    add_record_button.on("click", add_record_for_current_aggregation)
+    def collection_type_context():
+        resource = state.get("resource")
+        if add_button.visible and resource in {"records", "aggregations"}:
+            return resource[:-1], resource
+        return None
+
+    with content_controls.add_group:
+        refresh_creation_types = creation_shortcut(api, collection_type_context, add_for_current_context, error_message, direction=lambda: current_direction["value"])
+    add_button.on("click", lambda: add_for_current_context())
+    add_record_button.on("click", lambda: add_record_for_current_aggregation())
     search_button.on("click", lambda: load_rows())
     search_input.on("keydown.enter", lambda: load_rows())
     async def clear_collection_search() -> None:

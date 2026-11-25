@@ -22,6 +22,204 @@ def seed_language():
             CROSS JOIN generate_series(1,32) n""")
 
 
+def check_role_access_removal(page):
+    def t(key):
+        return page.t("resource_types.ui." + key)
+
+    for language in ("en", "ar"):
+        if page.language != language:
+            page.settings()
+            page.language_change(language)
+        for kind in ("aggregation", "record"):
+            with page.check(kind + " role access removal, cancellation and remaining grants"):
+                root = "/api/v1/" + kind + "-types"
+                name = f"Role access {kind} {language}"
+                response = page.api.post(root, json={"name": name})
+                response.raise_for_status()
+                owner = response.json()
+                path = f"{root}/{owner['id']}"
+                roles = page.api.get(path + "/role-options", params={"scope": "available", "q": "picker-32"}).json()
+                role = roles["items"][0]
+                def grants(scope):
+                    return {r["id"] for r in page.api.get(path + "/role-options", params={
+                        "scope": scope, "limit": 100}).json()["items"]}
+
+                page.activate(page.one("button.erms-nav-link", t(kind + "_catalogue")))
+                owner_row = page.wait.until(lambda _: next((r for r in page.visible(".erms-page-table tbody tr")
+                                                            if name in r.text), None))
+                page.click(t("access"), scope=owner_row)
+                policy = page.one(".q-dialog__inner > .q-card")
+                everyone = page.t("webui.render_principals.label.everyone_8d69f084")
+                page.click(t("add"), scope=policy)
+                picker = page.wait.until(lambda _: next((card for card in page.visible(".q-dialog__inner > .q-card")
+                                                        if card != policy), None))
+
+                def checkbox(name, control):
+                    row = page.wait.until(lambda _: next((r for r in page.visible(".erms-page-table tbody tr", picker)
+                                                         if name in r.text), None))
+                    return page.one("[role=checkbox]", t(control), scope=row)
+
+                page.activate(checkbox(everyone, "select"))
+                assert checkbox(everyone, "see").get_attribute("aria-checked") == "true"
+                assert checkbox(everyone, "use").get_attribute("aria-checked") == "false"
+                page.click(page.t("relationships.ui.next"), scope=picker)
+                named = role["name"]
+                assert checkbox(named, "use").get_attribute("aria-disabled") == "true"
+                for selected_state in (True, False, True):
+                    page.activate(checkbox(named, "select"))
+                    see = checkbox(named, "see")
+                    assert see.get_attribute("aria-checked") == str(selected_state).lower()
+                    assert see.get_attribute("aria-disabled") == "true"
+                    if selected_state:
+                        use = checkbox(named, "use")
+                        assert use.get_attribute("aria-checked") == "false"
+                        page.activate(use)
+                page.click(page.t("relationships.ui.previous"), scope=picker)
+                assert checkbox(everyone, "select").get_attribute("aria-checked") == "true"
+                assert checkbox(everyone, "use").get_attribute("aria-checked") == "false"
+                if kind == "record":
+                    page.capture("add-roles-" + language)
+                page.click(t("add") + " (2)", scope=picker)
+                page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 1)
+                for role_label, identity in [(role["name"], role["id"]), (everyone, "everyone")]:
+                    original = grants("granted")
+                    row = page.wait.until(lambda _: next((r for r in page.visible(".erms-page-table tbody tr", policy)
+                                                         if role_label in r.text), None))
+                    page.click(t("edit"), scope=row)
+                    editor = page.wait.until(lambda _: next((card for card in page.visible(".q-dialog__inner > .q-card")
+                                                            if card != policy and role_label in card.text), None))
+                    see = page.one("[role=checkbox]", t("see"), scope=editor)
+                    assert see.get_attribute("aria-checked") == "true"
+                    assert see.get_attribute("aria-disabled") == "true"
+                    page.activate(page.one("[role=checkbox]", t("use"), scope=editor))
+                    page.click(t("save"), scope=editor)
+                    page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 1)
+                    saved = page.api.get(path + "/role-options", params={"scope": "granted"}).json()["items"]
+                    edited = next(grant for grant in saved if grant["id"] == identity)
+                    assert edited["can_see"] and edited["can_use"] == (identity == "everyone")
+                    for confirm in (False, True):
+                        row = page.wait.until(lambda _: next((r for r in page.visible(".erms-page-table tbody tr", policy)
+                                                             if role_label in r.text), None))
+                        page.click(t("remove_access"), scope=row)
+                        prompt = page.wait.until(lambda _: next((card for card in page.visible(".q-dialog__inner > .q-card")
+                                                                if card != policy and role_label in card.text and name in card.text), None))
+                        if kind == "record" and identity == role["id"] and not confirm:
+                            page.capture("remove-role-access-" + language)
+                        page.click(t("remove_access") if confirm else t("cancel"), scope=prompt)
+                        page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 1)
+                        if confirm:
+                            page.wait.until(lambda _: role_label not in policy.text)
+                        assert grants("granted") == (original - {identity} if confirm else original)
+                    assert identity in grants("available")
+                page.click(t("close"), scope=policy)
+                page.wait.until(lambda _: not page.visible(".q-dialog__inner > .q-card"))
+
+
+def check_creation_buttons(page):
+    for language in ("en", "ar"):
+        if language != page.language:
+            page.settings()
+            page.language_change(language)
+        with page.check("Add has four rounded corners when there are no usable types"):
+            for kind in ("record", "aggregation"):
+                before = len(page.events())
+                page.drawer(kind + "s")
+                page.one(".erms-page-title-row", page.t("navigation.item." + kind + "s"))
+                path = "/api/v1/" + kind + "-types/options"
+                page.wait.until(lambda _: any(e["path"] == path and e["status"] == 200
+                                              for e in page.events()[before:]))
+                button = page.button(page.t("webui.index.button.add_5cee7302"), page.one(".erms-content"))
+                corners = page.driver.execute_script("""
+                    const style = getComputedStyle(arguments[0]);
+                    return [style.borderTopLeftRadius, style.borderTopRightRadius,
+                            style.borderBottomLeftRadius, style.borderBottomRightRadius].map(parseFloat);
+                """, button)
+                assert min(corners) > 0 and len(set(corners)) == 1, corners
+                assert not page.visible(".erms-content button[aria-haspopup=menu]")
+                if kind == "record":
+                    page.capture("add-without-types-" + language)
+
+    for kind in ("aggregation", "record"):
+        owner = page.api.post("/api/v1/" + kind + "-types", json={
+            "name": "Employee file", "translations": {"ar": {"name": "ملف الموظف"}},
+        })
+        owner.raise_for_status()
+
+    for lang, owner_label in (("en", "Employee file"), ("ar", "ملف الموظف")):
+        if lang != page.language:
+            page.settings()
+            page.language_change(lang)
+        for kind in ("aggregation", "record"):
+            with page.check(kind + " Add opens an untyped editor and its type menu opens a typed editor"):
+                check_split_button(page, kind, lang, owner_label)
+
+
+def check_split_button(page, kind, lang, owner_label):
+    from selenium.webdriver.common.action_chains import ActionChains
+
+    def t(key):
+        return page.t("resource_types.ui." + key)
+
+    def dialog():
+        return page.one(".q-dialog__inner > .q-card")
+
+    page.drawer(kind + "s")
+    # Both collection entry points use the same editor for shortcuts.
+    page.one(".erms-page-title-row", page.t("navigation.item." + kind + "s"))
+    cancel = page.t("webui.open_record_draft_editor.button.cancel_draft_84ea17b5"
+                    if kind == "record" else "webui.open_editor.button.cancel_c07bff03")
+    page.click(page.t("webui.index.button.add_5cee7302"), scope=page.one(".erms-content"))
+    default_form = dialog()
+    type_section = page.one(".type-metadata-section", scope=default_form)
+    assert page.button(t("type") + " · " + t("unset"), scope=type_section).is_enabled()
+    page.click(cancel, scope=default_form)
+    page.wait.until(lambda _: not page.visible(".q-dialog__inner > .q-card"))
+    arrow = page.one('button[aria-haspopup=menu][aria-label="' + t(kind + "_catalogue") + '"]',
+                     scope=page.one(".erms-content"))
+    primary_x, arrow_x = page.driver.execute_script("""
+        const arrow=arguments[0], primary=arrow.closest('.q-btn-group').querySelector('button');
+        return [primary.getBoundingClientRect().x, arrow.getBoundingClientRect().x];
+    """, arrow)
+    assert (primary_x < arrow_x) == (lang == "en")
+    # Quasar's default group styles round physical corners. In RTL
+    # this can round the seam while leaving both outside edges square.
+    corners = page.driver.execute_script("""
+        const buttons = [...arguments[0].closest('.q-btn-group').querySelectorAll('button')];
+        return buttons.map(button => {
+            const css = getComputedStyle(button);
+            return [css.borderStartStartRadius, css.borderStartEndRadius].map(parseFloat);
+        });
+    """, arrow)
+    assert corners[0][0] > 0 and corners[0][1] == 0, corners
+    assert corners[1][0] == 0 and corners[1][1] > 0, corners
+    ActionChains(page.driver).move_to_element(arrow).perform()
+    page.one(".q-tooltip", t(kind + "_catalogue"))
+    page.activate(arrow)
+    item = page.one(".q-menu .q-item", owner_label)
+    edge = "right" if lang == "en" else "left"
+
+    def menu_aligned(_):
+        return page.driver.execute_script("""
+            const [trigger, item, edge] = arguments;
+            const button = trigger.getBoundingClientRect();
+            const menu = item.closest('.q-menu').getBoundingClientRect();
+            const width = document.documentElement.clientWidth;
+            return Math.abs(menu[edge] - button[edge]) < 2
+                && Math.abs(menu.top - button.bottom) < 2
+                && menu.left >= 0 && menu.right <= width;
+        """, arrow, item, edge) and not page.visible(".q-tooltip")
+
+    page.wait.until(menu_aligned, "The type list must open inward below Add with its choices unobstructed")
+    if kind == "aggregation":
+        page.capture("add-type-menu-" + lang)
+    page.activate(item)
+    create_dialog = dialog()
+    create_section = page.one(".type-metadata-section", scope=create_dialog)
+    page.wait.until(lambda _: owner_label in create_section.text)
+    page.click(cancel, scope=create_dialog)
+    page.wait.until(lambda _: not page.visible(".q-dialog__inner > .q-card"))
+
+
 def check_types(page):
     from selenium.webdriver.common.keys import Keys
 
@@ -506,8 +704,9 @@ def check_types(page):
                     page.wait.until(one_matching_row)
 
                 assert not page.button(t("add") + " (0)", picker).is_enabled()
-                toggle_box(everyone, "see")
+                toggle_box(everyone, "select")
                 page.click(page.t("relationships.ui.next"), scope=picker)
+                toggle_box(named, "select")
                 toggle_box(named, "use")
                 page.wait.until(lambda _: box(named, "see").get_attribute("aria-checked") == "true")
                 filter_roles(picker, everyone, everyone)
@@ -518,8 +717,9 @@ def check_types(page):
                 filter_roles(picker, code_fragment, named)
                 toggle_box(named, "use")
                 assert box(named, "see").get_attribute("aria-checked") == "true"
-                toggle_box(named, "see")
+                toggle_box(named, "select")
                 page.button(t("add") + " (1)", picker)
+                toggle_box(named, "select")
                 toggle_box(named, "use")
                 page.capture("types-" + kind + "-role-picker-" + lang)
                 page.click(t("add") + " (2)", scope=picker)
@@ -534,11 +734,9 @@ def check_types(page):
                 page.capture(f"types-{kind}-role-access-{lang}")
                 filter_roles(policy, code_fragment, named)
                 filter_roles(policy, everyone, everyone)
-                row_action("edit", everyone, policy)
+                row_action("remove_access", everyone, policy)
                 page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2)
-                grant = dialog()
-                page.activate(page.one("[role=checkbox]", t("see"), scope=grant))
-                action("save", grant)
+                action("remove_access", dialog())
                 page.wait.until(lambda _: everyone not in policy.text)
                 filter_roles(policy, code_fragment, named)
                 assert row(named, policy).text.count(t("yes")) == 2
@@ -595,7 +793,7 @@ def check_types(page):
                 kind
                 + " metadata renders below primary metadata and the existing editor uses a dropdown"
             ):
-                page.drawer(kind + "s")
+                check_split_button(page, kind, lang, owner_label)
                 page.fill(
                     page.t(
                         "webui.index.input.search_by_number_title_or_description_e21ed520"
@@ -667,6 +865,24 @@ def check_types(page):
                 page.wait.until(
                     lambda _: not page.visible(".q-dialog__inner > .q-card")
                 )
+
+        with page.check("Records page drop stages two files in one untyped draft before choosing a destination"):
+            page.drawer("records")
+            page.wait.until(lambda _: page.driver.find_elements("css selector", ".erms-content .record-component-drop-target"))
+            page.driver.execute_script("""
+                const transfer = new DataTransfer();
+                for (const file of ['supplier-renewal-agreement.txt', 'supplier-renewal-summary.txt'])
+                    transfer.items.add(new File([file], file, {type: 'text/plain'}));
+                document.querySelector('.erms-content .erms-card').dispatchEvent(
+                    new DragEvent('drop', {bubbles:true, cancelable:true, dataTransfer:transfer}));
+            """)
+            draft = dialog()
+            page.wait.until(lambda _: page.field(page.t("entity_metadata.field.title") + " *").get_attribute("value") == "Supplier renewal")
+            page.wait.until(lambda _: page.button(page.t("webui.open_record_draft_editor.button.create_record_dd0193d6"), draft).is_enabled())
+            page.wait.until(lambda _: all(name in draft.text for name in ("supplier-renewal-agreement.txt", "supplier-renewal-summary.txt")))
+            assert t("unset") in page.one(".type-metadata-section", scope=draft).text
+            page.click(page.t("webui.open_record_draft_editor.button.cancel_draft_84ea17b5"), scope=draft)
+            page.wait.until(lambda _: not page.visible(".q-dialog__inner > .q-card"))
 
         if lang == "en":
             with page.check(
@@ -774,3 +990,40 @@ def check_types(page):
                     ],
                 )
             )
+
+    for kind, resource, number in (("record", records.json(), "TYPED-001"), ("aggregation", root, "TEST-AGG")):
+        with page.check(kind + " reassignment through the metadata editor confirms before replacing stored values"):
+            path = f"/api/v1/{kind}s/{resource['id']}"
+            before = page.api.get(path).json()
+            replacement = page.api.post(f"/api/v1/{kind}-types", json={"name": "Replacement"}).json()
+            page.drawer(kind + "s")
+            page.fill(page.t("webui.index.input.search_by_number_title_or_description_e21ed520"), number)
+            page.click(page.t("webui.index.button.search_4d02b714"), scope=page.one(".erms-shared-control.items-end"))
+            page.activate(page.one(f'button[aria-label="Open {kind}"]', scope=page.one(".compact-result-item")))
+            page.click(page.t("resource_details.details"), scope=page.one(".resource-detail-header"))
+            page.click(page.t("webui.select_record_details.button.edit_metadata_d7742b94" if kind == "record"
+                              else "webui.open_aggregation.button.edit_metadata_3ee4d255"), scope=dialog())
+            page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2)
+            for confirm in (False, True):
+                section = page.one(".type-metadata-section", scope=dialog())
+                page.click(t("type") + " · " + owner_label, scope=section)
+                page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 3)
+                picker = dialog()
+                page.activate(page.one("[role=checkbox]", scope=row("Replacement", picker)))
+                page.click(t("select"), scope=picker)
+                page.see(t("discard"))
+                page.click(page.t("disposition.ui.continue") if confirm else t("cancel"), scope=dialog())
+                page.wait.until(lambda _: (("Replacement" if confirm else owner_label) in section.text
+                                           and len(page.visible(".q-dialog__inner > .q-card")) == 2))
+                assert page.api.get(path).json()["field_values"] == before["field_values"]
+            page.click(page.t("webui.open_editor.button.save_46081ed6"), scope=dialog())
+            page.wait.until(lambda _: page.api.get(path).json()["type_id"] == replacement["id"])
+            assert page.api.get(path).json()["field_values"] == {}
+            # Saving rebuilds the details view. Close the refreshed dialog after
+            # its new type is visible, including when the old dialog disappears first.
+            page.wait.until(lambda _: any(
+                "Replacement" in section.text
+                for section in page.visible(".resource-details-dialog .type-metadata-section")
+            ))
+            page.driver.find_element("tag name", "body").send_keys(Keys.ESCAPE)
+            page.wait.until(lambda _: not page.visible(".q-dialog__backdrop"))

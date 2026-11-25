@@ -54,8 +54,19 @@ async def test_destination_typeahead_is_bounded_and_does_not_preload():
 def test_ordinary_record_medium_remains_editable_in_mixed_parent(editor_client):
     control = ui.select({'digital':'Digital','mixed':'Mixed','physical':'Physical'}, value='mixed')
     scope = dict(controls={'medium':control,'aggregation_id':SimpleNamespace(value=1)},
-                 aggregations_by_id={1:{'medium':'mixed'}},existing_capture_draft=None,
+                 aggregations_by_id={1:{'medium':'mixed'}},existing_capture_draft=None, dropped=None,
                  medium_options=lambda:{'digital':'Digital','mixed':'Mixed','physical':'Physical'})
     callback('constrain_record_medium', scope)()
     assert control.value == 'mixed' and control.enabled
     assert set(control.options) == {'digital','mixed','physical'}
+
+@pytest.mark.parametrize(("parent", "options"), [(None, {"digital"}), ("digital", {"digital"}), ("mixed", {"digital", "mixed"})])
+def test_collection_drop_medium_before_and_after_destination(editor_client, parent, options):
+    control = ui.select({"digital": "Digital"}, value="digital")
+    scope = dict(controls={"medium": control, "aggregation_id": SimpleNamespace(value=3)},
+                 aggregations_by_id={3: {"medium": parent}} if parent else {},
+                 existing_capture_draft=None, dropped=True,
+                 medium_options=lambda: {"digital": "Digital", "mixed": "Mixed", "physical": "Physical"})
+    callback("constrain_record_medium", scope)()
+    assert control.value == "digital"
+    assert set(control.options) == options

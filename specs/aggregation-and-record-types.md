@@ -221,8 +221,8 @@ Each type defines two allow-only role grants:
 | **Who can see this type** | View resources of this type and reference the type or its fields in Advanced Search conditions and sorting |
 | **Who can use this type** | Create, edit, delete, or otherwise mutate resources of this type |
 
-Use requires See for the same role. Selecting Use also selects See; removing
-See requires removing Use. The server enforces this invariant. An empty See
+Use requires See for the same role. Removing See also removes Use.
+The server enforces this invariant. An empty See
 list grants no ordinary visibility; an empty Use list grants no ordinary
 mutation authority. Governance bypass is defined in section 7.4.
 
@@ -230,12 +230,18 @@ The **Role access** dialog lists configured grants. **Add** opens a server-paged
 directory of all principals still available, including Everyone. Both the
 configured-grants table and the picker support case-insensitive substring
 searches across role codes, names and translated names before pagination.
-Everyone is searchable by its name and translations. An administrator can choose See for one
-role and See and Use for another in the same dialog. Selections survive paging,
+Everyone is searchable by its name and translations. The administrator selects
+one or more roles using the **Select** column. Each selected row automatically
+shows **See** checked and read-only. **Use** is enabled for selected rows and
+starts unchecked. Deselecting a role clears its pending permissions. Selections survive paging,
 sorting and new searches. Add saves the entire selection in one version-checked
 transaction so a stale policy or an unavailable role cannot leave a partially
-applied change. Cancel discards all pending selections. To remove an existing
-grant, edit its row and clear See. Other grants are preserved. Existing types
+applied change. Cancel discards all pending selections. Each configured row,
+including Everyone, has a **Remove role access** action. Confirmation names
+the principal and the type. Confirming revokes that grant and makes the
+principal available in **Add** again. In **Edit**, See is checked and read-only
+because it is the minimum permission for a configured grant. Only Use can be
+changed. Existing types
 acquire no Everyone grant on upgrade. [Role access guide](../docs/security-authorization-operations.md#configure-access-to-aggregation-and-record-types)
 
 Everyone matches an authenticated account that has passed the effective-role
@@ -441,6 +447,34 @@ fields. Use bounded searchable selectors and existing pagination conventions;
 never place every type-specific field into one combined dropdown. Creation
 selectors offer usable types; search selectors offer visible types. UI
 filtering reflects server decisions and does not replace their enforcement.
+
+### 8.1 Creation shortcuts and file drops
+
+The main Add action opens the existing creation form with the type unset. Its
+adjacent arrow offers translated types the caller can Use. Align the menu
+below the trailing edge of Add (right in English, left in Arabic) and keep
+the choices clear of the button tooltip. When there are no eligible types,
+show the ordinary standalone Add button with both ends rounded. Larger catalogues remain reachable through the
+searchable, paginated picker. Selecting a type opens the same form with its
+fields and static defaults. A header shortcut leads to the type section. The
+creator can select, change or clear the type before saving. Changing it
+preserves primary metadata and staged files and confirms discarding entered
+type-specific values. A child opened from an aggregation keeps its fixed parent.
+
+Apply this convention to the Aggregations and Records collections and the
+child-aggregation and record actions on an aggregation. Existing creation
+authority still controls each action. The server checks current Use at save.
+
+A Records-page file drop opens one editable, initially untyped draft for the
+whole drop. The creator selects a destination and confirms creation. On an
+aggregation, the destination and digital medium are already known. Offer a
+type review when the caller can Use any record type. For separate records,
+one type applies to the batch and each file has its own field values. An
+invalid record prevents the entire batch from committing. Dropping on an
+open record or its draft adds components to that record.
+
+[Aggregation drop rules](aggregation-file-drop.md) ·
+[Records-page drop rules](dashboard-records-and-creation.md#4-drag-and-drop-record-creation)
 
 ## 9. Search
 

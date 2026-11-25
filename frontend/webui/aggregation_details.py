@@ -18,6 +18,7 @@ from .retention_timeline import render_retention_stages
 from datetime import timezone
 from nicegui import ui
 from .creator_labels import render_creator_name
+from .type_creation import creation_shortcut
 from .aggregation_file_drop import AggregationFileDrop
 from .aggregation_recent_activity import AggregationRecentActivity
 from .type_controls import MetadataForm, t as type_label
@@ -886,8 +887,10 @@ def build_aggregation_details(
                                 ui.label(render_message("webui.open_aggregation.label.child_aggregations_cd3bce3a")).classes("text-sm font-semibold")
                                 child_count = ui.badge(color="blue-2", text_color="blue-10").props("rounded")
                                 child_count.set_visibility(False)
-                            add_child_control = ui.button(render_message("webui.open_aggregation.text.add_child_aggregation_13879ca9"),
-                                                          icon="add", on_click=add_child).props("flat dense no-caps").classes("max-w-full text-start")
+                            with ui.button_group().props("flat").style("flex-direction: row") as add_child_control:
+                                ui.button(render_message("webui.open_aggregation.text.add_child_aggregation_13879ca9"),
+                                    icon="add", on_click=lambda: add_child()).props("flat dense no-caps").classes("max-w-full text-start")
+                                refresh_add_child = creation_shortcut(api, lambda: ("aggregation", identifier) if active() and add_child_control.visible else None, add_child, error_message, direction=lambda: current_direction["value"], flat=True)
                             add_child_control.set_visibility(False)
                         child_host = ui.column().classes("w-full px-3 py-2 gap-2")
                     with ui.grid().classes("w-full grid-cols-1 gap-4 items-start lg:grid-cols-3"):
@@ -899,8 +902,10 @@ def build_aggregation_details(
                                     ).classes("text-sm font-semibold")
                                     record_count = ui.badge(color="blue-2", text_color="blue-10").props("rounded")
                                     record_count.set_visibility(False)
-                                add_record_control = ui.button(render_message("webui.index.button.add_record_fc8125c4"),
-                                                               icon="note_add", on_click=add_record).props("flat dense no-caps").classes("max-w-full text-start")
+                                with ui.button_group().props("flat").style("flex-direction: row") as add_record_control:
+                                    ui.button(render_message("webui.index.button.add_record_fc8125c4"),
+                                        icon="note_add", on_click=lambda: add_record()).props("flat dense no-caps").classes("max-w-full text-start")
+                                    refresh_add_record = creation_shortcut(api, lambda: ("record", identifier) if active() and add_record_control.visible else None, add_record, error_message, direction=lambda: current_direction["value"], flat=True)
                                 add_record_control.set_visibility(False)
                             with ui.row().classes("items-center w-full px-3 pt-2 gap-2", remove="row").style("flex-wrap: wrap"):
                                 record_filter = ui.input(
@@ -1130,6 +1135,8 @@ def build_aggregation_details(
                             set_default_trigger=set_details_trigger,
                             format_timestamp=format_timestamp, render_actions=render_actions,
                         )
+
+                    await asyncio.gather(refresh_add_child(), refresh_add_record())
 
                 await asyncio.gather(load_header(), load_children(child_page_state.get(identifier, 1)),
                                      load_records(page_state.get("page", 1)), activity.load())

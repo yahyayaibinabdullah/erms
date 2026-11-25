@@ -112,3 +112,57 @@ def test_display_order_respects_the_current_last_position(typed, position):
 def test_invalid_metadata_literals_cannot_be_submitted(dtype, invalid):
     with pytest.raises(ValueError):
         literal(dtype, invalid)
+
+
+@pytest.mark.parametrize("kind", ["record", "aggregation"])
+def test_create_shortcut_is_an_editable_initial_assignment(kind):
+    form = MetadataForm(None, kind, initial_type=9)
+    assert form.payload() == {"type_id": 9, "field_values": {}}
+    form.selected = None
+    assert form.payload() == {}
+
+
+def test_separate_drop_validates_and_keeps_values_for_each_file():
+    form = MetadataForm(None, "record", initial_type=3, filenames=["a.txt", "b.txt"])
+    form.definitions = {"1": {"name": "Amount", "data_type": "integer", "required": True, "default": None, "max_length": None}}
+    form.batch_changes[0]["1"] = 3
+    with pytest.raises(ValueError, match="b.txt.*Amount"):
+        form.payload()
+    form.batch_changes[1]["1"] = 7
+    assert form.payload() == {"type_id": 3, "record_field_values": [{"1": 3}, {"1": 7}]}
+
+
+@pytest.mark.parametrize(("files", "expected"), [
+    (["supplier-renewal-agreement.pdf", "Supplier_Renewal_summary.docx"], "Supplier renewal"),
+    (["scan-001.pdf", "scan-002.pdf"], ""),
+    (["lease.pdf", "minutes.pdf"], ""),
+    (["محضر_اجتماع.pdf"], "محضر اجتماع"),
+    (["FY24.board-notes.pdf"], "FY24 board notes"),
+])
+def test_records_collection_drop_title(files, expected):
+    from frontend.webui.record_collection_drop import suggested_title
+    assert suggested_title(files) == expected
+
+
+@pytest.mark.asyncio
+async def test_retry_of_staged_file_with_lost_response_keeps_one_component(monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock, Mock
+    from frontend.webui.api_client import ApiError
+    from frontend.webui.record_collection_drop import DraftDrop
+
+    draft = DraftDrop(Mock(), [{"name": "same.pdf", "size": 3, "type": "application/pdf"}])
+    staged = []
+    async def upload(api, draft_id, index):
+        staged.append({"component_order": draft.position, "file_name": "same.pdf", "size_in_bytes": 3})
+        raise ApiError(503, "Acknowledgement lost")
+    api = SimpleNamespace(draft_components=AsyncMock(side_effect=lambda _: list(staged)))
+    transfer = AsyncMock(side_effect=upload)
+    monkeypatch.setattr(draft, "upload_file", transfer)
+    refresh = AsyncMock()
+    await draft.stage(api, 7, refresh, Mock(), str)
+    assert draft.queue == [0] and draft.failure == "Acknowledgement lost"
+    await draft.stage(api, 7, refresh, Mock(), str)
+    assert draft.queue == [] and draft.failure is None
+    assert len(staged) == transfer.await_count == 1
+    refresh.assert_awaited_once()
