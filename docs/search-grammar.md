@@ -115,6 +115,56 @@ SQL wildcard characters. Null checks are accepted only for nullable fields.
 Datetime values must be ISO 8601 timestamps with a timezone, such as
 `2026-09-14T10:00:00Z`.
 
+An explicit type condition or type-field sort requires **See** on that type.
+An administrator can grant See to a named effective role or to **Everyone**.
+For example, sharing a saved search for Employee File does not grant its
+recipient See. A recipient with Everyone See can open the definition and run
+the search, subject to the remaining authorization gates. After revocation,
+the shared search stays listed and opening or running it requires another
+qualifying grant or the existing governance bypass. General searches and
+later pages always check current visibility before returning resources.
+
+A `full_text` condition with `"sources": ["metadata"]` also searches the resource’s stored type-specific **text** values. The header search includes that same source. For example, entering `"signed agreement"` as a quoted phrase can find it in a contract’s text field. In a record result it counts as a metadata match. An aggregation can show the matching words in its snippet. Choice labels, numbers, booleans and dates use structured criteria. A new search sees committed edits immediately. Paging rechecks the current criteria and permissions against the submitted list.
+
+## Type-specific criteria and sort keys
+
+Record and aggregation searches use the same field strings in a condition and a sort. `type_id` compares the assigned type. `type.12.field.45` identifies field 45 owned by type 12, in the resource kind selected by the endpoint. The numbers are stable database IDs. Fetch eligible types, then fields and choices, from that kind’s paged options endpoints. Catalogue labels may be translated or renamed.
+
+For example, this record query finds digital invoices with an amount of at least 500, or digital contracts with a selected priority. The invoice amount sorts first, in descending order. Contracts have no invoice amount and follow the populated invoices. The explicit ID key orders ties.
+
+```json
+{
+  "where": {
+    "and": [
+      {"field": "medium", "operator": "eq", "value": "digital"},
+      {"or": [
+        {"field": "type.12.field.45", "operator": "gte", "value": "500.00"},
+        {"field": "type.19.field.63", "operator": "eq", "value": 104}
+      ]}
+    ]
+  },
+  "sort": [
+    {"field": "type.12.field.45", "direction": "desc"},
+    {"field": "id", "direction": "asc"}
+  ],
+  "limit": 25
+}
+```
+
+| Criterion | Matches |
+| --- | --- |
+| `type_id eq 12` | Resources assigned type 12 |
+| `type_id is_null` | Untyped resources |
+| `type.12.field.45 is_null` | Type 12 resources without a stored value for field 45 |
+| `type.12.field.45 ne 0` | Type 12 resources with a populated, nonzero value |
+| `not` around `type.12.field.45 eq 0` | Every otherwise-visible resource outside the set matched by that condition, including untyped resources |
+
+Use equality, inequality, membership and null operators for every field kind. Text also supports the existing case-insensitive text operators. Integer, decimal, date and datetime support comparisons and `between`. Dates use calendar dates and datetimes require an offset. Exact decimal strings are accepted. Single-choice operands are positive integer choice IDs belonging to that field.
+
+Populated sort values keep their native order. Choices follow administrator-defined display order. Missing values come last in both directions. Later sort keys apply to ties, including all missing values. Changing choice order rebuilds a cached list from its submitted query on the next page request.
+
+All explicit types, including those in negative conditions and sort keys, require current See. A forbidden reference rejects the request before execution. An unknown or removed type, field or choice produces a validation error. A shared saved-search summary remains listed. Its capabilities and reasons indicate whether it can be opened or executed; its definition is omitted when a reference is restricted. The ordinary definition GET rechecks access. An independently authorized administrator can request inspection with `?inspection=true`. An administrator may rename the saved search or update its audience while preserving the server’s existing definition. Changing its criteria or sort requires See on every explicit type in the proposed query. Execution always uses the caller’s current access. [Saved-search contract](../specs/aggregation-and-record-types.md#92-shared-saved-searches--approved-18-november-2026)
+
 ## Boolean expressions
 
 ### AND

@@ -228,6 +228,8 @@ def build_drawer(initial_direction: str) -> DrawerControls:
             "messages-outbox": render_message("messaging.navigation.outbox"),
             "messages-drafts": render_message("messaging.navigation.drafts"),
             "messages-notifications": render_message("messaging.admin.title"),
+            "aggregation-types": render_message("resource_types.ui.aggregation_catalogue"),
+            "record-types": render_message("resource_types.ui.record_catalogue"),
             "relationship-types": render_message("relationships.ui.catalogue"),
             "messages-monitor": render_message("messaging.monitor.title"),
             "advanced-search": render_message("navigation.item.advanced_search"),
@@ -244,7 +246,7 @@ def build_drawer(initial_direction: str) -> DrawerControls:
                     render_message("navigation.item.dashboard"), navigation_key="dashboard", extra_classes="mt-4",
                 )
                 for heading_key, entries in (
-                    ("records_heading", ("advanced-search", "aggregations", "records", "classification-schemes", "relationship-types")),
+                    ("records_heading", ("advanced-search", "aggregations", "records", "classification-schemes", "aggregation-types", "record-types", "relationship-types")),
                     ("disposition_heading", ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-templates")),
                     ("messages_heading", ("messages-inbox", "messages-outbox", "messages-drafts", "messages-monitor", "messages-notifications")),
                     ("organization_heading", ("org-units", "roles", "users")),
@@ -332,6 +334,7 @@ def build_drawer(initial_direction: str) -> DrawerControls:
 
 @dataclass(frozen=True)
 class ContentControls:
+    add_group: Any
     add_button: Any
     add_record_button: Any
     aggregation_browse_mode: Any
@@ -364,7 +367,10 @@ def build_content() -> ContentControls:
                     title = ui.label().classes("text-2xl font-semibold")
                 subtitle = ui.label().classes("text-sm text-slate-500")
             with ui.row().classes("items-center no-wrap gap-2 flex-none"):
-                add_button = ui.button(render_message("webui.index.button.add_5cee7302"), icon="add", color="primary").props("unelevated rounded")
+                # QBtnGroup supplies its own row class. Keep DOM order in the document direction.
+                with ui.button_group().props("unelevated rounded").style("flex-direction: row") as add_group:
+                    add_button = ui.button(render_message("webui.index.button.add_5cee7302"), icon="add", color="primary").props("unelevated rounded")
+                add_group.bind_visibility_from(add_button, "visible")
                 add_record_button = ui.button(
                     render_message("webui.index.button.add_record_fc8125c4"), icon="note_add", color="secondary"
                 ).props("unelevated rounded")
@@ -398,6 +404,7 @@ def build_content() -> ContentControls:
     page_title_icon.set_visibility(False)
 
     return ContentControls(
+        add_group=add_group,
         add_button=add_button,
         add_record_button=add_record_button,
         aggregation_browse_mode=aggregation_browse_mode,

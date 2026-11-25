@@ -6,7 +6,7 @@ readonly CONTAINER_NAME="${2:?PostgreSQL container name is required}"
 readonly ADMIN_URL="${DATABASE_URL%/*}/postgres"
 readonly RESTORE_DB="erms_authorization_restore_test"
 readonly RESTORE_URL="${DATABASE_URL%/*}/${RESTORE_DB}"
-readonly DUMP_FILE="$(mktemp "${TMPDIR:-/tmp}/erms-auth-backup.XXXXXX.dump")"
+readonly DUMP_FILE="$(mktemp "${TMPDIR:-/tmp}/erms-auth-backup.dump.XXXXXX")"
 
 cleanup() {
     rm -f "${DUMP_FILE}"
@@ -40,12 +40,22 @@ BEGIN
     END IF;
     IF EXISTS (
         SELECT 1 FROM event_history
-        WHERE actor_name IS NULL OR actor_email IS NULL
+        WHERE actor_type='user' AND (actor_name IS NULL OR actor_email IS NULL)
     ) THEN
         RAISE EXCEPTION 'audit actor snapshots incomplete after restore';
     END IF;
 END;
 $$;
 SQL
+
+# Automated seed events can have no email. Compare every actor snapshot
+# with the source to detect a changed, lost or unexpectedly populated value.
+audit_projection="SELECT md5(jsonb_agg(jsonb_build_array(id,actor_user_id,actor_type,actor_name,actor_email) ORDER BY id)::text) FROM event_history"
+before_restore="$(psql "${DATABASE_URL}" --set ON_ERROR_STOP=on -Atc "${audit_projection}")"
+after_restore="$(psql "${RESTORE_URL}" --set ON_ERROR_STOP=on -Atc "${audit_projection}")"
+if [[ -z "${before_restore}" || "${before_restore}" != "${after_restore}" ]]; then
+    echo "Audit actor snapshots differ from the source database" >&2
+    exit 1
+fi
 
 echo "Authorization backup and restore exercise passed."

@@ -21,33 +21,101 @@ provider. See [collation rationale, measured examples and restore guidance](../d
 Existing databases need an explicit rebuild to change their default locale;
 `schema.sql` does not change it.
 
-Create the complete current structure from the canonical schema, then explicitly
-install required reference data and the fresh-install version baseline:
+Run the fresh initializer with the intended database selected in `DATABASE_URL`:
 
 ```bash
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/schema.sql \
-  -f database/seeds/000_required_reference_data.sql \
-  -f database/baseline.sql
+backend/services/api/.venv/bin/python tools/initialize_database.py
 ```
 
-`database/schema.sql` is complete and self-contained **DDL only**. It creates
-each final object once and does not execute or depend on migrations or seeds.
-The required seed contains current built-in settings, languages, permissions,
-profiles and service-role defaults; it creates audit events with source `seeding`.
-`database/baseline.sql` registers the installation’s version. It executes no
-historical migrations. It records which upgrade versions are already included in
-this fresh schema. Both initialization files
-are for fresh installations only; neither reconciles an existing database.
+The installer applies the canonical DDL, required reference data and included migration receipts in one transaction. Any error rolls the installation back. An existing ERMS schema, including one with an empty receipt table, is refused. Existing databases use the numbered upgrades. Investigate missing or mismatched receipts against the corresponding schema and data before making any repair.
 
-The equivalent Python entry point is
-`backend/services/api/.venv/bin/python tools/initialize_database.py`. It refuses
-a database that already contains the application schema.
+For a deployment that uses `psql`, send the same initializer output to a single session:
+
+```bash
+set -o pipefail
+python3 tools/initialize_database.py --print-sql | psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1
+```
+
+`database/schema.sql` remains independently executable DDL. `database/baseline.sql` records the versions included by a fresh installation and requires the initializer’s transaction-local marker. Required seed events use source `seeding`.
 
 See [canonical maintenance and verification](../docs/database-canonical-baseline.md).
 All SQL files contain portable PostgreSQL SQL;
 client meta-commands such as `\\i`, `\\ir`, `\\set`, and `\\copy` are prohibited.
 
 ## Existing database
+
+Apply [migration 125](migrations/125_type_administration_privilege_codes.sql)
+with the updated API and WebUI in the same maintenance window. It renames
+`aggregations.administer` to `aggregation_types.administer` and
+`records.administer` to `record_types.administer` on their existing privilege
+IDs and places both under Administration. Update integrations that check codes
+directly. Existing profile grants still refer to the same IDs. The migration
+carries translations to the new keys and retains the old keys for audit history.
+
+[Migration 124](migrations/124_type_privilege_categories.sql) groups **Administer
+aggregation types** under **Aggregation** and **Administer record types** under
+**Record** in role details and the profile privilege editor.
+
+For a database at version 122, back up the database and apply
+[migration 123](migrations/123_resource_type_everyone.sql) before deploying the
+updated Role access dialog. Each existing row keeps its named role and grants.
+A null role ID represents an explicitly configured Everyone grant. The upgrade
+creates none. The unique constraint permits at most one Everyone grant per type.
+
+For a database at version 121, apply [migration 122](migrations/122_resource_field_positions.sql) before using the updated Fields administration dialog. The migration locks type and field definitions while it numbers fields consecutively within each type, in ascending former display order and then field ID. It updates the version of each affected type so already-open editors detect the change. Existing field IDs and resource values are preserved. Take a restorable backup and quiesce writers for the upgrade. Check the complete receipt and compare field IDs in display order before and after upgrading.
+
+After version 120, apply [migration 121](migrations/121_type_text_search.sql) before deploying the updated API. It installs synchronous indexing for type-specific text and backfills existing records and aggregations that have stored text. The backfill keeps each document's PostgreSQL text configuration and updates its GIN entries in the same transaction. Resources without stored text require no rewrite. Component files and chunks require no re-extraction or reindex.
+
+Schedule the migration during a write maintenance window. It acquires `SHARE ROW EXCLUSIVE` locks on records, aggregations and their type-value tables. Ordinary reads can continue. Resource and field-value writes wait until commit. Allow space for changed metadata rows, GIN entries and WAL. An error rolls back the backfill, trigger definitions and version marker together. Fresh installations get the final definitions from the canonical schema. [Phase 4 measurements](../docs/verification/aggregation-record-types-phase-4.md)
+
+Migration [119](migrations/119_resource_types.sql) installs the aggregation and record type foundation. It leaves existing resources untyped and preserves saved searches. The nullable columns require no resource heap rewrite. The migration builds resource indexes and holds an `ACCESS EXCLUSIVE` lock on both resource tables until commit. Schedule a maintenance interval with capacity for the new indexes and WAL. The measured interval and resource-index growth are recorded in the [Phase 1 upgrade report](../docs/verification/aggregation-record-types-phase-1.md#populated-upgrade). Apply the remaining type migrations before starting the updated API or WebUI.
+
+### Resource type upgrade and recovery
+
+For a database at `118_converted_preview_renditions`, take a restorable pre-upgrade backup or record a verified point-in-time recovery target. Check the complete migration names and confirm disk capacity for the new indexes, temporary index builds, changed search documents and WAL, including retained WAL on replicas. Use the installation’s actual data volume to budget the maintenance window. Keep API writers and background workers quiescent through the upgrade.
+
+Apply the files in order with a connection that stops on the first error. Each file commits its own DDL, data changes and receipt. Run this example only after confirming all three files are pending.
+
+```sh
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 \
+  -f database/migrations/119_resource_types.sql \
+  -f database/migrations/120_resource_type_access.sql \
+  -f database/migrations/121_type_text_search.sql
+```
+
+Migration 119 builds two assignment indexes and two unique resource indexes. Its table locks can also block reads. Migration 120 installs the type authorization functions, audit and write triggers, and default profile grants. Migration 121 holds its write locks until the text backfill commits. After the upgrade, verify the three receipts, valid type indexes and enabled triggers. Check an existing untyped resource and saved search, then check a typed resource as an authorized and a restricted viewer. Refresh planner statistics on the affected tables after a substantial backfill. The release uses the existing service configuration and normal catalogue synchronization. Review and publish new Arabic drafts through Translation Administration.
+
+If a file fails, keep the application quiescent and inspect the error and the complete receipts from a new connection. A committed earlier file remains applied. Resolve the cause and resume at the first pending file after verifying its objects. A disconnected client may have lost a commit acknowledgement, so check the receipt before retrying. If the installation must return to the previous release after a commit, restore the database to the verified recovery point and pair it with the previous application build before reopening writes. Account for any writes made after the recovery point. The fresh-install baseline and manual receipt edits cannot undo committed schema or data changes.
+
+[Final rehearsal and observed space, locks and response times](../docs/verification/aggregation-record-types-phase-6.md)
+
+### Type migration identifiers after PDF integration
+
+The published `118_converted_preview_renditions` identifier is unchanged. Apply
+the type migrations in order: `119_resource_types`, `120_resource_type_access`,
+then `121_type_text_search`. Their SQL object definitions and data changes are
+unchanged by renumbering; only filenames and migration receipt values changed.
+
+| Former feature-branch identifier | Current identifier |
+| --- | --- |
+| `118_resource_types` | `119_resource_types` |
+| `119_resource_type_access` | `120_resource_type_access` |
+| `120_type_text_search` | `121_type_text_search` |
+
+Check the complete `schema_migrations.version` strings before upgrading. A
+database that already applied a former type identifier must not rerun that
+migration's DDL. Reconcile only the affected receipt's `version` to the mapping
+above in a reviewed maintenance transaction, preserving its `id` and
+`applied_at`. Resolve any mixed old/new receipt history before proceeding.
+Renaming repository files does not update existing databases automatically.
+
+Retained verification reports and compressed artifacts record the original
+identifiers, source revisions, hashes and measurements. Those historical
+results have not been rewritten or rerun after renumbering. The current
+upgrade runner starts from published `main` including the PDF migration and
+uses the new type identifiers.
+
+### Earlier storage migration
 
 Migration `112_search_vector_storage.sql` changes the physical storage of file
 search vectors to `MAIN` with LZ4 compression. PostgreSQL must be built with LZ4

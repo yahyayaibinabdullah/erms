@@ -17,6 +17,7 @@ from .organization_editor import configure_role_governance_field
 from .organization_editor import configure_role_profile_field
 from .classification_editor import configure_scheme_field
 from .entity_translation_editor import entity_translation_editor
+from .type_controls import MetadataForm, t as type_label
 from .entity_editor_controls import field_input
 from .entity_editor_controls import form_payload
 from .aggregation_editor import load_aggregation_creation_context
@@ -47,7 +48,7 @@ def build_entity_editor(
         row: dict[str, Any] | None = None, on_saved=None,
         initial_values: dict[str, Any] | None = None,
         locked_fields: set[str] | None = None,
-        resource_key: str | None = None,
+        resource_key: str | None = None, initial_type=None,
     ) -> None:
         resolved_resource = resource_key or {
             "aggregation-details": "aggregations",
@@ -109,7 +110,7 @@ def build_entity_editor(
         if row and spec.key == "aggregations" and row.get("date_closed") is None:
             lock_aggregation_close_field(editor_capabilities, effective_locked_fields)
         if creating and spec.key == "records":
-            await open_record_draft_editor()
+            await open_record_draft_editor(**({'initial_type': initial_type} if initial_type is not None else {}))
             return
         lookup_options: dict[str, dict[int, str]] = {}
         lookup_rows_by_field: dict[str, list[dict[str, Any]]] = {}
@@ -178,7 +179,12 @@ def build_entity_editor(
                 singular=editor_entity,
             )).classes("text-xl font-semibold")
             ui.label(render_message("webui.open_editor.label.required_fields_73ed8b5b")).classes("text-xs text-slate-500 -mt-2")
+            typed = MetadataForm(api, spec.key[:-1], row, initial_type=initial_type) if spec.key in {"aggregations","records"} else None
+            if typed and creating:
+                typed.jump_button()
             with ui.column().classes("w-full gap-3"):
+                if typed:
+                    ui.label(type_label("primary")).classes("text-base font-semibold")
                 if translation_only:
                     ui.label(
                         render_message("webui.select_role_details.label.built_in_roles_are_provisioned_by_the_plat_fefe2800")
@@ -283,6 +289,9 @@ def build_entity_editor(
                     if spec.key == "aggregations" and field.name == "classification_id":
                         configure_aggregation_classification(field, controls, creating, initial_values, row, browse_classification_tree)
 
+                if typed:
+                    await typed.render()
+
                 multilingual_fields = {
                     "classification-schemes": ("title", "description"),
                     "classifications": ("title", "description"),
@@ -365,6 +374,8 @@ def build_entity_editor(
                             await load_rows(repeat_search=True)
                         return
                     payload = form_payload(spec, controls, creating=creating)
+                    if typed:
+                        payload.update(typed.payload())
                     if spec.key == 'aggregations':
                         prepare_aggregation_payload(creating, controls, payload)
                     rule_payload = None

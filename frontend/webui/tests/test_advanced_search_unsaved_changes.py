@@ -12,6 +12,10 @@ SOURCE = ast.parse((Path(__file__).parents[1] / 'advanced_search.py').read_text(
 
 
 def callbacks(*names, **scope):
+    from frontend.webui.advanced_search_model import typed_field_ids
+    scope.setdefault('typed_field_ids', typed_field_ids)
+    scope.setdefault('copy', copy)
+    scope.setdefault('default_limit', 25)
     if 'change_target' in names:
         # Exercise the real shared reset callback, including metadata clearing.
         names = tuple(dict.fromkeys((*names, 'new_condition', 'reset_search')))
@@ -112,7 +116,7 @@ def test_loading_saved_search_clears_previous_execution_and_sets_clean_baseline(
                      record_capabilities={99: {}})
     saved = dict(id=7, name='Saved fixture', definition=dict(resource_type=resource,
                  request=dict(where={'field': 'title', 'operator': 'contains_ci', 'value': 'budget'})))
-    controls = {name: SimpleNamespace(value=None) for name in
+    controls = {name: SimpleNamespace(value=None, options={25: "25", 50: "50"}) for name in
                 ('search_name', 'search_category', 'search_description', 'target',
                  'max_results', 'page_size', 'sort_direction')}
     status = SimpleNamespace(text='previous results')

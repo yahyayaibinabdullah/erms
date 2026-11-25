@@ -103,10 +103,7 @@ for every application feature.
    set -a
    source .env
    set +a
-   "$(brew --prefix postgresql@18)/bin/psql" \
-     "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/schema.sql \
-  -f database/seeds/000_required_reference_data.sql \
-  -f database/baseline.sql
+   backend/services/api/.venv/bin/python tools/initialize_database.py
    ```
 
    For an existing database, inspect `schema_migrations` and apply only missing

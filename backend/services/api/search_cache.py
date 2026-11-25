@@ -200,8 +200,9 @@ def _source(resource, request):
     return source
 
 
-def _statement(resource, request, canonical, display_filter, hits, cap):
+def _statement(resource, request, canonical, display_filter, hits, cap, fields=None):
     """Rank once on submission; on paging restrict all work to the saved IDs."""
+    fields = engine.SEARCH_FIELDS[resource] if fields is None else fields
     sole_expression = request.where
     while sole_expression is not None:
         children = sole_expression.and_ or sole_expression.or_
@@ -241,7 +242,7 @@ def _statement(resource, request, canonical, display_filter, hits, cap):
     where_parameters = []
     if request.where is not None:
         clause, where_parameters = engine._compile_expression(
-            request.where, engine.SEARCH_FIELDS[resource], resource=resource, depth=1,
+            request.where, fields, resource=resource, depth=1,
             condition_counter=[0], batch_permissions=True, full_text_predicate=predicate,
         )
         clauses.append(clause)
@@ -302,11 +303,16 @@ def _statement(resource, request, canonical, display_filter, hits, cap):
         sorts = []
         for item in canonical['sort']:
             field = item['field']
+            if field.startswith("type."):
+                sorts.append(engine.type_search.sort_sql(field, item["direction"]))
+                continue
             term = score if field == '_relevance' else sql.SQL('resource.{}').format(sql.Identifier(field))
             if display_filter is not None and field != '_relevance' and engine.SEARCH_FIELDS[resource][field].type is engine.FieldType.TEXT:
                 term = sql.SQL('lower({})').format(term)
             sorts.append(sql.SQL('{} {}').format(term, sql.SQL(item['direction'].upper())))
         order = sql.SQL(', ').join(sorts)
+        sort_source = _source(resource, request) + engine.type_search.sort_joins(
+            resource, (item["field"] for item in canonical["sort"]), fields)
         ranking_candidates = 'matched'
         if leaves and all(item['field'] != '_relevance' for item in canonical['sort']):
             # With a field sort, relevance cannot affect membership/order. Match
@@ -316,7 +322,7 @@ def _statement(resource, request, canonical, display_filter, hits, cap):
             ranking_candidates = 'score_candidates'
             prefix.append(sql.SQL('''score_candidates AS MATERIALIZED (
                 SELECT resource.id FROM {} JOIN matched ON matched.id=resource.id ORDER BY {} LIMIT %s
-            )''').format(_source(resource, request), order))
+            )''').format(sort_source, order))
             parameters.append(cap + 1)
         if leaves:
             scores, values = _scores(resource, leaves, ranking_candidates)
@@ -326,7 +332,7 @@ def _statement(resource, request, canonical, display_filter, hits, cap):
             SELECT resource.id,{} AS score,row_number() OVER (ORDER BY {}) AS ordinal
             FROM {} JOIN {} matched ON matched.id=resource.id {}
             ORDER BY {} LIMIT %s
-        )''').format(score, order, _source(resource, request), sql.Identifier(ranking_candidates), join_scores, order))
+        )''').format(score, order, sort_source, sql.Identifier(ranking_candidates), join_scores, order))
         parameters.append(cap + 1)
     else:
         prefix.append(sql.SQL('ranked AS MATERIALIZED (SELECT saved.* FROM saved JOIN matched USING(id))'))
@@ -339,14 +345,14 @@ def _project_page(resource, request, prefix, parameters, cap):
         summary AS (SELECT count(*) AS total,LEAST(%s / %s,GREATEST(count(*)-1,0) / %s) * %s AS page_offset FROM capped),
         page AS MATERIALIZED (SELECT * FROM capped ORDER BY ordinal LIMIT %s OFFSET (SELECT page_offset FROM summary))'''))
     parameters.extend((cap, min(request.offset, cap-1), request.limit, request.limit, request.limit, request.limit))
-    statement = sql.SQL('''WITH RECURSIVE {} SELECT resource.*,page.score AS _fts_relevance,
+    statement = sql.SQL('''WITH RECURSIVE {} SELECT resource.*, assignment.type_id,page.score AS _fts_relevance,
         CASE WHEN page.id IS NOT DISTINCT FROM (SELECT id FROM page ORDER BY ordinal LIMIT 1)
              THEN (SELECT jsonb_agg(jsonb_build_object('id',id,'score',score) ORDER BY ordinal) FROM capped)
         END AS _cache_hits,
         (SELECT count(*)>%s FROM ranked) AS _cache_truncated,
         summary.total AS _cache_total,summary.page_offset AS _cache_offset
         FROM summary LEFT JOIN page ON true LEFT JOIN {} resource ON resource.id=page.id
-        ORDER BY page.ordinal''').format(sql.SQL(', ').join(prefix), sql.Identifier(f'authorized_{resource}_for_search'))
+        LEFT JOIN {} assignment ON assignment.id=page.id ORDER BY page.ordinal''').format(sql.SQL(', ').join(prefix), sql.Identifier(f'authorized_{resource}_for_search'), sql.Identifier(resource))
     parameters.append(cap)
     return statement, parameters
 
@@ -369,13 +375,14 @@ def cached_search_rows(connection, resource, request, *, session_id, user_id, en
     leaves = engine._full_text_leaves(request.where)
     if leaves and not settings['FULL_TEXT_SEARCH_ENABLED']:
         raise HTTPException(status_code=503, detail={'code': 'full_text_search_disabled'})
-    canonical = engine.canonicalize_search_request(connection, resource, request)
+    fields, sort_versions = engine.search_fields(connection, resource, request)
+    canonical = engine.canonicalize_search_request(connection, resource, request, fields=fields)
     canonical.pop('offset', None)
     canonical.pop('limit', None)
     cap = min(max_results or settings['SEARCH_RESULT_LIMIT'], settings['SEARCH_RESULT_LIMIT'])
     idle = settings['GLOBAL_SEARCH_CACHE_IDLE_MINUTES']
     fingerprint = hashlib.sha256(json.dumps(
-        [resource, endpoint, canonical, display_filter, cache_version, cap, idle,
+        [resource, endpoint, canonical, display_filter, cache_version, cap, idle, *sort_versions,
          settings.versions['SEARCH_RESULT_LIMIT'], settings.versions['GLOBAL_SEARCH_CACHE_IDLE_MINUTES']],
         sort_keys=True, separators=(',', ':'), ensure_ascii=False,
     ).encode()).hexdigest()
@@ -393,7 +400,7 @@ def cached_search_rows(connection, resource, request, *, session_id, user_id, en
             # Expiry, a crash of the UNLOGGED table, replacement by another
             # screen, or changed settings all rebuild the submitted criteria.
             # A foreign user's token never selects their list; it is a miss.
-    statement, parameters = _statement(resource, request, canonical, display_filter, hits, cap)
+    statement, parameters = _statement(resource, request, canonical, display_filter, hits, cap, fields)
     rows = connection.execute(statement, parameters, prepare=False).fetchall()
     row = rows[0]
     saved_hits, total, offset = row['_cache_hits'] or [], row['_cache_total'], row['_cache_offset']

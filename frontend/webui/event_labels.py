@@ -6,6 +6,7 @@ Unknown historical/integration codes remain visible verbatim.
 from .i18n_catalogue import render_message
 
 EVENT_MESSAGE_KEYS = {
+    'TYPE_METADATA_CHANGED': 'audit.event.type_metadata_changed',
     'FINAL_COMPLETE': 'audit.event.final_completion_recorded',
     'DIGITAL_CERTIFICATE_SAVED': 'audit.event.disposition_document_saved',
     'CERTIFICATE_TASK_COMPLETED': 'audit.event.certificate_task_completed',

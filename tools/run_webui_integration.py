@@ -68,7 +68,7 @@ def main():
     parser.add_argument('--fixed-fixture', action='store_true',
                         help='Use dated synthetic records, paged branches and published Arabic for browser baselines')
     parser.add_argument('--browser', choices=['chrome', 'edge', 'firefox', 'safari'])
-    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'collection-paging', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'], default='full',
+    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'resource-types', 'creation-buttons', 'type-role-removal', 'relationships', 'audit', 'collections', 'collection-paging', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'], default='full',
                         help='Subset runs supplement, rather than replace, full browser acceptance')
     parser.add_argument('--maildev', action='store_true',
                         help='Verify local SMTP delivery through the repository-managed MailDev instance')
@@ -198,6 +198,8 @@ def main():
                     f'seed(browser=True, contextual_acls={args.browser_scope == "security"})'
                 )
                 environment['DATABASE_DISPLAY_NAME'] = 'WebUI regression fixture'
+            if args.browser_scope in {'resource-types', 'type-role-removal'}:
+                seed_command += '; from tools.webui_browser_resource_types import seed_language; seed_language()'
             if args.browser_scope in {'disposition', 'application'}:
                 seed_command += '; from tools.seed_webui_disposition import seed as seed_disposition; seed_disposition()'
             result['fixture'] = 'fixed-v1' if args.fixed_fixture else ('settings-preview' if args.preview else 'assembled-v1')

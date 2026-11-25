@@ -27,7 +27,11 @@ def test_seeded_catalogue_profiles_and_existing_role_backfill(client: TestClient
         "messaging.user_messages.exchange", "messaging.monitor",
         "messaging.notifications.administer",
     }
-    assert len(set(privileges) - separately_seeded) == 64
+    type_privileges = {"aggregation_types.administer", "record_types.administer"}
+    assert type_privileges <= set(privileges)
+    assert all(privileges[code]["category"] == "administration" for code in type_privileges)
+    assert {"aggregations.administer", "records.administer"}.isdisjoint(privileges)
+    assert len(set(privileges) - separately_seeded) == 66
     assert {"relationships.link", "relationships.administer", "app.settings.manage", "disposition.jobs.manage"} <= set(privileges)
     assert privileges["localization.administer"]["is_reserved"] is True
     assert {
@@ -59,6 +63,7 @@ def test_seeded_catalogue_profiles_and_existing_role_backfill(client: TestClient
         )
         assert profile_members.status_code == 200
         member_codes = {item["code"] for item in profile_members.json()}
+        assert type_privileges <= member_codes
         assert "holds.held_items.manage_all" in member_codes
         assert "holds.administer" not in member_codes
         assert {"record.component.reindex","search.query.debug"} <= member_codes
@@ -68,6 +73,8 @@ def test_seeded_catalogue_profiles_and_existing_role_backfill(client: TestClient
     assert {"record.component.reindex","search.query.debug","localization.administer","profile.modify_metadata"} <= {
         item["code"] for item in system_members
     }
+
+    assert type_privileges.isdisjoint(item["code"] for item in system_members)
 
     role = client.get("/api/v1/roles/1")
     assert role.status_code == 200

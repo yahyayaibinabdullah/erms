@@ -14,6 +14,7 @@ async def entity_translation_editor(
     api: Any, *, resource: str, row: dict, fields: tuple[str, ...],
     languages: list[dict], dialog: Any, uses_external_reason: bool,
     get_external_reason: Callable, error_message: Callable, show_api_error: Callable,
+    definition_translations: dict | None = None,
 ) -> Callable:
     language_options = {
         item["language_tag"]: f'{item["native_name"]} · {item["english_name"]}'
@@ -50,7 +51,7 @@ async def entity_translation_editor(
         for control in translation_controls.values():
             control.disable()
         translation_reason = (
-            None if uses_external_reason else ui.input(
+            None if uses_external_reason or definition_translations is not None else ui.input(
                 render_message("webui.open_editor.input.reason_for_translation_change_82d24ea1")
             ).props("outlined dense").classes("w-full")
         )
@@ -68,7 +69,18 @@ async def entity_translation_editor(
             "entity_translation_editor.status.loaded"
         )
 
+        def stage_definition_translation():
+            tag = translation_state["loaded_language"]
+            if definition_translations is not None and tag:
+                values = {field: (control.value or "").strip() for field, control in translation_controls.items()}
+                if values != translation_state["baseline"]:
+                    if any(values.values()):
+                        definition_translations[tag] = {field: value for field, value in values.items() if value}
+                    else:
+                        definition_translations.pop(tag, None)
+
         async def load_entity_translation() -> None:
+            stage_definition_translation()
             language = language_control.value
             if not language:
                 ui.notify(render_message("webui.load_entity_translation.notify.choose_a_language_049998ee"), color="warning")
@@ -85,14 +97,18 @@ async def entity_translation_editor(
                 control.disable()
                 control.update()
             try:
-                current = await api.entity_translation(resource, row["id"], language)
+                if definition_translations is None:
+                    current = await api.entity_translation(resource, row["id"], language)
+                else:
+                    current = {"fields": definition_translations.get(language, {})}
                 if (
                     load_generation != translation_state["load_generation"]
                     or language_control.value != language
                 ):
                     return
                 translation_state["loaded_language"] = language
-                row["version"] = current["version"]
+                if definition_translations is None:
+                    row["version"] = current["version"]
                 for field, control in translation_controls.items():
                     control.value = current["fields"].get(field) or ""
                     control.enable()
@@ -118,6 +134,9 @@ async def entity_translation_editor(
             str, dict[str, str], str
         ] | None:
             language = language_control.value
+            if definition_translations is not None:
+                stage_definition_translation()
+                return None
             entered_values = {
                 field: (control.value or "").strip()
                 for field, control in translation_controls.items()
@@ -152,6 +171,12 @@ async def entity_translation_editor(
             language = language_control.value
             if not language or translation_state["loaded_language"] != language:
                 ui.notify(render_message("webui.save_entity_translation.notify.load_the_selected_language_before_saving_dc2d8ba1"), color="warning")
+                return
+            if definition_translations is not None:
+                definition_translations.pop(language, None)
+                for control in translation_controls.values():
+                    control.value = ""
+                translation_state["baseline"] = {field: "" for field in fields}
                 return
             reason_control = (
                 get_external_reason()

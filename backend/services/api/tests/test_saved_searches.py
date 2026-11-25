@@ -75,6 +75,7 @@ def test_create_canonicalize_update_history_and_delete(client):
         {"field": "id", "direction": "asc"},
     ]
     assert saved["capabilities"] == {
+        "open": True,
         "update": True, "manage_audience": True, "delete": True, "execute": True,
     }
 

@@ -26,6 +26,49 @@ pytest_plugins = ['nicegui.testing.user_plugin']
 pytestmark = pytest.mark.asyncio
 
 
+@pytest.mark.parametrize("can_preview", [True, False])
+async def test_matching_component_preview_uses_selected_resource_and_permission(user, can_preview):
+    record = {"id": 7, "title": "Evidence", "record_number": "R-7"}
+    components = [
+        {"id": identifier, "file_name": f"match-{identifier}.png",
+         "mime_type": "image/png", "content_status": "available"}
+        for identifier in (12, 14)
+    ]
+    opened = asyncio.Queue()
+
+    def preview(selected, component_id):
+        opened.put_nowait((selected, component_id))
+
+    @ui.page("/matching-components")
+    def page():
+        set_locale_context("en", "UTC")
+        render = build_compact_resource_view(
+            tree_expander_icon=lambda _: "expand_more", favourite_button=lambda *_: None,
+            render_safe_snippet=lambda *_: None, preview_record_components=preview,
+            format_date=str, medium_label=str, component_is_previewable=component_is_previewable,
+            api=None, direction=lambda: "ltr", error_message=str,
+        )
+        render("records", record, on_open=None, can_favourite=False, components=components,
+               components_are_matches=True, can_expand_components=True, can_preview=can_preview,
+               initially_expanded=True)
+
+    await user.open("/matching-components")
+    rows = [e for e in user.client.elements.values() if "compact-result-component" in e.classes]
+    assert len(rows) == 2
+    for component, row in zip(components, rows, strict=True):
+        assert any(label.text == component["file_name"] for label in row.descendants()
+                   if isinstance(label, ui.label))
+        buttons = [e for e in row.descendants() if isinstance(e, ui.button)]
+        if can_preview:
+            button, = buttons
+            button.mark(f"preview-{component['id']}")
+            user.find(marker=f"preview-{component['id']}").click()
+            assert await asyncio.wait_for(opened.get(), timeout=2) == (record, component["id"])
+        else:
+            assert not buttons
+    assert opened.empty()
+
+
 @pytest.mark.parametrize('entry', ['record', 'component'])
 @pytest.mark.parametrize('outcome', ['image', 'pdf', 'failed', 'abandoned'])
 async def test_preview_refreshes_activity_after_success_without_row_lookups(user, monkeypatch, entry, outcome):

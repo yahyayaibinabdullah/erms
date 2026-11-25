@@ -9,12 +9,14 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 from unittest.mock import AsyncMock, Mock
+from frontend.webui.advanced_search_model import workspace_sort
 from frontend.webui.global_search_state import new_global_search_state
 
 SOURCE = ast.parse('\n'.join((Path(__file__).parents[1] / name).read_text() for name in ('app.py','global_search.py','advanced_search.py')))
 
 
 def load(name, namespace):
+    namespace.setdefault('workspace_sort', workspace_sort)
     state=namespace['state']
     if 'ui' not in namespace:
         namespace['ui'] = Mock()
@@ -73,7 +75,7 @@ def test_old_search_response_cannot_repopulate_new_session():
         run = load('run_global_search', namespace)
         clear = load('clear_global_search_session', namespace)
         task = asyncio.create_task(run('private query', load_more=True))
-        await started.wait()
+        await asyncio.wait_for(started.wait(), 3)
         clear()
         principal['principal'] = {'id': 2}
         release.set()
@@ -153,7 +155,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
             ns[name] = load(name, ns)
         clear = load('clear_global_search_session', ns)
         task = asyncio.create_task(load('execute_search', ns)())
-        await started.wait()
+        await asyncio.wait_for(started.wait(), 3)
         if outcome == 'navigation':
             state['resource'] = 'dashboard'
         else:

@@ -9,6 +9,7 @@ from frontend.webui.disposition.messages import text as disposition_text
 from .resource_relationships import relationship_panel
 from .i18n_catalogue import render_message
 from nicegui import ui
+from .type_controls import MetadataForm, t as type_label
 from .resource_detail_header import detail_action_group, detail_read, metadata_layout, open_details_dialog, read_closure, render_resource_detail_header
 
 def build_record_details(
@@ -175,6 +176,8 @@ def build_record_details(
             location_sources = dict(zip(location_ids, locations))
             facts, actions = metadata_layout()
             with facts:
+                if record.get("type_id") is not None:
+                    ui.label(type_label("primary")).classes("text-base font-semibold")
                 if closure:
                     with ui.row().classes("detail-status-notice w-full items-start no-wrap gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg"):
                         ui.icon("lock", color="amber-8", size="18px").classes("shrink-0")
@@ -281,6 +284,7 @@ def build_record_details(
                         with ui.grid(columns=2).classes("w-full gap-x-4"):
                             render_fields(field for field in record_metadata if field[0] in secondary)
 
+                await MetadataForm(api, "record", record, readonly=True).render()
             with actions:
                 ui.label(render_message("webui.select_record_details.label.record_actions_ae672368")).classes("text-xs font-semibold text-slate-600 px-2")
                 if closure_known and closure is None and capabilities.get("modify_metadata"):

@@ -9,9 +9,11 @@ from nicegui import background_tasks
 from .upload_buffers import buffer_upload_batch
 from .component_presentation import component_uploader
 from nicegui import events
+from .type_controls import MetadataForm, t as type_label
 from .entity_editor_controls import field_input
 from .entity_editor_controls import form_payload
 from .entity_editor_controls import medium_options
+from .record_collection_drop import suggested_title
 from .record_editor import record_draft_component_context
 from .entity_selectors import relationship_options
 from .i18n_catalogue import render_message
@@ -23,11 +25,11 @@ def build_record_capture(
 ):
     async def open_record_draft_editor(
         target_aggregation_id: int | None = None, on_committed=None, existing_capture_draft=None, capture_active=None,
-        capture_loader=None, capture_dialog=None,
+        capture_loader=None, capture_dialog=None, initial_type=None, dropped=None,
     ) -> None:
         spec = ENTITIES["records"]
         try:
-            draft = existing_capture_draft or await api.create_record_draft()
+            draft = existing_capture_draft or await api.create_record_draft(**({"medium": "digital"} if dropped else {}))
             security_levels, creation_roles = await asyncio.gather(
                 api.list("security-levels", limit=25),
                 api.creation_role_options(target_aggregation_id),
@@ -46,6 +48,9 @@ def build_record_capture(
             ui.notify(error_message(error), color="negative", close_button=True)
             return
 
+        if dropped and dropped.source.is_deleted:
+            await api.discard_record_draft(draft["id"])
+            return
         if capture_active is not None and not capture_active():
             if capture_dialog is not None:capture_dialog.close()
             return
@@ -61,12 +66,21 @@ def build_record_capture(
         action_controls: dict[str, Any] = {}
         uploader_control: dict[str, Any] = {}
 
+        suggestion = {"title": None, "manual_title": False, "number": None, "manual_number": False}
+
+        def update_drop_title():
+            if dropped and not suggestion["manual_title"]:
+                names = [r["file_name"] for r in current_rows] + [dropped.files[i]["name"] for i in dropped.queue]
+                suggestion["title"] = suggested_title(names)
+                controls["title"].set_value(suggestion["title"])
+
         async def refresh_draft_components() -> bool:
             try:
                 rows = await api.draft_components(draft["id"])
                 if capture_active is not None and not capture_active():return
                 current_rows.clear()
                 current_rows.extend(rows)
+                update_drop_title()
                 component_area.clear()
                 component_list.set_visibility(bool(rows))
                 with component_area:
@@ -77,7 +91,7 @@ def build_record_capture(
                                 None, component["id"], draft_id=draft["id"], staged_components=list(current_rows),
                                 source_active=lambda: dialog.value and not dialog._deleted and (capture_active is None or capture_active()),
                             ),
-                            readonly=existing_capture_draft is not None, staged_preview=True,
+                            readonly=existing_capture_draft is not None or bool(dropped and dropped.queue), staged_preview=True,
                         )
                 return True
             except ApiError as error:
@@ -115,12 +129,11 @@ def build_record_capture(
                 buffered_files = buffer_upload_batch(event)
                 # Form controls are client-side state. Persist the relationship
                 # and medium before the component endpoint validates the draft.
-                component_context = record_draft_component_context(
-                    target_aggregation_id
-                    if target_aggregation_id is not None
-                    else controls["aggregation_id"].value,
-                    controls["medium"].value,
-                )
+                destination = target_aggregation_id if target_aggregation_id is not None else controls["aggregation_id"].value
+                if dropped and destination is None:
+                    component_context = {"aggregation_id": None, "medium": "digital"}
+                else:
+                    component_context = record_draft_component_context(destination, controls["medium"].value)
             except OSError as error:
                 ui.notify(render_message("webui.upload_to_draft.notify.could_not_read_an_uploaded_file_error_17327476", error=error), color="negative", close_button=True)
                 return
@@ -162,8 +175,8 @@ def build_record_capture(
             )
 
         async def discard() -> None:
-            capture_preparation["closed"] = True
             if draft.get("id") is None:
+                capture_preparation["closed"] = True
                 dialog.close()
                 return
             try:
@@ -172,13 +185,18 @@ def build_record_capture(
                 if error.status_code != 404:
                     ui.notify(error_message(error), color="negative")
                     return
+            capture_preparation["closed"] = True
             dialog.close()
 
+        typed = MetadataForm(api, "record", initial_type=initial_type)
+
         async def commit() -> None:
-            if not capture_preparation["ready"] or capture_preparation["closed"]:
+            if not capture_preparation["ready"] or capture_preparation["closed"] or upload_state["pending"] or (dropped and dropped.queue):
                 return
+            if not action_controls["commit"].enabled:
+                return
+            action_controls["commit"].disable()
             if existing_capture_draft is not None:
-                action_controls["commit"].disable()
                 action_controls["commit"].props("loading")
             try:
                 payload = form_payload(spec, controls, creating=True)
@@ -190,9 +208,10 @@ def build_record_capture(
                 creator_role_id = controls["creator_acl_role_id"].value
                 if creator_role_id is None:
                     raise ValueError("Select who this record is being created for")
+                assignment = typed.payload()
                 await api.update_record_draft(draft["id"], payload)
                 committed_record = await api.commit_record_draft(
-                    draft["id"], int(creator_role_id), capture=existing_capture_draft is not None,
+                    draft["id"], int(creator_role_id), capture=existing_capture_draft is not None, **({"metadata":assignment} if assignment else {}),
                 )
                 if capture_active is not None and not capture_active():return
                 dialog.close()
@@ -214,7 +233,7 @@ def build_record_capture(
                 ui.notify(error_message(error), color="negative", close_button=True)
 
             finally:
-                if existing_capture_draft is not None and (capture_active is None or capture_active()):
+                if dialog.value and (capture_active is None or capture_active()) and not upload_state["pending"]:
                     action_controls["commit"].props(remove="loading")
                     action_controls["commit"].enable()
 
@@ -224,10 +243,12 @@ def build_record_capture(
                 with ui.column().classes("gap-0 grow"):
                     ui.label(render_message("webui.open_record_draft_editor.label.create_record_080740e1")).classes("text-xl font-semibold")
                     ui.label(render_message("webui.open_record_draft_editor.label.assemble_the_metadata_and_files_then_creat_ba4447db")).classes("text-sm text-slate-500")
+                typed.jump_button()
                 ui.badge(render_message("webui.open_record_draft_editor.badge.draft_59a3031a"), color="primary").props("outline")
             with ui.element("div").classes("w-full overflow-y-auto px-6 pb-2 max-h-[calc(100vh-190px)]"):
                 ui.label(render_message("webui.open_record_draft_editor.label.record_details_e88ae30c")).classes("text-base font-semibold mt-4 mb-2")
                 ui.label(render_message("webui.open_record_draft_editor.label.required_fields_40cea53e")).classes("text-xs text-slate-500 -mt-1 mb-2")
+                ui.label(type_label("primary")).classes("text-base font-semibold")
                 with ui.grid(columns=2).classes("w-full gap-3"):
                     aggregation_field = next(
                         field for field in spec.fields if field.name == "aggregation_id"
@@ -252,7 +273,7 @@ def build_record_capture(
                                 "where": {"or": [{"field": field, "operator": "contains_ci", "value": query.strip()}
                                     for field in ("aggregation_number", "title", "description")]},
                                 "sort": [{"field": "aggregation_number", "direction": "asc"}], "limit": 25,
-                            }, record_creation=True, digital_only=existing_capture_draft is not None)
+                            }, record_creation=True, digital_only=existing_capture_draft is not None or bool(dropped))
                         bind_remote_relationship_select(
                             controls["aggregation_id"], "aggregations",
                             ("aggregation_number", "title"),
@@ -263,7 +284,7 @@ def build_record_capture(
                         ui.button(
                             render_message("webui.show_memberships.button.browse_aed12689"),
                             icon="account_tree",
-                            on_click=lambda: browse_advanced_aggregation(controls["aggregation_id"], record_creation=True, digital_only=existing_capture_draft is not None),
+                            on_click=lambda: browse_advanced_aggregation(controls["aggregation_id"], record_creation=True, digital_only=existing_capture_draft is not None or bool(dropped)),
                         ).props("flat dense no-caps").classes("col-span-2 justify-self-start")
                     if target_aggregation_id is not None:
                         # Read-only keeps the selected parent visible in the
@@ -327,7 +348,7 @@ def build_record_capture(
                             )["id"]
                         if field.name == "medium":
                             parent = aggregations_by_id.get(controls["aggregation_id"].value)
-                            initial_value = parent.get("medium", "mixed") if parent else "mixed"
+                            initial_value = "digital" if dropped else parent.get("medium", "mixed") if parent else "mixed"
                         if existing_capture_draft is not None and field.name in draft:
                             initial_value = draft[field.name]
                         controls[field.name] = field_input(field, value=initial_value, options=options)
@@ -345,6 +366,13 @@ def build_record_capture(
                         if existing_capture_draft is not None:
                             medium_control.set_options({"digital": medium_options()["digital"]}, value="digital")
                             medium_control.disable()
+                            return
+                        if dropped:
+                            options = {"digital": medium_options()["digital"]}
+                            if parent and parent["medium"] == "mixed":
+                                options["mixed"] = medium_options()["mixed"]
+                            medium_control.set_options(options, value=medium_control.value if medium_control.value in options else "digital")
+                            medium_control.set_enabled(len(options) > 1)
                             return
                         if not parent:
                             medium_control.set_options({"digital": medium_options()["digital"]} if existing_capture_draft is not None else {},
@@ -436,11 +464,32 @@ def build_record_capture(
                         with dialog:
                             constrain_record_medium()
                             await refresh_record_creation_roles()
+                            if dropped and not suggestion["manual_number"] and controls["aggregation_id"].value == aggregation_id:
+                                number = ""
+                                if aggregation_id:
+                                    try:
+                                        result = await api.request("GET", "/api/v1/number-suggestions/records",
+                                                                   params={"parent_aggregation_id": aggregation_id})
+                                    except ApiError as error:
+                                        ui.notify(error_message(error), color="negative")
+                                        return
+                                    number = result.get("suggested_number") or ""
+                                if controls["aggregation_id"].value == aggregation_id and not suggestion["manual_number"]:
+                                    suggestion["number"] = number
+                                    controls["record_number"].set_value(number)
 
                     controls["aggregation_id"].on_value_change(
                         lambda: background_tasks.create(apply_selected_aggregation())
                     )
                     constrain_record_medium()
+                    if dropped:
+                        def take_ownership(event, key):
+                            if event.value != suggestion[key]:
+                                suggestion["manual_" + key] = True
+                        controls["title"].on_value_change(lambda event: take_ownership(event, "title"))
+                        controls["record_number"].on_value_change(lambda event: take_ownership(event, "number"))
+                        update_drop_title()
+                await typed.render()
                 with ui.column().classes("w-full gap-0 mt-5 mb-2"):
                     ui.label(render_message("webui.open_record_draft_editor.label.digital_components_21c9474b")).classes("w-full text-start text-base font-semibold")
                     ui.label(render_message("webui.open_record_draft_editor.label.files_remain_staged_until_you_create_the_r_ec0dd8d9")).classes("w-full text-start text-xs text-slate-500")
@@ -466,6 +515,7 @@ def build_record_capture(
                     lambda _: update_draft_component_controls()
                 )
                 update_draft_component_controls()
+                pending_area = ui.column().classes("w-full gap-2") if dropped else None
                 with ui.element("div").classes("component-list w-full mt-3") as component_list:
                     component_area = ui.element("div").classes("component-grid w-full")
                 component_list.set_visibility(capture_loader is not None)
@@ -492,7 +542,60 @@ def build_record_capture(
                 if capture_loader is not None:
                     action_controls["commit"].disable()
                     action_controls["commit"].mark("capture-create")
+        if dropped:
+            dropped.opened = True
+            dialog.on("hide", dropped.close)
         dialog.open()
+        if dropped:
+            def render_pending():
+                pending_area.clear()
+                action_controls["commit"].set_enabled(not dropped.queue and not upload_state["pending"])
+                uploader_control["uploader"].set_enabled(not dropped.queue)
+                with pending_area:
+                    for index in dropped.queue:
+                        file = dropped.files[index]
+                        with ui.row().classes("w-full items-center gap-2"):
+                            ui.label(file["name"]).classes("grow break-all").props("dir=auto")
+                            ui.label(f'{file["size"]:,} B')
+                            if index == dropped.queue[0] and dropped.failure and not dropped.running:
+                                ui.label(dropped.failure).classes("text-negative").props("role=alert")
+                                ui.button(type_label("retry"), on_click=stage).props("flat no-caps")
+                                ui.button(icon="delete_outline", on_click=remove_failed).props("flat round").tooltip(
+                                    render_message("webui.render_component_cards.tooltip.remove_component_34d21bd2"))
+                            else:
+                                ui.icon("hourglass_top")
+            async def stage():
+                with pending_area:
+                    await dropped.stage(api, draft["id"], refresh_draft_components, render_pending, error_message)
+            async def remove_failed():
+                if dropped.running or not dropped.failure:
+                    return
+                # Resolve an ambiguous response before discarding this queued file.
+                dropped.running = True
+                render_pending()
+                try:
+                    rows = await api.draft_components(draft["id"])
+                    file = dropped.files[dropped.queue[0]]
+                    for row in rows:
+                        if (row["component_order"] == dropped.position and row["file_name"] == file["name"]
+                                and row["size_in_bytes"] == file["size"]):
+                            await api.delete_draft_component(draft["id"], row["id"])
+                except ApiError as error:
+                    dropped.failure = error_message(error)
+                    return
+                finally:
+                    dropped.running = False
+                    if dropped.active:
+                        render_pending()
+                if not dropped.active:
+                    return
+                dropped.queue.pop(0)
+                dropped.position = None
+                await refresh_draft_components()
+                await stage()
+            render_pending()
+            await stage()
+            return
         if capture_loader is not None:
             try:
                 prepared = await capture_loader()

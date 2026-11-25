@@ -38,8 +38,7 @@ supervisors or mail infrastructure.
 
 1. Prepare PostgreSQL, the service account, Python environments and the feature
    dependencies described under [server preparation](#server-preparation-and-configuration).
-2. For an empty database, load `database/schema.sql`, then explicitly run
-   `database/seeds/000_required_reference_data.sql` and `database/baseline.sql`.
+2. For a new empty database, run `backend/services/api/.venv/bin/python tools/initialize_database.py`.
    For an existing database, apply pending upgrades through migration 091;
    do not rerun the fresh-install files. Follow
    [database instructions](../database/README.md) and the reviewed

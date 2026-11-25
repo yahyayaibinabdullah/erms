@@ -138,7 +138,10 @@ class Acceptance:
         field.send_keys(Keys.TAB)
     def drawer(self,key):
         label=self.t('navigation.item.'+key)
-        self.activate(self.one('button.erms-nav-link',label))
+        # Several translated navigation labels end in the same noun.
+        button = self.wait.until(lambda _: next((item for item in self.visible('button.erms-nav-link')
+            if plain(item.get_attribute('aria-label')) == label), None), f'Missing navigation item: {label}')
+        self.activate(button)
     def tab(self,category):
         label=self.t('settings.category.'+category)
         def select(_):
@@ -237,11 +240,14 @@ class Acceptance:
         buttons=[e for e in self.visible('header button') if 'account_circle' in e.text]
         assert len(buttons)==1;buttons[0].click()
         self.click(self.t('preferences.heading.personal'))
-        self.field(self.t('preferences.field.language')).click()
-        self.one('[role=option]','العربية (ar)' if language=='ar' else 'English (en)').click()
-        self.click(self.t('preferences.action.save'))
-        self.language=language
+        self.field(self.t('preferences.field.language')).send_keys(Keys.ENTER)
+        option = 'العربية (ar)' if language == 'ar' else 'English (en)'
+        self.one('[role=option]', option).click()
+        dialog = self.one('.erms-preferences-dialog')
+        self.wait.until(lambda _: option in dialog.text and not self.visible('[role=listbox]'))
+        self.button(self.t('preferences.action.save'), scope=dialog).send_keys(Keys.ENTER)
         self.wait.until(lambda _:self.driver.execute_script('return document.documentElement.lang')==language)
+        self.language=language
         self.wait.until(lambda _:len(self.driver.find_elements(By.CSS_SELECTOR,'[role=tab]'))==7)
 
     def general(self):
@@ -677,6 +683,21 @@ with psycopg.connect(url) as c:
             check_audit(self)
             self.report['complete'] = True
             return
+        if self.args.scope == 'type-role-removal':
+            from tools.webui_browser_resource_types import check_role_access_removal
+            check_role_access_removal(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'creation-buttons':
+            from tools.webui_browser_resource_types import check_creation_buttons
+            check_creation_buttons(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'resource-types':
+            from tools.webui_browser_resource_types import check_types
+            check_types(self)
+            self.report['complete'] = True
+            return
         if self.args.scope == 'relationships':
             from tools.webui_browser_relationships import check_relationships
             check_relationships(self)
@@ -743,7 +764,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','resource-types', 'creation-buttons', 'type-role-removal','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
     parser.add_argument('--office-fixtures', type=Path)
     parser.add_argument('--pdf-workbook')
     parser.add_argument('--pdf-baseline', action='store_true')

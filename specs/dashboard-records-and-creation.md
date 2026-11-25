@@ -2,7 +2,7 @@
 
 **Status:** Draft for review. This proposal covers the Dashboard and Records
 actions, **Needs attention**, simpler creation dialogs, field help, and
-creating a record by dropping files. Implementation has not started.
+creating a record by dropping files. DD-1 through DD-4 are approved for the Records collection. The Dashboard and simplified-dialog proposals remain under review.
 
 ## 1. Dashboard and Records
 

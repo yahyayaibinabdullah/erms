@@ -32,6 +32,7 @@ class DecisionCode(StrEnum):
     USER_SUSPENDED = "user_suspended"
     USER_LOCKED = "user_locked"
     NO_EFFECTIVE_ROLE = "no_effective_role"
+    INSUFFICIENT_TYPE_ACCESS = "insufficient_type_access"
     OPERATION_NOT_ALLOWED = "operation_not_allowed"
     INSUFFICIENT_PRIVILEGE = "insufficient_privilege"
     INSUFFICIENT_CLEARANCE = "insufficient_clearance"
@@ -131,8 +132,12 @@ class AuthorizationRequest:
     resource_levels: tuple[int, ...] = ()
     acl: ResourceAcl | None = None
     owning_org_unit_id: int | None = None
+    type_access: str | None = None
+    type_grant_roles: frozenset[int] = field(default_factory=frozenset)
+    resource_typed: bool = False
     integrity_allowed: bool = True
     integrity_reason: str | None = None
+    type_everyone_grant: bool = False
 
 
 @dataclass(frozen=True)
@@ -150,6 +155,8 @@ class AuthorizationDecision:
     operation: str
     gates: tuple[GateResult, ...]
     effective_role_ids: tuple[int, ...]
+    type_role_ids: tuple[int, ...] = ()
+    type_bypass_role_ids: tuple[int, ...] = ()
     privilege_role_ids: tuple[int, ...] = ()
     clearance_role_ids: tuple[int, ...] = ()
     acl_role_ids_by_permission: Mapping[str, tuple[int, ...]] = field(default_factory=dict)
@@ -266,12 +273,33 @@ def authorize(context: PolicyContext, request: AuthorizationRequest) -> Authoriz
         return _deny(context, request, DecisionCode.NO_EFFECTIVE_ROLE, gates)
     gates.append(GateResult("effective_roles", True, DecisionCode.ALLOWED.value))
 
+    type_roles = ()
+    type_bypass = ()
+    if request.type_access is not None:
+        detail = "not_applicable"
+        if request.resource_typed:
+            type_roles = tuple(role.role_id for role in context.effective_roles if role.role_id in request.type_grant_roles)
+            if request.type_everyone_grant:
+                detail = "everyone"
+            elif type_roles:
+                detail = request.type_access
+            else:
+                level = max(request.resource_levels, default=None)
+                type_bypass = tuple(role.role_id for role in context.effective_roles if role.is_information_governance
+                                    and (level is None or role.clearance >= level))
+                if not type_bypass:
+                    gates.append(GateResult("resource_type", False, DecisionCode.INSUFFICIENT_TYPE_ACCESS.value, request.type_access))
+                    return _deny(context, request, DecisionCode.INSUFFICIENT_TYPE_ACCESS, gates)
+                detail = "information_governance_bypass"
+        gates.append(GateResult("resource_type", True, DecisionCode.ALLOWED.value, detail))
+
+    type_contributors = {"type_role_ids": type_roles, "type_bypass_role_ids": type_bypass}
     if not request.integrity_allowed:
         gates.append(GateResult(
             "operation_integrity", False, DecisionCode.OPERATION_NOT_ALLOWED.value,
             request.integrity_reason,
         ))
-        return _deny(context, request, DecisionCode.OPERATION_NOT_ALLOWED, gates)
+        return _deny(context, request, DecisionCode.OPERATION_NOT_ALLOWED, gates, **type_contributors)
     gates.append(GateResult("operation_integrity", True, DecisionCode.ALLOWED.value))
 
     privilege_roles = tuple(
@@ -280,7 +308,7 @@ def authorize(context: PolicyContext, request: AuthorizationRequest) -> Authoriz
     )
     if request.required_privilege and not privilege_roles:
         gates.append(GateResult("global_privilege", False, DecisionCode.INSUFFICIENT_PRIVILEGE.value))
-        return _deny(context, request, DecisionCode.INSUFFICIENT_PRIVILEGE, gates)
+        return _deny(context, request, DecisionCode.INSUFFICIENT_PRIVILEGE, gates, **type_contributors)
     gates.append(GateResult("global_privilege", True, DecisionCode.ALLOWED.value))
 
     required_clearance = max(request.resource_levels, default=None)
@@ -295,7 +323,7 @@ def authorize(context: PolicyContext, request: AuthorizationRequest) -> Authoriz
         gates.append(GateResult("security_clearance", False, DecisionCode.INSUFFICIENT_CLEARANCE.value))
         return _deny(
             context, request, DecisionCode.INSUFFICIENT_CLEARANCE, gates,
-            privilege_role_ids=privilege_roles,
+            **type_contributors, privilege_role_ids=privilege_roles,
         )
     gates.append(GateResult("security_clearance", True, DecisionCode.ALLOWED.value))
 
@@ -344,7 +372,7 @@ def authorize(context: PolicyContext, request: AuthorizationRequest) -> Authoriz
         ))
         return _deny(
             context, request, DecisionCode.INSUFFICIENT_RESOURCE_PERMISSION, gates,
-            privilege_role_ids=privilege_roles,
+            **type_contributors, privilege_role_ids=privilege_roles,
             clearance_role_ids=clearance_roles,
             acl_role_ids_by_permission=permission_roles,
             everyone_permissions=everyone,
@@ -367,7 +395,8 @@ def authorize(context: PolicyContext, request: AuthorizationRequest) -> Authoriz
         everyone_permissions=everyone,
         org_unit_member_permissions=org_unit_members,
         org_unit_member_role_ids_by_permission=org_unit_member_roles,
-        governance_bypass_role_ids=bypass,
+        type_role_ids=type_roles, type_bypass_role_ids=type_bypass,
+        governance_bypass_role_ids=tuple(dict.fromkeys((*type_bypass, *bypass))),
         effective_clearance=effective_clearance,
         required_clearance=required_clearance,
     )

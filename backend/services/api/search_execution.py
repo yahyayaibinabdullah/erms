@@ -1,8 +1,34 @@
 """Execution settings scoped to interactive search SQL, never server defaults."""
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from functools import wraps
 
 from psycopg.pq import TransactionStatus
+
+GLOBAL_RANKING_IO_CONCURRENCY = 0
+
+
+@contextmanager
+def global_ranking_io(connection, concurrency=GLOBAL_RANKING_IO_CONCURRENCY):
+    """Use synchronous reads for the Global Search ranking SELECT.
+
+    The worker-based read path produced repeatable latency spikes on
+    PostgreSQL 18.4. See docs/search-performance.md#global-search-ranking-io.
+    The disposable benchmark can supply another value for paired comparisons.
+    """
+    needs_transaction = connection.autocommit and connection.info.transaction_status == TransactionStatus.IDLE
+    with connection.transaction() if needs_transaction else nullcontext():
+        previous = connection.execute("SHOW effective_io_concurrency").fetchone()['effective_io_concurrency']
+        if previous == str(concurrency):
+            yield
+            return
+        connection.execute("SELECT set_config('effective_io_concurrency', %s, true)", (str(concurrency),))
+        try:
+            yield
+        finally:
+            # A failed SQL transaction can only roll back. SET LOCAL then
+            # restores the prior value without masking the ranking error.
+            if connection.info.transaction_status == TransactionStatus.INTRANS:
+                connection.execute("SELECT set_config('effective_io_concurrency', %s, true)", (previous,))
 
 
 @contextmanager

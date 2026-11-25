@@ -7,6 +7,8 @@ from psycopg import Connection
 from psycopg.types.json import Jsonb
 
 
+from .continuity_lock import acquire_continuity_shared_lock
+
 ResourceType = Literal["aggregation", "record"]
 
 
@@ -35,12 +37,13 @@ def governance_role_snapshot(
 
 def _audit_governance_bypass(
     connection: Connection, resource_type: ResourceType, resource_id: int,
-    privilege: str, permission: str, security_level_id: int,
+    privilege: str, permission: str, security_level_id: int, *, type_bypass: bool=False,
 ) -> None:
     connection.execute(
         "SELECT append_domain_event(%s,%s,'INFORMATION_GOVERNANCE_BYPASS_USED',%s::jsonb)",
         (resource_type, resource_id, Jsonb({
             "authorization_basis": "information_governance",
+            "resource_type_bypass": type_bypass,
             "required_privilege": privilege, "required_permission": permission,
             "qualifying_roles": governance_role_snapshot(connection, [security_level_id]),
         })),
@@ -51,21 +54,33 @@ def audit_governance_view_if_used(
     connection: Connection, resource_type: ResourceType, resource: dict[str, Any],
 ) -> None:
     permission = f"{resource_type}.view"
-    acl_function = (
-        "user_has_aggregation_permission" if resource_type == "aggregation"
-        else "user_has_record_permission"
-    )
-    acl_allowed = connection.execute(
-        f"SELECT {acl_function}(current_user_id(),%s,%s) AS allowed",
-        (resource["id"], permission),
-    ).fetchone()["allowed"]
-    if not acl_allowed and governance_role_snapshot(
-        connection, [resource["security_level_id"]]
-    ):
-        _audit_governance_bypass(
-            connection, resource_type, resource["id"], permission, permission,
-            resource["security_level_id"],
-        )
+    audit_resource_bypass(connection, resource_type, resource, permission, permission)
+
+
+def audit_resource_bypass(connection, kind, resource, privilege, permission):
+    fact = connection.execute(f"""SELECT user_has_{kind}_permission(current_user_id(),%s,%s) AS acl,
+        user_has_type_grant(current_user_id(),%s,%s,type_operation_requires_use(%s)) AS type_grant""",
+        (resource["id"],permission,kind,resource["type_id"],permission)).fetchone()
+    if not (fact["acl"] and fact["type_grant"]):
+        _audit_governance_bypass(connection,kind,resource["id"],privilege,permission,resource["security_level_id"],
+                                type_bypass=not fact["type_grant"])
+
+
+def require_type_use(connection, kind, resource, privilege, permission):
+    """Additional Use check for a mutation whose existing ACL operation is View."""
+    if resource["type_id"] is None:
+        return
+    access = connection.execute(
+        """SELECT user_has_type_grant(current_user_id(),%s,%s,true) AS ordinary,
+                  user_has_governance_clearance(current_user_id(),%s) AS governance""",
+        (kind,resource["type_id"],resource["security_level_id"]),
+    ).fetchone()
+    if access["ordinary"]:
+        return
+    if not access["governance"]:
+        raise HTTPException(403,detail={"code":"insufficient_type_access"})
+    _audit_governance_bypass(connection,kind,resource["id"],privilege,permission,
+                            resource["security_level_id"],type_bypass=True)
 
 
 def require_global(connection: Connection, privilege: str) -> None:
@@ -119,6 +134,8 @@ def require_resource_operation(
     *,
     lock: bool = True,
 ) -> dict[str, Any]:
+    if lock:
+        acquire_continuity_shared_lock(connection)
     resource = (
         lock_visible_resource(connection, resource_type, resource_id)
         if lock else _visible_resource(connection, resource_type, resource_id)
@@ -136,19 +153,7 @@ def require_resource_operation(
         raise HTTPException(
             status_code=403, detail={"code": "insufficient_resource_permission"},
         )
-    acl_function = (
-        "user_has_aggregation_permission" if resource_type == "aggregation"
-        else "user_has_record_permission"
-    )
-    acl_allowed = connection.execute(
-        f"SELECT {acl_function}(current_user_id(),%s,%s) AS allowed",
-        (resource_id, permission),
-    ).fetchone()["allowed"]
-    if not acl_allowed:
-        _audit_governance_bypass(
-            connection, resource_type, resource_id, privilege, permission,
-            resource["security_level_id"],
-        )
+    audit_resource_bypass(connection,resource_type,resource,privilege,permission)
     return resource
 
 
@@ -184,6 +189,7 @@ def operation_allowed(
 def require_component_operation(
     connection: Connection, component_id: int, privilege: str, permission: str,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    acquire_continuity_shared_lock(connection)
     component = connection.execute(
         """SELECT component.* FROM digital_components component
            WHERE component.id=%s
@@ -202,15 +208,7 @@ def require_component_operation(
             status_code=403, detail={"code": "insufficient_resource_permission"},
         )
     record = lock_visible_resource(connection, "record", component["record_id"])
-    acl_allowed = connection.execute(
-        "SELECT user_has_record_permission(current_user_id(),%s,%s) AS allowed",
-        (component["record_id"], permission),
-    ).fetchone()["allowed"]
-    if not acl_allowed:
-        _audit_governance_bypass(
-            connection, "record", component["record_id"], privilege, permission,
-            record["security_level_id"],
-        )
+    audit_resource_bypass(connection,"record",record,privilege,permission)
     return component, record
 
 

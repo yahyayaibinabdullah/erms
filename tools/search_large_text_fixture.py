@@ -31,14 +31,14 @@ CASES = [
 def count_chunks(i):return 100 if i%1000==0 else 10 if 1<=i%1000<=9 else 1
 
 
-def fixture(c):
+def fixture(c, *, typed=False):
     """Replace the old two-chunk fixture with realistic bounded text lengths.
 
     Temporary seeding relations do not change the canonical schema.
     Tokens/probes are deterministic. No full-document vector is used as a phrase
     oracle for large files, since its positions would themselves be clipped.
     """
-    seed(c, include_chunks=False)
+    seed(c, include_chunks=False, typed=typed)
     singles=[i for i in range(1,RECORDS+1) if count_chunks(i)==1]
     multi=[i for i in range(1,RECORDS+1) if count_chunks(i)>1]
     sets={

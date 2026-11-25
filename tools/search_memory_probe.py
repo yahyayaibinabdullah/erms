@@ -14,10 +14,10 @@ import time
 import psycopg
 from psycopg.rows import dict_row
 
-from backend.services.api.search_execution import search_sql_execution
+from backend.services.api.search_execution import GLOBAL_RANKING_IO_CONCURRENCY, global_ranking_io, search_sql_execution
 
 
-def probe(output, url):
+def probe(output, url, ranking_io=GLOBAL_RANKING_IO_CONCURRENCY):
     packets = [json.loads(p.read_text()) for p in output.glob('ranking-query-*.json')]
     packet, = [p for p in packets if p['query'] == 'universal -"boundaryalpha boundarybeta"'
                and p['sources'] == 'components']
@@ -32,7 +32,7 @@ def probe(output, url):
                 c.execute("SELECT set_config('app.user_id',%s,true)", (str(user),))
                 c.execute("SET LOCAL statement_timeout='30s'")
                 pid = c.execute('SELECT pg_backend_pid() pid').fetchone()['pid']
-                with search_sql_execution(c):
+                with search_sql_execution(c), global_ranking_io(c, ranking_io):
                     # Explicitly compare the old allowance with the proposed
                     # allowance, preserving the same JIT policy and SQL in both.
                     c.execute("SELECT set_config('work_mem',%s,true)", (memory,))

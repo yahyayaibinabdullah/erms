@@ -46,6 +46,13 @@ async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, 
                 {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
                  'aggregation_number': f'A-{i}'}
                 for i in range(1, 2 if outcome == 'last_item' else 3)]
+            for item in data['favourites'][resource]:
+                item['date_favourited'] = '2026-01-01T00:00:00Z'
+            persisted = copy.deepcopy(data['favourites'])
+            async def favourites(**params):
+                assert params == {'kind':None, 'limit':25, 'offset':0}
+                return {**persisted, 'total':sum(len(persisted[k]) for k in ('records','aggregations'))}
+            fixture.api.favourites = AsyncMock(side_effect=favourites)
             fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
             fixture.api.unfavourite = AsyncMock()
             monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
@@ -56,7 +63,7 @@ async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, 
                 view_all = next(e for e in fixture.host.descendants() if isinstance(e, ui.button)
                                 and e.text == dashboard.render_message('webui.render_favourites_dashboard.button.view_all_e1f7fcfb'))
                 with view_all.parent_slot:
-                    handler(view_all)(None)
+                    await inspect.getclosurevars(handler(view_all)).nonlocals['callback']()
                 del view_all
                 container = next(e for e in client.elements.values() if isinstance(e, ui.dialog) and e.value)
             else:
@@ -83,6 +90,7 @@ async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, 
                 await asyncio.sleep(0)
                 if outcome == 'rejected':
                     raise ApiError(409, 'Conflict')
+                persisted[resource] = [r for r in persisted[resource] if r['id'] != identifier]
                 if outcome == 'abandoned':
                     fixture.state['resource'] = 'records'
                     fixture.host.clear()

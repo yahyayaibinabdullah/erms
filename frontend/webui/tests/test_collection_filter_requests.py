@@ -130,7 +130,7 @@ def test_compact_search_requests_only_visible_page_and_keeps_submitted_query(res
         decorate = AsyncMock(side_effect=lambda spec, rows: rows)
         decorate_components = AsyncMock(side_effect=lambda rows: rows)
         loader = collection_loader(dict(
-            state=state, search_input=search, api=api, decorate_for_spec=decorate,
+            state=state, search_input=search, api=api, page_size=10, decorate_for_spec=decorate,
             decorate_record_search_components=decorate_components,
             set_connection_status=Mock(), render_table=Mock(),
         ))
@@ -166,7 +166,7 @@ def test_dashboard_scope_is_kept_when_unclassified_roots_are_paged_or_refreshed(
         api = Mock(search_request=AsyncMock(side_effect=lambda resource, payload, **kw: {'items': [], 'total': 111, 'offset': payload['offset']}))
         state = {'resource': 'aggregations'}
         loader = collection_loader(dict(
-            state=state, search_input=Mock(value='Draft'), api=api,
+            state=state, search_input=Mock(value='Draft'), api=api, page_size=10,
             decorate_for_spec=AsyncMock(return_value=[]),
             set_connection_status=Mock(), render_table=Mock(),
         ))

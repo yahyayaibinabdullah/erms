@@ -1,4 +1,5 @@
 from __future__ import annotations
+from .type_creation import creation_shortcut
 from .message_live_state import new_message_live_state
 from .messaging_controller import build_messaging_controller
 from .message_stream import build_message_stream
@@ -94,6 +95,7 @@ from .compact_resource_view import build_compact_resource_view
 from .classification_controller import ClassificationController
 from .classification_selectors import build_scheme_selector, build_classification_pickers
 from .application_settings_controller import ApplicationSettingsController
+from .type_administration import type_administration
 from .relationship_types_controller import RelationshipTypesController
 from .capabilities import can_navigate, can_navigate_disposition
 from .config import api_url, full_text_search_enabled, host, port, reload_enabled, storage_secret
@@ -1318,6 +1320,17 @@ def index(q: str = "") -> None:
         html[dir="rtl"] .erms-page-title-row {
             direction: rtl; flex-direction: row !important;
         }
+        /* QBtnGroup's rounded prop uses physical corners even in a mirrored row. */
+        html[dir="rtl"] .creation-button-group > .q-btn:first-child:not(:last-child) {
+            border-radius: 0;
+            border-start-start-radius: inherit;
+            border-end-start-radius: inherit;
+        }
+        html[dir="rtl"] .creation-button-group > .q-btn:last-child:not(:first-child) {
+            border-radius: 0;
+            border-start-end-radius: inherit;
+            border-end-end-radius: inherit;
+        }
         .erms-content { max-width: 1540px; margin: 0 auto; }
         .erms-card {
             background: var(--erms-surface); border: 1px solid var(--erms-border);
@@ -2536,6 +2549,8 @@ def index(q: str = "") -> None:
         "messages-drafts": "messaging.navigation.drafts",
         "messages-notifications": "messaging.admin.title",
         "relationship-types": "relationships.ui.catalogue",
+        "aggregation-types": "resource_types.ui.aggregation_catalogue",
+        "record-types": "resource_types.ui.record_catalogue",
         "messages-monitor": "messaging.monitor.title",
         "dashboard": "navigation.item.dashboard",
         "advanced-search": "navigation.item.advanced_search",
@@ -2667,6 +2682,8 @@ def index(q: str = "") -> None:
         elif page in ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-templates", "disposition-job", "disposition-task"):
             disposition_saved=saved.get("disposition_view") or {}
             await select_disposition(page, disposition_saved.get("job_id") if page=="disposition-task" else entity_id if page=="disposition-job" else None, disposition_saved,task_id=entity_id if page=="disposition-task" else None)
+        elif page in ("aggregation-types", "record-types"):
+            await select_type_administration(page)
         elif page == "relationship-types":
             await select_relationship_types()
         elif page.startswith("messages-"):
@@ -3036,8 +3053,8 @@ def index(q: str = "") -> None:
     open_aggregation = build_aggregation_details(
         add_button=add_button,
         add_record_button=add_record_button,
-        add_child=lambda: add_for_current_context(),
-        add_record=lambda: add_record_for_current_aggregation(),
+        add_child=lambda initial_type=None: add_for_current_context(initial_type),
+        add_record=lambda initial_type=None: add_record_for_current_aggregation(initial_type),
         add_resource_to_hold_dialog=lambda *args, **kwargs: add_resource_to_hold_dialog(*args, **kwargs),
         aggregation_mode_bar=aggregation_mode_bar,
         aggregation_state=aggregation_state,
@@ -3100,6 +3117,8 @@ def index(q: str = "") -> None:
     )
 
     render_table = build_collection_table(
+        records_drop_page=content_card.parent_slot.parent,
+        open_record_draft_editor=lambda **kwargs: open_record_draft_editor(**kwargs),
         RELATIONSHIP_DISPLAY_FIELDS=RELATIONSHIP_DISPLAY_FIELDS,
         add_timestamp_slots=lambda *args, **kwargs: add_timestamp_slots(*args, **kwargs),
         api=api,
@@ -3399,17 +3418,27 @@ def index(q: str = "") -> None:
         title=title,
     )
 
-    def enter_relationship_types() -> None:
+    def enter_relationship_types(page="relationship-types") -> None:
         """Adapt relationship-type administration to the existing shared shell."""
-        state.update(resource='relationship-types'); collection_state.update(rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
-        register_navigation("relationship-types", localized_navigation["relationship-types"])
+        state.update(resource=page); collection_state.update(rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
+        register_navigation(page, localized_navigation[page])
         show_authenticated_view()
-        title.text = localized_navigation["relationship-types"]
+        title.text = localized_navigation[page]
         subtitle.text = ""
         guidance.text = ""
         for control in (search_bar, aggregation_mode_bar, add_button, add_record_button):
             control.set_visibility(False)
         table_container.clear()
+
+    async def select_type_administration(page):
+        principal = session.principal
+        if not principal or not can_navigate(page, principal.get("global_privileges", [])):
+            return
+        enter_relationship_types(page)
+        await type_administration(api=api, kind=page.removesuffix("-types"),
+            container=table_container, languages=(state.get("localization") or {}).get("supported_languages", []),
+            active=lambda: session.principal is principal and state.get("resource") == page,
+            on_error=error_message)
 
     async def load_mailbox_page_size():
         configuration = await api.application_configuration()
@@ -3454,6 +3483,7 @@ def index(q: str = "") -> None:
     )
 
     select_entity, refresh_personal_sections = build_collection_navigation(
+        refresh_creation_types=lambda: refresh_creation_types(),
         add_button=add_button,
         add_record_button=add_record_button,
         aggregation_mode_bar=aggregation_mode_bar,
@@ -3963,6 +3993,8 @@ def index(q: str = "") -> None:
             button.on("click", lambda: guarded_page_navigation(select_advanced_search))
         elif key in ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-templates"):
             button.on("click", lambda _, page=key: guarded_page_navigation(lambda: select_disposition(page)))
+        elif key in ("aggregation-types", "record-types"):
+            button.on("click", lambda _, page=key: guarded_page_navigation(lambda: select_type_administration(page)))
         elif key == "relationship-types":
             button.on("click", lambda: guarded_page_navigation(select_relationship_types))
         elif key == "translations":
@@ -4008,8 +4040,16 @@ def index(q: str = "") -> None:
     )
 
 
-    add_button.on("click", add_for_current_context)
-    add_record_button.on("click", add_record_for_current_aggregation)
+    def collection_type_context():
+        resource = state.get("resource")
+        if add_button.visible and resource in {"records", "aggregations"}:
+            return resource[:-1], resource
+        return None
+
+    with content_controls.add_group:
+        refresh_creation_types = creation_shortcut(api, collection_type_context, add_for_current_context, error_message, direction=lambda: current_direction["value"])
+    add_button.on("click", lambda: add_for_current_context())
+    add_record_button.on("click", lambda: add_record_for_current_aggregation())
     search_button.on("click", lambda: load_rows())
     search_input.on("keydown.enter", lambda: load_rows())
     async def clear_collection_search() -> None:

@@ -20,13 +20,13 @@ readonly I18N_MIGRATION_DB="erms_i18n_migration_test_$$"
 readonly I18N_CATALOGUE_MIGRATION_DB="erms_i18n_catalogue_migration_test_$$"
 readonly I18N_ENTITY_MIGRATION_DB="erms_i18n_entity_migration_test_$$"
 readonly I18N_HARDENING_MIGRATION_DB="erms_i18n_hardening_migration_test_$$"
-readonly HISTORICAL_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-historical-schema.XXXXXX.sql")"
-readonly PRE_HOLDS_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-holds-schema.XXXXXX.sql")"
-readonly PRE_ADVANCED_SEARCH_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-advanced-search-schema.XXXXXX.sql")"
-readonly PRE_I18N_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-i18n-schema.XXXXXX.sql")"
-readonly PRE_I18N_CATALOGUE_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-i18n-catalogue-schema.XXXXXX.sql")"
-readonly PRE_I18N_ENTITY_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-i18n-entity-schema.XXXXXX.sql")"
-readonly PRE_I18N_HARDENING_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-i18n-hardening-schema.XXXXXX.sql")"
+readonly HISTORICAL_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-historical-schema.sql.XXXXXX")"
+readonly PRE_HOLDS_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-holds-schema.sql.XXXXXX")"
+readonly PRE_ADVANCED_SEARCH_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-advanced-search-schema.sql.XXXXXX")"
+readonly PRE_I18N_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-i18n-schema.sql.XXXXXX")"
+readonly PRE_I18N_CATALOGUE_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-i18n-catalogue-schema.sql.XXXXXX")"
+readonly PRE_I18N_ENTITY_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-i18n-entity-schema.sql.XXXXXX")"
+readonly PRE_I18N_HARDENING_SCHEMA="$(mktemp "${TMPDIR:-/tmp}/erms-pre-i18n-hardening-schema.sql.XXXXXX")"
 LIFECYCLE_MIGRATION_DB_CREATED=false
 HOLDS_MIGRATION_DB_CREATED=false
 ADVANCED_SEARCH_MIGRATION_DB_CREATED=false
@@ -116,7 +116,7 @@ docker run \
 
 for attempt in $(seq 1 30); do
     if docker exec "${CONTAINER_NAME}" \
-        pg_isready --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" >/dev/null 2>&1; then
+        pg_isready --host 127.0.0.1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" >/dev/null 2>&1; then
         break
     fi
 
@@ -155,9 +155,8 @@ LIFECYCLE_MIGRATION_DB_CREATED=false
 PYTHONPATH="${PROJECT_DIR}" "${API_VENV}/bin/python" -c 'from tools.historical_schema import historical_schema; print(historical_schema(), end="")' >"${HISTORICAL_SCHEMA}"
 
 awk '
-    /^-- Legal holds: persistence and non-bypassable policy enforcement\.$/ { skipping=1; next }
-    skipping && /^COMMIT;$/ { skipping=0; next }
-    !skipping { print }
+    /^-- Legal holds: persistence and non-bypassable policy enforcement\.$/ { exit }
+    { print }
 ' "${HISTORICAL_SCHEMA}" >"${PRE_HOLDS_SCHEMA}"
 docker exec "${CONTAINER_NAME}" createdb \
     --username "${POSTGRES_USER}" "${HOLDS_MIGRATION_DB}"
@@ -182,9 +181,8 @@ docker exec "${CONTAINER_NAME}" dropdb --force \
 HOLDS_MIGRATION_DB_CREATED=false
 
 awk '
-    /^-- Advanced Search Phase 1 begins\.$/ { skipping=1; next }
-    skipping && /^COMMIT;$/ { print; skipping=0; next }
-    !skipping { print }
+    /^-- Advanced Search Phase 1 begins\.$/ { print "COMMIT;"; exit }
+    { print }
 ' "${HISTORICAL_SCHEMA}" >"${PRE_ADVANCED_SEARCH_SCHEMA}"
 docker exec "${CONTAINER_NAME}" createdb \
     --username "${POSTGRES_USER}" "${ADVANCED_SEARCH_MIGRATION_DB}"
@@ -202,9 +200,8 @@ docker exec "${CONTAINER_NAME}" dropdb --force \
 ADVANCED_SEARCH_MIGRATION_DB_CREATED=false
 
 awk '
-    /^-- Internationalization and user preferences Phase 1 begins\.$/ { skipping=1; next }
-    skipping && /^COMMIT;$/ { print; skipping=0; next }
-    !skipping { print }
+    /^-- Internationalization and user preferences Phase 1 begins\.$/ { print "COMMIT;"; exit }
+    { print }
 ' "${HISTORICAL_SCHEMA}" >"${PRE_I18N_SCHEMA}"
 docker exec "${CONTAINER_NAME}" createdb --username "${POSTGRES_USER}" "${I18N_MIGRATION_DB}"
 I18N_MIGRATION_DB_CREATED=true
@@ -216,9 +213,8 @@ docker exec "${CONTAINER_NAME}" dropdb --force --username "${POSTGRES_USER}" "${
 I18N_MIGRATION_DB_CREATED=false
 
 awk '
-    /^-- Internationalization Phase 2 message catalogue begins\.$/ { skipping=1; next }
-    skipping && /^COMMIT;$/ { print; skipping=0; next }
-    !skipping { print }
+    /^-- Internationalization Phase 2 message catalogue begins\.$/ { print "COMMIT;"; exit }
+    { print }
 ' "${HISTORICAL_SCHEMA}" >"${PRE_I18N_CATALOGUE_SCHEMA}"
 docker exec "${CONTAINER_NAME}" createdb --username "${POSTGRES_USER}" "${I18N_CATALOGUE_MIGRATION_DB}"
 I18N_CATALOGUE_MIGRATION_DB_CREATED=true
@@ -230,9 +226,8 @@ docker exec "${CONTAINER_NAME}" dropdb --force --username "${POSTGRES_USER}" "${
 I18N_CATALOGUE_MIGRATION_DB_CREATED=false
 
 awk '
-    /^-- Internationalization Phase 4 multilingual entity metadata begins\.$/ { skipping=1; next }
-    skipping && /^COMMIT;$/ { print; skipping=0; next }
-    !skipping { print }
+    /^-- Internationalization Phase 4 multilingual entity metadata begins\.$/ { print "COMMIT;"; exit }
+    { print }
 ' "${HISTORICAL_SCHEMA}" >"${PRE_I18N_ENTITY_SCHEMA}"
 docker exec "${CONTAINER_NAME}" createdb --username "${POSTGRES_USER}" "${I18N_ENTITY_MIGRATION_DB}"
 I18N_ENTITY_MIGRATION_DB_CREATED=true
@@ -244,9 +239,8 @@ docker exec "${CONTAINER_NAME}" dropdb --force --username "${POSTGRES_USER}" "${
 I18N_ENTITY_MIGRATION_DB_CREATED=false
 
 awk '
-    /^-- Internationalization Phase 5 search and hardening begins\.$/ { skipping=1; next }
-    skipping && /^COMMIT;$/ { print; skipping=0; next }
-    !skipping { print }
+    /^-- Internationalization Phase 5 search and hardening begins\.$/ { print "COMMIT;"; exit }
+    { print }
 ' "${HISTORICAL_SCHEMA}" >"${PRE_I18N_HARDENING_SCHEMA}"
 docker exec "${CONTAINER_NAME}" createdb --username "${POSTGRES_USER}" "${I18N_HARDENING_MIGRATION_DB}"
 I18N_HARDENING_MIGRATION_DB_CREATED=true
@@ -257,9 +251,7 @@ psql "${I18N_HARDENING_MIGRATION_DATABASE_URL}" --set ON_ERROR_STOP=on --command
 docker exec "${CONTAINER_NAME}" dropdb --force --username "${POSTGRES_USER}" "${I18N_HARDENING_MIGRATION_DB}"
 I18N_HARDENING_MIGRATION_DB_CREATED=false
 
-psql "${DATABASE_URL}" --set ON_ERROR_STOP=on --file "${DATABASE_DIR}/schema.sql" \
-    --file "${DATABASE_DIR}/seeds/000_required_reference_data.sql" \
-    --file "${DATABASE_DIR}/baseline.sql"
+env DATABASE_URL="${DATABASE_URL}" "${API_VENV}/bin/python" "${PROJECT_DIR}/tools/initialize_database.py"
 psql "${DATABASE_URL}" --set ON_ERROR_STOP=on \
     --file "${DATABASE_DIR}/migrations/031_allow_governed_security_changes_on_closed_resources.sql"
 psql "${DATABASE_URL}" --set ON_ERROR_STOP=on --command \
@@ -276,7 +268,7 @@ psql "${DATABASE_URL}" --set ON_ERROR_STOP=on --file "${SCRIPT_DIR}/user_managem
 psql "${DATABASE_URL}" --set ON_ERROR_STOP=on --file "${SCRIPT_DIR}/content_storage_and_concurrency.sql"
 env DATABASE_URL="${DATABASE_URL}" DEFAULT_WORKING_TIMEZONE="Asia/Dubai" \
     TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS="365" PYTHONPATH="${PROJECT_DIR}" \
-    "${API_VENV}/bin/python" -m pytest "${API_DIR}/tests"
+    "${API_VENV}/bin/python" "${PROJECT_DIR}/tools/run_disposable_acl_tests.py"
 "${SCRIPT_DIR}/backup_restore_authorization.sh" "${DATABASE_URL}" "${CONTAINER_NAME}"
 
 "${API_VENV}/bin/python" "${DATABASE_DIR}/seeds/import_mutamathilah.py" \

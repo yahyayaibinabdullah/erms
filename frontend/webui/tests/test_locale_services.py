@@ -49,17 +49,17 @@ def test_translation_inspector_key_encoding_is_cached():
     assert _encoded_diagnostic_key.cache_info().hits == 1
 
 
-def test_translation_inspector_skips_dom_scans_while_disabled():
+def test_translation_inspector_scans_only_after_authorization():
     script = (
         Path(__file__).parents[1] / "static" / "translation-inspector.js"
     ).read_text()
     assert "new MutationObserver" in script
     assert "observer.disconnect()" in script
     assert "observer.observe(document.documentElement" in script
-    assert "if(state.enabled)" in script
-    assert "scan(document);" in script
-    initialize = script[script.index("initialize(labels)"):script.index("setAuthorized(v)")]
-    assert "scan(document)" not in initialize
+    assert "if (state.authorized === !!value) return" in script
+    assert "scan(document.documentElement);" in script
+    initialize = script[script.index("initialize(labels)"):script.index("setAuthorized(value)")]
+    assert "scan(" not in initialize
 
 
 def test_navigation_and_translation_administration_have_arabic_catalogue_entries():

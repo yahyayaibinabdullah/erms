@@ -211,8 +211,12 @@ def test_eligibility_acceleration_provenance_is_batched_for_the_visible_page(cli
         membership.accelerate(c,**kwargs(root_id=accelerated,expected_version=version(c,accelerated)))
         class ObservedConnection:
             def __init__(self): self.provenance=[]
+            def transaction(self, *args, **kwargs):
+                return c.transaction(*args, **kwargs)
+
             def execute(self,query,params=None):
-                if 'FROM unnest(' in query:self.provenance.append(params[0])
+                if 'FROM unnest(%s::bigint[]) AS roots(id)' in query:
+                    self.provenance.append(params[0])
                 return c.execute(query,params)
         observed=ObservedConnection()
         first=queries.eligibility(observed,limit=1,offset=0,sort='id')
@@ -336,7 +340,7 @@ def test_suggested_owner_request_is_bounded(client):
 
 def test_eligibility_owner_compatibility_is_page_bounded_and_hides_unseen_hierarchy(client):
     from backend.services.api.tests.test_disposition_selection import move_owner
-    with db() as c:
+    with db() as c, c.transaction(force_rollback=True):
         actor(c)
         def org(code,parent):
             return c.execute('INSERT INTO org_units(code,name,parent_org_unit_id) VALUES(%s,%s,%s) RETURNING id',(code,code,parent)).fetchone()['id']

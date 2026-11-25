@@ -18,7 +18,9 @@ async def test_indexer_creation_status_rotation_and_revocation(assembled):
     user=assembled;await login(user);api=user.api_clients[0]
     click_one(user,[b for b in drawer_buttons(user) if plain(b)=='Text Indexers'])
     await eventually(lambda:current_page(user)=='text-indexers' and user.pending_requests==0)
-    click(user,t('webui.select_text_indexers.button.add_text_indexer_fd6584b1'));d=await opened(user)
+    add_label = t('webui.select_text_indexers.button.add_text_indexer_fd6584b1')
+    await eventually(lambda: any(plain(b) == add_label for b in user.find(ui.button).elements))
+    click(user,add_label);d=await opened(user)
     for key,value in [('webui.add_text_indexer_dialog.input.deployment_or_pool_name_7539da84','Phase6H indexer'),('webui.add_text_indexer_dialog.input.immutable_external_id_0e9e9051','phase6h-indexer'),('webui.add_text_indexer_dialog.input.initial_credential_name_33daef5e','Initial key')]:input_value(user,d,key,value)
     click(user,t('webui.add_text_indexer_dialog.button.create_and_generate_key_a5f16e9e'),d)
     await saved(user,d);reveal=await opened(user)
@@ -53,6 +55,7 @@ async def test_indexer_backfill_refresh_and_empty_retry_disabled(assembled):
     user=assembled;await login(user)
     click_one(user,[b for b in drawer_buttons(user) if plain(b)=='Text Indexers'])
     await eventually(lambda:current_page(user)=='text-indexers' and user.pending_requests==0)
+    await eventually(lambda: any(b.props.get('icon') == 'replay' for b in user.find(ui.button).elements))
     assert not next(b for b in user.find(ui.button).elements if b.props.get('icon')=='replay').enabled
     for icon,submit,path in [('playlist_add','webui.queue_backfill_dialog.button.queue_batch_59aa1eb9','/backfill')]:
         click_one(user,[b for b in user.find(ui.button).elements if b.props.get('icon')==icon]);d=await opened(user)

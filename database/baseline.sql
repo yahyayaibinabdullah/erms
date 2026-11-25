@@ -4,14 +4,11 @@
 BEGIN;
 DO $$
 BEGIN
-    IF EXISTS (SELECT 1 FROM schema_migrations) THEN
-        RAISE EXCEPTION 'Schema baseline is already recorded';
+    IF to_regclass('pg_temp.erms_fresh_install') IS NULL THEN
+        RAISE EXCEPTION 'Baseline requires the fresh-install transaction; use tools/initialize_database.py';
     END IF;
-    IF to_regprocedure('disposition_private.complete_certificate_task(bigint,bigint,bigint)') IS NULL
-       OR to_regclass('public.preview_rendition_chunks') IS NULL
-       OR to_regclass('public.search_results_cache') IS NULL
-       OR NOT application_setting_value_valid('SEARCH_RESULT_LIMIT', '1000'::jsonb, NULL) THEN
-        RAISE EXCEPTION 'Load the latest canonical schema before recording its baseline';
+    IF EXISTS (SELECT 1 FROM public.schema_migrations) THEN
+        RAISE EXCEPTION 'Schema baseline is already recorded';
     END IF;
 END
 $$;
@@ -80,5 +77,13 @@ INSERT INTO schema_migrations(version) VALUES
  ('113_aggregation_listing_page_sizes'),
  ('114_message_draft_completion_choice'),
  ('115_messages_page_size'),
- ('118_converted_preview_renditions');
+ ('118_converted_preview_renditions'),
+ ('119_resource_types'),
+ ('120_resource_type_access'),
+ ('121_type_text_search'),
+ ('122_resource_field_positions'),
+ ('123_resource_type_everyone'),
+ ('124_type_privilege_categories'),
+ ('125_type_administration_privilege_codes');
+DROP TABLE pg_temp.erms_fresh_install;
 COMMIT;

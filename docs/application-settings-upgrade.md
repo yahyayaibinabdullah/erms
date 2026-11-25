@@ -11,8 +11,7 @@ disposition operations and document delivery remain later phases.
 
 ## Database and API deployment
 
-For a new empty database, load `database/schema.sql`, then explicitly run
-`database/seeds/000_required_reference_data.sql` and `database/baseline.sql`. For an
+For a new empty database, run `backend/services/api/.venv/bin/python tools/initialize_database.py`. For an
 existing database already current through migration 049, inspect
 `schema_migrations`, back up through the established deployment procedure, and
 apply the missing upgrades in order:

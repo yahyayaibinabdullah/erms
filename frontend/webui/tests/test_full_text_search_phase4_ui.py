@@ -41,7 +41,6 @@ def test_global_search_header_results_and_safe_snippets_are_present():
     assert 'record_capabilities = item.get("record_capabilities") or {}' in global_search
     assert 'api.resource_capabilities(' not in global_search
     assert 'for component in item.get("matching_components", [])' in source
-    assert 'preview_record_components(selected, component_id)' in source
     assert "Preview digital component" in source
     assert 'can_expand_components=bool(' in source
     assert 'record_capabilities.get("list_components") and matching_components' in source

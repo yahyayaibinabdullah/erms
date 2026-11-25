@@ -261,9 +261,8 @@ def test_advanced_search_uses_clearable_catalogues_and_classification_aggregatio
     assert '<q-chip outline color="primary" icon="task_alt"' in APP_SOURCE
 
 
-def test_record_component_attributions_open_the_governed_viewer():
+def test_record_component_attributions_supply_matching_components_and_capabilities():
     assert "Preview digital component" in APP_SOURCE
-    assert 'preview_record_components(selected, component_id)' in COMPACT_SOURCE
     assert 'for component in search_meta.get("matching_components", [])' in APP_SOURCE
     assert 'workspace["record_capabilities"] = {' in APP_SOURCE
 
@@ -283,7 +282,6 @@ def test_advanced_search_builder_and_results_use_compact_aligned_layouts():
     assert 'grid-template-areas: "title type";' in rtl_identity_layout
     assert 'justify-content: end;' in rtl_identity_layout
     assert 'compact-result-primary w-full items-center no-wrap' in COMPACT_SOURCE
-    assert 'compact-result-meta w-full items-center no-wrap' in COMPACT_SOURCE
     rtl_result_title_row = APP_SOURCE.rsplit('html[dir="rtl"] .compact-result-primary,', 1)[1].split('}', 1)[0]
     assert 'justify-content: flex-start !important;' in rtl_result_title_row
     assert 'width: auto !important;' in rtl_result_title_row

@@ -37,9 +37,9 @@ def kwargs(**values):
     return dict(acting_role_id=1,reason='Authorized Phase 9 acceptance reason',command_id=uuid4(),**values)
 
 
-def setup(c,kind='destruction',assigned=1,owner=1):
+def setup(c,kind='destruction',assigned=1,owner=1,*,retain_reviewers=False):
     actor(c);ensure_officer(c)
-    with configured_creation_roles(c,owner,kind):
+    with configured_creation_roles(c,owner,kind,retain=retain_reviewers):
         return service.create_job(c,**kwargs(job_number=str(uuid4()),job_type=kind,owning_org_unit_id=owner if kind=='destruction' else None,assigned_user_id=assigned))
 
 
@@ -206,7 +206,7 @@ def test_simultaneous_jobs_cannot_admit_the_same_root(client):
 @pytest.mark.parametrize('years,action,status,required',[(0,'destruction',6,False),(100,'destruction',1,True),(0,'retain_as_local_archives',5,True)])
 def test_rule_change_is_atomic_preserves_matching_pending_or_requires_explicit_removal(client,years,action,status,required):
     with db() as c:
-        job=setup(c);root,*_=ready(c);admit(c,job['id'],[root]);before=member(c,root)
+        job=setup(c,retain_reviewers=True);root,*_=ready(c);admit(c,job['id'],[root]);before=member(c,root)
         rule_change(c,root,years=years,action=action)
         after=member(c,root);assert after['id']==before['id'] and after['removal_required'] is required
         assert statuses(c,root)==[status]*4

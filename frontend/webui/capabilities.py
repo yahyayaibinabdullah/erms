@@ -8,6 +8,8 @@ NAVIGATION_PRIVILEGES = {
     "disposition-jobs": "disposition.jobs.manage",
     "disposition-templates": "disposition.jobs.manage",
     "application-settings": "app.settings.manage",
+    "aggregation-types": "aggregation_types.administer",
+    "record-types": "record_types.administer",
     "relationship-types": "relationships.administer",
     "messages-monitor": "messaging.monitor",
     "messages-notifications": "messaging.notifications.administer",

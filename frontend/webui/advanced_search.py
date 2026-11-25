@@ -6,6 +6,9 @@ from .advanced_search_model import ADVANCED_SEARCH_FIELDS
 from .advanced_search_model import ADVANCED_SEARCH_RETENTION_FIELDS
 from typing import Any
 from .api_client import ApiError
+from .type_controls import t as type_text
+from .advanced_search_model import typed_field_ids, workspace_sort
+from .type_search_controls import choose_sort, render_type_condition, sort_label
 from .advanced_search_model import advanced_search_depth
 from .advanced_search_model import advanced_search_empty_value
 from .advanced_search_model import advanced_search_field_options
@@ -98,6 +101,27 @@ def build_advanced_search(
         }
         restored_workspace = advanced_search_state.get("advanced_search_workspace")
         workspace: dict[str, Any] = copy.deepcopy(restored_workspace) if isinstance(restored_workspace, dict) else default_workspace
+        previous = workspace.get("saved")
+        if previous:
+            # The saved workspace may outlive both its type grants and this view.
+            failure = None
+            try:
+                current = await api.saved_search(int(previous["id"]))
+            except ApiError as error:
+                failure = error
+            if not search_session_is_current() or get_resource() != "advanced-search":
+                return
+            if failure is not None:
+                ui.notify(error_message(failure), color="negative", close_button=True)
+                if failure.status_code not in {403, 404, 422}:
+                    # A transient outage cannot authorize display or discard the saved draft.
+                    return
+                workspace = copy.deepcopy(default_workspace)
+                advanced_search_state.pop("advanced_search_workspace", None)
+            elif current.get("version") != previous.get("version"):
+                workspace = copy.deepcopy(default_workspace)
+            else:
+                workspace["saved"] = current
         if workspace.get("resource") not in targets:
             workspace = default_workspace
         for key, value in default_workspace.items():
@@ -193,7 +217,7 @@ def build_advanced_search(
             expression = compile_advanced_search_node(workspace["root"], workspace["resource"])
             request: dict[str, Any] = {
                 "where": expression,
-                "sort": [{"field": workspace["sort_field"], "direction": workspace["sort_direction"]}],
+                "sort": workspace_sort(workspace),
                 "limit": int(workspace["limit"]), "offset": 0,
             }
             if advanced_search_has_positive_full_text(workspace["root"]):
@@ -325,8 +349,23 @@ def build_advanced_search(
             # builder requires an outer group. A one-child AND preserves meaning.
             if workspace["root"].get("type") == "condition":
                 workspace["root"] = {"type": "group", "operator": "and", "children": [workspace["root"]]}
-            visible_sort = next((item for item in request.get("sort", []) if item["field"] != "id"), None)
+            sorts = request.get("sort") or []
+            visible_sort = sorts[0] if sorts else None
+            workspace["sort_tail"] = copy.deepcopy(sorts[1:])
             workspace["sort_field"] = (visible_sort or {"field": "id"})["field"]
+            workspace.pop("type_sort_label", None)
+            if typed_field_ids(workspace["sort_field"]):
+                async def hydrate_sort(resource, name):
+                    try:
+                        caption = await sort_label(api, resource, name)
+                    except ApiError:
+                        return
+                    if search_view_is_current() and (workspace["resource"], workspace["sort_field"]) == (resource, name):
+                        workspace["type_sort_label"] = caption
+                        refresh_sort_options()
+                resource, name = workspace["resource"], workspace["sort_field"]
+                with sort_field.parent_slot:
+                    ui.timer(0.01, lambda: hydrate_sort(resource, name), once=True)
             workspace["sort_direction"] = (visible_sort or {"direction": "asc"})["direction"]
             workspace["limit"] = int(request.get("limit", default_limit))
             # A newly loaded definition has no execution results. Do not let
@@ -554,8 +593,18 @@ def build_advanced_search(
                 async def select_saved_search(selected: dict[str, Any]) -> None:
                     if not await confirm_discard_changes("open another saved search"):
                         return
+                    try:
+                        current = await api.saved_search(int(selected["id"]))
+                    except ApiError as error:
+                        if not search_view_is_current():
+                            return
+                        ui.notify(error_message(error), color="negative", close_button=True)
+                        await load_saved_page(offset=filters["offset"])
+                        return
+                    if not search_view_is_current():
+                        return
                     dialog.close()
-                    load_saved_into_workspace(selected)
+                    load_saved_into_workspace(current)
 
                 saved_page_request = {"revision": 0}
                 dialog.on("hide", lambda: saved_page_request.update(revision=saved_page_request["revision"] + 1))
@@ -631,7 +680,7 @@ def build_advanced_search(
                                             render_message("webui.load_saved_page.label.title_value_updated_format_timestamp_value_b78393c6", title=localized_editor_entity("records" if item["resource_type"] == "record" else "aggregations", item["resource_type"]), value=item.get('category') or render_message("webui.saved_search_metadata.uncategorized"), format_timestamp=format_timestamp(item['date_updated']), value_2=render_message("webui.saved_search_metadata.owned") if mine else render_message("webui.saved_search_metadata.shared_by", owner=str((owner.get('localized') or {}).get('name') or owner.get('name') or item['owner_user_id'])))
                                         ).classes("text-xs text-slate-500")
                                         ui.label(
-                                            render_message("webui.load_saved_page.label.maximum_max_results_results_audience_label_1664749d", max_results=format(item.get('result_cap', item['definition'].get('max_results', 1000)), ','), audience_label=audience_label)
+                                            render_message("webui.load_saved_page.label.maximum_max_results_results_audience_label_1664749d", max_results=format(item.get('result_cap', (item.get('definition') or {}).get('max_results', 1000)), ','), audience_label=audience_label)
                                         ).classes("text-xs text-slate-500")
                                         for kind, field, label_key in (
                                             ("roles", "role_ids", "webui.save_search.select.roles_c2c266e1"),
@@ -642,10 +691,16 @@ def build_advanced_search(
                                             if names:
                                                 ui.label(render_message(label_key) + ": " + "; ".join(names)).classes("text-xs text-slate-500")
                                     ui.badge(render_message("webui.load_saved_page.badge.mine_47cb9b71") if mine else render_message("webui.load_saved_page.badge.shared_0a95a474"), color="blue-grey").props("outline")
-                                ui.button(
+                                reason = (item.get("capability_reasons") or {}).get("open")
+                                if reason == "saved_search_type_forbidden":
+                                    ui.label(render_message("saved_search.error.type_forbidden"))
+                                elif reason == "search_type_reference_unavailable":
+                                    ui.label(render_message("saved_search.error.reference_unavailable"))
+                                open_item = ui.button(
                                     render_message("webui.load_saved_page.button.open_2606a7e0"), icon="folder_open",
                                     on_click=lambda _, selected=item: select_saved_search(selected),
                                 ).props("flat dense no-caps")
+                                open_item.set_enabled((item.get("capabilities") or {}).get("open", True))
                     start = page["offset"] + 1 if page["items"] else 0
                     page_label.text = render_message("webui.load_saved_page.text.start_value_of_total_eed8d817", start=start, value=page['offset'] + len(page['items']), total=page['total'])
                     previous.set_enabled(page["offset"] > 0)
@@ -767,7 +822,7 @@ def build_advanced_search(
         def render_condition(node: dict[str, Any], parent: list[dict[str, Any]], index: int) -> None:
             with ui.card().classes("advanced-search-condition w-full p-2 shadow-none border border-slate-200"):
                 with ui.row().classes("advanced-search-condition-row w-full items-end gap-2 flex-wrap"):
-                    kind = ui.select({"structured": render_message("webui.render_condition.select.metadata_65eb8656"), "full_text": render_message("webui.render_condition.select.full_text_3ef4f841")}, value=node.get("kind", "structured"), label=render_message("webui.render_condition.select.condition_type_5394683e")).props("outlined dense options-dense").classes("w-36")
+                    kind = ui.select({"structured": render_message("webui.render_condition.select.metadata_65eb8656"), "assigned": type_text("assigned"), "type_field": type_text("condition"), "full_text": render_message("webui.render_condition.select.full_text_3ef4f841")}, value=node.get("kind", "structured"), label=render_message("webui.render_condition.select.condition_type_5394683e")).props("outlined dense options-dense").classes("w-36")
                     if node.get("kind") == "full_text":
                         query_control = ui.input(render_message("webui.render_condition.input.search_words_or_phrase_f4d8da06"), value=node.get("query", "")).props("outlined dense clearable inputmode=search").classes("advanced-search-auto-value grow min-w-64")
                         query_control.on_value_change(lambda event: (
@@ -780,6 +835,8 @@ def build_advanced_search(
                                 node.__setitem__("sources", event.value or []),
                                 update_search_enabled(), refresh_sort_options(), persist_workspace(),
                             ))
+                    elif node.get("kind") in {"assigned", "type_field"}:
+                        render_type_condition(api, workspace["resource"], node, render_builder, update_search_enabled, error_message)
                     else:
                         fields = advanced_search_field_options(workspace["resource"],can_manage_disposition=bool((get_principal() or {}).get("can_manage_disposition")))
                         if node.get("field")=="disposition_status" and "disposition_status" not in fields:
@@ -908,7 +965,15 @@ def build_advanced_search(
                             ),
                             render_builder(),
                         ))
-                    kind.on_value_change(lambda event: (node.clear(), node.update(new_condition() if event.value == "structured" else {"type": "condition", "kind": "full_text", "query": "", "sources": ["metadata", "components"] if workspace["resource"] == "records" else ["metadata"]}), render_builder()))
+                    def change_kind(event):
+                        node.clear()
+                        node.update(new_condition())
+                        if event.value == "full_text":
+                            node.update(kind="full_text", query="", sources=["metadata", "components"] if workspace["resource"] == "records" else ["metadata"])
+                        elif event.value in {"assigned", "type_field"}:
+                            node.update(kind=event.value, field="type_id" if event.value == "assigned" else None, operator="eq", value=None)
+                        render_builder()
+                    kind.on_value_change(change_kind)
                     with ui.row().classes("advanced-search-condition-actions items-center gap-0 self-end"):
                         ui.button(icon="block", on_click=lambda: negate_node(parent, index, node)).props('flat round dense aria-label=' + repr(render_message("webui.render_condition.accessible_name.negate_condition_0ee5684b"))).tooltip(render_message("webui.render_condition.tooltip.negate_9cd858a3"))
                         ui.button(icon="content_copy", on_click=lambda: duplicate_node(parent, index, node)).props('flat round dense aria-label=' + repr(render_message("webui.render_condition.accessible_name.duplicate_condition_2282d530"))).tooltip(render_message("webui.render_condition.tooltip.duplicate_93f8b940"))
@@ -986,6 +1051,10 @@ def build_advanced_search(
                     options = {"_relevance": render_message("webui.refresh_sort_options.text.relevance_5632eeed"), **options}
             except ValueError:
                 pass
+            options["type_field"] = type_text("condition")
+            selected = workspace["sort_field"]
+            if typed_field_ids(selected):
+                options[selected] = workspace.get("type_sort_label") or type_text("condition")
             sort_field.options = options
             if workspace["sort_field"] not in options:
                 workspace["sort_field"] = "_relevance" if "_relevance" in options else "id"
@@ -1003,7 +1072,7 @@ def build_advanced_search(
                     return
                 request = {
                     "where": copy.deepcopy(expression),
-                    "sort": [{"field": workspace["sort_field"], "direction": workspace["sort_direction"]}],
+                    "sort": workspace_sort(workspace),
                     "limit": workspace["limit"],
                 }
                 if advanced_search_has_positive_full_text(workspace["root"]):
@@ -1213,7 +1282,7 @@ def build_advanced_search(
             reset_search(clear_metadata=True)
 
         def reset_search(*, clear_metadata: bool = False) -> None:
-            workspace.update(root={"type": "group", "operator": "and", "children": [new_condition()]}, sort_field="id", sort_direction="asc", limit=default_limit, offset=0, total=0, searched=False, last_result=None)
+            workspace.update(root={"type": "group", "operator": "and", "children": [new_condition()]}, sort_field="id", sort_direction="asc", sort_tail=[], limit=default_limit, offset=0, total=0, searched=False, last_result=None)
             workspace.update(execution=None, execution_revision=workspace["execution_revision"] + 1, busy=False)
             workspace.update(expanded_results=[], record_capabilities={})
             workspace.pop("return_anchor", None)
@@ -1253,7 +1322,21 @@ def build_advanced_search(
                 await execute_search(page_offset=offset)
 
         target.on_value_change(change_target)
-        sort_field.on_value_change(lambda event: (workspace.__setitem__("sort_field", event.value), persist_workspace()))
+        async def change_sort(event):
+            if event.value == "type_field":
+                resource = workspace["resource"]
+                try:
+                    selected = await choose_sort(api, resource, lambda: search_view_is_current() and workspace["resource"] == resource)
+                except ApiError as error:
+                    ui.notify(error_message(error), color="negative")
+                    selected = None
+                if selected:
+                    workspace["sort_field"], workspace["type_sort_label"] = selected
+                refresh_sort_options()
+            elif event.value is not None:
+                workspace["sort_field"] = event.value
+            persist_workspace()
+        sort_field.on_value_change(change_sort)
         sort_direction.on_value_change(lambda event: (workspace.__setitem__("sort_direction", event.value), persist_workspace()))
         page_size.on_value_change(lambda event: (workspace.update(limit=int(event.value)), persist_workspace()))
         search_advanced.on("click", lambda: execute_search())
@@ -1273,7 +1356,7 @@ def build_advanced_search(
         administered_search_id = advanced_search_state.pop("admin_saved_search_id", None)
         if administered_search_id is not None:
             try:
-                load_saved_into_workspace(await api.saved_search(int(administered_search_id)))
+                load_saved_into_workspace(await api.saved_search(int(administered_search_id), inspection=True))
             except ApiError as error:
                 ui.notify(error_message(error), color="negative", close_button=True)
                 render_builder()

@@ -867,6 +867,15 @@ or documented style surface rather than duplicating them.
 
 ### 19.1 NiceGUI-first layout and RTL troubleshooting
 
+The Add-by-type control uses a NiceGUI button group. Mount the arrow only
+when there are usable types. A hidden arrow still counts as the last child
+and leaves the standalone Add button square on one side. Anchor the menu
+to the trailing edge, reposition it when the options replace the loading
+indicator, and hide the hover tooltip while the menu is open. Browser
+inspection also showed that the native rounded group styles use physical
+corners even when the row follows the document direction. The RTL rule on
+`.creation-button-group` rounds the two outer edges and leaves the seam straight.
+
 The record page uses native NiceGUI rows, disclosure buttons, and upload
 controls for digital components. Inspection of the old layout showed that the
 upload queue displayed its own empty state even when the separate list held

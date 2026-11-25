@@ -40,6 +40,8 @@ def test_queue_claim_gates_and_task_only_reviewer(client):
         assert set(view['actions'])=={'save','propose','complete_review','release','reassign'}
         actor(c,other)
         assert workspace.read(c,job['id'])['actions']==[]
+        assert workflow.tasks(c,limit=10,offset=0)['items']==[]
+        actor(c,reviewer)
         assert workflow.tasks(c,limit=10,offset=0)['items'][0]['claimant']=='Task-only File Administrator'
         with pytest.raises(HTTPException):workspace.read(c,job['id'],999999)
 

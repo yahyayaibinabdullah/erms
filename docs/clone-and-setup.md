@@ -176,9 +176,7 @@ set -a
 source .env
 set +a
 
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/schema.sql \
-  -f database/seeds/000_required_reference_data.sql \
-  -f database/baseline.sql
+backend/services/api/.venv/bin/python tools/initialize_database.py
 ```
 
 If the `DATABASE_URL` in `.env` is not already a reachable local PostgreSQL instance, update it before running the schema import.

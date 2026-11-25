@@ -206,7 +206,7 @@ def check_aggregation_file_drop(page):
             dialog=page.one('.q-dialog__inner > .q-card')
             assert confirmed_title in plain(dialog.text)
             assert not any(re.fullmatch(r'/api/v1/records/\d+',e['path']) for e in page.events()[start:])
-            page.activate(page.one('button',scope=dialog))
+            page.one('button', scope=dialog).send_keys(Keys.ENTER)
             page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
             page.capture('aggregation-file-drop-'+language)
             # The ordinary Add record action must refresh this same panel.
@@ -214,6 +214,25 @@ def check_aggregation_file_drop(page):
             dialog=page.one('.q-dialog__inner > .q-card')
             page.fill(page.t('entity_metadata.field.record_number')+' *','MANUAL-'+language)
             page.fill(page.t('entity_metadata.field.title')+' *','Manual-'+language)
+            # Dropping on the draft's native uploader must never invoke the
+            # containing aggregation's create-from-drop action.
+            start = len(page.events())
+            uploader = page.one(".record-uploader", scope=dialog)
+            page.driver.execute_script("""
+                const area = arguments[0], transfer = new DataTransfer();
+                transfer.items.add(new File(["draft"], "draft-attachment.txt", {type:"text/plain"}));
+                area.dispatchEvent(new DragEvent("dragover", {bubbles:true, cancelable:true, dataTransfer:transfer}));
+            """, uploader)
+            native_target = page.one(".q-uploader__dnd", scope=uploader)
+            page.driver.execute_script("""
+                const transfer = new DataTransfer();
+                transfer.items.add(new File(["draft"], "draft-attachment.txt", {type:"text/plain"}));
+                arguments[0].dispatchEvent(new DragEvent("drop", {bubbles:true, cancelable:true, dataTransfer:transfer}));
+            """, native_target)
+            page.wait.until(lambda _: any(e["method"] == "POST" and
+                re.fullmatch(r"/api/v1/record-drafts/\d+/components", e["path"]) for e in page.events()[start:]))
+            assert not any(e["path"].endswith("/records/file-drop") for e in page.events()[start:])
+            page.wait.until(lambda _: page.button(page.t('webui.open_record_draft_editor.button.create_record_dd0193d6'), dialog).is_enabled())
             page.click(page.t('webui.open_record_draft_editor.button.create_record_dd0193d6'),dialog)
             page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
             page.wait.until(lambda _:'Manual-'+language in plain(page.one('.dashboard-personal-panel').text))

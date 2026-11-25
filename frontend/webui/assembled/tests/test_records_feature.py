@@ -65,3 +65,50 @@ async def test_record_draft_validation_staging_commit_and_metadata(assembled,med
     await eventually(lambda:any(b.id!=old for b in buttons(edit)) and user.pending_requests==0)
     assert (await api.get('records',created['id']))['title']=='Updated '+medium+' record'
     assert not user.api_failures
+
+
+async def test_records_collection_drop_commits_reviewed_draft(assembled, monkeypatch):
+    """Use the real draft, destination, number suggestion, storage and commit APIs."""
+    from frontend.webui.record_collection_drop import DraftDrop, RecordsDrop
+
+    user = assembled
+    await login(user)
+    api = user.api_clients[0]
+    parent = (await api.search_request("aggregations", {
+        "where": {"field": "aggregation_number", "operator": "eq", "value": "TEST-AGG"}, "limit": 1,
+    }))["items"][0]
+    parent = await api.create("aggregations", dict(aggregation_number="INTAKE", title="Digital intake",
+                              classification_id=parent["classification_id"], medium="mixed"))
+
+    # The Chrome scope tests native File transport. Supply the same bytes in
+    # the in-process UI client, which cannot execute browser JavaScript.
+    async def transfer(self, client, draft_id, index):
+        await client.upload_draft_component(draft_id, self.position, self.files[index]["name"], PNG, "image/png")
+    monkeypatch.setattr(DraftDrop, "upload_file", transfer)
+    click_one(user, [b for b in drawer_buttons(user) if plain(b) == "Records"])
+    await eventually(lambda: current_page(user) == "records" and not user.pending_requests)
+    target = next(e for e in user.client.elements.values() if isinstance(e, RecordsDrop))
+    drop = next(e.handler for e in target._event_listeners.values() if e.type == "filesDropped")
+    names = ["intake-notes.png", "intake-scan.png"]
+    with user:
+        await drop(SimpleNamespace(args={"files": [dict(name=n, size=len(PNG), type="image/png") for n in names]}))
+    dialog = await opened(user)
+    fields = {plain(e).removesuffix(" *"): e for e in dialog.descendants() if isinstance(e, (ui.input, ui.select))}
+    assert fields["Title"].value == "Intake" and fields["Aggregation"].value is None
+    with user:
+        fields["Title"].value = "Reviewed intake"
+        fields["Aggregation"].set_options({parent["id"]: parent["title"]}, value=parent["id"])
+    await eventually(lambda: fields["Record number"].value and not user.pending_requests)
+    assert fields["Title"].value == "Reviewed intake" and fields["Medium"].value == "digital"
+    with user:
+        role = next(e for e in dialog.descendants() if isinstance(e, ui.select)
+                    and plain(e) == t("webui.open_record_draft_editor.select.create_for_857b2d59"))
+        role.value = next(iter(role.options))
+    number = fields["Record number"].value
+    click_one(user, [b for b in dialog.descendants() if isinstance(b, ui.button)
+                     and plain(b) == t("webui.open_record_draft_editor.button.create_record_dd0193d6")])
+    await eventually(lambda: not dialog.value and not user.pending_requests)
+    found = (await api.search_request("records", {"where": {"field": "record_number", "operator": "eq", "value": number},
+                                                  "limit": 1}))["items"][0]
+    assert found["aggregation_id"] == parent["id"] and found["title"] == "Reviewed intake" and found["type_id"] is None
+    assert [row["file_name"] for row in (await api.component_page(found["id"]))["items"]] == names

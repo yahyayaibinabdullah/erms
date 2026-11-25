@@ -43,7 +43,7 @@ CASES = [
 ]
 
 
-def seed(c, *, include_chunks=True):
+def seed(c, *, include_chunks=True, typed=False, structured_types=False):
     from backend.services.api.authentication import hash_password
     c.execute("SELECT set_config('app.event_source','seeding',true)")
     unit = c.execute("INSERT INTO org_units(code,name) VALUES('PERF','Performance') RETURNING id").fetchone()['id']
@@ -92,6 +92,18 @@ def seed(c, *, include_chunks=True):
         c.execute(sql.SQL("UPDATE {} SET {}='2001-01-01'::timestamptz + (id % 3) * interval '1 day'").format(
             sql.Identifier(table), sql.Identifier(historical_date)))
         kind = 'record' if table=='records' else 'aggregation'
+        if typed:
+            # Every third row remains untyped. Equal-access runs retain the exact
+            # legacy oracle while exercising two different type grants per kind.
+            type_ids = [c.execute(
+                "INSERT INTO resource_types(kind,name) VALUES (%s,%s) RETURNING id",
+                (kind, label),
+            ).fetchone()["id"] for label in ("General", "Restricted")]
+            c.execute("""INSERT INTO resource_type_role_grants(kind,type_id,role_id,can_use)
+                         SELECT %s,id,%s,false FROM unnest(%s::bigint[]) id""",
+                      (kind, role, type_ids))
+            c.execute(sql.SQL("UPDATE {} SET type_id=CASE id%%3 WHEN 1 THEN %s::bigint ELSE %s::bigint END WHERE id%%3<>0")
+                      .format(sql.Identifier(table)), type_ids)
         c.execute(sql.SQL("""INSERT INTO event_history(entity_type,entity_id,operation,occurred_at,
               actor_user_id,actor_name,actor_type,source,after_state)
             SELECT %s,resource.id,'CREATE','2024-01-01T00:00:00Z',
@@ -132,6 +144,9 @@ def seed(c, *, include_chunks=True):
         FROM records CROSS JOIN generate_series(0,1) n CROSS JOIN templates
         WHERE language=id%3 AND probe=(id<=73 AND n=0)""")
     c.commit()
+    if structured_types:
+        from tools.structured_type_search_performance import seed as seed_structured
+        seed_structured(c)
     # Finish the bulk-load maintenance, as the dashboard benchmark does. With
     # checksums enabled, leaving fresh rows unvacuumed made the first SELECT
     # generate hundreds of MB of hint-bit full-page WAL images. No search or
@@ -175,7 +190,8 @@ def oracle(c, query, sources, maximum_id=None, kind=None, order_by_id=False):
     return rows
 
 
-def exercise(output, repeats):
+def exercise(output, repeats, *, type_text=False, upgraded_reader_check=None):
+    """The populated-upgrade rehearsal reuses the three broad cases and the reader session."""
     from fastapi.testclient import TestClient
     from backend.services.api.main import app
     from backend.services.api import search
@@ -206,6 +222,8 @@ def exercise(output, repeats):
             assert login.status_code==200,login.text
             client.headers['X-CSRF-Token']=client.cookies['erms_csrf']
             for label,query,count,sources in CASES:
+                if upgraded_reader_check is not None and not label.startswith('broad_'):
+                    continue
                 expected=None
                 leaf={'full_text':{'query':query}}
                 if sources:leaf['full_text']['sources']=[sources]
@@ -260,8 +278,8 @@ def exercise(output, repeats):
                     for resource,expression in [('records',parsed.record_where),('aggregations',parsed.aggregation_where)]:
                         if expression is None:continue
                         stmt,args=search._global_ranking_statement(c,resource,expression,1001)
-                        from backend.services.api.search_execution import search_sql_execution
-                        with search_sql_execution(c):
+                        from backend.services.api.search_execution import global_ranking_io, search_sql_execution
+                        with search_sql_execution(c), global_ranking_io(c):
                             plan=c.execute(sql.SQL('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) ')+stmt,args).fetchone()['QUERY PLAN']
                         (output/f'{label}-{resource}-plan.json').write_text(json.dumps(plan,indent=2))
                         def indexes(node):
@@ -275,6 +293,10 @@ def exercise(output, repeats):
                         if label == 'content' and resource == 'records':
                             assert 'component_search_chunks_vector_gin' in used
                     c.commit()
+            if upgraded_reader_check is not None:
+                if identity == 'reader':
+                    upgraded_reader_check(client, c, repeats)
+                continue
             from tools.search_aggregation_activity_performance import exercise as exercise_aggregation_activity
             failures.extend(exercise_aggregation_activity(client, c, output, repeats, identity))
             from tools.search_cache_performance import exercise as exercise_tab_cache
@@ -285,6 +307,9 @@ def exercise(output, repeats):
             failures.extend(exercise_child_aggregations(client, c, output, repeats, identity))
             failures.extend(exercise_global_ui_pages(client, output, repeats, identity))
         (output/'results.json').write_text(json.dumps({'results':results,'failures':failures},indent=2))
+        if type_text:
+            from tools.type_text_search_performance import exercise as exercise_type_text
+            exercise_type_text(client, c, output, repeats)
         assert not failures, f'{len(failures)} responses exceeded their time limit; see {output}/results.json'
 
 
@@ -296,11 +321,20 @@ def main():
                         help='Disposable-only storage comparison; application schema is unchanged')
     parser.add_argument('--settle-seconds',type=int,default=0,
                         help='Explicit idle interval after fixture maintenance, before any search; recorded in evidence')
+    parser.add_argument('--type-text', action='store_true', help='Populate and verify resource text fields, rankings and current-page access')
+    parser.add_argument('--typed-search-only', action='store_true', help='Measure typed structured searches, saved searches and selectors')
+    parser.add_argument('--type-visibility-only',action='store_true',help='Exercise broad lists, revocation, governance and writes on the typed fixture')
+    parser.add_argument('--resource-types',action='store_true',help='Seed mixed typed/untyped resources with equivalent reader access')
     parser.add_argument('--mailbox-only',action='store_true',
                         help='Measure Inbox, Outbox and Drafts against the same document corpus')
     parser.add_argument('--mailbox-page-size', type=int, default=25,
                         help='Page size for the mailbox workload (1–50)')
+    parser.add_argument('--type-ui', action='store_true', help='Run the structured type benchmark and the WebUI catalogue request shapes')
     args=parser.parse_args()
+    args.typed_search_only |= args.type_ui
+    args.resource_types |= args.type_text
+    if args.type_visibility_only or args.typed_search_only:
+        args.resource_types=True
     if args.repeats<1:parser.error('repeats must be positive')
     if not 0<=args.settle_seconds<=300:parser.error('settle-seconds must be between 0 and 300')
     if not 1 <= args.mailbox_page_size <= 50:
@@ -308,6 +342,8 @@ def main():
     args.output.mkdir(parents=True,exist_ok=False)
     source_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in (
         'tools/check_search_performance.py', 'backend/services/api/search.py',
+        'backend/services/api/type_search.py', 'backend/services/api/saved_searches.py',
+        'tools/structured_type_search_performance.py', 'tools/type_text_search_performance.py',
         'backend/services/api/search_page.py', 'backend/services/api/search_cache.py',
         'backend/services/api/search_projections.py',
         'backend/services/api/search_execution.py',
@@ -319,6 +355,9 @@ def main():
         'backend/services/api/recent_activity.py', 'tools/search_aggregation_activity_performance.py',
         'backend/services/api/creator_attribution.py', 'backend/services/api/application_settings_registry.py',
         'database/seeds/000_required_reference_data.sql',
+        *(['tools/type_ui_performance.py', 'backend/services/api/resource_types.py',
+           'frontend/webui/type_controls.py', 'frontend/webui/type_administration.py',
+           'frontend/webui/advanced_search.py'] if args.type_ui else []),
         *(['tools/search_mailbox_performance.py', 'backend/services/api/messaging/text_filters.py',
            'backend/services/api/messaging/reading.py', 'backend/services/api/messaging/drafts.py',
            'backend/services/api/messaging/routes.py'] if args.mailbox_only else []))}
@@ -343,7 +382,10 @@ def main():
                 c.execute((ROOT/'database/seeds/messaging.sql').read_text(), prepare=False)
             from tools.search_storage_experiment import configure, inspect
             configure(c, args.vector_storage)
-            seed(c)
+            seed(c, typed=args.resource_types, structured_types=args.typed_search_only)
+            if args.type_text:
+                from tools.type_text_search_performance import seed_type_text
+                seed_type_text(c,args.output)
             if args.mailbox_only:
                 from tools.search_mailbox_performance import seed_mailboxes
                 seed_mailboxes(c)
@@ -355,7 +397,7 @@ def main():
             (args.output/'environment.json').write_text(json.dumps({
                 'database':name,'postgres':c.execute('SELECT version() AS v').fetchone()['v'],
                 'platform':platform.platform(),'aggregations':AGGREGATIONS,'records':RECORDS,
-                'components':RECORDS,'chunks':RECORDS*2,'repeats':args.repeats,
+                'mixed_resource_types':args.resource_types,'components':RECORDS,'chunks':RECORDS*2,'repeats':args.repeats,
                 'threshold_seconds':3,'page_size':args.mailbox_page_size if args.mailbox_only else 100,
                 'result_cap':None if args.mailbox_only else 1000,
                 'mailbox_rows_per_folder':2400 if args.mailbox_only else None,
@@ -381,8 +423,14 @@ def main():
             if args.mailbox_only:
                 from tools.search_mailbox_performance import exercise_mailboxes
                 exercise_mailboxes(buffered, args.repeats, args.mailbox_page_size)
+            elif args.typed_search_only:
+                from tools.structured_type_search_performance import exercise as exercise_structured
+                exercise_structured(url, buffered, args.repeats, type_ui=args.type_ui)
+            elif args.type_visibility_only:
+                from tools.resource_type_visibility_performance import exercise as exercise_visibility
+                exercise_visibility(url,buffered,args.repeats)
             else:
-                exercise(buffered,args.repeats)
+                exercise(buffered,args.repeats,type_text=args.type_text)
         finally:
             buffered.flush()
     except BaseException as error:

@@ -50,6 +50,10 @@ with psycopg.connect(url) as c:
             assert plain(active.get_attribute('aria-label'))==page.t('webui.render_condition.accessible_name.negate_condition_0ee5684b')
             page.report.setdefault('focus',[]).append({'language':language,'sequence':['criterion value','clear','negate']});capture('builder')
             click('webui.select_advanced_search.button.search_97989f23',page.one('.advanced-search-submit-row'));page.wait.until(lambda _:page.visible('.compact-result-item'));capture('results')
+            metadata = page.one('.compact-result-meta', scope=page.visible('.compact-result-item')[0])
+            assert page.driver.execute_script(
+                'const s = getComputedStyle(arguments[0]); return [s.alignItems, s.flexWrap, s.direction]',
+                metadata) == ['center', 'nowrap', 'rtl' if language == 'ar' else 'ltr']
             click('webui.open_aggregation.button.edit_metadata_3ee4d255');d=dialog();page.see(page.t('webui.saved_audience.roles_help'));capture('sharing')
             click('webui.save_search.button.cancel_6ad2d1bd',d);closed()
         with page.check('unsaved guard, retained editing, discard and administration destination'):
@@ -175,6 +179,7 @@ with psycopg.connect(url) as c:
             click('webui.select_advanced_search.button.reset_507afbb7',page.one('.advanced-search-submit-row'))
             page.errors()
     check_saved_search_list_paging(page)
+    check_restricted_saved_summary(page)
     assert not [e for e in page.events() if e['status'] is None or e['status']>=400]
 
 
@@ -244,4 +249,39 @@ def check_saved_search_list_paging(page):
             page.capture('saved-administration-pending-filter-'+language)
             check_read(lambda:page.click(apply_label),endpoint=endpoint,term=draft,offset=0)
             assert not page.button(previous_label).is_enabled()
+            page.errors()
+
+
+def check_restricted_saved_summary(page):
+    """Ordinary list reads withhold the definition, including for its owner."""
+    subprocess.run([page.args.api_python, "-c", """
+import os, psycopg
+from psycopg.types.json import Jsonb
+from psycopg.conninfo import conninfo_to_dict
+url = os.environ["DATABASE_URL"]
+assert conninfo_to_dict(url)["dbname"].startswith("erms_webui_test_")
+with psycopg.connect(url) as c:
+    c.execute("SELECT set_config('app.event_source','seeding',true)")
+    owner = c.execute("SELECT id FROM users WHERE email='admin@test.invalid'").fetchone()[0]
+    c.execute("UPDATE roles SET is_information_governance=false WHERE id IN (SELECT role_id FROM user_role_assignments WHERE user_id=%s)", (owner,))
+    t = c.execute("INSERT INTO resource_types(kind,name) VALUES ('record','Withheld catalogue name') RETURNING id").fetchone()[0]
+    definition = {"schema_version":1,"resource_type":"record","request":{"where":{"field":"type_id","operator":"eq","value":t},"limit":25}}
+    c.execute("INSERT INTO saved_searches(owner_user_id,name,resource_type,definition,audience_mode) VALUES (%s,'Restricted browser summary','record',%s,'private')",(owner,Jsonb(definition)))
+"""],check=True,timeout=30)
+    for language in ("en","ar"):
+        with page.check("restricted saved search shows an explanation and disables Open in " + language):
+            if page.language != language:
+                page.settings()
+                page.language_change(language)
+            page.drawer("advanced_search")
+            page.click(page.t("webui.select_advanced_search.button.open_saved_search_8bef667f"))
+            dialog = saved_search_dialog(page)
+            card = page.wait.until(lambda _: next((c for c in page.visible(".q-card",dialog)
+                if any(plain(v.text) == "Restricted browser summary" for v in c.find_elements("css selector",".font-semibold"))),False))
+            assert page.t("saved_search.error.type_forbidden") in card.text
+            assert not page.button(page.t("webui.load_saved_page.button.open_2606a7e0"),card).is_enabled()
+            assert "Withheld catalogue name" not in dialog.text
+            page.capture("restricted-saved-summary-" + language)
+            page.driver.switch_to.active_element.send_keys(Keys.ESCAPE)
+            page.wait.until(lambda _:not page.visible(".q-dialog__inner > .q-card"))
             page.errors()

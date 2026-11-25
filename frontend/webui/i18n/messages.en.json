@@ -3226,6 +3226,21 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.type_metadata_changed",
+    "context_group": "audit.event",
+    "default_text": "Type-specific metadata changed",
+    "semantic_meaning": "Audit operation recording a change to the assigned type or its field values.",
+    "common_locations": [
+      "Disposition job history list and details",
+      "Global Audit Trail list, filters and details"
+    ],
+    "translator_guidance": "Neutral operation label when completion details are unavailable or access-restricted; also used by the operation filter. Use the established terminology: Job = عملية; Task = مهمة; Digital destruction = الإتلاف الرقمي. Keep task creation, task completion and job completion distinct.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Type-specific metadata changed",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.update",
     "context_group": "audit.events",
     "default_text": "Update",
@@ -26795,6 +26810,36 @@
     "is_html": false
   },
   {
+    "message_key": "privilege.aggregation_types.administer.description",
+    "context_group": "privilege.aggregation_types.administer",
+    "default_text": "Maintain aggregation types, fields, choices and role grants.",
+    "semantic_meaning": "Accessible explanation of what the immutable system privilege aggregation_types.administer permits.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maintain aggregation types, fields, choices and role grants.",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.aggregation_types.administer.name",
+    "context_group": "privilege.aggregation_types.administer",
+    "default_text": "Administer aggregation types",
+    "semantic_meaning": "Friendly name of the immutable system privilege aggregation_types.administer.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Administer aggregation types",
+    "is_html": false
+  },
+  {
     "message_key": "privilege.app.settings.manage.description",
     "context_group": "privilege.app.settings.manage",
     "default_text": "Manage validated application configuration and protected SMTP credentials.",
@@ -28167,6 +28212,36 @@
     "is_html": false
   },
   {
+    "message_key": "privilege.record_types.administer.description",
+    "context_group": "privilege.record_types.administer",
+    "default_text": "Maintain record types, fields, choices and role grants.",
+    "semantic_meaning": "Accessible explanation of what the immutable system privilege record_types.administer permits.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maintain record types, fields, choices and role grants.",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.record_types.administer.name",
+    "context_group": "privilege.record_types.administer",
+    "default_text": "Administer record types",
+    "semantic_meaning": "Friendly name of the immutable system privilege record_types.administer.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Administer record types",
+    "is_html": false
+  },
+  {
     "message_key": "privilege.relationships.administer.description",
     "context_group": "privilege.relationships.administer",
     "default_text": "Maintain aggregation and record relationship catalogues.",
@@ -28632,6 +28707,20 @@
     "grammatical_role": "entity name",
     "parameter_schema": {},
     "rendered_example": "View Only",
+    "is_html": false
+  },
+  {
+    "message_key": "records.collection.drop_files",
+    "context_group": "records.collection",
+    "default_text": "Drop files to create a record",
+    "semantic_meaning": "Overlay on the Records page while dragging files to start one record draft.",
+    "common_locations": [
+      "Records collection"
+    ],
+    "translator_guidance": "Use approved terminology. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Drop files to create a record",
     "is_html": false
   },
   {
@@ -29932,6 +30021,793 @@
     "is_html": false
   },
   {
+    "message_key": "resource_types.ui.access",
+    "context_group": "resource_types.ui",
+    "default_text": "Role access",
+    "semantic_meaning": "Role access in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Role access",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.add",
+    "context_group": "resource_types.ui",
+    "default_text": "Add",
+    "semantic_meaning": "Add in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Add",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.admin_help",
+    "context_group": "resource_types.ui",
+    "default_text": "Manage type definitions, fields, choices and role access.",
+    "semantic_meaning": "Manage type definitions, fields, choices and role access. in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Manage type definitions, fields, choices and role access.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.aggregation_catalogue",
+    "context_group": "resource_types.ui",
+    "default_text": "Aggregation types",
+    "semantic_meaning": "Aggregation types in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Aggregation types",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.assigned",
+    "context_group": "resource_types.ui",
+    "default_text": "Assigned type",
+    "semantic_meaning": "Assigned type in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Assigned type",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.boolean",
+    "context_group": "resource_types.ui",
+    "default_text": "Boolean",
+    "semantic_meaning": "Boolean in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Boolean",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.cancel",
+    "context_group": "resource_types.ui",
+    "default_text": "Cancel",
+    "semantic_meaning": "Cancel in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Cancel",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.choice",
+    "context_group": "resource_types.ui",
+    "default_text": "Choice",
+    "semantic_meaning": "Choice in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Choice",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.choices",
+    "context_group": "resource_types.ui",
+    "default_text": "Choices",
+    "semantic_meaning": "Choices in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Choices",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.clear",
+    "context_group": "resource_types.ui",
+    "default_text": "Clear",
+    "semantic_meaning": "Clear in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Clear",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.close",
+    "context_group": "resource_types.ui",
+    "default_text": "Close",
+    "semantic_meaning": "Close in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Close",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.condition",
+    "context_group": "resource_types.ui",
+    "default_text": "Type-specific field",
+    "semantic_meaning": "Type-specific field in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Type-specific field",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.conflict",
+    "context_group": "resource_types.ui",
+    "default_text": "This type has changed. Reopen it to review the latest definition.",
+    "semantic_meaning": "This type has changed. Reopen it to review the latest definition. in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "This type has changed. Reopen it to review the latest definition.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.data_type",
+    "context_group": "resource_types.ui",
+    "default_text": "Data type",
+    "semantic_meaning": "Data type in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Data type",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.date",
+    "context_group": "resource_types.ui",
+    "default_text": "Date",
+    "semantic_meaning": "Date in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Date",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.datetime",
+    "context_group": "resource_types.ui",
+    "default_text": "Date and time",
+    "semantic_meaning": "Date and time in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Date and time",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.decimal",
+    "context_group": "resource_types.ui",
+    "default_text": "Decimal",
+    "semantic_meaning": "Decimal in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Decimal",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.default",
+    "context_group": "resource_types.ui",
+    "default_text": "Default value",
+    "semantic_meaning": "Default value in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Default value",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.default_choice",
+    "context_group": "resource_types.ui",
+    "default_text": "Add choices before setting a default choice.",
+    "semantic_meaning": "Add choices before setting a default choice. in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Add choices before setting a default choice.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.delete",
+    "context_group": "resource_types.ui",
+    "default_text": "Delete",
+    "semantic_meaning": "Delete in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Delete",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.delete_confirm",
+    "context_group": "resource_types.ui",
+    "default_text": "Delete this definition?",
+    "semantic_meaning": "Delete this definition? in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Delete this definition?",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.description",
+    "context_group": "resource_types.ui",
+    "default_text": "Description",
+    "semantic_meaning": "Description in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Description",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.discard",
+    "context_group": "resource_types.ui",
+    "default_text": "Changing the type clears its stored field values when you save. Continue?",
+    "semantic_meaning": "Changing the type clears its stored field values when you save. Continue? in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Changing the type clears its stored field values when you save. Continue?",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.edit",
+    "context_group": "resource_types.ui",
+    "default_text": "Edit",
+    "semantic_meaning": "Edit in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Edit",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.empty",
+    "context_group": "resource_types.ui",
+    "default_text": "No matches",
+    "semantic_meaning": "No matches in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "No matches",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.field",
+    "context_group": "resource_types.ui",
+    "default_text": "Field",
+    "semantic_meaning": "Field in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Field",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.fields",
+    "context_group": "resource_types.ui",
+    "default_text": "Fields",
+    "semantic_meaning": "Fields in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Fields",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.integer",
+    "context_group": "resource_types.ui",
+    "default_text": "Integer",
+    "semantic_meaning": "Integer in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Integer",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.invalid",
+    "context_group": "resource_types.ui",
+    "default_text": "Check the required fields and the format of each value.",
+    "semantic_meaning": "Check the required fields and the format of each value. in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Check the required fields and the format of each value.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.matches",
+    "context_group": "resource_types.ui",
+    "default_text": "Matches pattern",
+    "semantic_meaning": "Matches pattern",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Matches pattern",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.maximum",
+    "context_group": "resource_types.ui",
+    "default_text": "Maximum characters",
+    "semantic_meaning": "Maximum characters in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Maximum characters",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.name",
+    "context_group": "resource_types.ui",
+    "default_text": "Name",
+    "semantic_meaning": "Name in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Name",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.next",
+    "context_group": "resource_types.ui",
+    "default_text": "Next",
+    "semantic_meaning": "Next in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Next",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.no",
+    "context_group": "resource_types.ui",
+    "default_text": "No",
+    "semantic_meaning": "No in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "No",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.order",
+    "context_group": "resource_types.ui",
+    "default_text": "Display order",
+    "semantic_meaning": "Display order in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Display order",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.policy_help",
+    "context_group": "resource_types.ui",
+    "default_text": "See permits viewing and searching. Use also permits changes. Governance roles bypass both type restrictions. Other access checks still apply.",
+    "semantic_meaning": "See permits viewing and searching. Use also permits changes. Governance roles bypass both type restrictions. Other access checks still apply. in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "See permits viewing and searching. Use also permits changes. Governance roles bypass both type restrictions. Other access checks still apply.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.previous",
+    "context_group": "resource_types.ui",
+    "default_text": "Previous",
+    "semantic_meaning": "Previous in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Previous",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.primary",
+    "context_group": "resource_types.ui",
+    "default_text": "Primary metadata",
+    "semantic_meaning": "Primary metadata in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Primary metadata",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.record_catalogue",
+    "context_group": "resource_types.ui",
+    "default_text": "Record types",
+    "semantic_meaning": "Record types in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Record types",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.remove_access",
+    "context_group": "resource_types.ui",
+    "default_text": "Remove role access",
+    "semantic_meaning": "Row action and confirmation button for revoking one explicit grant on a resource type.",
+    "common_locations": [
+      "Role access for aggregation and record types"
+    ],
+    "translator_guidance": "Refers to removing the explicit permission on this type. The role itself continues to exist.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Remove role access",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.remove_access_confirm",
+    "context_group": "resource_types.ui",
+    "default_text": "Remove the access grant for {role} on {type_name}?",
+    "semantic_meaning": "Confirmation naming the principal (a role or Everyone) and the affected type.",
+    "common_locations": [
+      "Role access for aggregation and record types"
+    ],
+    "translator_guidance": "Refers to removing the explicit permission on this type. The role itself continues to exist.",
+    "grammatical_role": "confirmation question",
+    "parameter_schema": {
+      "role": "text",
+      "type_name": "text"
+    },
+    "rendered_example": "Remove the access grant for Personnel Officer on Employee File?",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.required",
+    "context_group": "resource_types.ui",
+    "default_text": "Required",
+    "semantic_meaning": "Required in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Required",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.required_help",
+    "context_group": "resource_types.ui",
+    "default_text": "Existing resources must supply this value the next time their metadata is edited.",
+    "semantic_meaning": "Existing resources must supply this value the next time their metadata is edited.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Existing resources must supply this value the next time their metadata is edited.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.save",
+    "context_group": "resource_types.ui",
+    "default_text": "Save",
+    "semantic_meaning": "Save in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Save",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.saved",
+    "context_group": "resource_types.ui",
+    "default_text": "Changes saved",
+    "semantic_meaning": "Changes saved in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Changes saved",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.search",
+    "context_group": "resource_types.ui",
+    "default_text": "Search",
+    "semantic_meaning": "Search in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Search",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.section",
+    "context_group": "resource_types.ui",
+    "default_text": "Type-specific metadata",
+    "semantic_meaning": "Type-specific metadata in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Type-specific metadata",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.see",
+    "context_group": "resource_types.ui",
+    "default_text": "See",
+    "semantic_meaning": "See in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "See",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.select",
+    "context_group": "resource_types.ui",
+    "default_text": "Select",
+    "semantic_meaning": "Select in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Select",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.single_choice",
+    "context_group": "resource_types.ui",
+    "default_text": "Single choice",
+    "semantic_meaning": "Single choice in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Single choice",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.text",
+    "context_group": "resource_types.ui",
+    "default_text": "Text",
+    "semantic_meaning": "Text in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Text",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.type",
+    "context_group": "resource_types.ui",
+    "default_text": "Type",
+    "semantic_meaning": "Type in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Type",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.unset",
+    "context_group": "resource_types.ui",
+    "default_text": "No value",
+    "semantic_meaning": "No value in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "No value",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.untyped",
+    "context_group": "resource_types.ui",
+    "default_text": "No type",
+    "semantic_meaning": "No type in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "No type",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.use",
+    "context_group": "resource_types.ui",
+    "default_text": "Use",
+    "semantic_meaning": "Use in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Use",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.yes",
+    "context_group": "resource_types.ui",
+    "default_text": "Yes",
+    "semantic_meaning": "Yes in the resource type interface.",
+    "common_locations": [
+      "Resource types, metadata forms and Advanced Search"
+    ],
+    "translator_guidance": "Use established records-management terminology.",
+    "grammatical_role": "ui_text",
+    "parameter_schema": {},
+    "rendered_example": "Yes",
+    "is_html": false
+  },
+  {
     "message_key": "saved_search.administration.filter.created_before",
     "context_group": "saved_search.administration",
     "default_text": "Created before",
@@ -29986,6 +30862,34 @@
     "grammatical_role": "complete sentence",
     "parameter_schema": {},
     "rendered_example": "You already have a saved search with this name. Choose a different name.",
+    "is_html": false
+  },
+  {
+    "message_key": "saved_search.error.reference_unavailable",
+    "context_group": "saved_search.error",
+    "default_text": "A type, field or choice referenced by this search is unavailable.",
+    "semantic_meaning": "Explains why the saved search definition cannot be opened or executed.",
+    "common_locations": [
+      "Saved-search API errors and Advanced Search results"
+    ],
+    "translator_guidance": "Keep both possible causes; do not imply which one occurred or reveal an inaccessible search.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "A type, field or choice referenced by this search is unavailable.",
+    "is_html": false
+  },
+  {
+    "message_key": "saved_search.error.type_forbidden",
+    "context_group": "saved_search.error",
+    "default_text": "This saved search references a type you are not permitted to see.",
+    "semantic_meaning": "Explains why the saved search definition cannot be opened or executed.",
+    "common_locations": [
+      "Saved-search API errors and Advanced Search results"
+    ],
+    "translator_guidance": "Keep both possible causes; do not imply which one occurred or reveal an inaccessible search.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "This saved search references a type you are not permitted to see.",
     "is_html": false
   },
   {

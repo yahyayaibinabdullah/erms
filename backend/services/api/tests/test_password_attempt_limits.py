@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 import json
 import os
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 import psycopg
@@ -271,10 +272,15 @@ def test_cooldown_arabic_seed_is_unpublished_and_source_changes_preserve_curated
         draft = connection.execute(
             "SELECT * FROM ui_message_translations WHERE message_key='authentication.error.password_attempts_locked' AND language_tag='ar'"
         ).fetchone()
-        assert draft["origin"] == "generated" and draft["status"] == "draft"
+        catalogue = json.loads((Path(__file__).resolve().parents[4] /
+                                "frontend/webui/i18n/messages.ar.generated.json").read_text())
+        entry = next(row for row in catalogue["items"] if row["message_key"] == draft["message_key"])
+        assert draft["origin"] == "imported" and draft["status"] == "draft"
+        assert draft["translated_text"] == entry["translated_text"]
+        assert draft["generation_metadata"]["export_provenance"] == entry["provenance"]
         assert draft["published_text"] is None and draft["date_reviewed"] is None
         assert "{seconds}" in draft["translated_text"] and "مؤقتاً" in draft["translated_text"]
-        assert draft["generation_metadata"]["batch_id"] == "wathiq-ar-password-attempt-cooldown-20261104"
+        assert draft["generation_metadata"]["batch_id"] == catalogue["batch_id"]
         connection.execute("SELECT set_config('app.change_reason','Prepare source-change preservation verification',true)")
         connection.execute(
             "UPDATE ui_message_translations SET translated_text='صياغة إدارية محفوظة',origin='manual' WHERE message_key='settings.field.auth_lockout_attempts.description' AND language_tag='ar'"

@@ -12,12 +12,14 @@ from .organization_table import organization_membership_action
 from .organization_table import organization_table_filters
 from .organization_table import organization_user_actions
 from .organization_table import organization_user_slots
+from .record_collection_drop import RecordsDrop
+from .capabilities import can_add_from_collection
 from .entities import COLLECTION_ENTITIES
 from .i18n_catalogue import render_message
 from nicegui import ui
 
 def build_collection_table(
-    *, RELATIONSHIP_DISPLAY_FIELDS, add_timestamp_slots, api, collection_state, current_session_revoked, decorate_for_spec, error_message, favourite_state, format_timestamp, guidance, load_recent, load_rows, open_editor, reload_favourites, render_administration_cards, render_entity_compact_results, render_resource_personal_sections, required_principal, select_organization_unit_details, select_role_details, select_user_details, show_api_error, show_components, show_entity_history, show_memberships, show_profile_privilege_editor, show_record_details, subtitle, table_container, toggle_favourite,
+    *, open_record_draft_editor=None, records_drop_page=None, RELATIONSHIP_DISPLAY_FIELDS, add_timestamp_slots, api, collection_state, current_session_revoked, decorate_for_spec, error_message, favourite_state, format_timestamp, guidance, load_recent, load_rows, open_editor, reload_favourites, render_administration_cards, render_entity_compact_results, render_resource_personal_sections, required_principal, select_organization_unit_details, select_role_details, select_user_details, show_api_error, show_components, show_entity_history, show_memberships, show_profile_privilege_editor, show_record_details, subtitle, table_container, toggle_favourite,
 ):
     def render_table(spec: EntitySpec) -> None:
         if spec.key not in COLLECTION_ENTITIES:
@@ -36,6 +38,9 @@ def build_collection_table(
                     subtitle.text = render_message("webui.show_unclassified_roots.text.root_aggregations_missing_a_governing_clas_b4fc46cb")
         table_container.clear()
         with table_container:
+            if (spec.key == "records" and open_record_draft_editor and
+                    can_add_from_collection("records", set((required_principal() or {}).get("global_privileges", ())))):
+                RecordsDrop(records_drop_page, open_record_draft_editor)
             if spec.key in {"aggregations", "records"} and spec.search_first and not collection_state["searched"]:
                 render_resource_personal_sections(spec)
                 return

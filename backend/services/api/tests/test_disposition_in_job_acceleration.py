@@ -29,7 +29,7 @@ def accelerate(c, root, **options):
 ])
 def test_accelerate_reopened_member_retains_episode_restores_whole_unit_and_retries(client, kind, action, pending):
     with db() as c:
-        job = setup(c, kind);root, *_ = ready(c, action)
+        job = setup(c, kind, retain_reviewers=True);root, *_ = ready(c, action)
         admit(c, job['id'], [root]);before = member(c, root)
         old_closed=c.execute('SELECT date_closed FROM aggregations WHERE id=%s',(root,)).fetchone()['date_closed']
         reopen(c, root)
@@ -155,7 +155,7 @@ def test_migration_preserves_existing_flagged_members_then_allows_restoration(cl
 
 def test_other_reopened_members_still_block_the_job(client):
     with db() as c:
-        job=setup(c);one,*_=ready(c);two,*_=ready(c);admit(c,job['id'],[one,two])
+        job=setup(c,retain_reviewers=True);one,*_=ready(c);two,*_=ready(c);admit(c,job['id'],[one,two])
         reopen(c,one);reopen(c,two);accelerate(c,one)
         assert not member(c,one)['removal_required'] and member(c,two)['removal_required']
         with c.transaction(force_rollback=True):

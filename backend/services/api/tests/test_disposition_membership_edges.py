@@ -11,7 +11,7 @@ from backend.services.api.disposition import membership as service
 from backend.services.api.tests.test_disposition_membership import (
     actor,db,setup,ready,admit,member,remove,kwargs,job_version,rule_change,
 )
-from backend.services.api.tests.test_disposition_foundation import command,version,ensure_officer
+from backend.services.api.tests.test_disposition_foundation import command,version,ensure_officer,configured_creation_roles
 from backend.services.api.tests.test_disposition_eligibility import statuses,make_hold,wait_for_waiter
 
 
@@ -54,7 +54,7 @@ def test_destruction_assignment_requires_current_specific_records_officer(client
 
 def test_destruction_owner_subtree_and_empty_never_submitted_owner_change(client):
     with db() as c:
-        job=setup(c);inside=c.execute("INSERT INTO org_units(parent_org_unit_id,code,name) VALUES(1,'inside','Inside') RETURNING id").fetchone()['id']
+        job=setup(c,retain_reviewers=True);inside=c.execute("INSERT INTO org_units(parent_org_unit_id,code,name) VALUES(1,'inside','Inside') RETURNING id").fetchone()['id']
         outside=c.execute("INSERT INTO org_units(code,name) VALUES('outside','Outside') RETURNING id").fetchone()['id']
         good,*_=ready(c,closed=None);bad,*_=ready(c,closed=None)
         # Apply the existing ownership-correction command while the units are
@@ -72,7 +72,8 @@ def test_destruction_owner_subtree_and_empty_never_submitted_owner_change(client
         with pytest.raises(psycopg.Error,match='disposition_owning_unit_change_invalid'):
             service.change_job_owner(c,**kwargs(job_id=job['id'],expected_version=job_version(c,job['id']),owning_org_unit_id=outside))
         remove(c,good)
-        changed=service.change_job_owner(c,**kwargs(job_id=job['id'],expected_version=job_version(c,job['id']),owning_org_unit_id=outside))
+        with configured_creation_roles(c,outside,retain=True):
+            changed=service.change_job_owner(c,**kwargs(job_id=job['id'],expected_version=job_version(c,job['id']),owning_org_unit_id=outside))
         assert changed['owning_org_unit_id']==outside
         command(c,'review_submit',lambda c:(c.execute("UPDATE disposition_jobs SET workflow_stage='records_manager_review' WHERE id=%s",(job['id'],)) and {}))
         with pytest.raises(psycopg.Error,match='disposition_owning_unit_change_invalid'):
@@ -81,7 +82,7 @@ def test_destruction_owner_subtree_and_empty_never_submitted_owner_change(client
 
 def test_reviewer_stage_rejects_membership_edits_and_termination_is_explicit(client):
     with db() as c:
-        job=setup(c);root,*_=ready(c);admit(c,job['id'],[root])
+        job=setup(c,retain_reviewers=True);root,*_=ready(c);admit(c,job['id'],[root])
         command(c,'review_submit',lambda c:(c.execute("UPDATE disposition_jobs SET workflow_stage='records_manager_review' WHERE id=%s",(job['id'],)) and {}))
         with pytest.raises(psycopg.Error,match='disposition_membership_stage_invalid'):remove(c,root)
         assert member(c,root) is not None and statuses(c,root)==[6]*4

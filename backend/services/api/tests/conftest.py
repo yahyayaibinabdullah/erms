@@ -52,6 +52,7 @@ def clean_database(client: TestClient):
     password = "Temporary-Test-Password-123!"
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         _allow_settings_fixture_reset(connection)
+        existing_levels = [row[0] for row in connection.execute('SELECT id FROM security_levels')]
         connection.execute("TRUNCATE saved_searches, user_favourite_records, user_favourite_aggregations, user_classification_selections, aggregation_retention_rules, classification_retention_rules, classifications, classification_schemes, login_sessions, user_credentials, user_role_assignments, roles, users, org_units, record_draft_components, record_drafts, digital_components, records, aggregations RESTART IDENTITY CASCADE")
         # Resetting the now-complete UI catalogue for every test is fixture
         # setup, not a governed user change. Suppress per-row audit events here
@@ -136,6 +137,9 @@ def clean_database(client: TestClient):
             """
         )
         connection.execute("ALTER TABLE event_history DISABLE TRIGGER USER")
+        # Disposition scenarios can create a clearance above the seeded maximum.
+        # Remove their levels after their referencing roles and resources are gone.
+        connection.execute("DELETE FROM security_levels WHERE NOT (id = ANY(%s))", (existing_levels,))
         # Keep the canonical Security Level seed events in lockstep with the
         # catalogue rows retained by this fixture.
         connection.execute(

@@ -1,5 +1,6 @@
 """Exercise the live favourites preview and complete list, replacing a dead helper test."""
 import json
+import inspect
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock
 
@@ -14,7 +15,8 @@ from frontend.webui.personal_resource_views import build_personal_resource_views
 @pytest.mark.parametrize('language', ['en', 'ar'])
 @pytest.mark.parametrize('resource', ['records', 'aggregations'])
 @pytest.mark.parametrize('count', [0, 2, 3])
-def test_configured_preview_limit_keeps_complete_list_reachable(language, resource, count):
+@pytest.mark.asyncio
+async def test_configured_preview_limit_keeps_complete_list_reachable(language, resource, count):
     client = Client(ui.page('/personal-preview-contract'), request=None)
     try:
         with client:
@@ -22,7 +24,10 @@ def test_configured_preview_limit_keeps_complete_list_reachable(language, resour
             set_active_messages({item['message_key']: item['translated_text'] for item in messages['items']} if language == 'ar' else {})
             personal = PersonalResourceState()
             personal.favourites[resource] = [{'id': i, 'title': f'Favourite {i}'} for i in range(count)]
+            for item in personal.favourites[resource]:
+                item['date_favourited'] = '2026-01-01T00:00:00Z'
             api = Mock()
+            api.favourites = AsyncMock(return_value={**personal.favourites, 'total': count})
             views = build_personal_resource_views(
                 api, personal, get_configuration=lambda: {'DASHBOARD_FAVOURITE_ITEM_LIMIT': 2},
                 render_table=Mock(), open_aggregation=AsyncMock(), show_record_details=AsyncMock(),
@@ -35,7 +40,8 @@ def test_configured_preview_limit_keeps_complete_list_reachable(language, resour
             panels = [e for e in client.elements.values() if 'dashboard-personal-panel' in e.classes]
             view_all = next(e for e in panels[0].descendants() if isinstance(e, ui.button))
             # View all remains available even when the preview is empty/full.
-            next(e.handler for e in view_all._event_listeners.values() if e.type == 'click')(None)
+            click = next(e.handler for e in view_all._event_listeners.values() if e.type == 'click')
+            await inspect.getclosurevars(click).nonlocals['callback']()
             dialog = next(e for e in client.elements.values() if isinstance(e, ui.dialog))
             assert dialog.value
             complete = [e for e in dialog.descendants() if 'dashboard-personal-item' in e.classes]

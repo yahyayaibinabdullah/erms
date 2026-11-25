@@ -297,6 +297,21 @@ GET /api/v1/digital-components/{component_id}/history
 Timelines remain available after an entity has been deleted because event rows
 do not have foreign keys back to current entity rows.
 
+### When a record or aggregation changes type
+
+An auditor opens the history of a record now filed as **Correspondence**. It was previously filed as **Investigation**. The auditor may read the resource and its history and has See on Correspondence alone. The timeline identifies both types and the date of the reassignment. On the Investigation side it indicates that values were withheld. It does not reveal the former subject, a stored choice ID, or the label of the selected choice. On the Correspondence side the auditor can read the saved values.
+
+| Viewer’s current access | What the viewer can read |
+| --- | --- |
+| May read the resource and its history, with See on B alone | A → B and the values on B’s side. A’s values are marked as withheld. |
+| May read the resource and its history, with See on A and B | The transition and both sides’ values, subject to existing clearance checks. |
+| Qualifying information-governance role | That role can satisfy See on either side where its own clearance is sufficient. The other history and resource gates still apply. |
+| Lacks access to the current resource or its history | The resource timeline is unavailable. An otherwise authorized system-wide audit viewer receives the existing redacted event envelope. |
+
+If the resource later moves to a third type, the same rule applies to the earlier event. A viewer with history access and See on Archive alone can read the Investigation → Correspondence transition. Both sides are marked as withheld. Granting that viewer See on Investigation reveals only the Investigation values.
+
+A type name explains why the current record has a different set of fields. A stored value describes that individual record. The same distinction applies to aggregations, including when a later permission change makes older values visible or withdraws access. Granting See on Investigation lets the auditor read the earlier values on the next request. Revoking it withholds them again. Neither change rewrites the event. The stored evidence remains subject to the normal retention and destruction rules. [Approved history rule](../specs/aggregation-and-record-types.md#historical-values-after-reassignment--approved-19-november-2026)
+
 ### Advanced search
 
 ```text

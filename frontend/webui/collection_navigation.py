@@ -10,7 +10,7 @@ from .i18n_catalogue import render_message
 from nicegui import ui
 
 def build_collection_navigation(
-    *, add_button, add_record_button, aggregation_mode_bar, aggregation_state, collection_state, error_message, get_resource, get_recent_scope, guidance, load_recent, load_rows, personal, principal, register_navigation, reload_favourites, render_resource_personal_sections, render_table, search_bar, search_input, select_aggregation_browser, set_connection_status, set_resource, show_authenticated_view, subtitle, title,
+    *, refresh_creation_types=None, add_button, add_record_button, aggregation_mode_bar, aggregation_state, collection_state, error_message, get_resource, get_recent_scope, guidance, load_recent, load_rows, personal, principal, register_navigation, reload_favourites, render_resource_personal_sections, render_table, search_bar, search_input, select_aggregation_browser, set_connection_status, set_resource, show_authenticated_view, subtitle, title,
 ):
     def refresh_personal_sections(spec: EntitySpec) -> None:
         if personal.personal_refresh is not None:
@@ -90,6 +90,8 @@ def build_collection_navigation(
         add_button.text = render_message("webui.select_entity.text.add_6623ee14")
         add_button.update()
         add_record_button.set_visibility(False)
+        if refresh_creation_types is not None:
+            background_tasks.create(refresh_creation_types())
         search_input.value = ""
         try:
             if key in {"aggregations", "records"} and not (

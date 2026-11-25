@@ -3,7 +3,7 @@ from datetime import datetime
 from io import BytesIO
 import json
 import secrets
-from typing import Any
+from typing import Annotated, Any
 from urllib.parse import quote
 from uuid import UUID, uuid4
 
@@ -16,6 +16,7 @@ from psycopg_pool import PoolTimeout
 from psycopg.types.json import Jsonb
 from backend.services.component_formats import native_preview_kind
 
+from .dashboard_visibility import visibility_ctes
 from . import converted_previews
 from .operation_policy import operation_policy
 from .component_pages import component_summary, previewable_component_page
@@ -86,6 +87,10 @@ from .classification_management import router as classification_management_route
 from .scheme_transfer.routes import router as scheme_transfer_router
 from .browse import router as browse_router
 from .favourites import router as favourites_router
+from . import typed_metadata
+from .schemas import TypeAssignment
+from .metadata_json import JsonSource, preserve_search_numbers
+from .resource_types import router as resource_types_router
 from .resource_relationships import router as resource_relationships_router
 from .disposition.routes import router as disposition_router
 from .application_settings_routes import router as application_settings_router
@@ -214,6 +219,7 @@ app.include_router(scheme_transfer_router)
 app.include_router(classification_management_router)
 app.include_router(browse_router)
 app.include_router(favourites_router)
+app.include_router(resource_types_router)
 app.include_router(resource_relationships_router)
 app.include_router(disposition_router)
 app.include_router(application_settings_router)
@@ -505,6 +511,8 @@ async def database_error_handler(_, exception: psycopg.Error):
                 )
         except psycopg.Error:
             pass
+    if sqlstate == "42501" and primary == "insufficient_type_access":
+        return JSONResponse(status_code=403,content={"detail":{"code":primary}})
     if primary.startswith("disposition_") and primary.replace("_", "").isalnum():
         return JSONResponse(status_code=403 if sqlstate=="42501" else 409,
                             content={"detail": {"code": primary}})
@@ -666,24 +674,13 @@ def dashboard_ownership_counts(
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     rows = list(connection.execute(
-        """WITH eligible_units AS (
-               SELECT DISTINCT unit.id,unit.code,unit.name,unit.translations
-               FROM user_role_assignments assignment
-               JOIN roles role ON role.id=assignment.role_id
-               JOIN org_units unit ON unit.id=role.org_unit_id
-               WHERE assignment.user_id=current_user_id()
-                 AND CURRENT_TIMESTAMP>=assignment.valid_from
-                 AND (assignment.valid_until IS NULL OR CURRENT_TIMESTAMP<=assignment.valid_until)
-                 AND role_effectively_active(role.id)
+        f"""WITH RECURSIVE {visibility_ctes(ordinary_access=True)}, eligible_units AS (
+                SELECT DISTINCT u.id,u.code,u.name,u.translations FROM assigned_roles a JOIN org_units u ON u.id=a.org_unit_id
            )
            SELECT unit.id AS org_unit_id,unit.code AS org_unit_code,
                   unit.name AS org_unit_name,unit.translations,
-                  (SELECT count(*) FROM aggregations aggregation
-                    WHERE aggregation.owning_org_unit_id=unit.id
-                      AND current_user_can_view_aggregation(aggregation.id)) AS aggregation_count,
-                  (SELECT count(*) FROM records record
-                    WHERE record.owning_org_unit_id=unit.id
-                      AND current_user_can_view_record(record.id)) AS record_count
+                  (SELECT count(*) FROM authorized_aggregations a WHERE a.owning_org_unit_id=unit.id) AS aggregation_count,
+                  (SELECT count(*) FROM authorized_records r WHERE r.owning_org_unit_id=unit.id) AS record_count
            FROM eligible_units unit
            ORDER BY unit.name COLLATE "C",unit.id"""
     ).fetchall())
@@ -704,13 +701,14 @@ def dashboard_ownership_counts(
     status_code=status.HTTP_201_CREATED,
     tags=["aggregations"],
 )
-@operation_policy("resource_scoped", "aggregation.create_root")
+@operation_policy("resource_scoped", "aggregation.create_root",
+                  conditional_resource_authorization={"type_access": {"type_id": "Use selected aggregation type", "parent_aggregation_id": "Use parent type for aggregation.add_child"}})
 def create_aggregation(
-    payload: AggregationCreate,
+    payload: AggregationCreate, raw: JsonSource,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     acquire_continuity_shared_lock(connection)
-    values = payload.model_dump(exclude={"creator_acl_role_id"})
+    values = payload.model_dump(exclude={"creator_acl_role_id","field_values"})
     selected_role = _select_creator_role(
         connection, payload.creator_acl_role_id, payload.parent_aggregation_id,
     )
@@ -744,7 +742,9 @@ def create_aggregation(
             "creator_org_unit_id": selected_role["org_unit_id"],
         })),
     )
-    return create_row(connection, "aggregations", values)
+    prepared = typed_metadata.prepare_metadata(connection,"aggregation",None,payload.type_id,level_id,raw,False) if payload.type_id is not None or payload.field_values else None
+    row = create_row(connection, "aggregations", values)
+    return typed_metadata.finish_metadata(connection,"aggregation",row,prepared) if prepared else row
 
 
 @app.get("/api/v1/aggregations", response_model=list[AggregationRead], tags=["aggregations"])
@@ -771,6 +771,11 @@ def list_aggregations(
     )
 
 
+async def structured_search_payload(payload: SearchRequest, request: Request):
+    await preserve_search_numbers(request, payload)
+    return payload
+
+
 @app.post(
     "/api/v1/aggregations/search",
     response_model=None,
@@ -778,7 +783,7 @@ def list_aggregations(
 )
 @operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def search_aggregations(
-    payload: SearchRequest,
+    payload: Annotated[SearchRequest, Depends(structured_search_payload)],
     record_creation: bool = False,
     digital_only: bool = False,
     display_filter: str | None = None,
@@ -791,7 +796,7 @@ def search_aggregations(
 @app.post("/api/v1/aggregations/advanced-search", response_model=None, tags=["aggregations"])
 @operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def advanced_search_aggregations(
-    payload: SearchRequest,
+    payload: Annotated[SearchRequest, Depends(structured_search_payload)],
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
@@ -888,10 +893,11 @@ def get_aggregation_capabilities(
 
 
 @app.patch("/api/v1/aggregations/{aggregation_id}", response_model=AggregationRead, tags=["aggregations"])
-@operation_policy("resource_scoped", "aggregation.modify", "aggregation.modify_metadata")
+@operation_policy("resource_scoped", "aggregation.modify", "aggregation.modify_metadata",
+                  conditional_resource_authorization={"type_access": "Use current aggregation type and any newly assigned type"})
 def update_aggregation(
     aggregation_id: int,
-    payload: AggregationUpdate,
+    payload: AggregationUpdate, raw: JsonSource,
     request: Request,
     version: int = Depends(expected_version),
     connection: Connection = Depends(get_connection, scope="function"),
@@ -900,9 +906,10 @@ def update_aggregation(
     if payload.model_fields_set & {"classification_id", "parent_aggregation_id", "date_closed"}:
         connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
         connection.execute("SELECT lock_hold_policy_shared()")
+    acquire_continuity_shared_lock(connection)
     existing = lock_visible_resource(connection, "aggregation", aggregation_id)
     fields = payload.model_fields_set
-    metadata_fields = {"aggregation_number", "title", "description", "date_opened"}
+    metadata_fields = {"aggregation_number", "type_id", "field_values", "title", "description", "date_opened"}
     if fields & metadata_fields:
         require_resource_operation(
             connection, "aggregation", aggregation_id,
@@ -1003,8 +1010,11 @@ def update_aggregation(
     )
     if new_level_id is not None and new_number < old_number:
         require_global(connection, "security.resource.downgrade")
+    values, prepared = typed_metadata.prepare_update(
+        connection, "aggregation", existing, payload, raw, metadata_fields | {"medium"},
+    )
     updated = update_row(
-        connection, "aggregations", aggregation_id, payload.model_dump(exclude_unset=True), version
+        connection, "aggregations", aggregation_id, values, version
     )
     if "medium" in fields and payload.medium != existing["medium"]:
         connection.execute(
@@ -1016,7 +1026,7 @@ def update_aggregation(
         old_security_level_id=existing["security_level_id"], new_security_level_id=new_level_id,
         old_level_number=old_number, new_level_number=new_number, reason=reason,
     )
-    return updated
+    return typed_metadata.finish_metadata(connection,"aggregation",updated,prepared) if prepared else updated
 
 
 @app.delete("/api/v1/aggregations/{aggregation_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["aggregations"])
@@ -1110,8 +1120,9 @@ def change_aggregation_review_date(aggregation_id: int, payload: ReviewDateChang
 
 
 @app.post("/api/v1/records", response_model=RecordRead, status_code=status.HTTP_201_CREATED, tags=["records"])
-@operation_policy("resource_scoped", "record.create", "aggregation.add_record")
-def create_record(payload: RecordCreate, connection: Connection = Depends(get_connection, scope="function")):
+@operation_policy("resource_scoped", "record.create", "aggregation.add_record",
+                  conditional_resource_authorization={"type_access": "Use selected record type and parent aggregation type"})
+def create_record(payload: RecordCreate, raw: JsonSource, connection: Connection = Depends(get_connection, scope="function")):
     acquire_continuity_shared_lock(connection)
     parent = connection.execute(
         "SELECT id,medium FROM aggregations WHERE id=%s FOR KEY SHARE", (payload.aggregation_id,),
@@ -1128,9 +1139,11 @@ def create_record(payload: RecordCreate, connection: Connection = Depends(get_co
     ).fetchone()["id"]
     require_clearance_for_level(connection, level_id)
     _set_record_creator(connection, selected_role)
-    values = payload.model_dump(exclude={"creator_acl_role_id"})
+    values = payload.model_dump(exclude={"creator_acl_role_id","field_values"})
     values["medium"] = _resolved_record_medium(parent, payload.medium)
-    return create_row(connection, "records", values)
+    prepared = typed_metadata.prepare_metadata(connection,"record",None,payload.type_id,level_id,raw,False) if payload.type_id is not None or payload.field_values else None
+    row = create_row(connection, "records", values)
+    return typed_metadata.finish_metadata(connection,"record",row,prepared) if prepared else row
 
 
 def _set_record_creator(connection: Connection, selected_role: dict) -> None:
@@ -1175,7 +1188,7 @@ def list_records(
 )
 @operation_policy("resource_scoped", "record.view", "record.view")
 def search_records(
-    payload: SearchRequest,
+    payload: Annotated[SearchRequest, Depends(structured_search_payload)],
     display_filter: str | None = None,
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
@@ -1186,7 +1199,7 @@ def search_records(
 @app.post("/api/v1/records/advanced-search", response_model=None, tags=["records"])
 @operation_policy("resource_scoped", "record.view", "record.view")
 def advanced_search_records(
-    payload: SearchRequest,
+    payload: Annotated[SearchRequest, Depends(structured_search_payload)],
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
@@ -1278,17 +1291,19 @@ def get_record_capabilities(
 
 
 @app.patch("/api/v1/records/{record_id}", response_model=RecordRead, tags=["records"])
-@operation_policy("resource_scoped", "record.modify", "record.modify_metadata")
+@operation_policy("resource_scoped", "record.modify", "record.modify_metadata",
+                  conditional_resource_authorization={"type_access": "Use current record type and any newly assigned type"})
 def update_record(
     record_id: int,
-    payload: RecordUpdate,
+    payload: RecordUpdate, raw: JsonSource,
     request: Request,
     version: int = Depends(expected_version),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    acquire_continuity_shared_lock(connection)
     existing = lock_visible_resource(connection, "record", record_id)
     fields = payload.model_fields_set
-    metadata_fields = {"record_number", "title", "description", "date_originated"}
+    metadata_fields = {"record_number", "type_id", "field_values", "title", "description", "date_originated"}
     if fields & metadata_fields:
         require_resource_operation(
             connection, "record", record_id, "record.modify", "record.modify_metadata",
@@ -1342,7 +1357,10 @@ def update_record(
     )
     if new_level_id is not None and new_number < old_number:
         require_global(connection, "security.resource.downgrade")
-    updated = update_row(connection, "records", record_id, payload.model_dump(exclude_unset=True), version)
+    values, prepared = typed_metadata.prepare_update(
+        connection, "record", existing, payload, raw, metadata_fields | {"medium"},
+    )
+    updated = update_row(connection, "records", record_id, values, version)
     if "medium" in fields and payload.medium != existing["medium"]:
         connection.execute(
             "SELECT append_domain_event('record',%s,'MEDIUM_CHANGED',%s::jsonb,%s)",
@@ -1354,7 +1372,7 @@ def update_record(
         old_security_level_id=existing["security_level_id"], new_security_level_id=new_level_id,
         old_level_number=old_number, new_level_number=new_number, reason=reason,
     )
-    return updated
+    return typed_metadata.finish_metadata(connection,"record",updated,prepared) if prepared else updated
 
 
 @app.delete("/api/v1/records/{record_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["records"])
@@ -1695,11 +1713,13 @@ def delete_record_draft_component(draft_id: int, component_id: int, connection: 
 
 
 @app.post("/api/v1/record-drafts/{draft_id}/commit", response_model=RecordRead, status_code=201, tags=["record drafts"])
-@operation_policy("resource_scoped", "record.create", "aggregation.add_record")
+@operation_policy("resource_scoped", "record.create", "aggregation.add_record",
+                  conditional_resource_authorization={"type_access": "Use selected record type and parent aggregation type at commit"})
 def commit_record_draft(
-    draft_id: int, request: Request, creator_acl_role_id: int | None = None,
+    draft_id: int, request: Request, raw: JsonSource, metadata: TypeAssignment | None = None, creator_acl_role_id: int | None = None,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    acquire_continuity_shared_lock(connection)
     draft = _open_draft(connection, draft_id, lock=True)
     request.state.message_capture = messaging_capture.capture_draft(connection, draft_id) is not None
     capture = messaging_capture.prepare(connection, draft)
@@ -1740,7 +1760,9 @@ def commit_record_draft(
             "code": "physical_record_disallows_digital_components",
             "message": "This is a physical record. Digital files cannot be added.",
         })
+    prepared = typed_metadata.prepare_metadata(connection,"record",None,metadata.type_id,security_level_id,raw,False) if metadata else None
     record = create_row(connection, "records", {
+        "type_id": metadata.type_id if metadata else None,
         "aggregation_id": draft["aggregation_id"], "record_number": draft["record_number"],
         "title": draft["title"], "description": draft["description"],
         "date_originated": draft["date_originated"],
@@ -1775,14 +1797,15 @@ def commit_record_draft(
     if capture:
         messaging_capture.persist(connection, draft, record, capture, committed_components)
     connection.execute("DELETE FROM record_drafts WHERE id = %s", (draft_id,))
-    return record
+    return typed_metadata.finish_metadata(connection,"record",record,prepared) if prepared else record
 
 
 @app.post("/api/v1/record-drafts/{draft_id}/commit-placement-correction", response_model=RecordRead, status_code=201, tags=["record drafts"])
-@operation_policy("resource_scoped", "record.create", "aggregation.add_record")
+@operation_policy("resource_scoped", "record.create", "aggregation.add_record",
+                  conditional_resource_authorization={"type_access": "Use selected record type and destination aggregation type at commit"})
 def commit_record_draft_placement_correction(
     draft_id: int,
-    request: Request,
+    request: Request, raw: JsonSource, metadata: TypeAssignment | None = None,
     creator_acl_role_id: int | None = None,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
@@ -1809,7 +1832,7 @@ def commit_record_draft_placement_correction(
         "SELECT set_config('app.closed_record_placement_correction','authorized',true), set_config('app.change_reason',%s,true)",
         (reason,),
     )
-    record = commit_record_draft(draft_id, creator_acl_role_id, connection)
+    record = commit_record_draft(draft_id, request, raw, metadata, creator_acl_role_id, connection)
     connection.execute(
         "SELECT append_domain_event('record',%s,'CLOSED_AGGREGATION_RECORD_CORRECTED',%s::jsonb,%s)",
         (record["id"], Jsonb({
@@ -1877,7 +1900,7 @@ def list_digital_components(
     response_model=None,
     tags=["digital components"],
 )
-@operation_policy("resource_scoped", "record.component.add", "record.component.add")
+@operation_policy("resource_scoped", "record.view", "record.component.list")
 def search_digital_components(
     payload: SearchRequest,
     connection: Connection = Depends(get_connection, scope="function"),
@@ -2157,13 +2180,17 @@ def _store_uploaded_component(
 
 
 @app.post("/api/v1/aggregations/{aggregation_id}/records/file-drop", status_code=201, tags=["records"])
-@operation_policy("resource_scoped", "record.create", "aggregation.add_record")
+@operation_policy("resource_scoped", "record.create", "aggregation.add_record",
+                  conditional_resource_authorization={"type_access": "Use selected record type and parent aggregation type for every record"})
 def create_records_from_file_drop(
     aggregation_id: int,
     files: list[UploadFile] = File(..., min_length=1),
     separate_records: bool = Form(...),
     creator_acl_role_id: int | None = Form(None),
     title: NonBlankString | None = Form(None),
+    type_id: int | None = Form(None, gt=0),
+    field_values: str | None = Form(None),
+    record_field_values: str | None = Form(None),
     connection: Connection = Depends(get_connection, scope="function"),
 ) -> dict[str, int]:
     acquire_continuity_shared_lock(connection)
@@ -2186,6 +2213,31 @@ def create_records_from_file_drop(
         raise RequestValidationError([{"type": "missing", "loc": ("body", "title"),
                                        "msg": "Field required", "input": None}])
 
+    prepared = None
+    per_record = []
+    if record_field_values is not None:
+        if not separate_records or type_id is None or field_values is not None:
+            raise HTTPException(422, detail="Per-record fields require separate typed records")
+        try:
+            values = json.loads(record_field_values, parse_float=str)
+        except ValueError as error:
+            raise HTTPException(422, detail="Invalid per-record field values") from error
+        if not isinstance(values, list) or len(values) != len(files) or not all(isinstance(v, dict) for v in values):
+            raise HTTPException(422, detail="Supply one field map for each file")
+        # Keep exact numeric literals in PostgreSQL, including values supplied by API callers.
+        rows = connection.execute(
+            "SELECT jsonb_build_object('field_values',value)::text AS body FROM jsonb_array_elements(%s::jsonb) WITH ORDINALITY ORDER BY ordinality",
+            (record_field_values,),
+        ).fetchall()
+        per_record = [typed_metadata.prepare_metadata(connection, "record", None, type_id, level_id, row["body"], False)
+                      for row in rows]
+    elif type_id is not None or field_values is not None:
+        raw = connection.execute(
+            "SELECT jsonb_build_object('field_values',coalesce(%s::jsonb,'{}'::jsonb))::text AS body",
+            (field_values,),
+        ).fetchone()["body"]
+        prepared = typed_metadata.prepare_metadata(connection,"record",None,type_id,level_id,raw,False)
+
     groups = ([file] for file in files) if separate_records else (files,)
     count = len(files) if separate_records else 1
     numbers = next_numbers(connection, "records", parent["aggregation_number"] + ".0", count=count)
@@ -2194,14 +2246,18 @@ def create_records_from_file_drop(
 
     settings = settings_cache.for_connection(connection)
     _set_record_creator(connection, selected_role)
-    for number, group in zip(numbers, groups, strict=True):
+    for index, (number, group) in enumerate(zip(numbers, groups, strict=True)):
+        if per_record:
+            prepared = per_record[index]
         record = create_row(connection, "records", {
-            "aggregation_id": aggregation_id,
+            "aggregation_id": aggregation_id, "type_id": type_id,
             "record_number": number,
             "title": title if combined else group[0].filename,
             "security_level_id": level_id,
             "medium": "digital",
         })
+        if prepared is not None:
+            typed_metadata.finish_metadata(connection,"record",record,prepared)
         for order, file in enumerate(group, 1):
             _store_uploaded_component(connection, record["id"], file, order, settings, record_creation=True)
     return {"count": count}
@@ -2684,7 +2740,8 @@ def _entity_history(
     response_model=list[EventHistoryRead],
     tags=["event history"],
 )
-@operation_policy("resource_scoped", "audit.view", "aggregation.history.view")
+@operation_policy("resource_scoped", "audit.view", "aggregation.history.view",
+                  conditional_resource_authorization={"type_access": "See current aggregation type and independently qualify for each historical side to read its values"})
 def get_aggregation_history(
     aggregation_id: int,
     limit: int = Query(default=100, ge=1, le=500),
@@ -2695,12 +2752,15 @@ def get_aggregation_history(
         "SELECT 1 FROM aggregations WHERE id=%s AND current_user_can_view_aggregation(id)",
         (aggregation_id,),
     ).fetchone()
+    if live is not None:
+        require_resource_operation(connection,"aggregation",aggregation_id,"audit.view","aggregation.history.view",lock=False)
+        return _entity_history(connection,"aggregation",aggregation_id,limit,offset)
     deleted = connection.execute(
         "SELECT 1 FROM authorized_event_history WHERE entity_type='aggregation' AND entity_id=%s "
-        "AND operation='DELETE' AND user_has_global_privilege(current_user_id(),'audit.view')",
+        "AND operation='DELETE' AND metadata->>'redacted' IS DISTINCT FROM 'true' AND user_has_global_privilege(current_user_id(),'audit.view')",
         (aggregation_id,),
     ).fetchone()
-    if live is None and deleted is None:
+    if deleted is None:
         raise HTTPException(status_code=404, detail="aggregation not found")
     return _entity_history(connection, "aggregation", aggregation_id, limit, offset)
 
@@ -2710,7 +2770,8 @@ def get_aggregation_history(
     response_model=list[EventHistoryRead],
     tags=["event history"],
 )
-@operation_policy("resource_scoped", "audit.view", "record.history.view")
+@operation_policy("resource_scoped", "audit.view", "record.history.view",
+                  conditional_resource_authorization={"type_access": "See current record type and independently qualify for each historical side to read its values"})
 def get_record_history(
     record_id: int,
     limit: int = Query(default=100, ge=1, le=500),
@@ -2720,12 +2781,15 @@ def get_record_history(
     live = connection.execute(
         "SELECT 1 FROM records WHERE id=%s AND current_user_can_view_record(id)", (record_id,),
     ).fetchone()
+    if live is not None:
+        require_resource_operation(connection,"record",record_id,"audit.view","record.history.view",lock=False)
+        return _entity_history(connection,"record",record_id,limit,offset)
     deleted = connection.execute(
         "SELECT 1 FROM authorized_event_history WHERE entity_type='record' AND entity_id=%s "
-        "AND operation='DELETE' AND user_has_global_privilege(current_user_id(),'audit.view')",
+        "AND operation='DELETE' AND metadata->>'redacted' IS DISTINCT FROM 'true' AND user_has_global_privilege(current_user_id(),'audit.view')",
         (record_id,),
     ).fetchone()
-    if live is None and deleted is None:
+    if deleted is None:
         raise HTTPException(status_code=404, detail="record not found")
     return _entity_history(connection, "record", record_id, limit, offset)
 

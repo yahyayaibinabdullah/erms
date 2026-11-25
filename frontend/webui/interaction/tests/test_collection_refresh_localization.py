@@ -27,7 +27,7 @@ async def test_background_refresh_keeps_page_language_without_inherited_context(
         elements['subtitle']=ui.label('')
         elements['guidance']=ui.label('')
         container=ui.column()
-        scope=dict(ui=ui,EntitySpec=SimpleNamespace,COLLECTION_ENTITIES=COLLECTION_ENTITIES,collection_state={'searched':False},
+        scope=dict(open_record_draft_editor=None,ui=ui,EntitySpec=SimpleNamespace,COLLECTION_ENTITIES=COLLECTION_ENTITIES,collection_state={'searched':False},
             table_container=container,subtitle=elements['subtitle'],guidance=elements['guidance'],
             render_message=i18n.render_message,
             render_resource_personal_sections=lambda _:ui.label('Personal sections'))

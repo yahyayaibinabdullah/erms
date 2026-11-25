@@ -30,6 +30,8 @@ CATEGORY_ARABIC = {
 }
 
 NAME_ARABIC = {
+    "aggregation_types.administer": "إدارة أنواع الملفات",
+    "record_types.administer": "إدارة أنواع الوثائق",
     'app.settings.manage': 'إدارة إعدادات التطبيق',
     'relationships.administer': 'إدارة أنواع العلاقات',
     'relationships.link': 'ربط الوثائق والملفات',
@@ -96,6 +98,8 @@ NAME_ARABIC = {
 }
 
 DESCRIPTION_ARABIC = {
+    "aggregation_types.administer": "إدارة أنواع الملفات وحقولها وخياراتها وصلاحيات الأدوار الخاصة بها.",
+    "record_types.administer": "إدارة أنواع الوثائق وحقولها وخياراتها وصلاحيات الأدوار الخاصة بها.",
     'app.settings.manage': 'إدارة إعدادات التطبيق المعتمدة وبيانات اعتماد البريد المحمية.',
     'relationships.administer': 'إدارة قائمتي أنواع العلاقات بين الملفات وبين الوثائق.',
     'relationships.link': 'إنشاء روابط مسماة بين الموارد التي يمكنك عرضها وإزالتها.',
@@ -131,7 +135,9 @@ def definition(key: str, group: str, text: str, meaning: str, role: str) -> dict
 
 
 def arabic_item(key: str, text: str) -> dict:
-    return {"message_key": key, "translated_text": text, "quality_flags": []}
+    return {"message_key": key, "translated_text": text, "quality_flags": [],
+            "provenance": {"kind": "generated", "generator": "Codex",
+                           "source_origin": "generated", "source_status": "draft"}}
 
 
 def main() -> None:
@@ -146,10 +152,9 @@ def main() -> None:
             "SELECT code,name,description,category FROM privileges ORDER BY code COLLATE \"C\""
         ).fetchall()
 
-    missing = sorted({row["code"] for row in privileges} - NAME_ARABIC.keys())
     extra = sorted(NAME_ARABIC.keys() - {row["code"] for row in privileges})
-    if missing or extra:
-        raise SystemExit(f"Arabic privilege-name mapping mismatch; missing={missing}, extra={extra}")
+    if extra:
+        raise SystemExit(f"Arabic privilege names refer to unknown privilege codes: {extra}")
 
     english = json.loads(ENGLISH_PATH.read_text(encoding="utf-8"))
     by_key = {item["message_key"]: item for item in english}
@@ -173,13 +178,18 @@ def main() -> None:
         code = privilege["code"]
         english_name = privilege["name"]
         english_description = privilege_help_text(code, privilege.get("description"))
-        arabic_name = NAME_ARABIC[code]
         translation_code = {
             "search.saved_search.administer": "search.saved_search.administrator",
         }.get(code, code)
         name_key = f"privilege.{translation_code}.name"
         description_key = f"privilege.{translation_code}.description"
         group = f"privilege.{translation_code}"
+        if name_key in arabic_by_key:
+            arabic_name = arabic_by_key[name_key]["translated_text"]
+        elif code in NAME_ARABIC:
+            arabic_name = NAME_ARABIC[code]
+        else:
+            raise SystemExit(f"Missing Arabic privilege name for {code}")
         by_key[name_key] = definition(
             name_key,
             group,

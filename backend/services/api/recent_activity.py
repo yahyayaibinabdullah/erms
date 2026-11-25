@@ -29,15 +29,16 @@ def _activity_statement(entity_type: str | None, *, aggregation_scoped: bool = F
     resource_table, resource_filter, parent_join, targets = ACTIVITY_SCOPES[entity_type]
     card_fields = "" if entity_type is None else f"""
         ,resource.title,resource.{entity_type}_number AS number,
-         CASE WHEN NOT event.has_view_acl THEN resource.security_level_id END AS bypass_level_id,
+         NOT event.has_type_grant AS type_bypass,
+         CASE WHEN NOT (event.has_view_acl AND event.has_type_grant) THEN resource.security_level_id END AS bypass_level_id,
          level.level_number
     """
     resource_join = "" if entity_type is None else f"""
         JOIN {resource_table} resource ON resource.id=event.entity_id
         JOIN security_levels level ON level.id=resource.security_level_id
     """
-    attribution = ",has_view_acl" if entity_type is not None else ""
-    event_attribution = ",target.has_view_acl" if entity_type is not None else ""
+    attribution = ",has_view_acl,has_type_grant" if entity_type is not None else ""
+    event_attribution = ",target.has_view_acl,target.has_type_grant" if entity_type is not None else ""
     scope = """
     scoped_aggregation AS MATERIALIZED (
         SELECT id FROM aggregations WHERE id=%s AND current_user_can_view_aggregation(id)
@@ -122,20 +123,22 @@ def recent_activity(
     for row in rows:
         level_id = row.pop("bypass_level_id")
         level_number = row.pop("level_number")
+        type_bypass = row.pop("type_bypass")
         if level_id is not None:
-            bypassed[row["entity_id"]] = (level_number, level_id)
+            bypassed[row["entity_id"]] = (level_number, level_id, type_bypass)
     if bypassed:
-        _, lowest_level_id = min(bypassed.values())
+        _, lowest_level_id, _ = min(bypassed.values())
         roles = governance_role_snapshot(connection, [lowest_level_id])
         permission = f"{entity_type}.view"
         events = [
             {"id": resource_id, "metadata": {
                 "authorization_basis": "information_governance",
+                "resource_type_bypass": type_bypass,
                 "required_privilege": permission,
                 "required_permission": permission,
                 "qualifying_roles": [role for role in roles if role["level_number"] >= level],
             }}
-            for resource_id, (level, _) in bypassed.items()
+            for resource_id, (level, _, type_bypass) in bypassed.items()
         ]
         connection.execute("""
             SELECT append_domain_event(%s,event.id,'INFORMATION_GOVERNANCE_BYPASS_USED',event.metadata)

@@ -1,8 +1,8 @@
 export default {
-  props: ["pageId", "uploadUrl", "enabled", "physical"],
+  props: ["pageId", "uploadUrl", "enabled", "physical", "collection"],
   template: `<div v-show="dragging" class="record-component-drop-target">
     <div v-if="physical"><slot name="physical" /></div>
-    <div v-else-if="fileCount <= 1"><slot name="single" /></div>
+    <div v-else-if="collection || fileCount <= 1"><slot name="single" /></div>
     <div v-else><slot name="multiple" /></div>
   </div>`,
   data() {
@@ -24,17 +24,23 @@ export default {
     this.clear();
   },
   methods: {
-    isFileDrag(event) { return event.dataTransfer?.types.includes("Files"); },
+    acceptsDrag(event) {
+      if (!event.dataTransfer?.types.includes("Files")) return false;
+      // Dialog uploaders own drops on their files area, including a draft
+      // opened from an aggregation. Leave their native events untouched.
+      if (event.target.closest(".q-dialog") || document.querySelector(".q-dialog[role=dialog]")) return false;
+      return !this.collection || this.isOverPage(event.target);
+    },
     isOverPage(element) { return getHtmlElement(this.pageId)?.contains(element); },
     dropMode(element, fileCount) {
-      if (fileCount === 1) return "single";
+      if (this.collection || fileCount === 1) return "single";
       const target = element.closest('[data-drop-mode="separate"], [data-drop-mode="combined"]');
       return target && this.$el.contains(target) ? target.dataset.dropMode : null;
     },
     hide() { clearTimeout(this.hideTimer); this.dragging = false; },
     clear() { this.hide(); this.pendingFiles = null; },
     onDragOver(event) {
-      if (!this.isFileDrag(event)) return;
+      if (!this.acceptsDrag(event)) return;
       event.preventDefault();
       if (!this.isOverPage(event.target) || this.pendingFiles || (!this.enabled && !this.physical)) {
         event.dataTransfer.dropEffect = "none";
@@ -52,7 +58,7 @@ export default {
     onDragLeave(event) { if (!this.isOverPage(event.relatedTarget)) this.hide(); },
     onDrop(event) {
       this.hide();
-      if (!this.isFileDrag(event)) return;
+      if (!this.acceptsDrag(event)) return;
       event.preventDefault();
       if (!this.isOverPage(event.target)) return;
       event.stopPropagation();
@@ -62,7 +68,21 @@ export default {
       const mode = this.dropMode(event.target, files.length);
       if (!mode) return;
       this.pendingFiles = files;
+      if (this.collection) {
+        this.$emit("files-dropped", { files: files.map(({name, size, type}) => ({name, size, type})) });
+        return;
+      }
       this.$emit("files-dropped", { count: files.length, separate: mode !== "combined", filenames: files.map(file => file.name) });
+    },
+    async transfer(index, url) {
+      const file = this.pendingFiles?.[index];
+      if (!file) return false;
+      const form = new FormData();
+      form.append("file", file, file.name);
+      try {
+        const response = await fetch((window.path_prefix || "") + url, {method: "POST", body: form});
+        return response.ok;
+      } catch (_) { return false; }
     },
     async upload() {
       if (!this.pendingFiles) return;

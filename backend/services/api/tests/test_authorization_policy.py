@@ -260,3 +260,14 @@ def test_database_loader_materializes_profile_privileges_and_request_time_roles(
         assert loaded.effective_roles  # the already-materialized request remains stable
         assert refreshed.effective_roles == ()
         assert refreshed.excluded_roles[0].reason == "role_inactive"
+
+
+def test_everyone_passes_only_the_type_gate_in_access_explanations():
+    operation = AuthorizationRequest("record.open", required_privilege="record.view",
+                                     resource_typed=True, type_access="see", type_everyone_grant=True)
+    granted = authorize(context(role(1)), operation)
+    assert granted.allowed and not granted.type_bypass_role_ids and not granted.type_role_ids
+    assert next(g.detail for g in granted.gates if g.gate == "resource_type") == "everyone"
+    assert authorize(context(), operation).code == DecisionCode.NO_EFFECTIVE_ROLE
+    denied = authorize(context(role(1, privileges=())), operation)
+    assert not denied.allowed and denied.gates[-1].gate == "global_privilege"

@@ -267,7 +267,14 @@ def explain_access(
         connection, payload.resource_type, resource, payload.operation,
         subject.user_id, examiner.user_id,
     )
+    need_use = connection.execute("SELECT type_operation_requires_use(%s) AS value", (permission,)).fetchone()["value"]
+    type_roles = frozenset(row["role_id"] for row in connection.execute(
+        """SELECT role_id FROM resource_type_role_grants WHERE kind=%s AND type_id=%s AND (NOT %s OR can_use)""",
+        (payload.resource_type, resource["type_id"], need_use),
+    )) if resource["type_id"] is not None else frozenset()
     decision = authorize(subject, AuthorizationRequest(
+        type_access="use" if need_use else "see", resource_typed=resource["type_id"] is not None,
+        type_grant_roles=type_roles - {None}, type_everyone_grant=None in type_roles,
         operation=payload.operation, required_privilege=privilege,
         required_permissions=(permission,),
         resource_levels=(connection.execute(
@@ -296,6 +303,8 @@ def explain_access(
         "decision_code": decision.code.value,
         "gates": [asdict(gate) for gate in decision.gates],
         "contributors": {
+            "type_role_ids": list(decision.type_role_ids),
+            "type_bypass_role_ids": list(decision.type_bypass_role_ids),
             "privilege_role_ids": list(decision.privilege_role_ids),
             "clearance_role_ids": list(decision.clearance_role_ids),
             "acl_role_ids_by_permission": {
@@ -311,6 +320,7 @@ def explain_access(
         },
         "subject": _serialize_context(subject), "acl": acl_detail,
         "required_privilege": privilege, "required_permission": permission,
+        "required_type_access": ("use" if need_use else "see") if resource["type_id"] is not None else None,
         "required_clearance": decision.required_clearance,
         "effective_security_level": effective_security_level,
         "required_security_level": required_security_level,

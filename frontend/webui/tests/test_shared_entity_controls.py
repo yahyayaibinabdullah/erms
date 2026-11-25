@@ -71,7 +71,11 @@ async def test_reference_selector_preserves_bounded_reference_endpoint(resource)
 async def test_favourites_response_is_scoped_to_original_identity_and_destination(change):
     started,release=asyncio.Event(),asyncio.Event()
     response={'aggregations':[{'id':3}],'records':[{'id':4}],'application_configuration':{}}
-    async def fetch():started.set();await release.wait();return response
+    async def fetch(*, preview):
+        assert preview == "record"
+        started.set()
+        await release.wait()
+        return response
     data=PersonalResourceState();data.resource='records';principal={'principal':object()}
     owner=personal(SimpleNamespace(favourites=fetch),data,principal,lambda:data.resource,AsyncMock())
     pending=asyncio.create_task(owner.reload_favourites());await started.wait()

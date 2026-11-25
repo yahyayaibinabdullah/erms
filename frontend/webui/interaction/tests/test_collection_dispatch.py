@@ -52,6 +52,7 @@ async def test_resource_refresh_keeps_compact_results_and_personal_sections(
         dependencies = {name: Mock(side_effect=AssertionError(name))
                         for name in inspect.signature(build_collection_table).parameters}
         dependencies.update(
+            required_principal=lambda: {'global_privileges': []},
             collection_state={'searched': searched, 'rows': []},
             guidance=ui.label(), subtitle=ui.label(), table_container=ui.column(),
             render_entity_compact_results=lambda spec: calls.append(('compact', spec.key)),

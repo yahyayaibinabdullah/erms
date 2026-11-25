@@ -48,3 +48,31 @@ def test_saved_search_refresh_uses_owning_page_catalogue():
         clear_active_messages(client.id)
         client.delete()
         set_active_messages({})
+
+
+def test_open_rechecks_permission_after_the_list_was_loaded():
+    import asyncio
+    from unittest.mock import AsyncMock
+    from frontend.webui.api_client import ApiError
+
+    source = (Path(__file__).parents[1] / 'advanced_search.py').read_text()
+    action = next(node for node in ast.walk(ast.parse(source))
+                  if isinstance(node, ast.AsyncFunctionDef) and node.name == 'select_saved_search')
+    old = {"id": 9, "definition": {"request": {"sort": [{"field": "type.3.field.5"}]}}}
+    fresh = {"id": 9, "version": 4, "definition": {"request": {}}}
+    api = MagicMock()
+    api.saved_search = AsyncMock(side_effect=[
+        ApiError(403, {"code": "saved_search_type_forbidden"}), fresh,
+    ])
+    load = MagicMock()
+    update = AsyncMock()
+    scope = dict(Any=object, api=api, ApiError=ApiError, ui=MagicMock(), error_message=str,
+                 confirm_discard_changes=AsyncMock(return_value=True), dialog=MagicMock(),
+                 search_view_is_current=lambda: True, load_saved_into_workspace=load,
+                 load_saved_page=update, filters={"offset":25})
+    exec(compile(ast.Module(body=[action],type_ignores=[]), '<open-saved>', 'exec'),scope)
+    asyncio.run(scope['select_saved_search'](old))
+    load.assert_not_called()
+    update.assert_awaited_once_with(offset=25)
+    asyncio.run(scope['select_saved_search'](old))
+    load.assert_called_once_with(fresh)

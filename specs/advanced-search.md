@@ -8,6 +8,43 @@
 **Approved extension:** [Effective retention filters](advanced-search-effective-retention-extension.md)
 — 28 October 2026; one implementation phase, including Arabic translations.
 
+**Approved resource-type amendment — 18 November 2026:**
+[Aggregation and Record Types](aggregation-and-record-types.md) sections 7–11
+define the agreed type-gate and UI extensions. Queries may mix primary metadata
+with multiple defined types of the selected resource kind and sort by
+type-specific fields. Preserve the current builder; select a type and then
+one of its fields rather than offering all fields in one dropdown. See access
+is required for every explicit type reference, including sort and nested
+Boolean conditions. Resource visibility is additionally enforced in SQL for
+every query, including queries without explicit type references.
+
+See may come from a named effective role or from Everyone on that type.
+Removing the last qualifying grant applies to new searches, saved-query
+disclosure and execution, and subsequent pages. Resolve Everyone in the same
+set-based type check used for Global Search and listings.
+
+**Approved query approach — 18 November 2026:** Derive type access from the
+query's shared effective-role, privilege, and clearance context and apply it
+with ACL checks before counts, ranking, paging, and caps. The new gate must not
+add per-resource database queries, repeated permission evaluation per candidate,
+or independent authorization resolution across branches. Recheck current
+permissions in batches on subsequent pages. Existing separate enrichment,
+paging batches, fallback queries, and relationship/freshness checks are accepted
+trade-offs, not a requirement to consolidate every request into one statement.
+See [type specification section 7.6](aggregation-and-record-types.md#76-shared-enforcement-and-verification)
+for the scope and rationale.
+
+The type specification's section 9.2, approved on 18 November 2026, requires
+retaining a shared saved search's audience-authorized list entry while withholding its definition
+and preventing builder loading and execution for a recipient who cannot See
+a referenced type. See without Use remains sufficient for searching. This
+extends the saved-definition read contract: an ordinary recipient's list/read
+response must not expose a forbidden definition. Administration permits
+inspection where already authorized, but
+never supplies resource-type execution rights. Governance bypasses type
+See/Use under the security specification, without bypassing result clearance
+or other remaining gates.
+
 ## 1. Purpose
 
 This specification defines an Advanced Search workspace for aggregations and
@@ -18,7 +55,8 @@ allows a person user to save a query for later execution or controlled sharing.
 
 A saved search stores a query definition, not a result snapshot. Every execution
 returns fresh results and applies the executing user's current privileges,
-security clearance, resource ACLs, organizational access, and resource state.
+resource-type access, security clearance, resource ACLs, organizational access,
+and resource state.
 Sharing a saved search never shares the records or aggregations returned by it.
 
 ## 2. Relationship to existing search
@@ -543,6 +581,19 @@ The requested sort is respected. The existing compiler appends `id ASC` when
 needed for deterministic pagination. A positive full-text search with no
 explicit sort uses the existing `_relevance DESC, id ASC` default.
 
+For type-specific sort keys, missing values are last in both directions,
+including unset values, resources of other types, and untyped resources. Zero
+and false are populated values; defaults are never substituted during sorting.
+Single-choice fields sort by administrator-defined choice order, independent
+of translated labels or choice IDs. Thus Low → Normal → Urgent sorts ascending
+in that order and descending as Urgent → Normal → Low, with missing values last
+in either case. Subsequent keys and the existing ID tie-breaker resolve ties.
+Choice reordering invalidates affected ranked caches for rebuilding under the
+submitted query; renaming or translation alone does not change ordering.
+Other scalar types retain their existing native ordering. Primary-metadata
+sort semantics remain unchanged. See [type-field sorting](aggregation-and-record-types.md#911-type-field-sorting--approved-18-november-2026)
+for examples and rationale.
+
 ### 6.3 Result cards
 
 Results shall reuse the established Wathiq full-text result-card presentation,
@@ -652,7 +703,9 @@ principal ID is prohibited.
 - Only the owner or a user with `search.saved_search.administer` may modify a
   saved search's name, category, description, or definition.
 - An owner with the save privilege may update the search's permitted audience.
-- A recipient can open and execute but cannot edit, reshare, rename, or delete.
+- A recipient can open and execute when all referenced types pass See access,
+  but cannot edit, reshare, rename, or delete. Otherwise retain the summary
+  entry while withholding the definition and disabling Open/Execute.
 - An administrator may update another owner's definition metadata or audience
   only as defined in section 8; ownership transfer is not supported.
 - Deletion is permanent after confirmation and requires a reason.
@@ -679,14 +732,24 @@ These names are recommended over generic `query.save`, `query.administrator`,
 and `query.delete` because the `search.saved_search` namespace matches the
 product entity and does not imply database-query administration.
 
-Reading and executing a saved search needs no management privilege: ownership,
-current audience membership, or an effective information-governance role is
-sufficient, together with the relevant `aggregation.view` or `record.view`
-privilege. Information-governance bypass applies to saved-search audience
+Reading and executing a saved search needs no management privilege. Require
+ownership, current audience membership, or an effective information-governance
+role, together with the relevant `aggregation.view` or `record.view` privilege
+and the type-reference checks below. Information-governance bypass applies to saved-search audience
 access in the same manner as a resource ACL bypass, but does not add the search
 to **Shared with me** or the ordinary **All** union. The owner may modify the saved
 search's name, category, description, and definition based on ownership; this
 authority does not depend on retaining `search.saved_search.save`.
+
+Under the resource-type extension, normal definition loading and execution
+also require See access to every explicitly referenced type (or the specified
+governance bypass). Ownership,
+audience membership, and saved-search administration do not supply that access.
+Never silently remove forbidden conditions or sorts. Queries without forbidden
+explicit references may execute, but their results still pass the executor's
+current resource-type and other visibility gates before counts or result caps.
+The approved handling of a shared definition that fails this check is recorded
+in [the type specification, section 9.2](aggregation-and-record-types.md#92-shared-saved-searches--approved-18-november-2026).
 
 `search.saved_search.save` does not let an owner select arbitrary audiences. A
 non-administrator may grant only currently effective non-system person roles
@@ -767,6 +830,10 @@ PUT /api/v1/saved-searches/{saved_search_id}
 ```
 
 Read requires ownership, effective audience membership, or administration.
+The [query grammar](../docs/search-grammar.md#type-specific-criteria-and-sort-keys) gives the v1 field paths and an executable mixed-type example.
+For ordinary definition reads, also enforce See for all referenced types before
+returning the definition. This applies to list responses and restoration as
+well; independent administrative inspection retains its existing authority.
 Changing the name, category, description, or definition requires ownership or
 `search.saved_search.administer`. Changing the audience requires ownership
 plus `search.saved_search.save`, or `search.saved_search.administer`. `PUT`
@@ -1030,6 +1097,7 @@ data volumes.
 | AS-24 | Component predicates within one `and` scope are correlated to the same authorized digital component, including nested component-only `or` alternatives | multi-component database tests designed to detect false cross-component matches |
 | AS-25 | Component metadata fields use existing typed operators, Boolean nesting and complexity limits, cannot be used as sort fields, and expose no SQL, storage internals, extracted content, or raw component rows | boundary, injection, sorting, and response-contract tests |
 | AS-26 | The Records builder groups component metadata fields separately, explains same-component behavior, and remains keyboard-operable and usable in English and Arabic/RTL layouts | UI unit tests and live-browser accessibility/visual verification |
+| AS-27 | Shared searches with forbidden type references retain summary visibility but withhold the full definition and block Open/Execute; See without Use suffices; revocation/restoration, sorting and nested references are handled consistently | list/read/restore/execute disclosure, capability, governance, and cached-page tests; ART-22 |
 
 ## 16. Required traceability
 
@@ -1065,8 +1133,10 @@ The product owner approved the following decisions on 25 September 2026:
 9. administrators cannot execute a saved search merely through administration;
    ownership, audience membership, or an effective information-governance role
    is required together with the underlying resource privileges;
-10. shared-search recipients can execute or **Save as**, but cannot edit or
-    reshare the original;
+10. shared-search recipients can execute or **Save as** when the referenced
+    types are permitted, but cannot edit or reshare the original. The approved
+    18 November 2026 type extension withholds forbidden definitions and blocks
+    opening/execution while retaining the shared-list summary;
 11. opening a saved search does not auto-execute it;
 12. saved-search changes are governed history events, while executions are not;
     and

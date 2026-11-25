@@ -1,5 +1,7 @@
 """Run the search gate on disposable Linux PostgreSQL; leave no container/volume."""
 import argparse
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager, nullcontext
 import json
 import os
 from pathlib import Path
@@ -7,10 +9,40 @@ import secrets
 import signal
 import subprocess
 import sys
+import threading
 import time
 from uuid import uuid4
 
 import psycopg
+
+
+@contextmanager
+def sample_linux_io(url, output):
+    """Observe only the disposable container, separately from client-host counters."""
+    stop = threading.Event()
+    samples = []
+
+    def collect():
+        with psycopg.connect(url, autocommit=True) as observer:
+            while not stop.is_set():
+                workers = observer.execute("""SELECT wait_event, count(*) FROM pg_stat_activity
+                    WHERE backend_type = 'io worker' GROUP BY wait_event""").fetchall()
+                sample = {'time': time.time(), 'worker_waits': workers}
+                if len(samples) % 10 == 0:
+                    sample['cgroup_io_stat'] = observer.execute(
+                        "SELECT pg_read_file('/sys/fs/cgroup/io.stat', 0, 65536, true)"
+                    ).fetchone()[0]
+                samples.append(sample)
+                stop.wait(0.1)
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(collect)
+        try:
+            yield
+        finally:
+            stop.set()
+            future.result()
+            output.write_text(json.dumps(samples) + '\n')
 
 
 def main():
@@ -19,8 +51,16 @@ def main():
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--repeats', type=int, default=3)
     parser.add_argument('--settle-seconds', type=int, default=0)
-    parser.add_argument('--workload', choices=('standard', 'large-text'), default='standard')
+    parser.add_argument('--workload', choices=('standard', 'large-text', 'cold-ranking'), default='standard')
+    parser.add_argument('--sample-waits-and-io', action='store_true',
+                        help='Collect PostgreSQL waits and client-host disk counters for the large-text workload')
+    parser.add_argument('--ranking-io-concurrency', type=int, choices=range(1001), metavar='N',
+                        help='Override effective_io_concurrency only during large-text ranking')
+    parser.add_argument('--io-workers', type=int, choices=range(1, 33), metavar='N',
+                        help='Set the I/O worker count on this disposable PostgreSQL instance')
     args = parser.parse_args()
+    if args.workload != 'large-text' and (args.sample_waits_and_io or args.ranking_io_concurrency is not None):
+        parser.error('wait sampling and ranking I/O overrides require the large-text workload')
     if args.output.exists() or args.repeats < 1 or not 0 <= args.settle_seconds <= 300:
         parser.error('output must be new, repeats positive, and settle-seconds between 0 and 300')
     root = Path(__file__).resolve().parents[1]
@@ -52,12 +92,13 @@ def main():
         # A failed `docker run` may still have created its uniquely named
         # container, so inspect/remove it in finally even if startup fails.
         created = True
+        server_args = ['postgres', '-c', f'io_workers={args.io_workers}'] if args.io_workers is not None else []
         subprocess.run(['docker', 'run', '--detach', '--pull=never', '--name', name,
                         '--publish', '127.0.0.1::5432',
                         '--tmpfs', '/var/lib/postgresql:rw,size=1m',
                         '--env', 'PGDATA=/tmp/search-gate-pgdata',
                         '--env', 'POSTGRES_INITDB_ARGS=--data-checksums',
-                        '--env', 'POSTGRES_PASSWORD', image['Id']],
+                        '--env', 'POSTGRES_PASSWORD', image['Id'], *server_args],
                        env=environment, check=True, capture_output=True, text=True, timeout=60)
         # Docker Desktop can return from run before the ephemeral host binding
         # appears in inspect. Wait for the binding as part of startup readiness.
@@ -81,19 +122,31 @@ def main():
                     for setting in ('data_directory', 'data_checksums', 'fsync', 'full_page_writes'):
                         evidence[setting] = connection.execute('SHOW ' + setting).fetchone()[0]
                     assert all(evidence[k] == 'on' for k in ('data_checksums', 'fsync', 'full_page_writes'))
+                    if args.io_workers is not None:
+                        evidence['io_workers'] = connection.execute('SHOW io_workers').fetchone()[0]
+                        assert int(evidence['io_workers']) == args.io_workers
                 break
             except psycopg.OperationalError:
                 if time.monotonic() >= deadline:
                     raise RuntimeError('Disposable Linux PostgreSQL did not become ready') from None
                 time.sleep(0.25)
         print('Disposable Linux PostgreSQL ready: ' + name, flush=True)
-        gate = 'check_large_text_search_performance.py' if args.workload == 'large-text' else 'check_search_performance.py'
+        gate = {'standard': 'check_search_performance.py',
+                'large-text': 'check_large_text_search_performance.py',
+                'cold-ranking': 'check_cold_ranking_performance.py'}[args.workload]
         evidence['workload'] = args.workload
-        child = subprocess.Popen([sys.executable, str(root / 'tools' / gate),
-                                  '--repeats', str(args.repeats), '--output', str(args.output),
-                                  '--settle-seconds', str(args.settle_seconds)],
-                                 cwd=root, env={**os.environ, 'DATABASE_URL': url})
-        evidence['test_exit_code'] = child.wait()
+        command = [sys.executable, str(root / 'tools' / gate), '--repeats', str(args.repeats),
+                   '--output', str(args.output), '--settle-seconds', str(args.settle_seconds)]
+        if args.workload == 'cold-ranking':
+            command.extend(['--container', name])
+        if args.sample_waits_and_io:
+            command.append('--sample-waits-and-io')
+        if args.ranking_io_concurrency is not None:
+            command.extend(['--ranking-io-concurrency', str(args.ranking_io_concurrency)])
+        sampler = sample_linux_io(url, args.output.with_name(args.output.name + '-linux-io.json'))
+        with sampler if args.sample_waits_and_io else nullcontext():
+            child = subprocess.Popen(command, cwd=root, env={**os.environ, 'DATABASE_URL': url})
+            evidence['test_exit_code'] = child.wait()
         return evidence['test_exit_code']
     finally:
         if child is not None and child.poll() is None:

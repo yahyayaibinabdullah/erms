@@ -104,6 +104,24 @@ A metadata hit still receives that component contribution under the existing
 formula, if component access is allowed. Scoring only chunks found by the GIN
 match would change its rank. The focused search regression suite covers this.
 
+### Global Search ranking I/O
+
+On a new `POST /api/v1/full-text-search` submission, `_rank_global_search` executes the combined ranking SELECT with `effective_io_concurrency = 0`. This applies once per submitted list, including a fresh submission that rebuilds an expired list. It covers all work inside that statement, including candidate matching, permissions, scoring, top results, deterministic ordering and the first-page projection. Record-only, aggregation-only and combined submissions use the same scope.
+
+For reads governed by this setting, PostgreSQL 18 interprets zero as disabling asynchronous I/O requests. A read can still be satisfied from cache. Parallel reads can help on high-latency or high-IOPS storage, which is one reason to keep this measured exception narrow. [PostgreSQL I/O settings](https://www.postgresql.org/docs/18/runtime-config-resource.html#GUC-EFFECTIVE-IO-CONCURRENCY)
+
+The override starts **after** branch preparation and ends immediately after the statement's rows are fetched. Cache insertion, later page enrichment, snippets, current visibility checks and cached paging use the caller's setting. Advanced Search, list filters and unrelated operations retain their existing execution policy. Reading a saved list of hits does not perform the initial ranking again.
+
+The [ranking context manager](../backend/services/api/search_execution.py) reads the current value from the executing connection, including a caller's transaction-local value. It applies zero with transaction-local `set_config` and restores that exact value before returning control, including on a Python exception. If PostgreSQL aborts the transaction, rollback restores the setting and the original SQL error propagates. A connection already at zero needs no setting change. Other sessions keep their own values throughout. This policy ships in the API code. Normal API rollout activates it without database configuration, migrations, an environment variable or a server restart.
+
+**Reason for the exception.** On PostgreSQL 18.4, the same plans, actual row counts and loop counts produced repeatable slow file-content rankings. On the Mac, one sequential chunk scan spent 0.322 s reading in a fast execution and 2.553 s in a slow one, despite reading slightly fewer blocks. The Linux Docker test reproduced the same four slow query/round combinations. Moving from three to four I/O workers on the Mac did not remove them. With a ranking-only zero setting, all 428 serial Mac responses met three seconds. The measurements implicate the asynchronous read path in this workload. They do not establish a single PostgreSQL defect or identify the cause of every millisecond. [Actual ranking plans](verification/search-ranking-actual-plans-2026-11-18.md)
+
+In the paired Linux cold-cache test with two readers, zero improved throughput from 0.445 to 0.791 searches/s and reduced the worst response from 7.620 to 2.927 s. With four readers, throughput rose from 1.010 to 1.241 searches/s, but 15 of 24 responses at zero still exceeded three seconds. The database and Linux guest caches started cold; host and storage caches could still serve reads. These findings support the narrow ranking exception. They do not grant a new latency waiver or justify setting the whole cluster to zero. [Cold-cache measurements](verification/search-cold-concurrent-2026-11-19.md)
+
+The production-path verification passed 230 regressions, all 1,524 standard responses and all 428 larger-text responses. [Verification report](verification/aggregation-record-types-phase-0.md#verification-of-the-application-ranking-override-19-november)
+
+**Reverification.** Run both large-data gates on the ordinary application path with no ranking override argument. Compare whole responses and the complete rankings against the independent oracle. For an A/B experiment, `--ranking-io-concurrency 16` in the disposable larger-text runner selects the asynchronous control. Both arms use the same setting and restoration implementation. Retest on a new PostgreSQL version or materially different storage and concurrency before extending or removing the exception. [PostgreSQL I/O setting](https://www.postgresql.org/docs/18/runtime-config-resource.html#GUC-EFFECTIVE-IO-CONCURRENCY)
+
 ## Required repeatable gate
 
 Mailbox text filters use the same document fixture with 2,400 messages per
@@ -139,6 +157,15 @@ it does not test the configured persistent database. On the Mac, run against the
 native PostgreSQL cluster when requested. The optional Linux wrapper below can
 also run this gate with `--workload large-text`; do not conflate its timings with
 native-cluster measurements.
+
+For a timing investigation, add `--sample-waits-and-io` to the larger-text
+command. A separate connection samples active client backends in the disposable
+database approximately every 100 ms. Each sample records the wait event and
+whether the backend is executing the ranking statement, alongside cumulative
+host disk bytes read and written. The runner buffers the samples in memory and
+writes `waits-and-host-io.jsonl` after measurement. Join sample times to
+the request and stage timestamps. A null wait means PostgreSQL reported no
+wait at that instant. Disk byte differences include all host processes.
 
 The richer corpus in `tools/search_large_text_fixture.py` has 51,003 aggregations,
 153,009 records/files and 180,630 chunks: 151,470 single-chunk files of about

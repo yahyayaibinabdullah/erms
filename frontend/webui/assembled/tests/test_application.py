@@ -405,11 +405,15 @@ async def test_aggregation_reload_shows_the_restored_content_panel(assembled):
         app.storage.user['navigation_trail'] = [{'page': 'aggregation-details', 'entity_id': 1,
                                                 'label': 'Test aggregation', 'state': {}}]
     await user.open('/')
-    await user.should_see('Aggregation overview', retries=200)
-    await eventually(lambda: user.pending_requests == 0)
-    cards = [e for e in user.client.elements.values() if isinstance(e, ui.card) and 'erms-card' in e.classes]
-    assert len(cards) == 1
-    assert cards[0].visible, 'B1: restored aggregation content exists but its parent panel remains hidden'
+    def restored_header():
+        return next((e for e in user.client.elements.values()
+                     if 'resource-detail-header' in e.classes
+                     and any(isinstance(child, ui.label) and plain(child) == 'TEST-AGG'
+                             for child in e.descendants())), None)
+
+    await eventually(lambda: restored_header() and user.pending_requests == 0)
+    panel = next(e for e in restored_header().ancestors() if isinstance(e, ui.card) and 'erms-card' in e.classes)
+    assert panel.visible, 'B1: restored aggregation content exists but its parent panel remains hidden'
 
 
 @pytest.mark.parametrize('status', [403, 404])

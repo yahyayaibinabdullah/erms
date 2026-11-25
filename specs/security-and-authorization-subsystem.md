@@ -6,6 +6,12 @@
 **Prepared:** 19 September 2026  
 **Revision:** 0.9 — bounded historical actor autocomplete and capped Audit Trail search
 
+**Approved amendment — 18 November 2026:** The resource-type gate and extended
+governance bypass below form part of the approved updated specification.
+See [Aggregation and Record Types](aggregation-and-record-types.md)
+sections 7–11 for their scope, rationale, and verification requirements. Its
+revised shared-saved-search behavior was approved on 18 November 2026.
+
 ## 1. Purpose
 
 This specification defines the security-classification and authorization model
@@ -40,9 +46,10 @@ that authenticated caller may do. The two subsystems remain separate.
    synthetic ACL principal and is never user-specific.
 3. **Allow grants only.** This version has no deny ACL and no conflict-resolution
    precedence.
-4. **Profiles grant capabilities; ACLs grant scope.** A profile says what a role
-   may do in principle. An ACL says where an effective role—or the synthetic
-   Everyone match—may do it.
+4. **Profiles grant capabilities; type grants and ACLs constrain scope.** A
+   profile says what a role may do in principle. Type grants govern See/Use for
+   typed resources; ACLs govern resource permissions. Every applicable gate
+   must pass, subject only to explicitly defined bypasses.
 5. **Security clearance is an independent mandatory gate.** Neither a privilege
    nor an ACL grant can reveal content above the caller's effective clearance.
 6. **Lifecycle and structural integrity remain authoritative.** Authorization
@@ -58,8 +65,8 @@ that authenticated caller may do. The two subsystems remain separate.
    stable reason code for internal use, while public responses avoid disclosing
    protected facts.
 10. **Authorization changes are immutable audit events.** Profile, privilege,
-    clearance, governance-role, and ACL changes must be attributable and
-    reconstructable.
+    clearance, governance-role, resource-type policy, and ACL changes must be
+    attributable and reconstructable.
 
 ## 3. Terminology
 
@@ -131,8 +138,9 @@ is **no effective role supplies sufficient clearance**.
 
 ### 3.7 Information-governance role
 
-An effective role marked as an information-governance role may bypass a
-resource ACL for governed content, subject to the restrictions in Section 12.
+An effective role marked as an information-governance role may bypass
+resource-type See/Use restrictions and a resource ACL for governed content,
+subject to the restrictions in Section 12.
 It is not a system-administrator role and is not a universal authorization
 bypass.
 
@@ -158,8 +166,9 @@ particular operation or continuity safeguard.
 
 Retain the existing effective-assignment, role/organization activation, global
 privilege, clearance, and resource-state checks. In particular, the governance
-role used for ACL bypass must itself supply the required clearance; governance
-status is not a universal bypass. Assigning `INFO_GOV_MGR`, `INFO_GOV_OFFICER`, or
+role used for resource-type or ACL bypass must itself supply the required
+clearance; governance status is not a universal bypass. Assigning
+`INFO_GOV_MGR`, `INFO_GOV_OFFICER`, or
 a custom Profile does not itself replace the explicit role flag. Existing
 operation-specific Profile checks remain applicable where separately specified.
 
@@ -374,7 +383,11 @@ Privilege codes are immutable lowercase dotted identifiers. Display names and
 descriptions may change. Privileges are seeded system definitions, not
 free-form administrator input.
 
-The initial catalogue is:
+Migration 125 is the approved one-time rename of the two resource-type
+administration codes. It preserves privilege IDs, profile grants and audit
+history. Both privileges appear in the Administration group.
+
+The privilege catalogue includes the following entries.
 
 #### Platform and administration
 
@@ -387,8 +400,20 @@ The initial catalogue is:
 | `identity.sessions.administer` | Inspect and revoke other users' login sessions |
 | `organization.browse` | Browse the organization hierarchy and view concise organizational-unit, role, and user summaries without receiving administration rights |
 | `organization.administer` | Create, edit, activate, deactivate, and eventually delete organizational units and roles; maintain role supervision and assignments |
+| `aggregation_types.administer` | Maintain aggregation types, fields, choices, translations, defaults, and type See/Use role grants |
+| `record_types.administer` | Maintain record types, fields, choices, translations, defaults, and type See/Use role grants |
 | `classifications.administer` | Create, edit, publish, unpublish, activate, deactivate, migrate, and delete classification schemes and classifications |
 | `audit.view` | View the system-wide audit trail and entity histories |
+
+The resource-type implementation introduced `aggregation_types.administer`
+(**Administer aggregation types**) and `record_types.administer`
+(**Administer record types**). Seed/upgrade their default grants for
+`INFO_GOV_MGR`, `INFO_GOV_OFFICER`, and `ALL_PRIVS`; other profiles require
+explicit delegation. Preserve unrelated profile grants and assignments.
+Definition administration is distinct from instance editing and from global
+authorization administration. Governance See/Use bypass alone does not confer
+these privileges. See [type specification section 7.1](aggregation-and-record-types.md#71-definition-administration)
+for rationale and examples.
 
 `identity.users.administer` and `organization.administer` are deliberately
 separate. The old example `ADMINISTER_USERS` is too broad if it also silently
@@ -528,8 +553,8 @@ The canonical production setup must include the built-in Information Governance
 Manager (`INFO_GOV_MGR`) and Information Governance Officer
 (`INFO_GOV_OFFICER`) profiles. Both contain the same global privileges needed to
 discover, view, manage, classify, close/reopen, correct placement, administer
-classification schemes and security levels, and administer access to governed aggregations and
-records. They do not contain user, platform, or unrelated technical-
+classification schemes, aggregation/record type catalogues and security levels,
+and administer access to governed aggregations and records. They do not contain user, platform, or unrelated technical-
 administration privileges. The distinct profiles allow later policy evolution
 without changing existing role assignments.
 
@@ -1011,15 +1036,18 @@ information-governance role that:
 
 - has clearance at least equal to the resource;
 - has a profile containing the required global custody privileges; and
-- can use the governance ACL bypass to discover the resource, view it, and
-  administer its access.
+- can use the governance resource-type and ACL bypasses to discover the
+  resource, view it, and administer its access.
 
 The continuity check runs not only for ACL removal. It runs before committing
 any change to users, user-role assignments, roles, organizational ancestry,
 role profiles, profile privileges, governance flags, role security
-levels, resource security levels, or resource hierarchy that could remove the
-last custodian. A blocked operation reports safe affected counts and remediation
-guidance.
+levels, resource security levels, resource hierarchy, type See/Use policies,
+or type assignment/reassignment/removal that could remove the last custodian.
+Evaluate proposed changes transactionally against the resulting authorization
+state. Type restrictions cannot exclude a qualified governor, but their bypass
+does not replace continuity checks for effectiveness, privileges, and clearance.
+A blocked operation reports safe affected counts and remediation guidance.
 
 The policy requirement for a highest-clearance information-governance role
 provides universal custody coverage when correctly staffed. The application
@@ -1111,23 +1139,35 @@ or deny decision with an internal reason code.
    rejected according to authentication policy.
 2. **Effective-role gate.** Resolve current effective roles using account,
    assignment, role, and organizational-ancestry rules. If none exist, deny.
-3. **Operation and integrity gate.** Confirm the requested operation is valid
+3. **Resource-type gate.** Require See for visibility or Use for mutation of
+   each involved typed resource, according to the operation mapping in
+   [the type specification](aggregation-and-record-types.md#73-operation-coverage).
+   Any current effective role with the required type grant suffices; qualified
+   information-governance roles bypass both See and Use. Untyped resources are
+   Not applicable. Do not narrow the effective-role set for subsequent gates.
+4. **Operation and integrity gate.** Confirm the requested operation is valid
    for the resource state. Closure, retention, parent/child restrictions,
    optimistic concurrency, and validation remain independent blockers.
-4. **Global-privilege gate.** If no effective role obtains the operation's
+5. **Global-privilege gate.** If no effective role obtains the operation's
    global privilege through its assigned profile, deny.
-5. **Security-clearance gate.** If the greatest security level among effective
+6. **Security-clearance gate.** If the greatest security level among effective
    roles is below any involved resource's level, deny. Multi-resource
    operations such as moves must pass for source, destination, and affected
    descendants.
-6. **ACL gate.** If neither Everyone nor any of the user's effective roles has
+7. **ACL gate.** If neither Everyone nor any of the user's effective roles has
    the required permission in the resource's current ACL, deny, unless the
    narrowly defined information-governance ACL bypass applies.
-7. **Allow.** Execute the operation transactionally and audit it as required.
+8. **Allow.** Execute the operation transactionally and audit it as required.
 
-The role supplying the global privilege, the role supplying clearance, and the
-role supplying the ACL permission may differ. This is intentional union-based
-RBAC and matches the rule that a user receives the union of all effective role
+An administrator may grant See or Use to Everyone on a particular aggregation
+or record type. Everyone applies after authentication and effective-role
+assignment. It combines with explicit named-role grants, and Use includes
+See. The remaining privilege, state, clearance, and ACL checks still apply.
+The access explanation identifies Everyone when its grant satisfies this gate.
+
+The roles supplying type access, global privilege, clearance, and ACL
+permission may differ. This is intentional union-based RBAC and matches the
+rule that a user receives the union of all effective role
 authorizations. The decision explanation must retain the contributing role IDs
 for administrators and tests.
 
@@ -1140,7 +1180,9 @@ flowchart TD
     B -- Yes --> C[Resolve current effective roles]
     C --> D{At least one<br/>effective role?}
     D -- No --> D2[Deny: no effective role]
-    D -- Yes --> E{Operation valid for<br/>current resource state?}
+    D -- Yes --> T{Required type See/Use grant,<br/>qualified governance bypass,<br/>or untyped resource?}
+    T -- No --> DT[Deny: resource type]
+    T -- Yes --> E{Operation valid for<br/>current resource state?}
     E -- No --> D3[Deny or conflict:<br/>integrity/lifecycle rule]
     E -- Closed-record correction --> X{Qualified governance role +<br/>correction privilege + reason?}
     X -- No --> D3
@@ -1161,6 +1203,24 @@ flowchart TD
 The diagram is a logical decision flow. Implementations may order safe internal
 queries differently for efficiency, but they must produce the same result and
 must not reveal which protected gate failed to an unauthorized caller.
+
+This is one logical policy, not a claim that all enforcement executes one
+function. The current Python evaluator, database authorization functions, and
+shared batched SQL visibility predicates may express policy in different forms;
+verify equivalent decisions. The approved resource-type query approach reuses
+effective roles, privileges, clearance, and type-access sets within SQL, with
+ACL checks before counts, ranking, pagination, and caps. It must not add
+per-resource database round trips, per-candidate type permission evaluation,
+or independently repeated authorization work across query branches. Subsequent
+paging requests still check current permissions in batches.
+
+The existing extra read stages are accepted trade-offs, as detailed in
+[type specification section 7.6](aggregation-and-record-types.md#76-shared-enforcement-and-verification).
+Neither one SQL statement per HTTP request nor one database evaluator for all
+paths is required. Creation/update/deletion are outside this query-efficiency
+constraint and retain all authorization and integrity requirements. Routes
+declare operation requirements and use shared enforcement; the UI is never
+the security boundary. This supersedes the earlier single-evaluator proposal.
 
 ### 9.3 Global administrative operation
 
@@ -1240,9 +1300,12 @@ created atomically by the commit workflow.
 ### 12.1 Recommended behavior
 
 Roles receive a Boolean `is_information_governance` flag. For protected
-aggregations and records, an effective governance role may bypass the **ACL
-gate only** when that governance role's own security level is at least the
-resource level.
+aggregations and records, an effective governance role may bypass the
+**resource-type See/Use gate and the ACL gate** when that governance role's own
+security level is at least the resource level. This applies to every type,
+including future types, without explicit See/Use grants. Governance users may
+reference any type in Advanced Search; result resources still require clearance
+and all other applicable gates.
 
 It does not bypass:
 
@@ -1258,7 +1321,10 @@ It does not bypass:
 
 This means governance staff can be given a standard governance profile defining
 their duties and can exercise those duties across all in-clearance content
-without maintaining thousands of repetitive ACL entries.
+without maintaining repetitive type grants or ACL entries. Type catalogue
+configuration must not prevent qualified governance staff from performing
+their custody duties. Type-definition administration still requires the
+corresponding type-administration privilege listed in section 5.1.
 
 The reserved System Administrator role is not automatically an information-
 governance role and is not automatically entitled to protected business
@@ -1289,7 +1355,8 @@ events. It must not be implemented by broadening the governance flag.
 
 ### 12.3 Governance bypass scope
 
-The bypass applies only when a resource ACL would otherwise deny an operation.
+The bypass applies when a resource-type See/Use restriction or a resource ACL
+would otherwise deny an operation. It does not bypass custody-continuity checks.
 It must be visible in authorization explanations and audited on security-
 sensitive operations as `authorization_basis: information_governance` with the
 qualifying governance role snapshot.
@@ -1564,7 +1631,8 @@ governance flag, assigned profile, and resulting privileges.
 The information-governance control on a Role form/detail page includes visible
 field-level guidance, not only a tooltip:
 
-> Information-governance roles may bypass resource ACLs for governed content.
+> Information-governance roles may bypass type See/Use restrictions and resource
+> ACLs for governed content.
 > They do not bypass global privileges, their own security clearance, account,
 > assignment, role or organizational-unit effectiveness, closure rules except
 > for the defined record-placement correction, or other integrity controls.
@@ -1684,6 +1752,8 @@ authorization consequences from a resource classification change and records
 `ROLE_SECURITY_CLEARANCE_CHANGED`, including its old/new levels and affected
 user/grant counts. There is therefore no missing upgrade event and no ambiguous
 generic resource `SECURITY_LEVEL_CHANGED` event.
+
+For aggregation and record type reassignment, first apply the existing resource and history authorization. An authorized history viewer may see the former and new type names. Disclose each side’s stored resource values only if the viewer currently passes See for that side, including governance’s own-clearance rule. Mark withheld values explicitly. This applies to every history projection of the change. The type specification records the approved scenario and rationale. [Historical values after reassignment](aggregation-and-record-types.md#historical-values-after-reassignment--approved-19-november-2026)
 
 For a system-wide Audit Trail viewer whose `audit.view` privilege is valid but
 whose clearance is below the affected resource, the API returns a redacted
@@ -2077,20 +2147,22 @@ for the explicitly authorized placement correction, closure dates remain
 unchanged by that correction, and failed content operations leave no orphaned
 blobs or rows.
 
-### Phase 9 — Information-governance ACL bypass
+### Phase 9 — Information-governance bypass
 
 **Goal:** Add the narrowly scoped governance behavior only after normal policy
 is proven.
 
 **Deliverables:**
 
-- governance-role ACL bypass requiring that same role's sufficient clearance;
+- governance-role ACL and resource-type See/Use bypasses requiring that same
+  role's sufficient clearance when accessing resources;
 - continued global-privilege and integrity enforcement;
 - governance-basis explanations and events; and
 - administrative warnings and assignment visibility.
 
-**Verification gate:** Tests prove governance bypasses ACL only; never bypasses
-clearance, missing privilege, inactive ancestry, invalid assignment, special
+**Verification gate:** Tests prove governance bypasses ACL and resource-type
+See/Use restrictions only; never bypasses clearance, missing privilege,
+inactive ancestry, invalid assignment, special
 downgrade, or unrelated administration. The separately authorized record-
 placement correction is the only closure exception. A non-governance high-
 clearance role cannot lend clearance to a low-clearance governance role.
@@ -2227,9 +2299,10 @@ Revision 0.5 adds and confirms:
    lower-clearance role does not veto a sufficient role.
 4. Normal RBAC is union-based: global privilege, clearance, and ACL permission
    may be supplied by different effective roles.
-5. An information-governance role bypasses only the ACL, must itself be
-   sufficiently cleared, and still requires global privileges and every other
-   applicable gate. Role UI must explain this visibly.
+5. An information-governance role originally bypassed only the ACL, had to be
+   sufficiently cleared, and still required global privileges and every other
+   applicable gate. The 18 November 2026 resource-type amendment extends the
+   bypass to See/Use; the other limits and visible Role UI guidance remain.
 6. Component preview, download, share, and print remain separate permissions.
 7. Component replacement remains an atomic permission distinct from add and
    remove.

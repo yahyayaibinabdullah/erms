@@ -128,6 +128,10 @@ INSERT INTO public."privileges" ("id", "code", "name", "description", "category"
  (64, 'disposition.jobs.manage', 'Manage Disposition Jobs', 'Perform authorized disposition work without granting resource access or bypassing protection.', 'administration', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, NULL),
  (65, 'messaging.user_messages.exchange', 'Exchange messages', 'Send and receive human-authored messages.', 'administration', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 'person');
 SELECT pg_catalog.setval('public.privileges_id_seq', (SELECT max("id") FROM public."privileges"), true);
+INSERT INTO public.privileges(code,name,description,category)
+VALUES ('aggregation_types.administer','Administer aggregation types','Maintain aggregation types, fields, choices and role grants.','administration'),
+       ('record_types.administer','Administer record types','Maintain record types, fields, choices and role grants.','administration')
+ON CONFLICT DO NOTHING;
 
 -- profiles
 INSERT INTO public."profiles" ("id", "code", "name", "description", "is_system", "date_created", "date_updated", "version", "translations") VALUES
@@ -433,6 +437,12 @@ INSERT INTO public."profile_privileges" ("id", "profile_id", "privilege_id", "da
  (214, 6, 61, CURRENT_TIMESTAMP, 1),
  (215, 6, 65, CURRENT_TIMESTAMP, 1);
 SELECT pg_catalog.setval('public.profile_privileges_id_seq', (SELECT max("id") FROM public."profile_privileges"), true);
+
+INSERT INTO public.profile_privileges(profile_id,privilege_id)
+SELECT profile.id, privilege.id FROM public.profiles profile CROSS JOIN public.privileges privilege
+WHERE profile.code IN ('ALL_PRIVS','INFO_GOV_MGR','INFO_GOV_OFFICER')
+  AND privilege.code IN ('aggregation_types.administer','record_types.administer')
+ON CONFLICT (profile_id,privilege_id) DO NOTHING;
 
 -- roles
 INSERT INTO public."roles" ("id", "org_unit_id", "supervisor_role_id", "code", "name", "description", "date_created", "date_deactivated", "version", "security_level_id", "profile_id", "is_information_governance", "is_system", "account_type_restriction", "translations") VALUES

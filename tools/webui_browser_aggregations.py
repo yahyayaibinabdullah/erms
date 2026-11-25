@@ -121,6 +121,10 @@ def check_aggregations(page):
             page.see(page.t('webui.open_aggregation.label.no_child_aggregations_7e6e2073'))
             originated = '1 يناير 2026' if page.language == 'ar' else '1 Jan 2026'
             expected = page.t('resource_details.contained_record_originated').format(date=originated)
+            metadata = page.one('.compact-result-meta', scope=record_rows()[0])
+            assert page.driver.execute_script(
+                'const s = getComputedStyle(arguments[0]); return [s.alignItems, s.flexWrap, s.direction]',
+                metadata) == ['center', 'wrap', 'rtl' if page.language == 'ar' else 'ltr']
             assert plain(page.one('.contained-record-metadata', scope=record_rows()[0]).text) == expected
             medium = page.one('.contained-record-medium', scope=record_rows()[0])
             medium_name = page.t('advanced_search.value.physical')
@@ -310,7 +314,8 @@ def check_aggregations(page):
                     assignments.append(hold_id)
                 effective=page.api.get(record_path+'/effective-holds').json()
                 assert len(effective)==4
-                page.activate(page.one('button[aria-label="Open record"]',scope=record_rows()[0]))
+                held_record = page.one(f'#compact-result-records-{first_record["id"]}')
+                page.activate(page.one('button[aria-label="Open record"]', scope=held_record))
                 page.see(page.t('webui.render_component_section.label.this_is_a_physical_record_5a1bd071'))
                 icon=page.one(f'.resource-detail-header button[aria-label="{page.t("navigation.item.holds")}"]')
                 held = page.t('webui.open_aggregation.label.protected_by_hold_count_effective_value_065566e7').format(hold_count=len(effective))
