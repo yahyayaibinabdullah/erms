@@ -90,6 +90,14 @@ The Phase 6C shared controls have explicit owners:
   control's request lifetime.
 - `entity_editor_controls.py` and `entity_translation_editor.py`: existing field
   rendering/conversion and per-dialog translation loading, validation and removal.
+- `entity_creation.py`: per-dialog created identity and translation retry state.
+  The seven multilingual entity forms show optional Translations during creation
+  under their existing metadata rights. Drafts stay local until Save; creation
+  uses the existing POST followed by versioned locale PATCH requests. A partial
+  failure locks canonical inputs and retains drafts for retry without another
+  POST. Cancel then keeps the entity and translations already saved. No API or
+  database migration is required. See
+  [creation translations](../../docs/entity-creation-translations.md).
 - `resource_number_controls.py`: existing resource-number suggestions/conflicts.
 - `personal_resources.py`: one `PersonalResourceState` and data/control owner per
   root-page client; the host's existing sign-out and Dashboard updates use it.
@@ -412,6 +420,40 @@ English and Arabic, including empty-search recovery, cancellation, reason gates,
 real placement changes, ACL inheritance/override preservation and reload. Run it
 with `--browser chrome` or `--browser edge`; it uses only a fresh disposable
 database and does not send email.
+
+The `--browser-scope entity-translations` creates each of the seven multilingual
+entities through its Add dialog with English and Arabic values, saves, reopens
+Edit, and enters unsaved English and Arabic drafts. In both English/LTR and
+Arabic/RTL it asserts visible Title/Name, Description and reasons after switching,
+Save of all pending languages, persisted values after reopening, cancellation,
+and a delayed English reload that cannot overwrite Arabic. Classification cases
+also exercise a partial save failure and retry without repeated accepted writes.
+Stored values supplement the visible-field assertions. Screenshots and request
+logs are retained. See `docs/entity-creation-translations.md` for draft scope,
+refresh, audit, conflict and partial-save contracts.
+
+For repeated Classification creation at hierarchy depths 0, 1, 2, 5 and 10,
+add `--translation-cycles` and optionally `--translation-workers` (1–4). Each
+counted cycle uses a newly created classification, reopens its actual dialog,
+and verifies Arabic after choosing English. The first fixture is Demo 2000
+under DEMO. The run includes title-only/title-and-description values, immediate
+and awaited switches, and browser reloads in half of concurrent sessions:
+
+```sh
+backend/services/api/.venv/bin/python tools/run_webui_integration.py \
+  --browser chrome --browser-scope entity-translations \
+  --translation-cycles 2000 --translation-workers 4
+```
+
+This scope uses the runner's disposable database and never the local demo
+database. It records incremental counts in `translation-stress-progress.json`,
+final counts and failures in `translation-stress-results.json`, and database
+cleanup in `lifecycle.json`. A translation mismatch fails the run and captures
+the current screen and available diagnostics. Outside the translation dialog,
+a visible service-unavailable navigation error is recorded separately under
+`navigation_retries`, captured, and retried once through the existing Retry
+button. A failed retry also fails the run. No translation read or assertion is
+retried to make a missing value pass.
 
 The current refactor acceptance scope is Chrome and Edge only; Firefox, Safari
 and CI remain deferred by the user.

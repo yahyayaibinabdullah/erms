@@ -28,7 +28,12 @@ async def test_collection_create_update_and_translation_keep_filtered_results(as
     click_one(user,[b for b in user.find(ui.button).elements if plain(b)=='Add'])
     await eventually(lambda:any(d.value for d in user.find(ui.dialog).elements))
     dialog=next(d for d in user.find(ui.dialog).elements if d.value)
-    def fields():return {plain(e).removesuffix(' *'):e for e in dialog.descendants() if isinstance(e,(ui.input,ui.number,ui.select))}
+    def fields():
+        controls = {}
+        for e in dialog.descendants():
+            if isinstance(e, (ui.input, ui.number, ui.select)):
+                controls.setdefault(plain(e).removesuffix(' *'), e)
+        return controls
     def save():click_one(user,[b for b in dialog.descendants() if isinstance(b,ui.button) and plain(b)=='Save'])
     save()
     await eventually(lambda:any(visible_text(message)=='Code is required' for message in user.notify.messages))

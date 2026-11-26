@@ -11,6 +11,8 @@ import pytest
 from frontend.webui.api_client import ApiError
 from frontend.webui.entities import ENTITIES
 from frontend.webui.classification_editor import prepare_retention_payload
+from frontend.webui.entity_creation import EntityCreation
+from frontend.webui.entity_translation_drafts import EntityTranslationDrafts
 from frontend.webui.i18n_catalogue import render_message, strip_diagnostic_metadata
 
 
@@ -20,20 +22,25 @@ def save_scope(*, creating=False, values=None, rule=None, translation=None, fail
     save=next(n for n in ast.walk(editor) if isinstance(n,ast.AsyncFunctionDef) and n.name=='save')
     row={'id':7,'version':3,'classification_scheme_id':2,'title':'Original'}
     calls=[]
+    rejected_once = [False]
     async def write(kind,*args,**kwargs):
         calls.append((kind,deepcopy(args),deepcopy(kwargs)))
-        if failure==kind:raise ApiError(409,'conflict')
+        if failure==kind and not rejected_once[0]:
+            rejected_once[0] = True
+            raise ApiError(409,'conflict')
         return dict(row,version=4 if kind!='translation' else 5)
     api=SimpleNamespace(create=lambda *a,**k:write('create',*a,**k),update=lambda *a,**k:write('update',*a,**k),
                         put_classification_retention_rule=lambda *a,**k:write('rule',*a,**k),
                         update_entity_translation=lambda *a,**k:write('translation',*a,**k))
-    scope=dict(typed=None,prepare_retention_payload=prepare_retention_payload,ApiError=ApiError,spec=ENTITIES['classifications'],row=row,creating=creating,controls={},
-               translation_only=False,prepare_entity_translation_update=lambda:translation,
+    scope=dict(edits=EntityTranslationDrafts(('title','description')) if not creating else None, edit_save={'row':None,'rule_saved':False}, edit_status=Mock(), save_state={'busy':False,'canonical_locked':False},save_button=Mock(),canonical_controls=[],creation_status=Mock(),creation=EntityCreation(('title','description')) if creating else None,
+               typed=None,prepare_retention_payload=prepare_retention_payload,ApiError=ApiError,spec=ENTITIES['classifications'],row=row,creating=creating,controls={},
+               translation_only=False,prepare_entity_translation_update=lambda:[translation] if translation else None,
                form_payload=lambda *a,**k:deepcopy(values or {'title':'Changed','classification_scheme_id':2}),
                retention_rule=rule,api=api,resource_change_reason=None, lookup_rows_by_field={}, security_change_reason=None, organization_change_reason=organization_change_reason,profile_change_reason=None,
                dialog=Mock(),ui=Mock(),render_message=render_message,strip_diagnostic_metadata=strip_diagnostic_metadata,
                editor_entity='classification',on_saved=AsyncMock(),load_recent=AsyncMock(),
                validation_error_message=str,show_api_error=Mock(),highlight_medium_error=Mock())
+    scope['dialog'].descendants.return_value=[]
     exec(compile(ast.Module(body=[save],type_ignores=[]),'<actual-classification-save>','exec'),scope)
     return scope,calls
 
@@ -82,3 +89,32 @@ def test_rejected_classification_write_keeps_dialog_and_does_not_refresh(failure
     scope['on_saved'].assert_not_awaited()
     scope['load_recent'].assert_not_awaited()
     scope['show_api_error'].assert_called_once()
+
+
+@pytest.mark.parametrize('direct', [False, True])
+def test_creation_with_translations_keeps_direct_rule_in_post_and_chains_created_version(direct):
+    values = {'classification_scheme_id': 2, 'title': 'New'}
+    rule = dict(current_period_years=2, intermediate_period_years=3, final_disposition='destruction')
+    if direct:
+        values.update(rule)
+    scope, calls = save_scope(creating=True, values=values)
+    scope['creation'].translations = {'ar': {'title': 'عنوان'}}
+    asyncio.run(scope['save']())
+    assert [call[0] for call in calls] == ['create', 'translation']
+    assert calls[0][1][1].get('retention_rule') == (dict(rule, instructions=None) if direct else None)
+    assert calls[1][1] == ('classifications', 7, 'ar', {'title': 'عنوان', 'description': None}, 4, 'Initial translations supplied during creation')
+    assert scope['on_saved'].call_args.args[0]['version'] == 5
+
+
+@pytest.mark.parametrize('failure', ['rule', 'translation'])
+def test_edit_retry_does_not_repeat_accepted_metadata_or_retention_writes(failure):
+    scope, calls = save_scope(values=dict(current_period_years=0, intermediate_period_years=0, final_disposition='destruction'),
+                              translation=('ar', {'title': 'عنوان'}, 'Review'), failure=failure)
+    asyncio.run(scope['save']())
+    scope['dialog'].close.assert_not_called()
+    asyncio.run(scope['save']())
+    assert [call[0] for call in calls] == (['update', 'rule', 'rule', 'translation'] if failure == 'rule'
+                                         else ['update', 'rule', 'translation', 'translation'])
+    assert calls[-1][1][4] == 4 and scope['row']['version'] == 5
+    scope['dialog'].close.assert_called_once()
+    scope['on_saved'].assert_awaited_once()

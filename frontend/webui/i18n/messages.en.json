@@ -19334,6 +19334,34 @@
     "is_html": false
   },
   {
+    "message_key": "entity_translation_editor.status.creation_pending",
+    "context_group": "entity_translation_editor",
+    "default_text": "The item has been created. Save retries pending translations. Cancel keeps the item and any translations already saved.",
+    "semantic_meaning": "Partial success: canonical creation succeeded but translations remain pending. Explains retry and cancel without implying rollback.",
+    "common_locations": [
+      "Entity creation dialog after a translation save failure"
+    ],
+    "translator_guidance": "Save and Cancel refer to the dialog buttons. Make clear that the item already exists and accepted translations are retained.",
+    "grammatical_role": "status message",
+    "parameter_schema": {},
+    "rendered_example": "The item has been created. Save retries pending translations. Cancel keeps the item and any translations already saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "entity_translation_editor.status.edit_pending",
+    "context_group": "entity_translation_editor",
+    "default_text": "Some changes have been saved. Save retries the remaining translations. Cancel keeps changes already saved.",
+    "semantic_meaning": "Partial Edit save: some writes succeeded and other language drafts remain pending; retry does not repeat accepted writes.",
+    "common_locations": [
+      "Entity Edit dialog after a partial save failure"
+    ],
+    "translator_guidance": "Save and Cancel refer to the dialog buttons. Accepted changes remain saved even if the remaining translations fail or the user cancels.",
+    "grammatical_role": "status message",
+    "parameter_schema": {},
+    "rendered_example": "Some changes have been saved. Save retries the remaining translations. Cancel keeps changes already saved.",
+    "is_html": false
+  },
+  {
     "message_key": "entity_translation_editor.status.enter_one",
     "context_group": "entity_translation_editor",
     "default_text": "Enter at least one translation before saving.",

@@ -11,6 +11,8 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from frontend.webui.api_client import ApiError
 from frontend.webui.entities import ENTITIES
+from frontend.webui.entity_creation import EntityCreation
+from frontend.webui.entity_translation_drafts import EntityTranslationDrafts
 from frontend.webui.tests.shared_controls_fixture import collection_loader
 from frontend.webui.i18n_catalogue import render_message, strip_diagnostic_metadata
 
@@ -46,10 +48,11 @@ def test_save_requeries_the_selected_bounded_page(action, sort, query, offset, a
             return dict(items=deepcopy(ordered[offset:offset+25]), total=len(ordered))
         async def decorate(spec, data):return data
         rendered = []
-        scope = dict(typed=None, Any=Any, Callable=Callable, ApiError=ApiError, ENTITIES=ENTITIES, state=state, current_resource=lambda: state["resource"], set_searched=lambda value: state.__setitem__("searched", value),
+        scope = dict(edits=EntityTranslationDrafts(('name','description')) if action!='create' else None, edit_save={'row':None,'rule_saved':False},edit_status=Mock(),save_state={'busy':False,'canonical_locked':False},save_button=Mock(),canonical_controls=[],creation_status=Mock(),creation=EntityCreation(('name','description')) if action=='create' else None,
+                     typed=None, Any=Any, Callable=Callable, ApiError=ApiError, ENTITIES=ENTITIES, state=state, current_resource=lambda: state["resource"], set_searched=lambda value: state.__setitem__("searched", value),
                      spec=ENTITIES['roles'], row=deepcopy(row), controls={}, creating=action=='create',
                      translation_only=action=='translation', on_saved=None, editor_entity='role',
-                     prepare_entity_translation_update=(lambda: ('ar', {'name': name}, 'Correct name')) if action=='translation' else None,
+                     prepare_entity_translation_update=(lambda: [('ar', {'name': name}, 'Correct name')]) if action=='translation' else None,
                      api=SimpleNamespace(create=write, update=write, update_entity_translation=write, search_request=search),
                      form_payload=lambda *a, **k: {'name': name}, role_change_requires_reason=lambda *a: False,
                      lookup_rows_by_field={}, security_change_reason=None, organization_change_reason=organization_change_reason, resource_change_reason=None, profile_change_reason=None,
@@ -57,6 +60,7 @@ def test_save_requeries_the_selected_bounded_page(action, sort, query, offset, a
                      decorate_for_spec=decorate, set_connection_status=Mock(),
                      render_table=lambda spec: rendered.append(deepcopy(state['rows'])),
                      page_client=SimpleNamespace(_deleted=False))
+        scope['dialog'].descendants.return_value=[]
         exec(compile(ast.Module(body=[SAVE], type_ignores=[]), '<actual-editor-save-and-loader>', 'exec'), scope)
         scope['load_rows'] = collection_loader(scope)
         await scope['save']()
@@ -82,13 +86,15 @@ def test_save_finished_after_navigation_keeps_the_new_page():
             # The user navigates while the save request is in flight.
             state.update(resource='org-units',rows=destination_rows)
             return {'id':2,'name':'New role','version':1}
-        scope = dict(typed=None, ApiError=ApiError, state=state, current_resource=lambda: state["resource"], set_searched=lambda value: state.__setitem__("searched", value), spec=ENTITIES['roles'],
+        scope = dict(edits=None,edit_save={'row':None,'rule_saved':False},edit_status=Mock(),save_state={'busy':False,'canonical_locked':False},save_button=Mock(),canonical_controls=[],creation_status=Mock(),creation=EntityCreation(('name','description')),
+                     typed=None, ApiError=ApiError, state=state, current_resource=lambda: state["resource"], set_searched=lambda value: state.__setitem__("searched", value), spec=ENTITIES['roles'],
                      creating=True, translation_only=False, on_saved=None,
                      prepare_entity_translation_update=None, controls={},
                      form_payload=lambda *a, **k:{'name':'New role'},
                      api=SimpleNamespace(create=create), dialog=Mock(), ui=Mock(),
                      render_message=render_message, strip_diagnostic_metadata=strip_diagnostic_metadata,
                      editor_entity='role', load_rows=AsyncMock())
+        scope['dialog'].descendants.return_value=[]
         exec(compile(ast.Module(body=[SAVE],type_ignores=[]),'<actual-editor-save>','exec'),scope)
         await scope['save']()
         scope['load_rows'].assert_not_awaited()
