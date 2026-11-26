@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 from frontend.webui.api_client import ApiError
+from frontend.webui.entity_translation_drafts import EntityTranslationDrafts
 from frontend.webui.capabilities import can_edit_entity_translation
 
 
@@ -17,7 +18,7 @@ def test_untouched_translation_fields_do_not_block_unrelated_metadata_save():
         'fields': ('name', 'description'),
     })
     controls = {field: SimpleNamespace(value=None) for field in ('name', 'description')}
-    namespace = {'definition_translations': None, 'translation_state': state, 'translation_controls': controls,
+    namespace = {'TranslationUpdate':tuple, 'edits': EntityTranslationDrafts(('name','description')), 'local_translations':None, 'stage_definition_translation':lambda:None, 'creation': None, 'definition_translations': None, 'translation_state': state, 'translation_controls': controls,
                  'language_control': SimpleNamespace(value=None), 'render_message': lambda key: key}
     exec(compile(ast.Module(body=[pending], type_ignores=[]), 'pending', 'exec'), namespace)
     assert namespace['pending_entity_translation']() is None
@@ -30,11 +31,6 @@ def test_user_administration_includes_entity_translation_permission():
     assert can_edit_entity_translation('users', ['identity.users.administer'])
     assert not can_edit_entity_translation('users', ['localization.administer'])
     assert not can_edit_entity_translation('users', ['role.modify_metadata'])
-    tree=ast.parse((Path(__file__).parents[1]/'entity_editor.py').read_text())
-    block=next(node for node in ast.walk(tree) if isinstance(node,ast.If)
-               and 'translation_edit_allowed' in ast.unparse(node.test)
-               and 'multilingual_fields' in ast.unparse(node.test))
-    assert 'not creating' in ast.unparse(block.test)
 
 
 @pytest.mark.asyncio
@@ -69,7 +65,7 @@ async def test_failed_entity_translation_load_displays_error_in_editor_context(l
         notices.append(localized_error(error))
     controls={'name':Control(),'description':Control()}
     state={'loaded_language':None,'load_generation':0,'baseline':{}}
-    namespace={'definition_translations':None,'stage_definition_translation':lambda:None,'language_control':SimpleNamespace(value=language),'translation_state':state,
+    namespace={'edits': EntityTranslationDrafts(('name','description')), 'local_translations':None,'stage_definition_translation':lambda:None,'language_control':SimpleNamespace(value=language),'translation_state':state,
                'translation_controls':controls,'translation_status':SimpleNamespace(client=client,set_text=statuses.append),
                'translation_loading_status':'Loading','translation_loaded_status':'Loaded',
                'api':SimpleNamespace(entity_translation=denied),'resource':'users',

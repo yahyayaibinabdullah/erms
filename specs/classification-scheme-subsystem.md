@@ -3,7 +3,7 @@
 **Status:** Approved — implementation baseline  
 **Project:** ERMS  
 **Prepared:** 16 September 2026  
-**Revision:** 0.5 — retention validation triggers clarified
+**Revision:** 0.6 — multilingual Edit drafts and Save (26 November 2026)
 **Implementation state:** Implemented through migration 023, FastAPI, and NiceGUI
 
 ## 1. Purpose
@@ -627,6 +627,18 @@ Aggregations details-page model:
 - Add scheme is a tree-level action. A scheme's plus creates a root classification;
   a branch's plus creates a child. Creation locks the matching scheme and parent.
   Terminal classifications have no child-creation action.
+- Scheme and classification Add/Edit dialogs use the optional Translations
+  disclosure and existing metadata rights from
+  [internationalization §11.4](internationalization-and-user-preferences.md#114-editing-experience).
+  Creation stages locale drafts locally, then saves them through versioned
+  locale patches after the canonical entity and optional direct rule are created.
+  Partial-save retries retain the created ID and do not create a duplicate.
+  Editing retains each language's unsaved title, description and change reason
+  when switching languages. The main Save validates and writes all pending
+  languages, chains entity versions and retains unaccepted drafts after a partial
+  failure. Retry does not repeat accepted metadata, retention or locale writes.
+  Cancel discards pending drafts while retaining accepted writes. Existing
+  metadata rights and reason requirements remain unchanged; see §11.4 above.
 - Inactive schemes and classifications use muted styling and explicit localized
   badges. Direct inactivity, inactivity through an ancestor, and inactivity
   through the scheme remain distinguishable without relying on color alone.

@@ -887,7 +887,7 @@ def test_entity_translation_editor_loads_selected_language_automatically():
                 }''' in editor
     multilingual_configuration = editor[
         editor.index("multilingual_fields = {"):
-        editor.index("if not creating and spec.key in multilingual_fields and translation_edit_allowed:")
+        editor.index("if spec.key in multilingual_fields and translation_edit_allowed:")
     ]
     assert '"aggregations":' not in multilingual_configuration
     assert '"records":' not in multilingual_configuration
@@ -902,14 +902,14 @@ def test_entity_translations_are_saved_by_the_main_entity_action_for_all_seven_e
         assert f'"{entity}":' in editor
     assert "def pending_entity_translation()" in TRANSLATION_SOURCE
     assert "prepare_entity_translation_update()" in editor
-    assert "saved_translation = await api.update_entity_translation(" in editor
-    assert 'saved["version"], reason' in editor
+    assert "await edits.save(api, spec.key, row, translation_update)" in editor
+    assert 'row.update(saved)' in editor
     assert 'icon="save", on_click=save_entity_translation' not in editor
 
 
 def test_profile_uses_one_reason_for_canonical_and_translation_changes():
     editor = with_english_messages(inspect.getsource(entity_editor))
-    assert 'None if uses_external_reason or definition_translations is not None else ui.input(' in TRANSLATION_SOURCE
+    assert 'None if uses_external_reason or local_translations is not None else ui.input(' in TRANSLATION_SOURCE
     assert 'uses_external_reason=spec.key == "profiles"' in editor
     assert 'get_external_reason() if uses_external_reason else translation_reason' in ' '.join(TRANSLATION_SOURCE.split())
     assert 'get_external_reason=lambda: profile_change_reason' in editor
@@ -930,11 +930,9 @@ def test_builtin_role_editor_is_translation_only():
         editor.index("if translation_only:", editor.index("async def save()")):
         editor.index("payload = form_payload", editor.index("async def save()"))
     ]
-    assert "api.update_entity_translation(" in translation_only_save
+    assert "edits.save(" in translation_only_save
     assert "api.update(" not in translation_only_save
-    assert 'if not isinstance(row.get("translations"), dict):' in translation_only_save
-    assert 'row["translations"] = {}' in translation_only_save
-    assert 'row["translations"][language] = dict(values)' in translation_only_save
+    assert 'saved = dict(row)' in translation_only_save
 
 
 def test_detail_pages_use_light_blue_metadata_and_retention_visual_system():

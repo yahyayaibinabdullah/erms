@@ -61,6 +61,14 @@ async def test_scheme_and_classification_editing_preserve_rules_translations_and
         fields(dialog)['Intermediate retention (years)'].value=3
         fields(dialog)['Final disposition'].value='destruction'
         fields(dialog)['Classification type'].value=False
+    initial_expansion=next(e for e in dialog.descendants() if isinstance(e,ui.expansion))
+    with user:
+        initial_expansion.open()
+        next(e for e in initial_expansion.descendants() if isinstance(e,ui.select)).value='ar'
+    await user.should_see(t('entity_translation_editor.status.loaded'),retries=100)
+    with user:
+        next(e for e in initial_expansion.descendants() if isinstance(e,ui.input) and plain(e)=='Title').value='تصنيف الإنشاء'
+    assert not any(isinstance(e,ui.input) and plain(e).startswith('Reason for') for e in initial_expansion.descendants())
     await saved(dialog)
     await eventually(lambda:current_page(user)=='classification-details' and user.pending_requests==0)
     await user.should_see('Root classification')
@@ -72,6 +80,7 @@ async def test_scheme_and_classification_editing_preserve_rules_translations_and
     with user:language.value='ar'
     await user.should_see(t('entity_translation_editor.status.loaded'),retries=100)
     translated_title=next(e for e in expansion.descendants() if isinstance(e,ui.input) and plain(e)=='Title')
+    assert translated_title.value=='تصنيف الإنشاء'
     reason=next(e for e in expansion.descendants() if isinstance(e,ui.input) and plain(e).startswith('Reason for'))
     with user:
         fields(dialog)['Current retention (years)'].value=4

@@ -3,8 +3,8 @@
   "model": "GPT-6",
   "model_version": "GPT-6",
   "prompt_version": "wathiq-mailbox-reading-panes-v1",
-  "specification_sha256": "79d67905df41c0c5e8dc760b45fec0ba9a5aeafc60b5eba622d5ea359d3f91f2",
-  "catalogue_sha256": "1c8049bcd9cdf1d47db1afba004a2245b0af7533bf8d8c24c17a1f3a53e2169f",
+  "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+  "catalogue_sha256": "6c4324304bd70ea82cde73867870ca055b549660d6a9cba8a51b86a55105d932",
   "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
   "batch_id": "wathiq-mailbox-reading-panes-20261116",
   "generated_at": "2026-11-16T08:52:26.800179+00:00",
@@ -16234,6 +16234,32 @@
         "source_status": "published",
         "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
         "date_published": "2026-09-26T13:44:17.672002+00:00"
+      }
+    },
+    {
+      "message_key": "entity_translation_editor.status.creation_pending",
+      "translated_text": "تم إنشاء العنصر. يعيد «حفظ» محاولة حفظ الترجمات المعلّقة. يُبقي «إلغاء» العنصر وأي ترجمات تم حفظها بالفعل.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated_draft",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "prompt_version": "entity-creation-translations-v1",
+        "generated_at": "2026-11-25T00:00:00+00:00"
+      }
+    },
+    {
+      "message_key": "entity_translation_editor.status.edit_pending",
+      "translated_text": "تم حفظ بعض التغييرات. يعيد «حفظ» محاولة حفظ الترجمات المتبقية. يُبقي «إلغاء» التغييرات التي تم حفظها بالفعل.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated_draft",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "prompt_version": "entity-edit-translation-drafts-v1",
+        "generated_at": "2026-11-26T00:00:00+00:00"
       }
     },
     {

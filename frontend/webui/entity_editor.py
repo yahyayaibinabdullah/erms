@@ -17,6 +17,8 @@ from .organization_editor import configure_role_governance_field
 from .organization_editor import configure_role_profile_field
 from .classification_editor import configure_scheme_field
 from .entity_translation_editor import entity_translation_editor
+from .entity_creation import EntityCreation
+from .entity_translation_drafts import EntityTranslationDrafts, TranslationUpdate
 from .type_controls import MetadataForm, t as type_label
 from .entity_editor_controls import field_input
 from .entity_editor_controls import form_payload
@@ -39,6 +41,7 @@ from .i18n_catalogue import render_message
 from .classification_editor import retention_editor_source
 from .i18n_catalogue import strip_diagnostic_metadata
 from nicegui import ui
+from nicegui.elements.mixins.disableable_element import DisableableElement
 from .security_administration import profile_change_reason as validated_profile_change_reason
 
 def build_entity_editor(
@@ -292,6 +295,10 @@ def build_entity_editor(
                 if typed:
                     await typed.render()
 
+                canonical_controls = [
+                    element for element in dialog.descendants()
+                    if isinstance(element, DisableableElement)
+                ]
                 multilingual_fields = {
                     "classification-schemes": ("title", "description"),
                     "classifications": ("title", "description"),
@@ -302,16 +309,19 @@ def build_entity_editor(
                     "profiles": ("name", "description"),
                 }
                 prepare_entity_translation_update: Callable[
-                    [], tuple[str, dict[str, str], str] | None
+                    [], list[TranslationUpdate] | None
                 ] | None = None
                 profile_change_reason = None
-                if not creating and spec.key in multilingual_fields and translation_edit_allowed:
+                creation = EntityCreation(multilingual_fields.get(spec.key, ())) if creating else None
+                edits = EntityTranslationDrafts(multilingual_fields[spec.key]) if not creating and spec.key in multilingual_fields and translation_edit_allowed else None
+                if spec.key in multilingual_fields and translation_edit_allowed:
                     prepare_entity_translation_update = await entity_translation_editor(
-                        api, resource=spec.key, row=row, fields=multilingual_fields[spec.key],
+                        api, resource=spec.key, row=row or {}, fields=multilingual_fields[spec.key],
                         languages=(localization() or {}).get("supported_languages", []),
-                        dialog=dialog, uses_external_reason=spec.key == "profiles",
+                        dialog=dialog, uses_external_reason=spec.key == "profiles" and not creating,
                         get_external_reason=lambda: profile_change_reason,
                         error_message=error_message, show_api_error=show_api_error,
+                        creation=creation, edits=edits,
                     )
 
             if spec.key == "aggregations" and "security_level_id" in controls:
@@ -334,7 +344,25 @@ def build_entity_editor(
             if not creating and spec.key == "profiles":
                 profile_change_reason = profile_reason_input()
 
+            creation_status = ui.label(render_message(
+                "entity_translation_editor.status.creation_pending"
+            )).props('role="status" aria-live="polite"').classes("text-sm text-amber-800")
+            creation_status.set_visibility(False)
+            edit_status = ui.label(render_message(
+                "entity_translation_editor.status.edit_pending"
+            )).props('role="status" aria-live="polite"').classes("text-sm text-amber-800")
+            edit_status.set_visibility(False)
+            edit_save = {"row": None, "rule_saved": False}
+            save_state = {"busy": False, "canonical_locked": False}
+
             async def save() -> None:
+                if save_state["busy"] or edits is not None and edits.writing:
+                    return
+                save_state["busy"] = True
+                enabled_controls = [element for element in dialog.descendants()
+                                    if isinstance(element, DisableableElement) and element.enabled]
+                for control in enabled_controls:
+                    control.disable()
                 try:
                     translation_update = (
                         prepare_entity_translation_update()
@@ -346,19 +374,8 @@ def build_entity_editor(
                             raise ValueError(
                                 render_message("entity_translation_editor.status.enter_one")
                             )
-                        language, values, reason = translation_update
-                        saved_translation = await api.update_entity_translation(
-                            spec.key, row["id"], language, values,
-                            row["version"], reason,
-                        )
-                        row["version"] = saved_translation["version"]
-                        # Older rows and protected built-in entities can expose
-                        # a JSON NULL here.  ``setdefault`` preserves an
-                        # existing None value, so normalize the local cache
-                        # before recording the successfully persisted change.
-                        if not isinstance(row.get("translations"), dict):
-                            row["translations"] = {}
-                        row["translations"][language] = dict(values)
+                        edits.writing = True
+                        await edits.save(api, spec.key, row, translation_update)
                         saved = dict(row)
                         dialog.close()
                         ui.notify(
@@ -382,7 +399,7 @@ def build_entity_editor(
                     if spec.key == "classifications":
                         rule_payload = prepare_retention_payload(payload, creating=creating)
                     if creating:
-                        saved = await api.create(spec.key, payload)
+                        saved = await creation.save(api, spec.key, payload)
                     else:
                         if spec.key == "profiles":
                             prepare_profile_update(payload)
@@ -398,24 +415,26 @@ def build_entity_editor(
                         change_reason = organization_change_reason(spec, row, payload, lookup_rows_by_field, security_change_reason, change_reason)
                         if profile_change_reason is not None:
                             change_reason = validated_profile_change_reason(profile_change_reason)
-                        saved = await api.update(
-                            spec.key, row["id"], row["version"], payload,
-                            change_reason=change_reason,
-                        )
-                        row.update(saved)
-                        if spec.key == "classifications" and rule_payload is not None:
+                        edits_were_saved = edit_save["row"] is not None
+                        if edits is not None:
+                            edits.writing = True
+                        if not edits_were_saved:
+                            saved = await api.update(
+                                spec.key, row["id"], row["version"], payload,
+                                change_reason=change_reason,
+                            )
+                            row.update(saved)
+                            if edits is not None:
+                                edit_save["row"] = dict(saved)
+                        if spec.key == "classifications" and rule_payload is not None and not edit_save["rule_saved"]:
                             await api.put_classification_retention_rule(
                                 row["id"], rule_payload,
                                 retention_rule.get("version") if retention_rule else None,
                             )
+                            edit_save["rule_saved"] = True
                         if translation_update is not None:
-                            language, values, reason = translation_update
-                            saved_translation = await api.update_entity_translation(
-                                spec.key, row["id"], language, values,
-                                saved["version"], reason,
-                            )
-                            saved["version"] = saved_translation["version"]
-                            row["version"] = saved_translation["version"]
+                            await edits.save(api, spec.key, row, translation_update)
+                        saved = dict(row)
                     dialog.close()
                     ui.notify(render_message("webui.save.notify.capitalize_saved_c660b8b4", capitalize=strip_diagnostic_metadata(editor_entity).capitalize()), color="positive")
                     if on_saved is not None:
@@ -438,16 +457,31 @@ def build_entity_editor(
                 except ValueError as error:
                     ui.notify(validation_error_message(error), color="warning")
                 except ApiError as error:
+                    if creating and creation.row is not None:
+                        # The canonical entity already exists. Freeze its inputs;
+                        # subsequent Save attempts only retry translation drafts.
+                        save_state["canonical_locked"] = True
+                        creation_status.set_visibility(True)
+                    if not creating and (edit_save["row"] is not None or edits is not None and edits.applied_any):
+                        save_state["canonical_locked"] = True
+                        edit_status.set_visibility(True)
                     if creating and spec.key in {"aggregations", "records"}:
                         number_field = "aggregation_number" if spec.key == "aggregations" else "record_number"
                         if await show_number_conflict(error, spec.key, controls[number_field], root=spec.key == "aggregations" and controls["parent_aggregation_id"].value is None):
                             return
                     highlight_medium_error(error, controls.get("medium"))
                     show_api_error(error)
+                finally:
+                    save_state["busy"] = False
+                    if edits is not None:
+                        edits.writing = False
+                    for control in enabled_controls:
+                        if not save_state["canonical_locked"] or control not in canonical_controls:
+                            control.enable()
 
             with ui.row().classes("w-full justify-end gap-2"):
                 ui.button(render_message("webui.open_editor.button.cancel_c07bff03"), on_click=dialog.close).props("flat")
-                ui.button(render_message("webui.open_editor.button.save_46081ed6"), on_click=save, icon="save").props("unelevated")
+                save_button = ui.button(render_message("webui.open_editor.button.save_46081ed6"), on_click=save, icon="save").props("unelevated")
         dialog.open()
 
 

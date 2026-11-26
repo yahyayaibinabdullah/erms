@@ -52,7 +52,7 @@ async def test_load_baseline_and_shared_reason_are_preserved(user,external):
     with user:editor['name'].set_value('  Updated  ')
     with pytest.raises(ValueError):editor['pending']()
     with user:editor['reason'].set_value('  Review  ')
-    assert editor['pending']()==('ar',{'name':'Updated'},'Review')
+    assert editor['pending']()==[('ar',{'name':'Updated','description':None},'Review')]
     api.entity_translation.assert_awaited_once_with('profiles' if external else 'roles',17,'ar')
 
 async def test_late_translation_cannot_replace_selected_language(user):
@@ -68,3 +68,55 @@ async def test_late_translation_cannot_replace_selected_language(user):
     release.set();await asyncio.sleep(.02)
     assert editor['name'].value=='en' and editor['row']['version']==4
     assert editor['pending']() is None
+
+
+async def test_dirty_draft_survives_out_of_order_other_language_response(user):
+    started, release = asyncio.Event(), asyncio.Event()
+    async def fetch(resource, identity, language):
+        if language == 'ar':
+            started.set(); await release.wait()
+        return {'version': 1, 'fields': {'name': 'Arabic'} if language == 'ar' else {}}
+    editor = await open_editor(user, SimpleNamespace(entity_translation=fetch))
+    with user: editor['language'].value = 'en'
+    await until(lambda: editor['name'].enabled)
+    with user:
+        editor['name'].value = 'English draft'
+        editor['reason'].value = 'English review'
+        editor['language'].value = 'ar'
+    await asyncio.wait_for(started.wait(), 5)
+    with user: editor['language'].value = 'en'
+    await until(lambda: editor['name'].enabled and editor['name'].value == 'English draft')
+    release.set(); await asyncio.sleep(.02)
+    assert editor['name'].value == 'English draft' and editor['reason'].value == 'English review'
+    assert editor['pending']() == [('en', {'name': 'English draft', 'description': None}, 'English review')]
+
+
+async def test_reload_preserves_dirty_translation_and_reason(user):
+    api = SimpleNamespace(entity_translation=AsyncMock(return_value={'version': 1, 'fields': {'name': 'Saved'}}))
+    editor = await open_editor(user, api)
+    with user: editor['language'].value = 'en'
+    await until(lambda: editor['name'].enabled)
+    with user:
+        editor['name'].value = 'Draft'
+        editor['reason'].value = 'Review'
+    button = next(e for e in user.find(ui.button).elements if e.props.get('icon') == 'refresh')
+    button.mark('reload-translation')
+    user.find(marker='reload-translation').click()
+    await until(lambda: api.entity_translation.await_count == 2 and editor['name'].enabled)
+    assert editor['name'].value == 'Draft' and editor['reason'].value == 'Review'
+
+
+async def test_loading_another_language_keeps_previous_values_disabled_until_ready(user):
+    started, release = asyncio.Event(), asyncio.Event()
+    async def fetch(resource, identity, language):
+        if language == 'ar':
+            started.set(); await release.wait()
+        return {'version': 1, 'fields': {'name': 'Arabic' if language == 'ar' else 'English'}}
+    editor = await open_editor(user, SimpleNamespace(entity_translation=fetch))
+    with user: editor['language'].value = 'en'
+    await until(lambda: editor['name'].value == 'English')
+    with user: editor['language'].value = 'ar'
+    await asyncio.wait_for(started.wait(), 5)
+    assert editor['name'].value == 'English' and not editor['name'].enabled
+    release.set()
+    await until(lambda: editor['name'].enabled and editor['name'].value == 'Arabic')

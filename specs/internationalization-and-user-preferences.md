@@ -3,7 +3,7 @@
 **Status:** Approved — implementation baseline  
 **Project:** ERMS / Wathiq  
 **Prepared:** 26 September 2026  
-**Revision:** 0.25 — English source text filter in Translation Administration (28 October 2026)
+**Revision:** 0.28 — Retain and save multilingual Edit drafts (26 November 2026)
 
 ## 1. Purpose
 
@@ -1130,6 +1130,63 @@ An unobtrusive **Translations** disclosure or secondary dialog exposes enabled
 languages. It must not make routine creation or editing feel multilingual or
 require duplicate entry.
 
+All seven entities in section 11.1 provide this optional disclosure during both
+creation and editing, subject to the same entity-specific metadata right below.
+Creation stages translations in the current dialog without fetching or writing
+translations for an entity that does not yet exist. Switching enabled languages
+retains each draft; removing a draft and cancelling before Save perform no
+translation writes. Creation does not display or require a translation change
+reason, including for Profile creation and retries within the creation dialog.
+Edit dialogs retain their existing reason requirements; Profile editing retains
+its shared change-reason control. To preserve the existing locale PATCH audit
+contract, creation saves supply the fixed audit note `Initial translations
+supplied during creation` automatically, without asking the user to enter it.
+
+Save validates the canonical form and optional retention rule before writing.
+The WebUI creates the canonical entity through its existing POST,
+then applies pending locales through the existing locale-scoped PATCH contract,
+using the returned ID and chaining each successful entity version. These are
+separate HTTP transactions: a translation failure does not roll back creation.
+The dialog identifies that partial result, retains the created ID and drafts,
+locks canonical inputs, and lets Save retry only pending translations. Successful
+locales are not resent unless their drafts change; removal after a partial save
+uses explicit field removal. Retries never issue another create request and never
+silently rebase a version conflict. Cancel after partial success keeps the entity
+and translations already saved. Completion notification and ordinary destination
+refresh occur only after every pending translation succeeds. Overlapping Save
+actions must not duplicate writes. Existing API schemas, authorization, edit-time
+change reasons, audit paths and database storage remain unchanged.
+
+Edit dialogs for all seven entities also retain unsaved title/name, description
+and translation-reason drafts per enabled language within the current dialog.
+Switching languages or loading a translation must preserve dirty drafts. This
+state is isolated by dialog and entity and discarded on Cancel or close; it is
+not a cross-dialog or persistent cache. Clean values may be explicitly reloaded.
+A clean read that observes a newer entity version invalidates previously cached
+clean language snapshots, so later edits cannot use older locale values with a
+newer version learned from a different language. Language-specific reasons remain.
+While a language loads, values remain disabled under the Loading status until
+the selected language's values can replace them together; failed or obsolete
+responses cannot publish editable values against an unknown baseline.
+Every pending language is validated before any Save write. Save applies all
+changed languages, including those not currently displayed, through the existing
+locale PATCH endpoint and chains each returned entity version. Unchanged and
+reverted languages are not written. Clearing an individual translated field
+uses an explicit null; clearing every field still requires the existing Remove
+action. Each language retains its existing required reason; Profile uses its
+single shared reason for the canonical edit and every pending language.
+
+Protected translation-only Role/Profile dialogs never write canonical metadata.
+In ordinary dialogs, an accepted canonical/retention update is not repeated
+when retrying pending translations. Partial saves remain open, identify accepted
+changes, lock canonical fields, retain remaining drafts and reasons, and retry
+only pending languages. A failed or conflicting locale is never marked saved or
+silently rebased onto a newer version. A language read with a different entity
+version cannot replace outstanding drafts. Save and translation Remove writes
+must not overlap. Cancel after a partial save retains accepted writes. Existing
+Edit Remove remains an immediate, reasoned, versioned action for the selected
+language and preserves other pending drafts. Creation remains reason-free.
+
 The advanced editor shows language, completion status, title/name, description,
 and the canonical English value for context. Users who already have permission
 to modify that entity's metadata may add, update, or remove its translations;
@@ -1492,6 +1549,17 @@ Tests must cover:
   administer the general catalogue;
 - JSONB shape validation, locale-scoped merging, fallback, event history, and
   stale entity updates for all seven covered entity types;
+- create/edit disclosure permissions for all seven entities; optional untouched
+  translations, multi-language staging, local removal and cancellation; creation
+  without a reason field or prompt, automatic creation audit notes, and unchanged
+  edit-time reason validation; create/PATCH ID and version chaining; partial-save
+  retry without duplicate creation, repeated accepted locales, premature refresh
+  or silent conflict rebase; and overlapping Save protection;
+- Edit drafts for all seven entities: English→Arabic→English retains text and
+  reasons; Save writes every changed locale, including nonselected languages;
+  validation precedes all writes; cancellation, reversion, explicit field
+  clearing, late/failed loads, reloads, protected translation-only dialogs,
+  version conflicts, partial retry and non-overlapping writes remain covered;
 - Aggregation and Record tests proving no `translations` column or localized
   projection is introduced, titles/descriptions render verbatim for users with
   different UI languages, and English/Arabic/mixed metadata remains searchable;

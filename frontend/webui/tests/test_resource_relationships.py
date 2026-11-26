@@ -223,6 +223,7 @@ async def test_link_dialog_does_not_preload_targets_and_reuses_tree_browser(host
 @pytest.mark.asyncio
 @pytest.mark.parametrize('kind',['record','aggregation'])
 async def test_shared_tree_browser_drills_down_and_selects_only_requested_kind(host, monkeypatch, kind):
+    from frontend.webui import aggregation_selector
     import ast
     from pathlib import Path
     from typing import Any
@@ -246,7 +247,7 @@ async def test_shared_tree_browser_drills_down_and_selects_only_requested_kind(h
         chosen.append(item['id'])
     tree=ast.parse(Path('frontend/webui/aggregation_selector.py').read_text())
     function=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='browse_advanced_aggregation')
-    namespace={'Any':Any,'ui':ui,'asyncio':asyncio,'api':SimpleNamespace(browse_page=page,browse_schemes=schemes),
+    namespace={**vars(aggregation_selector),'Any':Any,'ui':ui,'asyncio':asyncio,'api':SimpleNamespace(browse_page=page,browse_schemes=schemes),
                'render_message':lambda key:key,'error_message':str,'tree_expander_icon':lambda opened:'expand_more' if opened else 'chevron_right',
                'bind_remote_scheme_select':lambda control:None}
     exec(compile(ast.Module(body=[function],type_ignores=[]),'shared-tree-browser','exec'),namespace)

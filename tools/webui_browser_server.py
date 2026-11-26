@@ -135,7 +135,11 @@ def install_client_diagnostics(directory):
         try:
             result = await request(client, method, path, **kwargs)
         except BaseException as error:
-            record(client, 'request-error', method=method, path=path, error_type=type(error).__name__)
+            cause = error.__cause__
+            record(client, 'request-error', method=method, path=path, error_type=type(error).__name__,
+                   status_code=getattr(error, 'status_code', None),
+                   cause_type=type(cause).__name__ if cause is not None else None,
+                   cause_message=str(cause) if cause is not None else None)
             raise
         record(client, 'request-finish', method=method, path=path)
         return result

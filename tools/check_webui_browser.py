@@ -636,6 +636,16 @@ with psycopg.connect(url) as c:
             self.report['complete'] = True
             return
 
+        if self.args.scope == 'entity-translations':
+            if self.args.translation_cycles:
+                from tools.webui_browser_translation_stress import check_translation_stress
+                check_translation_stress(self)
+            else:
+                from tools.webui_browser_entity_translations import check_entity_translations
+                check_entity_translations(self)
+            self.report['complete'] = True
+            return
+
         if self.args.scope == 'account':
             from tools.webui_browser_account import check_account
             check_account(self)
@@ -764,12 +774,14 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','resource-types', 'creation-buttons', 'type-role-removal','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','resource-types', 'creation-buttons', 'type-role-removal','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'entity-translations', 'holds', 'components', 'pdf-performance', 'office-pool', 'aggregation-file-drop', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
     parser.add_argument('--office-fixtures', type=Path)
     parser.add_argument('--pdf-workbook')
     parser.add_argument('--pdf-baseline', action='store_true')
     parser.add_argument('--maildev-url')
     parser.add_argument('--smtp-port',type=int)
+    parser.add_argument('--translation-cycles', type=int, default=0)
+    parser.add_argument('--translation-workers', type=int, choices=(1, 2, 3, 4), default=1)
     parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
     def interrupted(*_):

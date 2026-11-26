@@ -105,6 +105,46 @@ def check_classification(page):
             page.reload();page.one('.classification-actions-panel')
             page.see(t('webui.render_workspace_right.button.deactivate_ee74ba2e'))
             back();filter_scheme('T01');page.see('Test scheme 1')
+        with page.check('root and child creation translations persist in English and Arabic dialogs'):
+            filter_scheme(scheme_code)
+            page.activate(page.one('button.classification-node-button', scheme_code+' — '+scheme_title))
+            page.one('.classification-actions-panel')
+            parent_id = None
+            for child in (False, True):
+                page.click(t('classification_browser.add_child' if child else 'classification_browser.add_root'))
+                dialog = page.one('.q-dialog__inner > .q-card')
+                code = ('CHILD-' if child else 'ROOT-') + language.upper()
+                page.field(t('entity_metadata.field.code') + ' *').send_keys(code)
+                page.field(t('entity_metadata.field.title') + ' *').send_keys('Created ' + code)
+                page.activate(page.one('.q-expansion-item .q-item__label',
+                                       t('entity_translation_editor.expansion.title'), scope=dialog))
+                page.activate(page.field(t('webui.open_editor.select.language_a1337600')))
+                page.activate(page.one('[role=option]', 'العربية · Arabic'))
+                page.see(t('entity_translation_editor.status.loaded'))
+                def translation_field(label):
+                    return page.wait.until(lambda _: next((
+                        field.find_element('css selector', 'input,textarea')
+                        for field in page.visible('.q-expansion-item .q-field', dialog)
+                        if any(plain(item.text) == label for item in field.find_elements('css selector', '.q-field__label'))
+                    ), None))
+                translation_field(t('entity_translation_editor.input.title')).send_keys('عنوان الإنشاء')
+                translation_field(t('entity_translation_editor.input.description')).send_keys('وصف الإنشاء')
+                assert not any(plain(label.text) == t('webui.open_editor.input.reason_for_translation_change_82d24ea1')
+                               for label in dialog.find_elements('css selector', '.q-field__label'))
+                capture('create-' + ('child' if child else 'root') + '-translations')
+                assert page.driver.find_element('tag name', 'html').get_attribute('dir') == ('rtl' if language == 'ar' else 'ltr')
+                page.click(t('webui.open_editor.button.save_46081ed6'), dialog)
+                page.wait.until(lambda _: not page.visible('.q-dialog__inner > .q-card'))
+                page.one('.classification-actions-panel')
+                response = page.api.get('/api/v1/classifications', params={
+                    'classification_scheme_id': audit_scheme['id'], 'limit': 25,
+                })
+                response.raise_for_status()
+                created = next(item for item in response.json() if item['code'] == code)
+                assert created['parent_classification_id'] == parent_id
+                assert created['translations']['ar'] == {'title': 'عنوان الإنشاء', 'description': 'وصف الإنشاء'}
+                parent_id = created['id']
+            back()
         with page.check('classification errors and bounded requests'):
             assert not page.errors(),page.errors()
             requests=[e for e in page.events() if e['method']=='GET' and e['path']=='/api/v1/classifications']
