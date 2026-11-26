@@ -1144,6 +1144,19 @@ def search_rows(
         where_clause,
         order_clause,
     )
+    if table == "event_history":
+        # The view's shared history-access CTE prevents PostgreSQL from pushing
+        # this outer sort/limit below its full, redacted snapshot projection.
+        # Select only IDs through the authorized view first: filters (including
+        # hidden actor fields) and ordering still precede pagination in SQL.
+        # An uncorrelated array lets the detail projection use the primary-key
+        # index for just this page. A join instead can project the whole history
+        # before joining, recreating the original unbounded permission work.
+        result_query = sql.SQL(
+            "SELECT resource.*, (0.0)::double precision AS _fts_relevance FROM {} "
+            "WHERE resource.id = ANY(ARRAY(SELECT resource.id FROM {}{} "
+            "ORDER BY {} LIMIT %s OFFSET %s)) ORDER BY {}"
+        ).format(source, source, where_clause, order_clause, order_clause)
     items = list(
         connection.execute(
             result_query, [

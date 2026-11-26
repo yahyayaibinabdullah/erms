@@ -306,6 +306,8 @@ def exercise(output, repeats, *, type_text=False, upgraded_reader_check=None):
             failures.extend(exercise_contained_records(client, c, output, repeats, identity))
             failures.extend(exercise_child_aggregations(client, c, output, repeats, identity))
             failures.extend(exercise_global_ui_pages(client, output, repeats, identity))
+            from tools.audit_search_performance import exercise as exercise_audit
+            failures.extend(exercise_audit(client, c, output, repeats, identity))
         (output/'results.json').write_text(json.dumps({'results':results,'failures':failures},indent=2))
         if type_text:
             from tools.type_text_search_performance import exercise as exercise_type_text
@@ -332,7 +334,12 @@ def main():
     parser.add_argument('--type-ui', action='store_true', help='Run the structured type benchmark and the WebUI catalogue request shapes')
     parser.add_argument('--classification-schemes-only', action='store_true',
                         help='Measure localized scheme type-ahead and ordering on the document fixture')
+    parser.add_argument('--audit-only', action='store_true',
+                        help='Measure Audit Trail paging and redaction on the large document fixture')
     args=parser.parse_args()
+    if args.audit_only and any((args.mailbox_only, args.type_ui, args.type_text, args.typed_search_only,
+                               args.type_visibility_only, args.resource_types, args.classification_schemes_only)):
+        parser.error('--audit-only cannot be combined with another workload')
     if args.classification_schemes_only and any((args.mailbox_only, args.type_ui, args.type_text,
                                                 args.typed_search_only, args.type_visibility_only,
                                                 args.resource_types)):
@@ -347,7 +354,7 @@ def main():
         parser.error('mailbox-page-size must be between 1 and 50')
     args.output.mkdir(parents=True,exist_ok=False)
     source_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in (
-        'tools/check_search_performance.py', 'backend/services/api/search.py',
+        'tools/check_search_performance.py', 'tools/audit_search_performance.py', 'backend/services/api/search.py',
         'backend/services/api/type_search.py', 'backend/services/api/saved_searches.py',
         'tools/structured_type_search_performance.py', 'tools/type_text_search_performance.py',
         'backend/services/api/search_page.py', 'backend/services/api/search_cache.py',
@@ -390,7 +397,8 @@ def main():
                 c.execute((ROOT/'database/seeds/messaging.sql').read_text(), prepare=False)
             from tools.search_storage_experiment import configure, inspect
             configure(c, args.vector_storage)
-            seed(c, typed=args.resource_types, structured_types=args.typed_search_only)
+            seed(c, include_chunks=not args.audit_only,
+                 typed=args.resource_types, structured_types=args.typed_search_only)
             if args.classification_schemes_only:
                 from tools.classification_scheme_browse_performance import seed as seed_scheme_browse
                 seed_scheme_browse(c)
@@ -408,11 +416,14 @@ def main():
             (args.output/'environment.json').write_text(json.dumps({
                 'database':name,'postgres':c.execute('SELECT version() AS v').fetchone()['v'],
                 'platform':platform.platform(),'aggregations':AGGREGATIONS,'records':RECORDS,
-                'mixed_resource_types':args.resource_types,'components':RECORDS,'chunks':RECORDS*2,'repeats':args.repeats,
+                'audit_events':c.execute('SELECT count(*) AS n FROM event_history').fetchone()['n'],
+                'mixed_resource_types':args.resource_types,'components':RECORDS,
+                'chunks':0 if args.audit_only else RECORDS*2,'repeats':args.repeats,
                 'threshold_seconds':3,'page_size':(args.mailbox_page_size if args.mailbox_only else
-                                                50 if args.classification_schemes_only else 100),
+                                                50 if args.classification_schemes_only or args.audit_only else 100),
                 'result_cap':None if args.mailbox_only or args.classification_schemes_only else 1000,
                 'classification_scheme_browse':args.classification_schemes_only,
+                'audit_trail':args.audit_only,
                 'mailbox_rows_per_folder':2400 if args.mailbox_only else None,
                 'source_sha256':source_hashes,
                 'storage_experiment':inspect(c, args.vector_storage),
@@ -434,7 +445,10 @@ def main():
             time.sleep(args.settle_seconds)
         buffered = BufferedOutput(args.output)
         try:
-            if args.mailbox_only:
+            if args.audit_only:
+                from tools.audit_search_performance import exercise_audit_only
+                exercise_audit_only(url, buffered, args.repeats)
+            elif args.mailbox_only:
                 from tools.search_mailbox_performance import exercise_mailboxes
                 exercise_mailboxes(buffered, args.repeats, args.mailbox_page_size)
             elif args.classification_schemes_only:

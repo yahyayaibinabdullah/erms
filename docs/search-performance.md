@@ -124,6 +124,15 @@ The production-path verification passed 230 regressions, all 1,524 standard resp
 
 ## Required repeatable gate
 
+Audit Trail page projection is included in the ordinary gate. A focused run
+uses `--audit-only --repeats 3` with a fresh `--output` directory. It keeps the
+large resource, ACL and event fixture while omitting file-text chunks. Checks
+cover unfiltered, record-scoped and empty searches, offsets 0/50/950, capped
+counts, exact event ordering, protected values and permission-projection work
+bounded to the returned page. See the
+[Audit Trail loading verification](verification/audit-trail-loading-2026-11-26.md)
+for the cause, rejected join plan, Demo read-only comparison and regressions.
+
 Mailbox text filters use the same document fixture with 2,400 messages per
 folder and caller. The mailbox run measures subject, body, and linked-content
 filters, including combined criteria, denied resource access, and cursor pages
