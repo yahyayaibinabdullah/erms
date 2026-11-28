@@ -1,5 +1,18 @@
 # Search performance benchmarks and acceptance — 14 November 2026
 
+## Measurement clarification — 27 November 2026
+
+The current [performance contract](search-performance.md) distinguishes
+representative usage from stress tests. Representative classification-tree
+tests use the real 50-item batches and about 100 child aggregations per parent
+aggregation. A classification with 50,000 roots is a valid stress case:
+each bounded 50/100-item page still has a three-second limit. Returning all
+50,000 items at once is a bulk/unpaged workload with a separately stated
+budget. In both profiles, permissions, correct results and complete bounded
+paging remain mandatory. Retain/report every slow sample without starting
+unrelated optimization. The historical measurements and acceptance decision
+below are preserved; no earlier failure is rewritten as a pass.
+
 ## Decision
 
 The user accepted the current search performance as **good enough for now** on

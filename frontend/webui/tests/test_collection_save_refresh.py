@@ -1,4 +1,5 @@
 """Run the actual editor Save and collection loader with an in-memory API."""
+from frontend.webui.resource_number_controls import numbers_busy
 import ast
 from frontend.webui.organization_editor import organization_change_reason
 import asyncio
@@ -48,7 +49,7 @@ def test_save_requeries_the_selected_bounded_page(action, sort, query, offset, a
             return dict(items=deepcopy(ordered[offset:offset+25]), total=len(ordered))
         async def decorate(spec, data):return data
         rendered = []
-        scope = dict(edits=EntityTranslationDrafts(('name','description')) if action!='create' else None, edit_save={'row':None,'rule_saved':False},edit_status=Mock(),save_state={'busy':False,'canonical_locked':False},save_button=Mock(),canonical_controls=[],creation_status=Mock(),creation=EntityCreation(('name','description')) if action=='create' else None,
+        scope = dict(numbers_busy=numbers_busy,edits=EntityTranslationDrafts(('name','description')) if action!='create' else None, edit_save={'row':None,'rule_saved':False},edit_status=Mock(),save_state={'busy':False,'canonical_locked':False,'frozen_controls':None},save_button=Mock(),retry_status=Mock(),canonical_controls=[],creation_status=Mock(),creation=EntityCreation(('name','description')) if action=='create' else None,
                      typed=None, Any=Any, Callable=Callable, ApiError=ApiError, ENTITIES=ENTITIES, state=state, current_resource=lambda: state["resource"], set_searched=lambda value: state.__setitem__("searched", value),
                      spec=ENTITIES['roles'], row=deepcopy(row), controls={}, creating=action=='create',
                      translation_only=action=='translation', on_saved=None, editor_entity='role',
@@ -86,7 +87,7 @@ def test_save_finished_after_navigation_keeps_the_new_page():
             # The user navigates while the save request is in flight.
             state.update(resource='org-units',rows=destination_rows)
             return {'id':2,'name':'New role','version':1}
-        scope = dict(edits=None,edit_save={'row':None,'rule_saved':False},edit_status=Mock(),save_state={'busy':False,'canonical_locked':False},save_button=Mock(),canonical_controls=[],creation_status=Mock(),creation=EntityCreation(('name','description')),
+        scope = dict(numbers_busy=numbers_busy,edits=None,edit_save={'row':None,'rule_saved':False},edit_status=Mock(),save_state={'busy':False,'canonical_locked':False,'frozen_controls':None},save_button=Mock(),retry_status=Mock(),canonical_controls=[],creation_status=Mock(),creation=EntityCreation(('name','description')),
                      typed=None, ApiError=ApiError, state=state, current_resource=lambda: state["resource"], set_searched=lambda value: state.__setitem__("searched", value), spec=ENTITIES['roles'],
                      creating=True, translation_only=False, on_saved=None,
                      prepare_entity_translation_update=None, controls={},

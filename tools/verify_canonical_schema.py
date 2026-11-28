@@ -3,8 +3,9 @@
 Use a backup of a migration-built database as the independent reference. Both
 disposable databases inherit its explicit locale settings. The historical Git
 mode remains available for comparisons with a deliberately selected old schema.
-Only pg_dump client boilerplate and PostgreSQL's associative Boolean deparsing
-are normalized. Object names, visible column order, function bodies and grants
+Only pg_dump client boilerplate, PostgreSQL's associative Boolean deparsing
+and constant-folded index predicates are normalized. Object names, visible
+column order, function bodies and grants
 remain in the comparison. Persistent databases are never used as test targets.
 """
 import argparse
@@ -135,6 +136,20 @@ def dump_schema(database_url,pg_dump):
     return '\n'.join(line for line in process.stdout.splitlines() if not line.startswith(('\\restrict','\\unrestrict','-- Dumped')))+'\n'
 
 
+def normalized_index_predicate(c, schema, table, predicate):
+    """Ask PostgreSQL to fold immutable constants without executing the scan.
+
+    An older dump can cast each regconfig literal to oid, while a newly parsed
+    NOT IN casts the whole regconfig array. Both yield the same typed constant
+    array. Keep PostgreSQL's complete output expression, including operators,
+    columns, casts and every constant; do not erase predicate differences.
+    """
+    plan = c.execute(sql.SQL('EXPLAIN (VERBOSE, FORMAT JSON) SELECT {} FROM {}.{}').format(
+        sql.SQL(predicate), sql.Identifier(schema), sql.Identifier(table),
+    )).fetchone()['QUERY PLAN']
+    return plan[0]['Plan']['Output']
+
+
 def normalized_dump(c,text):
     """Let PostgreSQL reparse AND/OR grouping; do not erase parentheses blindly.
 
@@ -165,6 +180,16 @@ def normalized_dump(c,text):
             sql.SQL(definition[start:end]),sql.Identifier(row['nspname']),sql.Identifier(row['relname']),sql.Identifier(row['nspname']),sql.Identifier(row['relname'])))
         value=c.execute("SELECT pg_get_viewdef('pg_temp.__erms_schema_expr'::regclass) v").fetchone()['v']
         text=text.replace(definition,definition[:start]+value.replace('\n',' ')+definition[end:])
+    rows=c.execute("""SELECT n.nspname,cl.relname,pg_get_indexdef(i.indexrelid) definition,
+        pg_get_expr(i.indpred,i.indrelid) predicate
+        FROM pg_index i JOIN pg_class cl ON cl.oid=i.indrelid
+        JOIN pg_namespace n ON n.oid=cl.relnamespace
+        WHERE i.indpred IS NOT NULL AND n.nspname=ANY(%s)
+        ORDER BY n.nspname,cl.relname,i.indexrelid""",(list(SCHEMAS),)).fetchall()
+    for row in rows:
+        definition=row['definition'];start=definition.index(' WHERE ')+len(' WHERE ')
+        value=normalized_index_predicate(c,row['nspname'],row['relname'],row['predicate'])
+        text=text.replace(definition,definition[:start]+'NORMALIZED PREDICATE '+json.dumps(value))
     return text
 
 

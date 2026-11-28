@@ -128,6 +128,12 @@ def main():
             temporary.replace(path)
         def write(api, label, endpoint, **kwargs):
             state['pending'] = {'operation': label, 'endpoint': endpoint}
+            if endpoint in ('/aggregations', '/records') or endpoint.endswith('/commit'):
+                # Persist the logical creation identity before sending. An
+                # uncertain outcome can be reconciled using this same key.
+                submission_key = str(uuid.uuid4())
+                state['pending']['submission_key'] = submission_key
+                kwargs['headers'] = {**kwargs.get('headers', {}), 'Idempotency-Key': submission_key}
             save()
             try:
                 result = api.call('POST', endpoint, **kwargs)

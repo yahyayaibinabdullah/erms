@@ -76,6 +76,20 @@ def test_oversight_catalogue_covers_both_languages_and_preserves_curated_rows():
         candidate = current_by_key[item['message_key']]
         if candidate == item:
             continue
+        if candidate.get('provenance', {}).get('kind') == 'user_approved_correction':
+            # The user approved this exact text-only correction on 27 November.
+            # Keep the old curated wording/provenance and the recorded approval;
+            # this is not a general exemption for changing imported translations.
+            assert item['message_key'] == 'settings.field.search_result_limit.description'
+            assert item['translated_text'] == 'الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم.'
+            assert candidate['translated_text'] == 'الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم وعوامل تصفية الملفات أو الوثائق.'
+            provenance = candidate['provenance']
+            assert provenance['previous_provenance'] == item['provenance']
+            assert provenance['previous_translated_text'] == item['translated_text']
+            assert provenance['source_origin'] == 'manual' and provenance['source_status'] == 'reviewed'
+            assert provenance['review_source'] == 'Explicit user approval in the custom-code-generator implementation chat, 27 November 2026'
+            assert provenance['date_reviewed'] and candidate['quality_flags'] == []
+            continue
         assert (item.get('origin') or item.get('provenance', {}).get('source_origin')) == 'generated'
         assert (candidate.get('origin') or candidate.get('provenance', {}).get('source_origin')) == 'generated'
         if 'provenance' in item:

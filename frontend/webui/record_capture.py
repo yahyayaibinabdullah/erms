@@ -12,6 +12,9 @@ from nicegui import events
 from .type_controls import MetadataForm, t as type_label
 from .entity_editor_controls import field_input
 from .entity_editor_controls import form_payload
+from .creation_bindings import CreationBindings, suggestion_context
+from .creation_submission import CreationAttempt
+from .resource_number_controls import number_state, numbers_busy, set_automatic_number
 from .entity_editor_controls import medium_options
 from .record_collection_drop import suggested_title
 from .record_editor import record_draft_component_context
@@ -19,6 +22,7 @@ from .entity_selectors import relationship_options
 from .i18n_catalogue import render_message
 from .relationship_select_styles import style_relationship_chip_select
 from nicegui import ui
+from nicegui.elements.mixins.disableable_element import DisableableElement
 
 def build_record_capture(
     *, add_number_suggestion, api, bind_remote_relationship_select, bind_resource_security_select, browse_advanced_aggregation, error_message, load_recent, preview_record_components, render_component_cards, render_table, set_searched, show_number_conflict, validation_error_message,
@@ -65,6 +69,8 @@ def build_record_capture(
         upload_state = {"pending": 0}
         action_controls: dict[str, Any] = {}
         uploader_control: dict[str, Any] = {}
+        attempt = CreationAttempt()
+        frozen_controls = []
 
         suggestion = {"title": None, "manual_title": False, "number": None, "manual_number": False}
 
@@ -191,28 +197,43 @@ def build_record_capture(
         typed = MetadataForm(api, "record", initial_type=initial_type)
 
         async def commit() -> None:
+            nonlocal frozen_controls
             if not capture_preparation["ready"] or capture_preparation["closed"] or upload_state["pending"] or (dropped and dropped.queue):
                 return
             if not action_controls["commit"].enabled:
                 return
-            action_controls["commit"].disable()
+            if not frozen_controls:
+                frozen_controls = [element for element in dialog.descendants()
+                                   if isinstance(element, DisableableElement) and element.enabled]
+            for element in frozen_controls:
+                if not element.is_deleted:
+                    element.disable()
+            numbers_busy(controls, True)
             if existing_capture_draft is not None:
                 action_controls["commit"].props("loading")
             try:
-                payload = form_payload(spec, controls, creating=True)
-                if target_aggregation_id is not None:
-                    # The aggregation-details route owns this relationship.
-                    # Bind it from route context instead of trusting a
-                    # read-only presentation control to submit its value.
-                    payload["aggregation_id"] = int(target_aggregation_id)
-                creator_role_id = controls["creator_acl_role_id"].value
-                if creator_role_id is None:
-                    raise ValueError("Select who this record is being created for")
-                assignment = typed.payload()
-                await api.update_record_draft(draft["id"], payload)
-                committed_record = await api.commit_record_draft(
-                    draft["id"], int(creator_role_id), capture=existing_capture_draft is not None, **({"metadata":assignment} if assignment else {}),
-                )
+                if attempt.uncertain or attempt.completed_error is not None:
+                    snapshot = attempt.payload
+                else:
+                    if not await bindings.refresh(for_save=True):
+                        return
+                    payload = form_payload(spec, controls, creating=True)
+                    if target_aggregation_id is not None:
+                        payload["aggregation_id"] = int(target_aggregation_id)
+                    creator_role_id = controls["creator_acl_role_id"].value
+                    if creator_role_id is None:
+                        raise ValueError("Select who this record is being created for")
+                    assignment = typed.payload()
+                    # Updating the draft is reversible and is not final creation.
+                    # Confirm that write before entering the creation retry state.
+                    await api.update_record_draft(draft["id"], payload)
+                    snapshot = {"draft": payload, "metadata": assignment, "role": int(creator_role_id),
+                                "components": [{key: item.get(key) for key in
+                                    ("id", "component_order", "checksum", "version")} for item in current_rows]}
+                committed_record = await attempt.submit(f"record-draft.{draft['id']}.commit", snapshot,
+                    lambda key, body: api.commit_record_draft(draft["id"], body["role"],
+                        capture=existing_capture_draft is not None, metadata=body["metadata"] or None,
+                        submission_key=key))
                 if capture_active is not None and not capture_active():return
                 dialog.close()
                 ui.notify(render_message("webui.commit.notify.record_and_digital_components_created_c1c2938b"), color="positive")
@@ -235,6 +256,17 @@ def build_record_capture(
             finally:
                 if dialog.value and (capture_active is None or capture_active()) and not upload_state["pending"]:
                     action_controls["commit"].props(remove="loading")
+                    unresolved = attempt.uncertain or attempt.completed_error is not None
+                    action_controls["retry_status"].set_visibility(unresolved)
+                    action_controls["commit"].set_text(render_message(
+                        "code_generation.action.retry_original" if unresolved else
+                        "webui.open_record_draft_editor.button.create_record_dd0193d6"))
+                    if not unresolved:
+                        numbers_busy(controls, False)
+                        for element in frozen_controls:
+                            if not element.is_deleted:
+                                element.enable()
+                        frozen_controls = []
                     action_controls["commit"].enable()
 
         with dialog, ui.card().classes("max-h-[calc(100vh-32px)] p-0").style("width: 1050px; max-width: calc(100vw - 32px)"):
@@ -353,7 +385,13 @@ def build_record_capture(
                             initial_value = draft[field.name]
                         controls[field.name] = field_input(field, value=initial_value, options=options)
                         if field.name == "record_number":
-                            add_number_suggestion(controls[field.name], "records", controls)
+                            add_number_suggestion(controls[field.name], "records", controls,
+                                creation_context=lambda: suggestion_context(controls, typed),
+                                active=lambda: dialog.value and not dialog.is_deleted
+                                    and (capture_active is None or capture_active()))
+                            origin = draft.get("generation_intent", {}).get("record_number")
+                            if origin and initial_value:
+                                set_automatic_number(controls[field.name], initial_value, origin)
                         if field.name == "security_level_id":
                             bind_resource_security_select(
                                 controls[field.name], parent_control=controls["aggregation_id"],
@@ -464,19 +502,30 @@ def build_record_capture(
                         with dialog:
                             constrain_record_medium()
                             await refresh_record_creation_roles()
-                            if dropped and not suggestion["manual_number"] and controls["aggregation_id"].value == aggregation_id:
+                            if dropped and not controls["record_number"].value and controls["aggregation_id"].value == aggregation_id:
                                 number = ""
+                                control = controls["record_number"]
+                                state = number_state(control)
+                                revision = state.revision
+                                context = {"parent_aggregation_id": aggregation_id,
+                                    **{key: value for key, value in suggestion_context(controls, typed).items() if value is not None}}
                                 if aggregation_id:
                                     try:
                                         result = await api.request("GET", "/api/v1/number-suggestions/records",
-                                                                   params={"parent_aggregation_id": aggregation_id})
+                                                                   params=context)
                                     except ApiError as error:
                                         ui.notify(error_message(error), color="negative")
                                         return
                                     number = result.get("suggested_number") or ""
-                                if controls["aggregation_id"].value == aggregation_id and not suggestion["manual_number"]:
+                                if (aggregation_id and controls["aggregation_id"].value == aggregation_id
+                                        and dialog.value and not dialog.is_deleted and not state.busy
+                                        and state.revision == revision and not control.value
+                                        and context == {"parent_aggregation_id": aggregation_id,
+                                            **{key: value for key, value in suggestion_context(controls, typed).items() if value is not None}}):
                                     suggestion["number"] = number
-                                    controls["record_number"].set_value(number)
+                                    if number:
+                                        set_automatic_number(control, number,
+                                            result.get("generation_intent") or {"source": "legacy"})
 
                     controls["aggregation_id"].on_value_change(
                         lambda: background_tasks.create(apply_selected_aggregation())
@@ -529,6 +578,9 @@ def build_record_capture(
                                 ui.label(component["file_name"]).classes("text-xs text-slate-500 break-all")
                                 ui.label(render_message("messaging.capture.preparing")).classes("text-sm text-slate-500")
             ui.separator()
+            action_controls["retry_status"] = ui.label(render_message("code_generation.error.unknown_outcome")).props(
+                'role="status" aria-live="polite"').classes("text-sm text-amber-800 px-6")
+            action_controls["retry_status"].set_visibility(False)
             with ui.row().classes("w-full justify-end gap-2 px-6 py-4"):
                 with ui.row().classes(
                     "items-center gap-1 text-sm text-slate-500 mr-2"
@@ -545,7 +597,16 @@ def build_record_capture(
         if dropped:
             dropped.opened = True
             dialog.on("hide", dropped.close)
+        bindings = CreationBindings(api, "record", controls, typed,
+            active=lambda: dialog.value and not dialog.is_deleted
+                and (capture_active is None or capture_active()),
+            show_error=lambda error: ui.notify(error_message(error), color="negative", close_button=True))
         dialog.open()
+        try:
+            await bindings.refresh()
+        except ApiError as error:
+            if dialog.value and not dialog.is_deleted:
+                ui.notify(error_message(error), color="negative", close_button=True)
         if dropped:
             def render_pending():
                 pending_area.clear()

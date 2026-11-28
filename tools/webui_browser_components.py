@@ -1,4 +1,5 @@
 """Digital component upload and viewer parity using disposable synthetic files."""
+from uuid import uuid4
 import base64
 import subprocess
 from pathlib import Path
@@ -28,7 +29,7 @@ def check_components(page):
     (fixture/'image.png').write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jP1cAAAAASUVORK5CYII='))
     (fixture/'document.pdf').write_bytes(fixture_pdf(second_page=True))
     parent=page.api.post('/api/v1/aggregations/search',json={'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,'offset':0}).json()['items'][0]
-    response=page.api.post('/api/v1/aggregations',json={'aggregation_number':'COMP-AGG','title':'Component fixture','classification_id':parent['classification_id'],'medium':'digital'});response.raise_for_status();aggregation=response.json()
+    response=page.api.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'aggregation_number':'COMP-AGG','title':'Component fixture','classification_id':parent['classification_id'],'medium':'digital'});response.raise_for_status();aggregation=response.json()
     def icon(name,scope=None):return page.wait.until(lambda _:next((b for b in page.visible('button',scope) if any(i.text==name for i in b.find_elements('css selector','.q-icon'))),False))
     def cards():return page.visible('.record-file-row')
     def capture(name):page.capture('components-'+name+'-'+page.language,target=page.one('.record-file-list') if name in {'empty','rows','reordered','removed','removed-last'} else None)
@@ -47,7 +48,7 @@ def check_components(page):
     for language in ('en','ar'):
         if language=='ar':page.settings();page.language_change('ar')
         number='COMP-'+language.upper()
-        response=page.api.post('/api/v1/records',json={'aggregation_id':aggregation['id'],'record_number':number,'title':'Component fixture record','medium':'digital'});response.raise_for_status();record=response.json()
+        response=page.api.post('/api/v1/records', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'aggregation_id':aggregation['id'],'record_number':number,'title':'Component fixture record','medium':'digital'});response.raise_for_status();record=response.json()
         with page.check('native saved-file upload and repeated component entry'):
             enter(number);page.one('.record-file-list .col-span-full');capture('empty')
             page.see(page.t('components.record.add'))
@@ -223,7 +224,7 @@ with psycopg.connect(url) as c:
 
 def check_component_cutoffs(page, aggregation):
     number = 'COMP-PAGING'
-    response = page.api.post('/api/v1/records', json={
+    response = page.api.post('/api/v1/records', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'}, json={
         'aggregation_id': aggregation['id'], 'record_number': number,
         'title': 'Component paging fixture', 'medium': 'digital',
     })

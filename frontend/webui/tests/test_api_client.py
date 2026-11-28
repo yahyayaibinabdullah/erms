@@ -60,6 +60,39 @@ def test_api_client_coalesces_identical_concurrent_reads_and_isolates_results():
     assert second["items"][0]["id"] == 7
 
 
+def test_mutation_refresh_does_not_join_or_recache_an_older_reference_read():
+    async def exercise():
+        started,release=asyncio.Event(),asyncio.Event()
+        state={'version':0,'reads':0}
+        async def handler(request):
+            if request.method=='POST':
+                state['version']+=1
+                return httpx.Response(200,json={'ok':True})
+            state['reads']+=1
+            snapshot=state['version']
+            if state['reads']==1:
+                started.set()
+                await release.wait()
+            return httpx.Response(200,json={'version':snapshot},headers={'ETag':str(snapshot)})
+        client=ErmsApiClient('http://api.test',transport=httpx.MockTransport(handler))
+        try:
+            old=asyncio.create_task(client._reference_get('fixture','/api/v1/fixture',params={}))
+            await asyncio.wait_for(started.wait(),2)
+            await client.request('POST','/api/v1/fixture',json={'value':'changed'})
+            fresh=asyncio.create_task(client._reference_get('fixture','/api/v1/fixture',params={}))
+            await asyncio.sleep(.02)
+            release.set()
+            before,after=await asyncio.gather(old,fresh)
+            retained=await client._reference_get('fixture','/api/v1/fixture',params={})
+            assert before['version']==0
+            assert after['version']==retained['version']==1
+            assert state['reads']==2
+        finally:
+            release.set()
+            await client.close()
+    asyncio.run(exercise())
+
+
 def test_api_client_does_not_coalesce_mutations():
     request_count = 0
 
@@ -329,6 +362,20 @@ def test_event_history_operations_uses_authoritative_filter_endpoint():
 
     assert asyncio.run(exercise()) == ["AUTHENTICATION_SUCCEEDED", "CREATE"]
     assert captured["path"] == "/api/v1/event-history/operations"
+
+
+def test_generator_history_uses_the_existing_uncapped_entity_filtered_audit_list():
+    captured={}
+    async def handler(request):
+        captured.update(path=request.url.path,params=dict(request.url.params))
+        return httpx.Response(200,json=[])
+    async def exercise():
+        client=ErmsApiClient('http://api.test',transport=httpx.MockTransport(handler))
+        try:return await client.history('code-generators',71,limit=26,offset=1025)
+        finally:await client.close()
+    assert asyncio.run(exercise())==[]
+    assert captured=={'path':'/api/v1/event-history','params':{
+        'entity_type':'code_generator','entity_id':'71','limit':'26','offset':'1025'}}
 
 
 def test_event_history_filter_options_uses_authoritative_filter_endpoint():
@@ -1239,6 +1286,6 @@ def test_file_drop_sends_confirmed_title_and_ordered_multipart_files(title):
         try:
             return await client.create_records_from_file_drop(7,
                 [('z-first.txt',b'first','text/plain'),('a-second.txt',b'second','text/plain')],
-                separate_records=title is None,creator_acl_role_id=20,title=title)
+                separate_records=title is None,creator_acl_role_id=20,title=title,submission_key='00000000-0000-4000-8000-000000000001')
         finally: await client.close()
     assert asyncio.run(exercise())==(2 if title is None else 1)

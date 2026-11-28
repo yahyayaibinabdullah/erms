@@ -410,6 +410,9 @@ class MetadataForm:
         self.batch_changes = [{} for _ in filenames]
         self.changes = {}
         self.definitions = {}
+        self.page_field_ids = []
+        self.generated_fields = set()
+        self.creation_bindings = None
         self.revision = 0
         self.assignment_revision = 0
         self.loading = False
@@ -475,9 +478,12 @@ class MetadataForm:
         if self.shortcut:
             self.shortcut.set_text(t("type") + " · " + (label(row) if row else t("unset")))
         self.selected = target
+        if self.creation_bindings is not None:
+            self.creation_bindings.invalidate(schedule=False)
         self.changes = {}
         self.batch_changes = [{} for _ in self.filenames]
         self.definitions.clear()
+        self.generated_fields.clear()
         await self.page(0)
         return True
 
@@ -489,9 +495,12 @@ class MetadataForm:
         self.fields.clear()
         self.loading = self.selected is not None
         if not self.loading:
+            self.page_field_ids = []
             with self.fields:
                 for filename in self.filenames:
                     ui.label(filename).classes("break-all").props("dir=auto")
+            if self.creation_bindings is not None:
+                await self.creation_bindings.refresh()
             return
         path = f"{self.path}/{self.selected}/fields"
         with self.fields:
@@ -594,6 +603,9 @@ class MetadataForm:
                             t("next"), on_click=lambda: self.page(offset + 25)
                         ).props("flat").set_enabled(offset + 25 < data["total"])
             self.loading = False
+            self.page_field_ids = [str(item["id"]) for item in data["items"]]
+            if self.creation_bindings is not None:
+                await self.creation_bindings.refresh()
         except ApiError as error:
             if not self.fields.is_deleted and self.revision == rev:
                 with self.fields:
@@ -616,7 +628,7 @@ class MetadataForm:
                     else definition.get("default")
                 )
                 value = changes.get(fid, original)
-                if definition["required"] and (
+                if definition["required"] and not (self.original is None and definition["data_type"] == "text" and fid in self.generated_fields) and (
                     value is None or isinstance(value, str) and not value.strip()
                 ):
                     raise ValueError(" · ".join(filter(None, (filename, label(definition), t("required")))))

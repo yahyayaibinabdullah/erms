@@ -16,6 +16,33 @@ def current_fields(c, kind, resource_id):
     ).fetchone()["fields"]
 
 
+def authorize_creation(c, kind, destination, level_id):
+    """Keep creation's existing type/clearance/custodian checks before generation."""
+    acquire_continuity_shared_lock(c)
+    if destination is None:
+        return
+    if c.execute("""SELECT id FROM resource_types WHERE kind=%s AND id=%s
+        AND user_passes_type_gate(current_user_id(),kind,id,%s,true) FOR SHARE""",
+        (kind,destination,level_id)).fetchone() is None:
+        raise HTTPException(403,detail={"code":"insufficient_type_access"})
+    check_custodian(c,level_id)
+
+
+def creation_defaults(c, kind, destination, raw):
+    """Merge in PostgreSQL so missing/null and exact numeric values stay distinct."""
+    return c.execute("""SELECT jsonb_set(%s::jsonb,'{field_values}',
+        coalesce((SELECT jsonb_object_agg(id::text,resource_field_json(default_value))
+            FROM resource_type_fields WHERE kind=%s AND type_id=%s AND default_value IS DISTINCT FROM NULL),'{}'::jsonb)
+        ||coalesce(%s::jsonb->'field_values','{}'::jsonb),true)::text AS raw""",(raw,kind,destination,raw)).fetchone()["raw"]
+
+
+def validate_creation(c, kind, destination, raw):
+    proposed=c.execute("""SELECT coalesce(jsonb_object_agg(field_id,resource_field_json(value)),'{}') AS fields
+        FROM resolve_resource_type_values(%s,NULL,%s,coalesce(%s::jsonb->'field_values','{}'::jsonb))""",
+        (kind,destination,raw)).fetchone()["fields"]
+    return None,{},proposed,None
+
+
 def prepare_metadata(c, kind, old, destination, level_id, raw, confirmed):
     resource_id = old["id"] if old else None
     source = old["type_id"] if old else None

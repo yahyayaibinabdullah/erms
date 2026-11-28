@@ -1,4 +1,6 @@
 from contextlib import asynccontextmanager
+from contextlib import ExitStack
+from dataclasses import replace
 from datetime import datetime
 from io import BytesIO
 import json
@@ -38,10 +40,17 @@ from .service_authentication import (
 from .crud import create_row, delete_row, get_or_404, list_rows, update_row
 from .concurrency import expected_version
 from .continuity_lock import acquire_continuity_shared_lock
-from .content_storage import configured_storage, inspect_upload
+from .content_storage import GovernedUpload, configured_storage, inspect_upload, stage_governed_upload
 from .database import close_pool, get_connection, get_consistent_connection, open_pool, pool
 from .document_conversion import ConversionUnavailable, UnsupportedPreview, pdf_rendition
 from .number_suggestions import next_numbers, router as number_suggestions_router
+from .creation_roles import creation_role_options as _creation_role_options, select_creator_role as _select_creator_role
+from . import creation_requests
+from .creation_requests import CreationKey,DirectSubmission,CompletedCreation
+from .code_generation import CodeGenerationError, is_blank_text
+from .code_generation_creation import CreationBatch, generation_context, normalize_create_text, persist_batch
+from .code_generator_routes import generator_error
+from .code_generation_access import router as code_generation_access_router
 from .entity_localization import localized_projection, preferred_language
 from .schemas import (
     NonBlankString,
@@ -94,6 +103,7 @@ from .resource_types import router as resource_types_router
 from .resource_relationships import router as resource_relationships_router
 from .disposition.routes import router as disposition_router
 from .application_settings_routes import router as application_settings_router
+from .code_generator_routes import router as code_generators_router
 from .application_configuration import router as application_configuration_router
 from .application_settings import cache as settings_cache
 from .security_levels import router as security_levels_router
@@ -223,6 +233,8 @@ app.include_router(resource_types_router)
 app.include_router(resource_relationships_router)
 app.include_router(disposition_router)
 app.include_router(application_settings_router)
+app.include_router(code_generators_router)
+app.include_router(code_generation_access_router)
 app.include_router(application_configuration_router)
 app.include_router(security_levels_router)
 app.include_router(authorization_admin_router)
@@ -242,19 +254,36 @@ app.include_router(entity_translations_router)
 
 
 # Pydantic's default validation response includes the rejected input, including
-# nested write-only credentials. Keep this redaction narrowly scoped to Settings.
+# nested write-only credentials. Explicit settings/generator models return their
+# translated validation feedback without echoing rejected input.
 from fastapi.exceptions import RequestValidationError
 from fastapi.exception_handlers import request_validation_exception_handler
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(request: Request, error: RequestValidationError):
+    if request.url.path.startswith("/api/v1/code-generators"):
+        return JSONResponse(status_code=422,content={"detail":{
+            "code":"code_generator_invalid","message_key":"code_generation.error.invalid","parameters":{},
+        }})
     if request.url.path.startswith("/api/v1/application-settings"):
         return JSONResponse(status_code=422, content={"detail": {
             "code": "application_settings_invalid_update",
             "message_key": "settings.error.invalid_update", "parameters": {},
         }})
     return await request_validation_exception_handler(request, error)
+
+
+@app.exception_handler(CodeGenerationError)
+async def code_generation_error_handler(_, error: CodeGenerationError):
+    translated=generator_error(error)
+    return JSONResponse(status_code=translated.status_code,content={"detail":translated.detail})
+
+
+@app.exception_handler(CompletedCreation)
+async def completed_creation_handler(_,error:CompletedCreation):
+    model=RecordRead if error.kind=="record" else AggregationRead
+    return JSONResponse(status_code=201,content=model.model_validate(error.response).model_dump(mode="json"))
 
 
 @app.post("/api/v1/full-text-search", response_model=None, tags=["search"])
@@ -425,6 +454,12 @@ async def audit_request_context(request: Request, call_next):
     reason_token = change_reason_context.set(change_reason)
     try:
         response = await call_next(request)
+        if (response.status_code>=400 and getattr(request.state,"creation_no_completed_result",False)
+                and not getattr(request.state,"creation_finished",False)):
+            # The per-submission lock found no earlier completion and this
+            # attempt never finished its transaction. Preserve ordinary error
+            # bodies while allowing clients to distinguish a confirmed failure.
+            response.headers["Creation-Outcome"]="not-created"
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Correlation-ID"] = correlation_id
         return response
@@ -578,73 +613,8 @@ def health(connection: Connection = Depends(get_connection, scope="function")) -
     }
 
 
-def _creation_role_options(
-    connection: Connection, parent_aggregation_id: int | None = None,
-    *, language_tag: str | None = None,
-) -> list[dict]:
-    parameters: list[int] = []
-    owner_clause = ""
-    if parent_aggregation_id is not None:
-        parent = connection.execute(
-            "SELECT owning_org_unit_id FROM aggregations WHERE id=%s",
-            (parent_aggregation_id,),
-        ).fetchone()
-        if parent is None:
-            raise HTTPException(status_code=409, detail="referenced aggregation does not exist")
-        owner_clause = " AND role.org_unit_id=%s"
-        parameters.append(parent["owning_org_unit_id"])
-    rows = connection.execute(
-        """SELECT DISTINCT role.id AS role_id,role.code AS role_code,
-                  role.name AS role_name,unit.id AS org_unit_id,
-                  unit.code AS org_unit_code,unit.name AS org_unit_name,
-                  role.translations AS role_translations,
-                  unit.translations AS org_unit_translations
-             FROM user_role_assignments assignment
-             JOIN roles role ON role.id=assignment.role_id
-             JOIN org_units unit ON unit.id=role.org_unit_id
-            WHERE assignment.user_id=current_user_id()
-              AND CURRENT_TIMESTAMP>=assignment.valid_from
-              AND (assignment.valid_until IS NULL OR CURRENT_TIMESTAMP<assignment.valid_until)
-              AND role_effectively_active(role.id)""" + owner_clause +
-        " ORDER BY org_unit_name,role_name,role_id",
-        parameters,
-    ).fetchall()
-    for row in rows:
-        for entity in ("role", "org_unit"):
-            translations = row.pop(f"{entity}_translations")
-            if language_tag is not None:
-                row[f"{entity}_name"] = localized_projection(
-                    {"name": row[f"{entity}_name"], "translations": translations},
-                    language_tag, "name",
-                )["name"]
-        row["label"] = f"{row['org_unit_name']} — {row['role_name']}"
-    return rows
 
 
-def _select_creator_role(
-    connection: Connection, requested_role_id: int | None,
-    parent_aggregation_id: int | None = None,
-) -> dict:
-    options = _creation_role_options(connection, parent_aggregation_id)
-    if not options:
-        raise HTTPException(status_code=403, detail={
-            "code": "creator_acl_role_not_eligible",
-            "message": "You do not have a current role in the owning organizational unit.",
-        })
-    if requested_role_id is None:
-        if len(options) != 1:
-            raise HTTPException(status_code=422, detail={
-                "code": "creator_acl_role_selection_required",
-                "message": "Select the organizational role to create this resource for.",
-            })
-        return options[0]
-    selected = next((row for row in options if row["role_id"] == requested_role_id), None)
-    if selected is None:
-        raise HTTPException(status_code=403, detail={
-            "code": "creator_acl_role_not_eligible",
-            "message": "The selected role is not currently eligible for this owner.",
-        })
-    return selected
 
 
 @app.get(
@@ -704,11 +674,16 @@ def dashboard_ownership_counts(
 @operation_policy("resource_scoped", "aggregation.create_root",
                   conditional_resource_authorization={"type_access": {"type_id": "Use selected aggregation type", "parent_aggregation_id": "Use parent type for aggregation.add_child"}})
 def create_aggregation(
-    payload: AggregationCreate, raw: JsonSource,
+    payload: AggregationCreate, raw: JsonSource, submission_key: DirectSubmission,request:Request,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     acquire_continuity_shared_lock(connection)
-    values = payload.model_dump(exclude={"creator_acl_role_id","field_values"})
+    require_global(connection,"aggregation.create_root" if payload.parent_aggregation_id is None else "aggregation.create_child")
+    submission=creation_requests.begin(connection,submission_key,"aggregation.create",raw)
+    earlier=creation_requests.replay(connection,submission)
+    if earlier is not None:
+        return earlier
+    values = payload.model_dump(exclude={"creator_acl_role_id","field_values","generation_intent"})
     selected_role = _select_creator_role(
         connection, payload.creator_acl_role_id, payload.parent_aggregation_id,
     )
@@ -742,9 +717,10 @@ def create_aggregation(
             "creator_org_unit_id": selected_role["org_unit_id"],
         })),
     )
-    prepared = typed_metadata.prepare_metadata(connection,"aggregation",None,payload.type_id,level_id,raw,False) if payload.type_id is not None or payload.field_values else None
-    row = create_row(connection, "aggregations", values)
-    return typed_metadata.finish_metadata(connection,"aggregation",row,prepared) if prepared else row
+    row=_create_generated_resource(connection,"aggregation",payload,raw,selected_role,level_id,values)
+    creation_requests.complete(connection,submission,"aggregation",[row],row)
+    creation_requests.finished(request)
+    return row
 
 
 @app.get("/api/v1/aggregations", response_model=list[AggregationRead], tags=["aggregations"])
@@ -949,7 +925,7 @@ def update_aggregation(
             )
         if existing["parent_aggregation_id"] is not None:
             parent = connection.execute(
-                "SELECT medium FROM aggregations WHERE id=%s FOR KEY SHARE",
+                "SELECT medium FROM aggregations WHERE id=%s FOR UPDATE",
                 (existing["parent_aggregation_id"],),
             ).fetchone()
             if parent and payload.medium != parent["medium"]:
@@ -1122,10 +1098,18 @@ def change_aggregation_review_date(aggregation_id: int, payload: ReviewDateChang
 @app.post("/api/v1/records", response_model=RecordRead, status_code=status.HTTP_201_CREATED, tags=["records"])
 @operation_policy("resource_scoped", "record.create", "aggregation.add_record",
                   conditional_resource_authorization={"type_access": "Use selected record type and parent aggregation type"})
-def create_record(payload: RecordCreate, raw: JsonSource, connection: Connection = Depends(get_connection, scope="function")):
+def create_record(payload: RecordCreate, raw: JsonSource, submission_key: DirectSubmission, request:Request, connection: Connection = Depends(get_connection, scope="function")):
     acquire_continuity_shared_lock(connection)
+    require_global(connection,"record.create")
+    submission=creation_requests.begin(connection,submission_key,"record.create",raw)
+    earlier=creation_requests.replay(connection,submission)
+    if earlier is not None:
+        return earlier
+    # The resource-operation gate and native medium/ownership guards require
+    # FOR UPDATE. Taking KEY SHARE first lets concurrent creators deadlock
+    # while upgrading the same parent. Acquire the final mode before counters.
     parent = connection.execute(
-        "SELECT id,medium FROM aggregations WHERE id=%s FOR KEY SHARE", (payload.aggregation_id,),
+        "SELECT id,medium FROM aggregations WHERE id=%s FOR UPDATE", (payload.aggregation_id,),
     ).fetchone()
     if parent is None:
         raise HTTPException(status_code=409, detail="referenced aggregation does not exist")
@@ -1139,11 +1123,28 @@ def create_record(payload: RecordCreate, raw: JsonSource, connection: Connection
     ).fetchone()["id"]
     require_clearance_for_level(connection, level_id)
     _set_record_creator(connection, selected_role)
-    values = payload.model_dump(exclude={"creator_acl_role_id","field_values"})
+    values = payload.model_dump(exclude={"creator_acl_role_id","field_values","generation_intent"})
     values["medium"] = _resolved_record_medium(parent, payload.medium)
-    prepared = typed_metadata.prepare_metadata(connection,"record",None,payload.type_id,level_id,raw,False) if payload.type_id is not None or payload.field_values else None
-    row = create_row(connection, "records", values)
-    return typed_metadata.finish_metadata(connection,"record",row,prepared) if prepared else row
+    row=_create_generated_resource(connection,"record",payload,raw,selected_role,level_id,values)
+    creation_requests.complete(connection,submission,"record",[row],row)
+    creation_requests.finished(request)
+    return row
+
+
+def _create_generated_resource(connection,kind,payload,raw,selected_role,level_id,values):
+    typed_metadata.authorize_creation(connection,kind,payload.type_id,level_id)
+    batch=CreationBatch(connection,kind,payload.type_id,lambda:generation_context(connection,
+        parent_id=payload.aggregation_id if kind=="record" else payload.parent_aggregation_id,
+        classification_id=None if kind=="record" else payload.classification_id,
+        owner_org_unit_id=selected_role["org_unit_id"],role_id=selected_role["role_id"]))
+    normalize_create_text(kind,values,payload.generation_intent)
+    batch.add(values,typed_metadata.creation_defaults(connection,kind,payload.type_id,raw),intent=payload.generation_intent)
+
+    def store(index,item,prepared):
+        row=create_row(connection,kind+"s",item.values)
+        return typed_metadata.finish_metadata(connection,kind,row,prepared)
+
+    return persist_batch(connection,batch,payload.type_id,store)[0]
 
 
 def _set_record_creator(connection: Connection, selected_role: dict) -> None:
@@ -1341,7 +1342,7 @@ def update_record(
     if destination is None:
         parent_id = payload.aggregation_id if "aggregation_id" in fields else existing["aggregation_id"]
         destination = connection.execute(
-            "SELECT id,medium FROM aggregations WHERE id=%s FOR KEY SHARE", (parent_id,),
+            "SELECT id,medium FROM aggregations WHERE id=%s FOR UPDATE", (parent_id,),
         ).fetchone()
     resulting_medium = payload.medium if "medium" in fields else existing["medium"]
     _resolved_record_medium(destination, resulting_medium)
@@ -1530,9 +1531,12 @@ def _open_draft(connection: Connection, draft_id: int, *, lock: bool = False) ->
 def create_record_draft(payload: RecordDraftCreate, connection: Connection = Depends(get_connection, scope="function")):
     require_global(connection, "record.create")
     values = payload.model_dump(exclude_none=True)
+    intent=values.pop("generation_intent",{})
+    normalize_create_text("record",values,intent,draft=True)
+    values["generation_intent"]=Jsonb(intent)
     if payload.aggregation_id is not None:
         parent = connection.execute(
-            "SELECT id,medium FROM aggregations WHERE id=%s FOR KEY SHARE",
+            "SELECT id,medium FROM aggregations WHERE id=%s FOR UPDATE",
             (payload.aggregation_id,),
         ).fetchone()
         if parent is None:
@@ -1555,11 +1559,18 @@ def get_record_draft(draft_id: int, connection: Connection = Depends(get_connect
 def update_record_draft(draft_id: int, payload: RecordDraftUpdate, connection: Connection = Depends(get_connection, scope="function")):
     draft = _open_draft(connection, draft_id)
     values = payload.model_dump(exclude_unset=True)
+    supplied_intent="generation_intent" in values
+    intent=values.pop("generation_intent",dict(draft["generation_intent"]))
+    if not supplied_intent and "record_number" in values and values["record_number"]!=draft["record_number"]:
+        intent.pop("record_number",None)
+    normalize_create_text("record",values,intent,draft=True)
+    if supplied_intent or intent!=draft["generation_intent"]:
+        values["generation_intent"]=Jsonb(intent)
     messaging_capture.validate_medium(connection, draft_id, values.get("medium", draft["medium"]))
     aggregation_id = values.get("aggregation_id", draft["aggregation_id"])
     if aggregation_id is not None:
         parent = connection.execute(
-            "SELECT id,medium FROM aggregations WHERE id=%s FOR KEY SHARE", (aggregation_id,),
+            "SELECT id,medium FROM aggregations WHERE id=%s FOR UPDATE", (aggregation_id,),
         ).fetchone()
         if parent is None:
             raise HTTPException(status_code=409, detail="referenced aggregation does not exist")
@@ -1716,14 +1727,28 @@ def delete_record_draft_component(draft_id: int, component_id: int, connection: 
 @operation_policy("resource_scoped", "record.create", "aggregation.add_record",
                   conditional_resource_authorization={"type_access": "Use selected record type and parent aggregation type at commit"})
 def commit_record_draft(
-    draft_id: int, request: Request, raw: JsonSource, metadata: TypeAssignment | None = None, creator_acl_role_id: int | None = None,
+    draft_id: int, request: Request, raw: JsonSource, submission_key: CreationKey,
+    metadata: TypeAssignment | None = None, creator_acl_role_id: int | None = None,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     acquire_continuity_shared_lock(connection)
+    require_global(connection,"record.create")
+    submission=creation_requests.begin(connection,submission_key,"record_draft.commit",raw,
+        route={"draft_id":draft_id,"creator_acl_role_id":creator_acl_role_id})
+    creation_requests.track(request,submission)
+    earlier=creation_requests.replay(connection,submission)
+    if earlier is not None:
+        return earlier
+    record=_finish_record_draft(draft_id,request,raw,submission,metadata,creator_acl_role_id,connection)
+    creation_requests.finished(request)
+    return record
+
+
+def _finish_record_draft(draft_id,request,raw,submission,metadata,creator_acl_role_id,connection,*,prepared_record_id=None):
     draft = _open_draft(connection, draft_id, lock=True)
     request.state.message_capture = messaging_capture.capture_draft(connection, draft_id) is not None
     capture = messaging_capture.prepare(connection, draft)
-    missing = [name for name in ("aggregation_id", "medium", "record_number", "title") if not draft.get(name)]
+    missing = [name for name in ("aggregation_id", "medium") if not draft.get(name)]
     if missing:
         raise HTTPException(status_code=422, detail=f"draft is missing required fields: {', '.join(missing)}")
     security_level_id = draft["security_level_id"]
@@ -1736,7 +1761,7 @@ def commit_record_draft(
         "record.create", "aggregation.add_record",
     )
     parent = connection.execute(
-        "SELECT id,medium FROM aggregations WHERE id=%s FOR KEY SHARE", (draft["aggregation_id"],),
+        "SELECT id,medium FROM aggregations WHERE id=%s FOR UPDATE", (draft["aggregation_id"],),
     ).fetchone()
     medium = _resolved_record_medium(parent, draft.get("medium"))
     selected_role = _select_creator_role(
@@ -1760,9 +1785,16 @@ def commit_record_draft(
             "code": "physical_record_disallows_digital_components",
             "message": "This is a physical record. Digital files cannot be added.",
         })
-    prepared = typed_metadata.prepare_metadata(connection,"record",None,metadata.type_id,security_level_id,raw,False) if metadata else None
-    record = create_row(connection, "records", {
-        "type_id": metadata.type_id if metadata else None,
+    incomplete = [item["file_name"] for item in components if item["content_status"] != "available"]
+    if incomplete:
+        raise HTTPException(status_code=409, detail="all draft component uploads must be complete")
+    type_id=metadata.type_id if metadata else None
+    typed_metadata.authorize_creation(connection,"record",type_id,security_level_id)
+    batch=CreationBatch(connection,"record",type_id,lambda:generation_context(connection,
+        parent_id=draft["aggregation_id"],classification_id=None,
+        owner_org_unit_id=selected_role["org_unit_id"],role_id=selected_role["role_id"]))
+    item=batch.add({
+        "type_id": type_id,
         "aggregation_id": draft["aggregation_id"], "record_number": draft["record_number"],
         "title": draft["title"], "description": draft["description"],
         "date_originated": draft["date_originated"],
@@ -1770,34 +1802,53 @@ def commit_record_draft(
         "medium": medium,
         "is_vital": draft["is_vital"],
         "date_of_next_review": draft["date_of_next_review"],
-    })
+    },typed_metadata.creation_defaults(connection,"record",type_id,raw),intent=draft["generation_intent"])
+    if prepared_record_id is not None:
+        item.values["id"]=prepared_record_id
+    prepared_values=None
     if capture:
-        messaging_capture.finalize_staging(connection, draft, record, capture)
+        candidates=batch.preview()[0]
+        number=candidates.get("record_number",item.values["record_number"])
+        if not number:
+            raise CodeGenerationError("code_generator_required_value",field="record_number")
+        # This reserves only the ordinary internal row ID, never a business
+        # serial. Slow PDF conversion finishes before any counter row is locked.
+        if "id" not in item.values:
+            item.values["id"]=connection.execute("SELECT nextval(pg_get_serial_sequence('records','id')) AS id").fetchone()["id"]
+        messaging_capture.finalize_staging(connection,draft,{"id":item.values["id"],"record_number":number},capture)
         components = connection.execute("SELECT * FROM record_draft_components WHERE draft_id=%s ORDER BY component_order FOR UPDATE", (draft_id,)).fetchall()
-    committed_components = []
-    incomplete = [item["file_name"] for item in components if item["content_status"] != "available"]
-    if incomplete:
-        raise HTTPException(status_code=409, detail="all draft component uploads must be complete")
-    for staged in components:
-        component = create_row(connection, "digital_components", {
-            "record_id": record["id"], "component_order": staged["component_order"],
-            "file_name": staged["file_name"], "date_originated": staged["date_originated"],
-            "mime_type": staged["mime_type"], "size_in_bytes": staged["size_in_bytes"],
-            "checksum_algo": staged["checksum_algo"], "checksum_value": staged["checksum_value"],
-            "storage_backend": "postgresql", "content_status": "available",
-        })
-        committed_components.append(component["id"])
-        configured_storage().promote_draft(connection, staged["id"], component["id"])
-        _append_content_event(connection, component["id"], "CONTENT_UPLOADED", {
-            "file_name": component["file_name"], "mime_type": component["mime_type"],
-            "size_in_bytes": component["size_in_bytes"], "checksum_algo": component["checksum_algo"],
-            "checksum_value": component["checksum_value"], "record_creation": True,
-            "workflow": "message_capture" if capture else "record_creation",
-        })
+        prepared_values=[{"record_number":number}] if "record_number" in candidates else None
+
+    def store(index,item,prepared):
+        record=create_row(connection,"records",item.values)
+        committed_components=[]
+        for staged in components:
+            component = create_row(connection, "digital_components", {
+                "record_id": record["id"], "component_order": staged["component_order"],
+                "file_name": staged["file_name"], "date_originated": staged["date_originated"],
+                "mime_type": staged["mime_type"], "size_in_bytes": staged["size_in_bytes"],
+                "checksum_algo": staged["checksum_algo"], "checksum_value": staged["checksum_value"],
+                "storage_backend": "postgresql", "content_status": "available",
+            })
+            committed_components.append(component["id"])
+            configured_storage().promote_draft(connection, staged["id"], component["id"])
+            _append_content_event(connection, component["id"], "CONTENT_UPLOADED", {
+                "file_name": component["file_name"], "mime_type": component["mime_type"],
+                "size_in_bytes": component["size_in_bytes"], "checksum_algo": component["checksum_algo"],
+                "checksum_value": component["checksum_value"], "record_creation": True,
+                "workflow": "message_capture" if capture else "record_creation",
+            })
+        return typed_metadata.finish_metadata(connection,"record",record,prepared),committed_components
+
+    record,committed_components=persist_batch(connection,batch,type_id,store,prepared_values=prepared_values)[0]
+    # Capture history's existing same-transaction guard uses the outer xid.
+    # Write it after the allocation retry savepoint has been released, while
+    # keeping history, the draft deletion and every creation write atomic.
     if capture:
-        messaging_capture.persist(connection, draft, record, capture, committed_components)
+        messaging_capture.persist(connection,draft,record,capture,committed_components)
     connection.execute("DELETE FROM record_drafts WHERE id = %s", (draft_id,))
-    return typed_metadata.finish_metadata(connection,"record",record,prepared) if prepared else record
+    creation_requests.complete(connection,submission,"record",[record],record)
+    return record
 
 
 @app.post("/api/v1/record-drafts/{draft_id}/commit-placement-correction", response_model=RecordRead, status_code=201, tags=["record drafts"])
@@ -1805,10 +1856,18 @@ def commit_record_draft(
                   conditional_resource_authorization={"type_access": "Use selected record type and destination aggregation type at commit"})
 def commit_record_draft_placement_correction(
     draft_id: int,
-    request: Request, raw: JsonSource, metadata: TypeAssignment | None = None,
+    request: Request, raw: JsonSource, submission_key: CreationKey, metadata: TypeAssignment | None = None,
     creator_acl_role_id: int | None = None,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    acquire_continuity_shared_lock(connection)
+    require_global(connection,"record.create")
+    submission=creation_requests.begin(connection,submission_key,"record_draft.commit-placement-correction",raw,
+        route={"draft_id":draft_id,"creator_acl_role_id":creator_acl_role_id})
+    creation_requests.track(request,submission)
+    earlier=creation_requests.replay(connection,submission)
+    if earlier is not None:
+        return earlier
     draft = _open_draft(connection, draft_id, lock=True)
     messaging_capture.protect_components(connection, draft_id)
     if not draft.get("aggregation_id"):
@@ -1832,7 +1891,10 @@ def commit_record_draft_placement_correction(
         "SELECT set_config('app.closed_record_placement_correction','authorized',true), set_config('app.change_reason',%s,true)",
         (reason,),
     )
-    record = commit_record_draft(draft_id, request, raw, metadata, creator_acl_role_id, connection)
+    prepared_record_id=connection.execute("SELECT begin_closed_record_creation(%s,%s) AS id",
+        (destination["id"],security_level_id)).fetchone()["id"]
+    record = _finish_record_draft(draft_id,request,raw,submission,metadata,creator_acl_role_id,connection,
+        prepared_record_id=prepared_record_id)
     connection.execute(
         "SELECT append_domain_event('record',%s,'CLOSED_AGGREGATION_RECORD_CORRECTED',%s::jsonb,%s)",
         (record["id"], Jsonb({
@@ -1845,6 +1907,7 @@ def commit_record_draft_placement_correction(
             "governance_roles": basis,
         }), reason),
     )
+    creation_requests.finished(request)
     return record
 
 
@@ -2140,18 +2203,20 @@ def upload_digital_component(
 
 
 def _store_uploaded_component(
-    connection: Connection, record_id: int, file: UploadFile, component_order: int,
+    connection: Connection, record_id: int, file: UploadFile | GovernedUpload, component_order: int,
     content_settings, date_originated: datetime | None = None, *, record_creation: bool = False,
 ) -> dict:
-    inspected = inspect_upload(file, content_settings)
-    mime_type = file.content_type or "application/octet-stream"
+    governed=isinstance(file,GovernedUpload)
+    inspected = file if governed else inspect_upload(file, content_settings)
+    mime_type = file.mime_type if governed else file.content_type or "application/octet-stream"
+    file_name = file.file_name if governed else file.filename or "unnamed"
     component = create_row(
         connection,
         "digital_components",
         {
             "record_id": record_id,
             "component_order": component_order,
-            "file_name": file.filename or "unnamed",
+            "file_name": file_name,
             "date_originated": date_originated,
             "mime_type": mime_type,
             "size_in_bytes": inspected.size_in_bytes,
@@ -2161,7 +2226,11 @@ def _store_uploaded_component(
             "content_status": "available",
         },
     )
-    uploaded = configured_storage().store_upload(connection, component["id"], file, settings=content_settings)
+    if governed:
+        configured_storage().promote_draft(connection,file.component_id,component["id"])
+        uploaded=file
+    else:
+        uploaded = configured_storage().store_upload(connection, component["id"], file, settings=content_settings)
     # Creation has already authorized the parent and creator role, just as
     # draft commit does. It must not additionally require component-read
     # privileges merely to construct an internal upload audit event.
@@ -2184,83 +2253,98 @@ def _store_uploaded_component(
                   conditional_resource_authorization={"type_access": "Use selected record type and parent aggregation type for every record"})
 def create_records_from_file_drop(
     aggregation_id: int,
+    submission_key: CreationKey,
+    request:Request,
     files: list[UploadFile] = File(..., min_length=1),
     separate_records: bool = Form(...),
     creator_acl_role_id: int | None = Form(None),
-    title: NonBlankString | None = Form(None),
+    title: str | None = Form(None),
     type_id: int | None = Form(None, gt=0),
     field_values: str | None = Form(None),
     record_field_values: str | None = Form(None),
     connection: Connection = Depends(get_connection, scope="function"),
 ) -> dict[str, int]:
     acquire_continuity_shared_lock(connection)
-    # The parent row lock serializes allocation and protects ownership and
-    # medium until the entire batch, including its content, has committed.
-    parent = require_resource_operation(
-        connection, "aggregation", aggregation_id, "record.create", "aggregation.add_record",
-    )
-    if parent["medium"] == "physical":
-        raise HTTPException(409, detail={"code": "aggregation_file_drop_physical",
-                                         "message_key": "aggregation_file_drop.physical"})
-    selected_role = _select_creator_role(connection, creator_acl_role_id, aggregation_id)
-    level_id = connection.execute("SELECT lowest_security_level_id() AS id").fetchone()["id"]
-    require_clearance_for_level(connection, level_id)
+    require_global(connection,"record.create")
     if any(not (file.filename or "").strip() or "\x00" in file.filename for file in files):
-        raise HTTPException(422, detail={"code": "aggregation_file_drop_invalid_filename", "message_key": "aggregation_file_drop.invalid_filename"})
-
-    combined = not separate_records and len(files) > 1
-    if combined and title is None:
-        raise RequestValidationError([{"type": "missing", "loc": ("body", "title"),
-                                       "msg": "Field required", "input": None}])
-
-    prepared = None
-    per_record = []
+        raise HTTPException(422,detail={"code":"aggregation_file_drop_invalid_filename","message_key":"aggregation_file_drop.invalid_filename"})
+    settings=settings_cache.for_connection(connection)
+    inspected=[inspect_upload(file,settings) for file in files]
+    raw=connection.execute("""SELECT jsonb_build_object('separate_records',%s::boolean,'title',%s::text,
+        'creator_acl_role_id',%s::bigint,'type_id',%s::bigint,'field_values',%s::jsonb,
+        'record_field_values',%s::jsonb)::text AS raw""",
+        (separate_records,title,creator_acl_role_id,type_id,field_values,record_field_values)).fetchone()["raw"]
+    fingerprints=[{"file_name":file.filename,"mime_type":file.content_type or "application/octet-stream",
+        "size_in_bytes":info.size_in_bytes,"checksum_value":info.checksum_value} for file,info in zip(files,inspected,strict=True)]
+    submission=creation_requests.begin(connection,submission_key,"record.file_drop",raw,
+        route={"aggregation_id":aggregation_id},files=fingerprints)
+    creation_requests.track(request,submission)
+    earlier=creation_requests.replay(connection,submission)
+    if earlier is not None:
+        return earlier
+    # Keep the existing parent/owner/medium and type checks. Upload receipt and
+    # validation finish before any generator counter is locked.
+    parent=require_resource_operation(connection,"aggregation",aggregation_id,"record.create","aggregation.add_record")
+    if parent["medium"]=="physical":
+        raise HTTPException(409,detail={"code":"aggregation_file_drop_physical","message_key":"aggregation_file_drop.physical"})
+    selected_role=_select_creator_role(connection,creator_acl_role_id,aggregation_id)
+    level_id=connection.execute("SELECT lowest_security_level_id() AS id").fetchone()["id"]
+    require_clearance_for_level(connection,level_id)
+    typed_metadata.authorize_creation(connection,"record",type_id,level_id)
+    combined=not separate_records and len(files)>1
+    count=len(files) if separate_records else 1
     if record_field_values is not None:
         if not separate_records or type_id is None or field_values is not None:
-            raise HTTPException(422, detail="Per-record fields require separate typed records")
+            raise HTTPException(422,detail="Per-record fields require separate typed records")
         try:
-            values = json.loads(record_field_values, parse_float=str)
+            values=json.loads(record_field_values,parse_float=str)
         except ValueError as error:
-            raise HTTPException(422, detail="Invalid per-record field values") from error
-        if not isinstance(values, list) or len(values) != len(files) or not all(isinstance(v, dict) for v in values):
-            raise HTTPException(422, detail="Supply one field map for each file")
-        # Keep exact numeric literals in PostgreSQL, including values supplied by API callers.
-        rows = connection.execute(
-            "SELECT jsonb_build_object('field_values',value)::text AS body FROM jsonb_array_elements(%s::jsonb) WITH ORDINALITY ORDER BY ordinality",
-            (record_field_values,),
-        ).fetchall()
-        per_record = [typed_metadata.prepare_metadata(connection, "record", None, type_id, level_id, row["body"], False)
-                      for row in rows]
-    elif type_id is not None or field_values is not None:
-        raw = connection.execute(
-            "SELECT jsonb_build_object('field_values',coalesce(%s::jsonb,'{}'::jsonb))::text AS body",
-            (field_values,),
-        ).fetchone()["body"]
-        prepared = typed_metadata.prepare_metadata(connection,"record",None,type_id,level_id,raw,False)
+            raise HTTPException(422,detail="Invalid per-record field values") from error
+        if not isinstance(values,list) or len(values)!=len(files) or not all(isinstance(value,dict) for value in values):
+            raise HTTPException(422,detail="Supply one field map for each file")
+        rows=connection.execute("""SELECT jsonb_build_object('field_values',value)::text AS body
+            FROM jsonb_array_elements(%s::jsonb) WITH ORDINALITY ORDER BY ordinality""",(record_field_values,)).fetchall()
+        raws=[row["body"] for row in rows]
+    else:
+        common=connection.execute("SELECT jsonb_build_object('field_values',coalesce(%s::jsonb,'{}'::jsonb))::text AS body",(field_values,)).fetchone()["body"]
+        raws=[common]*count
+    batch=CreationBatch(connection,"record",type_id,lambda:generation_context(connection,
+        parent_id=aggregation_id,classification_id=None,owner_org_unit_id=selected_role["org_unit_id"],role_id=selected_role["role_id"]))
+    if combined and is_blank_text(title) and not any(definition.primary_field=="title" for definition in batch.definitions):
+        raise RequestValidationError([{"type":"missing","loc":("body","title"),"msg":"Field required","input":None}])
+    with ExitStack() as staging:
+        staged_files=[]
+        for file,info in zip(files,inspected,strict=True):
+            uploaded=staging.enter_context(stage_governed_upload(file,settings))
+            if uploaded.size_in_bytes!=info.size_in_bytes or uploaded.checksum_value!=info.checksum_value:
+                raise HTTPException(409,detail="upload changed while staging")
+            # Retain the file-drop contract's original filename. The reused
+            # staging helper sanitizes names for its separate document flows.
+            staged_files.append(replace(uploaded,file_name=file.filename))
+        configured=any(definition.primary_field=="record_number" for definition in batch.definitions)
+        numbers=[None]*count if configured else next_numbers(connection,"records",parent["aggregation_number"]+".0",count=count)
+        if len(numbers)!=count:
+            raise HTTPException(409,detail={"code":"aggregation_file_drop_number_unavailable","message_key":"aggregation_file_drop.number_unavailable"})
+        groups=[[file] for file in staged_files] if separate_records else [staged_files]
+        for index,(number,group) in enumerate(zip(numbers,groups,strict=True)):
+            primary={"aggregation_id":aggregation_id,"type_id":type_id,"record_number":number,
+                "title":title.strip() if combined and title is not None else None if combined else group[0].file_name,
+                "security_level_id":level_id,"medium":"digital"}
+            batch.add(primary,typed_metadata.creation_defaults(connection,"record",type_id,raws[index]))
+        _set_record_creator(connection,selected_role)
 
-    groups = ([file] for file in files) if separate_records else (files,)
-    count = len(files) if separate_records else 1
-    numbers = next_numbers(connection, "records", parent["aggregation_number"] + ".0", count=count)
-    if len(numbers) != count:
-        raise HTTPException(409, detail={"code": "aggregation_file_drop_number_unavailable", "message_key": "aggregation_file_drop.number_unavailable"})
-
-    settings = settings_cache.for_connection(connection)
-    _set_record_creator(connection, selected_role)
-    for index, (number, group) in enumerate(zip(numbers, groups, strict=True)):
-        if per_record:
-            prepared = per_record[index]
-        record = create_row(connection, "records", {
-            "aggregation_id": aggregation_id, "type_id": type_id,
-            "record_number": number,
-            "title": title if combined else group[0].filename,
-            "security_level_id": level_id,
-            "medium": "digital",
-        })
-        if prepared is not None:
+        def store(index,item,prepared):
+            record=create_row(connection,"records",item.values)
             typed_metadata.finish_metadata(connection,"record",record,prepared)
-        for order, file in enumerate(group, 1):
-            _store_uploaded_component(connection, record["id"], file, order, settings, record_creation=True)
-    return {"count": count}
+            for order,file in enumerate(groups[index],1):
+                _store_uploaded_component(connection,record["id"],file,order,settings,record_creation=True)
+            return record
+
+        records=persist_batch(connection,batch,type_id,store)
+        result={"count":count}
+        creation_requests.complete(connection,submission,"record",records,result)
+    creation_requests.finished(request)
+    return result
 
 
 @app.head(

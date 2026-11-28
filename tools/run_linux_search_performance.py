@@ -51,7 +51,11 @@ def main():
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--repeats', type=int, default=3)
     parser.add_argument('--settle-seconds', type=int, default=0)
-    parser.add_argument('--workload', choices=('standard', 'large-text', 'cold-ranking'), default='standard')
+    parser.add_argument('--workload', choices=('standard', 'large-text', 'cold-ranking', 'classification-tree'), default='standard')
+    parser.add_argument('--resource-types', action='store_true', help='Include equivalent-access typed resources')
+    parser.add_argument('--type-text', action='store_true', help='Verify type-specific Text matching and ranks')
+    parser.add_argument('--code-generators', action='store_true', help='Include the standard generator ordering/navigation matrix')
+    parser.add_argument('--code-generators-only', action='store_true', help='Measure only generator ordering/navigation on the standard large fixture')
     parser.add_argument('--sample-waits-and-io', action='store_true',
                         help='Collect PostgreSQL waits and client-host disk counters for the large-text workload')
     parser.add_argument('--ranking-io-concurrency', type=int, choices=range(1001), metavar='N',
@@ -59,6 +63,14 @@ def main():
     parser.add_argument('--io-workers', type=int, choices=range(1, 33), metavar='N',
                         help='Set the I/O worker count on this disposable PostgreSQL instance')
     args = parser.parse_args()
+    args.code_generators |= args.code_generators_only
+    if args.workload=='classification-tree' and args.type_text:
+        parser.error('classification-tree is a separate representative workload')
+    args.resource_types |= args.workload=='classification-tree'
+    if args.code_generators and args.workload != 'standard':
+        parser.error('generator ordering requires the standard workload')
+    if args.workload == 'cold-ranking' and (args.resource_types or args.type_text):
+        parser.error('typed fixtures require the standard or large-text workload')
     if args.workload != 'large-text' and (args.sample_waits_and_io or args.ranking_io_concurrency is not None):
         parser.error('wait sampling and ranking I/O overrides require the large-text workload')
     if args.output.exists() or args.repeats < 1 or not 0 <= args.settle_seconds <= 300:
@@ -132,13 +144,26 @@ def main():
                 time.sleep(0.25)
         print('Disposable Linux PostgreSQL ready: ' + name, flush=True)
         gate = {'standard': 'check_search_performance.py',
+                'classification-tree':'check_search_performance.py',
                 'large-text': 'check_large_text_search_performance.py',
                 'cold-ranking': 'check_cold_ranking_performance.py'}[args.workload]
         evidence['workload'] = args.workload
+        evidence.update(resource_types=args.resource_types, type_text=args.type_text,
+                        code_generators=args.code_generators,code_generators_only=args.code_generators_only)
         command = [sys.executable, str(root / 'tools' / gate), '--repeats', str(args.repeats),
                    '--output', str(args.output), '--settle-seconds', str(args.settle_seconds)]
+        if args.workload=='classification-tree':
+            command.append('--classification-tree-only')
         if args.workload == 'cold-ranking':
             command.extend(['--container', name])
+        if args.resource_types:
+            command.append('--resource-types')
+        if args.type_text:
+            command.append('--type-text')
+        if args.code_generators:
+            command.append('--code-generators')
+        if args.code_generators_only:
+            command.append('--code-generators-only')
         if args.sample_waits_and_io:
             command.append('--sample-waits-and-io')
         if args.ranking_io_concurrency is not None:

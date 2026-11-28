@@ -50,6 +50,37 @@ def test_required_data_and_version_bookkeeping_are_separate():
     assert '079_disposition_admission_reason' in baseline
 
 
+def test_generator_foundation_canonical_and_upgrade_definitions_match():
+    canonical=statements((ROOT/'database/schema.sql').read_text())
+    migration=statements((ROOT/'database/migrations/126_custom_code_generators.sql').read_text())
+    common=[s for s in migration if s.startswith(('CREATE FUNCTION','CREATE TABLE','CREATE INDEX','CREATE UNIQUE INDEX','CREATE TRIGGER','CREATE EXTENSION'))]
+    assert len(common)>25
+    superseded=('CREATE TABLE public.code_generators (',
+                'CREATE UNIQUE INDEX code_generators_enabled_primary ',
+                'CREATE FUNCTION public.code_generator_snapshot(')
+    for statement in common:
+        if not statement.startswith(superseded):
+            assert statement in canonical,statement[:120]
+    latest=statements((ROOT/'database/migrations/127_code_generator_applicability.sql').read_text())
+    snapshot=next(v for v in latest if v.startswith('CREATE OR REPLACE FUNCTION public.code_generator_snapshot('))
+    assert snapshot.replace('CREATE OR REPLACE FUNCTION','CREATE FUNCTION',1) in canonical
+    definition=next(v for v in canonical if v.startswith('CREATE TABLE public.code_generators ('))
+    assert "applies_to text NOT NULL DEFAULT 'all'" in definition
+    assert "WHEN applies_to='untyped' THEN int8range(0,1,'[)')" in definition
+    assert definition.index('applies_to text') < definition.index('type_population int8range')
+    assert "127_code_generator_applicability" in (ROOT/'database/baseline.sql').read_text()
+    replacements=[s for s in migration if s.startswith('CREATE OR REPLACE FUNCTION')]
+    assert len(replacements)==5
+    for replacement in replacements:
+        assert replacement.replace('CREATE OR REPLACE FUNCTION','CREATE FUNCTION',1) in canonical
+    draft=next(s for s in canonical if s.startswith('CREATE TABLE public.record_drafts ('))
+    assert "generation_intent jsonb NOT NULL DEFAULT '{}'" in draft
+    # ADD COLUMN appends to upgraded databases. Fresh installations must expose
+    # the same visible column order, as the full pg_dump parity check requires.
+    assert draft.index('generation_intent jsonb') > draft.index('date_of_next_review timestamp')
+    assert "126_custom_code_generators" in (ROOT/'database/baseline.sql').read_text()
+
+
 # These final definitions previously differed between a fresh installation and
 # the same feature's approved upgrade. Compare with independent migration sources.
 MIGRATION_ALIGNED_FUNCTIONS = (

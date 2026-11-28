@@ -64593,8 +64593,8 @@
       "source": {
         "path": "specs/classification-scheme-subsystem.md",
         "heading": "16. Audit history",
-        "start_line": 728,
-        "end_line": 749,
+        "start_line": 740,
+        "end_line": 761,
         "sha256": "ec3271dd4fad09c8e534df1d745263bf67237eb34f0bb91df75650ccc180378c"
       },
       "phases": [
@@ -75122,8 +75122,8 @@
       "source": {
         "path": "specs/internationalization-and-user-preferences.md",
         "heading": "14. Caching and invalidation",
-        "start_line": 1318,
-        "end_line": 1319,
+        "start_line": 1375,
+        "end_line": 1376,
         "sha256": "7e377d6de71586319e7ce4a60248efc40cb132f53f7d0f94a00047d752cc3c42"
       },
       "phases": [
@@ -75689,8 +75689,8 @@
       "source": {
         "path": "specs/internationalization-and-user-preferences.md",
         "heading": "15. Security, validation, and privacy",
-        "start_line": 1358,
-        "end_line": 1379,
+        "start_line": 1415,
+        "end_line": 1436,
         "sha256": "0aa6d04b65cfc1994069589113509591608391503dcc1405180efa7bbcbcad28"
       },
       "phases": [
@@ -76256,8 +76256,8 @@
       "source": {
         "path": "specs/internationalization-and-user-preferences.md",
         "heading": "16. Accessibility and usability",
-        "start_line": 1380,
-        "end_line": 1394,
+        "start_line": 1437,
+        "end_line": 1451,
         "sha256": "d3be64d6ad941e549ee7d1609010f00e6b5707371afa0e10cff12b9a8da41994"
       },
       "phases": [
@@ -76823,8 +76823,8 @@
       "source": {
         "path": "specs/internationalization-and-user-preferences.md",
         "heading": "19. Verification and acceptance criteria",
-        "start_line": 1451,
-        "end_line": 1452,
+        "start_line": 1508,
+        "end_line": 1509,
         "sha256": "5227415a549ac9f3de4bf60f0873c00ec194680f2efefbb9ba4941271e9e560f"
       },
       "phases": [
@@ -77390,8 +77390,8 @@
       "source": {
         "path": "specs/internationalization-and-user-preferences.md",
         "heading": "21.1 Approved Arabic terminology reference",
-        "start_line": 1744,
-        "end_line": 1844,
+        "start_line": 1812,
+        "end_line": 1912,
         "sha256": "e1e59d7994dcf72466102b135dd4fd3a3e311a5f5d0d3c03b947e232687a7a97"
       },
       "phases": [
@@ -99610,6 +99610,120 @@
         "DEST-49"
       ],
       "open_requirement": "DISP-43 and DISP-S11.1 remain the approved Phase 9 exceptional-acceleration follow-up. The five shipped disposition producers cover task assignment, eligibility reminders, destruction, completion and operation outcomes."
+    },
+    {
+      "date": "2026-11-28",
+      "scope": "Corrected six shifted referenced-section line ranges after checking that each section heading and SHA-256 fingerprint is unchanged. No requirement wording, phase ownership, implementation/completion status or historical verification result changed.",
+      "references": [
+        {
+          "id": "REF-retention-16",
+          "before": {
+            "path": "specs/classification-scheme-subsystem.md",
+            "heading": "16. Audit history",
+            "start_line": 728,
+            "end_line": 749,
+            "sha256": "ec3271dd4fad09c8e534df1d745263bf67237eb34f0bb91df75650ccc180378c"
+          },
+          "after": {
+            "path": "specs/classification-scheme-subsystem.md",
+            "heading": "16. Audit history",
+            "start_line": 740,
+            "end_line": 761,
+            "sha256": "ec3271dd4fad09c8e534df1d745263bf67237eb34f0bb91df75650ccc180378c"
+          },
+          "section_text_unchanged": true
+        },
+        {
+          "id": "REF-i18n-14",
+          "before": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "14. Caching and invalidation",
+            "start_line": 1318,
+            "end_line": 1319,
+            "sha256": "7e377d6de71586319e7ce4a60248efc40cb132f53f7d0f94a00047d752cc3c42"
+          },
+          "after": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "14. Caching and invalidation",
+            "start_line": 1375,
+            "end_line": 1376,
+            "sha256": "7e377d6de71586319e7ce4a60248efc40cb132f53f7d0f94a00047d752cc3c42"
+          },
+          "section_text_unchanged": true
+        },
+        {
+          "id": "REF-i18n-15",
+          "before": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "15. Security, validation, and privacy",
+            "start_line": 1358,
+            "end_line": 1379,
+            "sha256": "0aa6d04b65cfc1994069589113509591608391503dcc1405180efa7bbcbcad28"
+          },
+          "after": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "15. Security, validation, and privacy",
+            "start_line": 1415,
+            "end_line": 1436,
+            "sha256": "0aa6d04b65cfc1994069589113509591608391503dcc1405180efa7bbcbcad28"
+          },
+          "section_text_unchanged": true
+        },
+        {
+          "id": "REF-i18n-16",
+          "before": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "16. Accessibility and usability",
+            "start_line": 1380,
+            "end_line": 1394,
+            "sha256": "d3be64d6ad941e549ee7d1609010f00e6b5707371afa0e10cff12b9a8da41994"
+          },
+          "after": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "16. Accessibility and usability",
+            "start_line": 1437,
+            "end_line": 1451,
+            "sha256": "d3be64d6ad941e549ee7d1609010f00e6b5707371afa0e10cff12b9a8da41994"
+          },
+          "section_text_unchanged": true
+        },
+        {
+          "id": "REF-i18n-19",
+          "before": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "19. Verification and acceptance criteria",
+            "start_line": 1451,
+            "end_line": 1452,
+            "sha256": "5227415a549ac9f3de4bf60f0873c00ec194680f2efefbb9ba4941271e9e560f"
+          },
+          "after": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "19. Verification and acceptance criteria",
+            "start_line": 1508,
+            "end_line": 1509,
+            "sha256": "5227415a549ac9f3de4bf60f0873c00ec194680f2efefbb9ba4941271e9e560f"
+          },
+          "section_text_unchanged": true
+        },
+        {
+          "id": "REF-i18n-21.1",
+          "before": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "21.1 Approved Arabic terminology reference",
+            "start_line": 1744,
+            "end_line": 1844,
+            "sha256": "e1e59d7994dcf72466102b135dd4fd3a3e311a5f5d0d3c03b947e232687a7a97"
+          },
+          "after": {
+            "path": "specs/internationalization-and-user-preferences.md",
+            "heading": "21.1 Approved Arabic terminology reference",
+            "start_line": 1812,
+            "end_line": 1912,
+            "sha256": "e1e59d7994dcf72466102b135dd4fd3a3e311a5f5d0d3c03b947e232687a7a97"
+          },
+          "section_text_unchanged": true
+        }
+      ]
     }
   ],
   "remaining_product_decisions": {

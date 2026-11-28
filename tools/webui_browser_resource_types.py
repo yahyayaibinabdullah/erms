@@ -1,4 +1,5 @@
 """Exercise metadata administration, rendering and search through the assembled WebUI."""
+from uuid import uuid4
 
 import re
 from time import perf_counter
@@ -346,7 +347,7 @@ def check_types(page):
         },
     ).raise_for_status()
     records = page.api.post(
-        "/api/v1/records",
+        "/api/v1/records", headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},
         json={
             "aggregation_id": root["id"],
             "record_number": "TYPED-001",

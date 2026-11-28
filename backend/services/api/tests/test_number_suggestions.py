@@ -19,7 +19,9 @@ def test_suggestions_find_gap_without_exposing_resources(client,resource,column,
         c.execute(f'CREATE TEMP TABLE {resource} ({column} text) ON COMMIT DROP')
         for number in numbers:
             c.execute(f'INSERT INTO {resource} VALUES (%s)',(number,))
-        assert suggest_number(resource,entered,c)=={'suggested_number':expected}
+        result={'suggested_number':expected}
+        if expected is not None:result['generation_intent']={'source':'legacy'}
+        assert suggest_number(resource,entered,c)==result
 
 
 def test_suggestion_route_requires_creation_privilege(client):
@@ -34,7 +36,7 @@ def test_root_suggestion_increments_middle_serial_and_preserves_year(client):
         c.execute("select set_config('app.user_id','1',true)")
         c.execute('CREATE TEMP TABLE aggregations (aggregation_number text) ON COMMIT DROP')
         c.execute("INSERT INTO aggregations VALUES ('3110/1/2026'),('3110/2/2026'),('3110/4/2026'),('3110/3/2025')")
-        assert suggest_number('aggregations','3110/1/2026',c,root=True)=={'suggested_number':'3110/3/2026'}
+        assert suggest_number('aggregations','3110/1/2026',c,root=True)=={'suggested_number':'3110/3/2026','generation_intent':{'source':'legacy'}}
 
 
 def test_proactive_root_suggestion_uses_classification_and_current_year(client):
@@ -46,7 +48,7 @@ def test_proactive_root_suggestion_uses_classification_and_current_year(client):
         c.execute('CREATE TEMP TABLE aggregations (aggregation_number text) ON COMMIT DROP')
         year=c.execute('SELECT extract(year FROM CURRENT_TIMESTAMP)::int AS year').fetchone()['year']
         c.execute('INSERT INTO aggregations VALUES (%s)',(f'3110/1/{year}',))
-        assert suggest_number('aggregations',None,c,classification_id=9)=={'suggested_number':f'3110/2/{year}'}
+        assert suggest_number('aggregations',None,c,classification_id=9)=={'suggested_number':f'3110/2/{year}','generation_intent':{'source':'legacy'}}
 
 
 def test_proactive_parent_suggestions_use_separators_and_do_not_reserve(client, record):

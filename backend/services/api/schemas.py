@@ -515,8 +515,9 @@ class AggregationCreate(TypeAssignment):
     creator_acl_role_id: int | None = None
     parent_aggregation_id: int | None = None
     classification_id: int | None = None
-    aggregation_number: NonBlankString
-    title: NonBlankString
+    aggregation_number: str | None = None
+    title: str | None = None
+    generation_intent: dict[str, Any] = Field(default_factory=dict)
     description: str | None = None
     date_opened: AwareDatetime | None = None
     date_closed: AwareDatetime | None = None
@@ -524,8 +525,8 @@ class AggregationCreate(TypeAssignment):
     medium: Literal["digital", "physical", "mixed"] | None = None
     is_vital: bool = False
     date_of_next_review: AwareDatetime | None = None
-    assigned_location: LocationCode | None = None
-    current_location: LocationCode | None = None
+    assigned_location: str | None = None
+    current_location: str | None = None
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -873,8 +874,9 @@ class EffectiveRetentionRuleRead(ApiModel):
 class RecordCreate(TypeAssignment):
     creator_acl_role_id: int | None = None
     aggregation_id: int
-    record_number: NonBlankString
-    title: NonBlankString
+    record_number: str | None = None
+    title: str | None = None
+    generation_intent: dict[str, Any] = Field(default_factory=dict)
     description: str | None = None
     date_originated: AwareDatetime | None = None
     security_level_id: int | None = None
@@ -1015,8 +1017,9 @@ class RecordRead(ApiModel):
 class RecordDraftCreate(ApiModel):
     aggregation_id: int | None = None
     security_level_id: int | None = None
-    record_number: NonBlankString | None = None
-    title: NonBlankString | None = None
+    record_number: str | None = None
+    title: str | None = None
+    generation_intent: dict[str, Any] = Field(default_factory=dict)
     description: str | None = None
     date_originated: AwareDatetime | None = None
     medium: Literal["digital", "physical", "mixed"] | None = None
@@ -1040,6 +1043,7 @@ class RecordDraftRead(ApiModel):
     aggregation_id: int | None
     security_level_id: int | None
     record_number: str | None
+    generation_intent: dict[str, Any] = Field(default_factory=dict)
     title: str | None
     description: str | None
     date_originated: datetime | None

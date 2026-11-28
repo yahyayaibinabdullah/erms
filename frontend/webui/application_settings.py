@@ -17,7 +17,7 @@ from .api_client import ApiError
 from .i18n_catalogue import render_message, render_message_plain
 from .remote_select import RemoteSelect
 
-CATEGORY_ORDER = ('general', 'content', 'authentication', 'interface_limits', 'search', 'disposition', 'email')
+CATEGORY_ORDER = ('general', 'content', 'authentication', 'interface_limits', 'search', 'code_generation', 'disposition', 'email')
 FIELD_ORDER = {
     'disposition': ('DISPOSITION_CLASSIFICATION_SCHEME_ID',
                     'DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID','DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID',
@@ -156,8 +156,11 @@ def disposition_warning_panel(warnings, *, can_manage, open_settings):
 
 
 async def settings_page(*, api, container, bind_relationship, active, on_error,
-                        direction=lambda: 'ltr', initial_category='general', initial_setting_key=None, on_category=lambda value: None):
+                        direction=lambda: 'ltr', initial_category='general', initial_setting_key=None,
+                        on_category=lambda value: None, render_history=None, can_audit=lambda: False):
     state = {'revision': 0, 'items': {}, 'references': {}, 'hosts': {}, 'forms': {}, 'loading': False}
+    generator_page = None
+    generator_loading = False
     with container:
         with ui.column().classes('application-settings-page w-full p-5 gap-4'):
             with ui.row().classes('w-full items-center gap-3'):
@@ -522,7 +525,29 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
                         save.enable()
         save.on_click(submit)
 
+    async def enter_generator_category():
+        nonlocal generator_page, generator_loading
+        if not current() or tabs.value != 'code_generation' or generator_loading:
+            return
+        generator_loading = True
+        try:
+            if generator_page is None:
+                from .code_generator_administration import code_generation_page
+                generator_page = await code_generation_page(api=api, container=state['hosts']['code_generation'],
+                    bind_relationship=bind_relationship, active=lambda: current() and tabs.value == 'code_generation',
+                    on_error=on_error, direction=direction, render_history=render_history, can_audit=can_audit)
+            else:
+                await generator_page['refresh']()
+        finally:
+            generator_loading = False
+
+    async def category_changed(event):
+        on_category(event.value)
+        if event.value == 'code_generation':
+            await enter_generator_category()
+
     async def load():
+        nonlocal tabs
         if state['loading'] or any(f['busy'] for f in state['forms'].values()) or not current():
             return
         state['loading'] = True; state['revision'] += 1
@@ -539,19 +564,24 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
             with body:
                 if not state['hosts']:
                     categories = {i['category']: i['category_label'] for i in response['items']}
+                    from .code_generator_messages import t as generator_text
+                    categories['code_generation'] = generator_text('page')
                     with ui.tabs().props('no-caps outside-arrows mobile-arrows').classes('w-full') as tabs:
                         tab_by_category = {c:ui.tab(c,label=categories[c]) for c in CATEGORY_ORDER if c in categories}
                     target_category = (state['items'].get(initial_setting_key) or {}).get('category', initial_category)
                     tabs.value = target_category if target_category in tab_by_category else next(iter(tab_by_category))
-                    tabs.on_value_change(lambda e: on_category(e.value))
+                    tabs.on_value_change(category_changed)
                     on_category(tabs.value)
                     with ui.tab_panels(tabs,value=tabs.value).classes('w-full'):
                         for category in tab_by_category:
                             with ui.tab_panel(category).classes('w-full p-0'):
                                 state['hosts'][category] = ui.column().classes('w-full gap-4 py-3')
                 for category in state['hosts']:
-                    render_category(category)
+                    if category != 'code_generation':
+                        render_category(category)
             status.text = ''
+            if tabs.value == 'code_generation':
+                await enter_generator_category()
         except asyncio.CancelledError:
             return
         except ApiError as error:
@@ -562,6 +592,7 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
             state['loading'] = False
             if current():
                 refresh.enable()
+    tabs = None
     refresh.on_click(load)
     await load()
     return state

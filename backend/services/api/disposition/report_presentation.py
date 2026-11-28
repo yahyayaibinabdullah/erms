@@ -1,6 +1,8 @@
 """Readable report presentation from immutable execution results and scoped entities."""
 from . import document_snapshots as ds
 from .template_engine import invalid
+from psycopg import sql
+from ..code_ordering import natural_fields, expression
 
 ACTIONS = {
     'make_vital': 'تعيين ملف حيوي / Mark as vital',
@@ -18,7 +20,8 @@ def aggregation_rows(c, data, timezone, language):
     affected.update(effect['governing_root_id'] for p in data['results'] for effect in p['effect']['effects']
                     if effect['effect_type'] in ('unit_removed','cascading_unit_removed'))
     roots=[m['root_id'] for m in data['reviewed_membership'] if m['root_id'] in affected]
-    rows=c.execute('''SELECT a.id,a.aggregation_number,a.title,a.medium,
+    natural = bool(roots) and 'aggregation_number' in natural_fields(c, 'aggregations', ['aggregation_number'])
+    rows=c.execute(sql.SQL('''SELECT a.id,a.aggregation_number,a.title,a.medium,
         cl.code AS classification_code,aggregation_effective_assigned_location(a.id) AS assigned_location,
         current_user_can_view_aggregation(a.id) AS visible,
         count(r.id)::integer AS records,
@@ -29,7 +32,8 @@ def aggregation_rows(c, data, timezone, language):
         FROM aggregations a JOIN classifications cl ON cl.id=a.classification_id
         CROSS JOIN LATERAL disposition_private.unit_ids(a.id) unit(id)
         JOIN aggregations child ON child.id=unit.id LEFT JOIN records r ON r.aggregation_id=unit.id
-        WHERE a.id=ANY(%s) GROUP BY a.id,cl.code ORDER BY cl.code,a.aggregation_number,a.id''',
+        WHERE a.id=ANY(%s) GROUP BY a.id,cl.code ORDER BY cl.code,{number},a.id''').format(
+            number=expression(sql.SQL('a.aggregation_number'), natural)),
         (timezone,timezone,roots)).fetchall() if roots else []
     if len(rows)!=len(roots) or any(not r['visible'] or not r['contents_visible'] for r in rows):
         invalid('disposition_resource_access_required',403)

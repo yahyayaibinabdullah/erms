@@ -6063,6 +6063,2023 @@
     "is_html": false
   },
   {
+    "message_key": "code_generation.action.correct_details",
+    "context_group": "code_generation.action",
+    "default_text": "Correct details",
+    "semantic_meaning": "Edit the failed creation details while retaining the uploaded files.",
+    "common_locations": [
+      "Aggregation file-drop retry dialog"
+    ],
+    "translator_guidance": "Use concise, plain language. These files belong to the same pending creation.",
+    "grammatical_role": "button label",
+    "parameter_schema": {},
+    "rendered_example": "Correct details",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.action.retry_original",
+    "context_group": "code_generation.action",
+    "default_text": "Retry original creation",
+    "semantic_meaning": "Explicitly retry the unchanged original creation after its response was lost.",
+    "common_locations": [
+      "Record and aggregation creation dialogs and file-drop retry"
+    ],
+    "translator_guidance": "Retry the same creation; this action must not create a second item.",
+    "grammatical_role": "button label",
+    "parameter_schema": {},
+    "rendered_example": "Retry original creation",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.backward_adjustment",
+    "context_group": "code_generation.error",
+    "default_text": "Enter a whole number greater than the current next number.",
+    "semantic_meaning": "Validation or conflict feedback while administering a custom code generator.",
+    "common_locations": [
+      "Code generation settings dialog and simulator"
+    ],
+    "translator_guidance": "Use plain administrative language. Generator means the configurable code generator, not a person.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "Enter a whole number greater than the current next number.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.in_use",
+    "context_group": "code_generation.error",
+    "default_text": "This generator has saved counters. Disable it or remove its field binding before retiring it.",
+    "semantic_meaning": "Validation or conflict feedback while administering a custom code generator.",
+    "common_locations": [
+      "Code generation settings dialog and simulator"
+    ],
+    "translator_guidance": "Use plain administrative language. Generator means the configurable code generator, not a person.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "This generator has saved counters. Disable it or remove its field binding before retiring it.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.invalid",
+    "context_group": "code_generation.error",
+    "default_text": "Review the generator settings and try again.",
+    "semantic_meaning": "Validation or conflict feedback while administering a custom code generator.",
+    "common_locations": [
+      "Code generation settings dialog and simulator"
+    ],
+    "translator_guidance": "Use plain administrative language. Generator means the configurable code generator, not a person.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "Review the generator settings and try again.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.invalid_target",
+    "context_group": "code_generation.error",
+    "default_text": "Choose an editable Text field and a matching record or aggregation type.",
+    "semantic_meaning": "Validation or conflict feedback while administering a custom code generator.",
+    "common_locations": [
+      "Code generation settings dialog and simulator"
+    ],
+    "translator_guidance": "Use plain administrative language. Generator means the configurable code generator, not a person.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "Choose an editable Text field and a matching record or aggregation type.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.length_exceeded",
+    "context_group": "code_generation.error",
+    "default_text": "The generated code exceeds the allowed length. Review the pattern, padding and length limit.",
+    "semantic_meaning": "Validation or conflict feedback while administering a custom code generator.",
+    "common_locations": [
+      "Code generation settings dialog and simulator"
+    ],
+    "translator_guidance": "Use plain administrative language. Generator means the configurable code generator, not a person.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "The generated code exceeds the allowed length. Review the pattern, padding and length limit.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.missing_context",
+    "context_group": "code_generation.error",
+    "default_text": "The pattern needs more information. Review the sample codes or creation context.",
+    "semantic_meaning": "Validation or conflict feedback while administering a custom code generator.",
+    "common_locations": [
+      "Code generation settings dialog and simulator"
+    ],
+    "translator_guidance": "Use plain administrative language. Generator means the configurable code generator, not a person.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "The pattern needs more information. Review the sample codes or creation context.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.not_found",
+    "context_group": "code_generation.error",
+    "default_text": "The code generator is no longer available.",
+    "semantic_meaning": "Validation or conflict feedback while administering a custom code generator.",
+    "common_locations": [
+      "Code generation settings dialog and simulator"
+    ],
+    "translator_guidance": "Use plain administrative language. Generator means the configurable code generator, not a person.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "The code generator is no longer available.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.overlap",
+    "context_group": "code_generation.error",
+    "default_text": "Another enabled generator already applies to this field and type.",
+    "semantic_meaning": "Validation or conflict feedback while administering a custom code generator.",
+    "common_locations": [
+      "Code generation settings dialog and simulator"
+    ],
+    "translator_guidance": "Use plain administrative language. Generator means the configurable code generator, not a person.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "Another enabled generator already applies to this field and type.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.reason_required",
+    "context_group": "code_generation.error",
+    "default_text": "Enter a reason for changing this generator.",
+    "semantic_meaning": "Validation or conflict feedback while administering a custom code generator.",
+    "common_locations": [
+      "Code generation settings dialog and simulator"
+    ],
+    "translator_guidance": "Use plain administrative language. Generator means the configurable code generator, not a person.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "Enter a reason for changing this generator.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.recommendation_conflict",
+    "context_group": "code_generation.error",
+    "default_text": "This suggested code can no longer be used. Request another suggestion or enter a permitted manual value. Update any documents that contain the old code before trying again.",
+    "semantic_meaning": "Creation validation, optimistic chosen-code conflict or safe-retry feedback.",
+    "common_locations": [
+      "Record and aggregation creation dialogs and draft commit"
+    ],
+    "translator_guidance": "Use plain language. A completed retry never creates a second item. Preserve the instruction to update documents containing an old code.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "This suggested code can no longer be used. Request another suggestion or enter a permitted manual value. Update any documents that contain the old code before trying again.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.required_value",
+    "context_group": "code_generation.error",
+    "default_text": "Enter a value for the required field.",
+    "semantic_meaning": "Creation validation, optimistic chosen-code conflict or safe-retry feedback.",
+    "common_locations": [
+      "Record and aggregation creation dialogs and draft commit"
+    ],
+    "translator_guidance": "Use plain language. A completed retry never creates a second item. Preserve the instruction to update documents containing an old code.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "Enter a value for the required field.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.submission_conflict",
+    "context_group": "code_generation.error",
+    "default_text": "This request already completed with different details. Check the created item before submitting again.",
+    "semantic_meaning": "Creation validation, optimistic chosen-code conflict or safe-retry feedback.",
+    "common_locations": [
+      "Record and aggregation creation dialogs and draft commit"
+    ],
+    "translator_guidance": "Use plain language. A completed retry never creates a second item. Preserve the instruction to update documents containing an old code.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "This request already completed with different details. Check the created item before submitting again.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.submission_key_invalid",
+    "context_group": "code_generation.error",
+    "default_text": "The creation request is invalid. Review it and try again.",
+    "semantic_meaning": "Creation validation, optimistic chosen-code conflict or safe-retry feedback.",
+    "common_locations": [
+      "Record and aggregation creation dialogs and draft commit"
+    ],
+    "translator_guidance": "Use plain language. A completed retry never creates a second item. Preserve the instruction to update documents containing an old code.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "The creation request is invalid. Review it and try again.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.submission_key_required",
+    "context_group": "code_generation.error",
+    "default_text": "The creation request is incomplete. Reopen the form and try again.",
+    "semantic_meaning": "Creation validation, optimistic chosen-code conflict or safe-retry feedback.",
+    "common_locations": [
+      "Record and aggregation creation dialogs and draft commit"
+    ],
+    "translator_guidance": "Use plain language. A completed retry never creates a second item. Preserve the instruction to update documents containing an old code.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "The creation request is incomplete. Reopen the form and try again.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.submission_unavailable",
+    "context_group": "code_generation.error",
+    "default_text": "This request already completed, but its result is no longer available. It will not be created again.",
+    "semantic_meaning": "Creation validation, optimistic chosen-code conflict or safe-retry feedback.",
+    "common_locations": [
+      "Record and aggregation creation dialogs and draft commit"
+    ],
+    "translator_guidance": "Use plain language. A completed retry never creates a second item. Preserve the instruction to update documents containing an old code.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "This request already completed, but its result is no longer available. It will not be created again.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.error.unknown_outcome",
+    "context_group": "code_generation.error",
+    "default_text": "Resolve the original creation before changing its details. Retry the original request to find out whether it completed.",
+    "semantic_meaning": "A form retains its original request after an uncertain response and blocks changing the request until resolved.",
+    "common_locations": [
+      "Record and aggregation creation retry feedback"
+    ],
+    "translator_guidance": "Distinguish retrying the same creation from starting a new creation. Avoid technical networking language.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "Resolve the original creation before changing its details. Retry the original request to find out whether it completed.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.status.files_retained",
+    "context_group": "code_generation.status",
+    "default_text": "Your files have been kept for this creation.",
+    "semantic_meaning": "Explain that creation failure did not discard the uploaded files.",
+    "common_locations": [
+      "Aggregation file-drop retry dialog"
+    ],
+    "translator_guidance": "Use concise, plain language. These files belong to the same pending creation.",
+    "grammatical_role": "feedback message",
+    "parameter_schema": {},
+    "rendered_example": "Your files have been kept for this creation.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.actions",
+    "context_group": "code_generation.ui",
+    "default_text": "Actions",
+    "semantic_meaning": "Custom code generator administration: Actions",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Actions",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.adjusted",
+    "context_group": "code_generation.ui",
+    "default_text": "Next number advanced.",
+    "semantic_meaning": "Custom code generator administration: Next number advanced.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Next number advanced.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.advance",
+    "context_group": "code_generation.ui",
+    "default_text": "Advance next number",
+    "semantic_meaning": "Custom code generator administration: Advance next number",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Advance next number",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.all",
+    "context_group": "code_generation.ui",
+    "default_text": "All",
+    "semantic_meaning": "Custom code generator administration: All",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "All",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.all_items",
+    "context_group": "code_generation.ui",
+    "default_text": "All items",
+    "semantic_meaning": "Generator applicability: All items",
+    "common_locations": [
+      "Administration → Settings → Code generation",
+      "Code generator listing and audit history"
+    ],
+    "translator_guidance": "Applicability selects all typed and untyped items, only items with no assigned type, or one selected type. It does not set the counter scope. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "All items",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.applies_to",
+    "context_group": "code_generation.ui",
+    "default_text": "Applies to",
+    "semantic_meaning": "Generator applicability: Applies to",
+    "common_locations": [
+      "Administration → Settings → Code generation",
+      "Code generator listing and audit history"
+    ],
+    "translator_guidance": "Applicability selects all typed and untyped items, only items with no assigned type, or one selected type. It does not set the counter scope. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Applies to",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.apply",
+    "context_group": "code_generation.ui",
+    "default_text": "Search",
+    "semantic_meaning": "Custom code generator administration: Search",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Search",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.audit_advance",
+    "context_group": "code_generation.ui",
+    "default_text": "Next number advanced",
+    "semantic_meaning": "Custom code generator administration: Next number advanced",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Next number advanced",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.audit_entity",
+    "context_group": "code_generation.ui",
+    "default_text": "Custom code generator",
+    "semantic_meaning": "Custom code generator administration: Custom code generator",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Custom code generator",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.bucket_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Never: 0001-01-01. Yearly: 1 January of that year. Monthly: the first day of that month.",
+    "semantic_meaning": "Custom code generator administration: Never: 0001-01-01. Yearly: 1 January of that year. Monthly: the first day of that month.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Never: 0001-01-01. Yearly: 1 January of that year. Monthly: the first day of that month.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.cancel",
+    "context_group": "code_generation.ui",
+    "default_text": "Cancel",
+    "semantic_meaning": "Custom code generator administration: Cancel",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Cancel",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.capacity",
+    "context_group": "code_generation.ui",
+    "default_text": "This field allows at most {maximum} characters.",
+    "semantic_meaning": "Custom code generator administration: This field allows at most {maximum} characters.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "maximum": "integer"
+    },
+    "rendered_example": "This field allows at most {maximum} characters.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.characters",
+    "context_group": "code_generation.ui",
+    "default_text": "Characters",
+    "semantic_meaning": "Custom code generator administration: Characters",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Characters",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.classification_token",
+    "context_group": "code_generation.ui",
+    "default_text": "Classification code",
+    "semantic_meaning": "Custom code generator administration: Classification code",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Classification code",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.combined",
+    "context_group": "code_generation.ui",
+    "default_text": "Different scopes across a reset",
+    "semantic_meaning": "Custom code generator administration: Different scopes across a reset",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Different scopes across a reset",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.conflict",
+    "context_group": "code_generation.ui",
+    "default_text": "This generator changed. Your entries are kept. Reload the saved settings before editing again.",
+    "semantic_meaning": "Custom code generator administration: This generator changed. Your entries are kept. Reload the saved settings before editing again.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "This generator changed. Your entries are kept. Reload the saved settings before editing again.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.context_a",
+    "context_group": "code_generation.ui",
+    "default_text": "Fictional context A",
+    "semantic_meaning": "Custom code generator administration: Fictional context A",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Fictional context A",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.context_b",
+    "context_group": "code_generation.ui",
+    "default_text": "Fictional context B",
+    "semantic_meaning": "Custom code generator administration: Fictional context B",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Fictional context B",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.counter_empty",
+    "context_group": "code_generation.ui",
+    "default_text": "No counters have been used yet. You can select an unused scope and period below.",
+    "semantic_meaning": "Custom code generator administration: No counters have been used yet. You can select an unused scope and period below.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "No counters have been used yet. You can select an unused scope and period below.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.counter_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Advance one counter for a selected scope and period. Existing codes stay unchanged. A counter cannot move backwards.",
+    "semantic_meaning": "Custom code generator administration: Advance one counter for a selected scope and period. Existing codes stay unchanged. A counter cannot move backwards.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Advance one counter for a selected scope and period. Existing codes stay unchanged. A counter cannot move backwards.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.counter_stale",
+    "context_group": "code_generation.ui",
+    "default_text": "This counter changed. Your entries are kept. Load its current next number before trying again.",
+    "semantic_meaning": "Custom code generator administration: This counter changed. Your entries are kept. Load its current next number before trying again.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "This counter changed. Your entries are kept. Load its current next number before trying again.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.counters",
+    "context_group": "code_generation.ui",
+    "default_text": "Next numbers",
+    "semantic_meaning": "Custom code generator administration: Next numbers",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Next numbers",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.date_token",
+    "context_group": "code_generation.ui",
+    "default_text": "Date, year-month-day",
+    "semantic_meaning": "Custom code generator administration: Date, year-month-day",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Date, year-month-day",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.day",
+    "context_group": "code_generation.ui",
+    "default_text": "Day, two digits",
+    "semantic_meaning": "Custom code generator administration: Day, two digits",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Day, two digits",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.delete",
+    "context_group": "code_generation.ui",
+    "default_text": "Delete unused generator",
+    "semantic_meaning": "Custom code generator administration: Delete unused generator",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Delete unused generator",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.delete_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Delete only a generator without saved counters. Its audit history is retained. A reason is required.",
+    "semantic_meaning": "Custom code generator administration: Delete only a generator without saved counters. Its audit history is retained. A reason is required.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Delete only a generator without saved counters. Its audit history is retained. A reason is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.different_scopes",
+    "context_group": "code_generation.ui",
+    "default_text": "Contexts A, A, B, A, B",
+    "semantic_meaning": "Custom code generator administration: Contexts A, A, B, A, B",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Contexts A, A, B, A, B",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.disabled",
+    "context_group": "code_generation.ui",
+    "default_text": "Disabled",
+    "semantic_meaning": "Custom code generator administration: Disabled",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disabled",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.edit",
+    "context_group": "code_generation.ui",
+    "default_text": "Edit generator",
+    "semantic_meaning": "Custom code generator administration: Edit generator",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Edit generator",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.empty",
+    "context_group": "code_generation.ui",
+    "default_text": "No generators match these filters.",
+    "semantic_meaning": "Custom code generator administration: No generators match these filters.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "No generators match these filters.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.enabled",
+    "context_group": "code_generation.ui",
+    "default_text": "Enabled",
+    "semantic_meaning": "Custom code generator administration: Enabled",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Enabled",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.field",
+    "context_group": "code_generation.ui",
+    "default_text": "Text field",
+    "semantic_meaning": "Custom code generator administration: Text field",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Text field",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.future_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Applies to future creations. Generate blank Text fields and keep manually entered values. Existing values stay unchanged.",
+    "semantic_meaning": "Custom code generator administration: Applies to future creations. Generate blank Text fields and keep manually entered values. Existing values stay unchanged.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Applies to future creations. Generate blank Text fields and keep manually entered values. Existing values stay unchanged.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.generator_identity",
+    "context_group": "code_generation.ui",
+    "default_text": "Generator #{identity}",
+    "semantic_meaning": "Custom code generator administration: Generator #{identity}",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "identity": "integer"
+    },
+    "rendered_example": "Generator #{identity}",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.history",
+    "context_group": "code_generation.ui",
+    "default_text": "Change history",
+    "semantic_meaning": "Custom code generator administration: Change history",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Change history",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.history_denied",
+    "context_group": "code_generation.ui",
+    "default_text": "Viewing history requires the existing audit-view permission.",
+    "semantic_meaning": "Custom code generator administration: Viewing history requires the existing audit-view permission.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Viewing history requires the existing audit-view permission.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.history_new",
+    "context_group": "code_generation.ui",
+    "default_text": "History starts when this generator is saved.",
+    "semantic_meaning": "Custom code generator administration: History starts when this generator is saved.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "History starts when this generator is saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.increment",
+    "context_group": "code_generation.ui",
+    "default_text": "Increase by *",
+    "semantic_meaning": "Custom code generator administration: Increase by *",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Increase by *",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.independent_pattern",
+    "context_group": "code_generation.ui",
+    "default_text": "Another enabled generator can start with the same number format. Check that the series can be distinguished. Final creation still checks for duplicates.",
+    "semantic_meaning": "Advisory: independent primary-number generators can produce the same initial formatted number; this is separate from overlapping bindings and runtime uniqueness.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use plain language and approved Wathiq terminology. This is a warning, not a rejection of valid nonoverlapping bindings.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Another enabled generator can start with the same number format. Check that the series can be distinguished. Final creation still checks for duplicates.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.insert",
+    "context_group": "code_generation.ui",
+    "default_text": "Insert",
+    "semantic_meaning": "Custom code generator administration: Insert",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Insert",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.inspect",
+    "context_group": "code_generation.ui",
+    "default_text": "Load current next number",
+    "semantic_meaning": "Custom code generator administration: Load current next number",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Load current next number",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.invalid_field",
+    "context_group": "code_generation.ui",
+    "default_text": "Check this setting: {field}.",
+    "semantic_meaning": "Custom code generator administration: Check this setting: {field}.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "field": "text"
+    },
+    "rendered_example": "Check this setting: {field}.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.loading",
+    "context_group": "code_generation.ui",
+    "default_text": "Loading generators…",
+    "semantic_meaning": "Custom code generator administration: Loading generators…",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Loading generators…",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.maximum",
+    "context_group": "code_generation.ui",
+    "default_text": "Maximum code length *",
+    "semantic_meaning": "Maximum character length of the complete generated code.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Maximum code length *",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.maximum_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Count all characters, including text and placeholders after replacement. Values are never truncated.",
+    "semantic_meaning": "Custom code generator administration: Count all characters, including text and placeholders after replacement. Values are never truncated.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Count all characters, including text and placeholders after replacement. Values are never truncated.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.metadata",
+    "context_group": "code_generation.ui",
+    "default_text": "Metadata",
+    "semantic_meaning": "Custom code generator administration: Metadata",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Metadata",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.month",
+    "context_group": "code_generation.ui",
+    "default_text": "Month, two digits",
+    "semantic_meaning": "Custom code generator administration: Month, two digits",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Month, two digits",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.month_transition",
+    "context_group": "code_generation.ui",
+    "default_text": "Three values before month end, two after",
+    "semantic_meaning": "Custom code generator administration: Three values before month end, two after",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Three values before month end, two after",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.monthly",
+    "context_group": "code_generation.ui",
+    "default_text": "Every month",
+    "semantic_meaning": "Custom code generator administration: Every month",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Every month",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.name",
+    "context_group": "code_generation.ui",
+    "default_text": "Name *",
+    "semantic_meaning": "Custom code generator administration: Name *",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Name *",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.name_header",
+    "context_group": "code_generation.ui",
+    "default_text": "Name",
+    "semantic_meaning": "Custom code generator administration: Name",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Name",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.never",
+    "context_group": "code_generation.ui",
+    "default_text": "Never",
+    "semantic_meaning": "Custom code generator administration: Never",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Never",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.new",
+    "context_group": "code_generation.ui",
+    "default_text": "New generator",
+    "semantic_meaning": "Custom code generator administration: New generator",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "New generator",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.next_number",
+    "context_group": "code_generation.ui",
+    "default_text": "Next serial number",
+    "semantic_meaning": "Custom code generator administration: Next serial number",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Next serial number",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.occupied_help",
+    "context_group": "code_generation.ui",
+    "default_text": "If {occupied} is already used, a fresh automatic suggestion skips it and tries {next}. An already chosen number stays fixed until you explicitly replace it after a conflict.",
+    "semantic_meaning": "Custom code generator administration: If {occupied} is already used, a fresh automatic suggestion skips it and tries {next}. An already chosen number stays fixed until you explicitly replace it after a conflict.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "occupied": "text",
+      "next": "text"
+    },
+    "rendered_example": "If {occupied} is already used, a fresh automatic suggestion skips it and tries {next}. An already chosen number stays fixed until you explicitly replace it after a conflict.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.occupied_title",
+    "context_group": "code_generation.ui",
+    "default_text": "When the first number is already used",
+    "semantic_meaning": "Custom code generator administration: When the first number is already used",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "When the first number is already used",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.org_token",
+    "context_group": "code_generation.ui",
+    "default_text": "Owning organization unit code",
+    "semantic_meaning": "Custom code generator administration: Owning organization unit code",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Owning organization unit code",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.padding",
+    "context_group": "code_generation.ui",
+    "default_text": "Zero-padding width (optional)",
+    "semantic_meaning": "Custom code generator administration: Zero-padding width (optional)",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Zero-padding width (optional)",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.padding_help",
+    "context_group": "code_generation.ui",
+    "default_text": "A minimum width: 4 displays 10 as 0010. Leave blank or use 0 for no padding. Longer numbers keep growing.",
+    "semantic_meaning": "Custom code generator administration: A minimum width: 4 displays 10 as 0010. Leave blank or use 0 for no padding. Longer numbers keep growing.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "A minimum width: 4 displays 10 as 0010. Leave blank or use 0 for no padding. Longer numbers keep growing.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.page",
+    "context_group": "code_generation.ui",
+    "default_text": "Code generation",
+    "semantic_meaning": "Custom code generator administration: Code generation",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Code generation",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.parent_token",
+    "context_group": "code_generation.ui",
+    "default_text": "Parent aggregation number",
+    "semantic_meaning": "Custom code generator administration: Parent aggregation number",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Parent aggregation number",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.pattern",
+    "context_group": "code_generation.ui",
+    "default_text": "Pattern *",
+    "semantic_meaning": "Custom code generator administration: Pattern *",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Pattern *",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.pattern_header",
+    "context_group": "code_generation.ui",
+    "default_text": "Pattern",
+    "semantic_meaning": "Custom code generator administration: Pattern",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Pattern",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.pattern_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Use the serial placeholder exactly once. Other text is kept as written. Double braces produce literal braces.",
+    "semantic_meaning": "Custom code generator administration: Use the serial placeholder exactly once. Other text is kept as written. Double braces produce literal braces.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Use the serial placeholder exactly once. Other text is kept as written. Double braces produce literal braces.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.period",
+    "context_group": "code_generation.ui",
+    "default_text": "Period start",
+    "semantic_meaning": "Custom code generator administration: Period start",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Period start",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.placeholder",
+    "context_group": "code_generation.ui",
+    "default_text": "Insert placeholder",
+    "semantic_meaning": "Custom code generator administration: Insert placeholder",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Insert placeholder",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.preview",
+    "context_group": "code_generation.ui",
+    "default_text": "Preview sequence",
+    "semantic_meaning": "Custom code generator administration: Preview sequence",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Preview sequence",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.preview_loading",
+    "context_group": "code_generation.ui",
+    "default_text": "Calculating five sample values…",
+    "semantic_meaning": "Custom code generator administration: Calculating five sample values…",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Calculating five sample values…",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.preview_prompt",
+    "context_group": "code_generation.ui",
+    "default_text": "Complete the settings, then preview five values.",
+    "semantic_meaning": "Custom code generator administration: Complete the settings, then preview five values.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Complete the settings, then preview five values.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.preview_stale",
+    "context_group": "code_generation.ui",
+    "default_text": "Settings changed. Refreshing the simulation…",
+    "semantic_meaning": "Custom code generator administration: Settings changed. Refreshing the simulation…",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Settings changed. Refreshing the simulation…",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.preview_tab",
+    "context_group": "code_generation.ui",
+    "default_text": "Preview and simulator",
+    "semantic_meaning": "Custom code generator administration: Preview and simulator",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Preview and simulator",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.primary",
+    "context_group": "code_generation.ui",
+    "default_text": "Primary metadata",
+    "semantic_meaning": "Custom code generator administration: Primary metadata",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Primary metadata",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.reason_create",
+    "context_group": "code_generation.ui",
+    "default_text": "Reason (optional)",
+    "semantic_meaning": "Custom code generator administration: Reason (optional)",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reason (optional)",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.reason_edit",
+    "context_group": "code_generation.ui",
+    "default_text": "Reason for change *",
+    "semantic_meaning": "Custom code generator administration: Reason for change *",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reason for change *",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.refresh",
+    "context_group": "code_generation.ui",
+    "default_text": "Refresh",
+    "semantic_meaning": "Custom code generator administration: Refresh",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Refresh",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.reload",
+    "context_group": "code_generation.ui",
+    "default_text": "Reload saved settings",
+    "semantic_meaning": "Custom code generator administration: Reload saved settings",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reload saved settings",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.reload_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Discard these edits and load the latest saved settings.",
+    "semantic_meaning": "Custom code generator administration: Discard these edits and load the latest saved settings.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Discard these edits and load the latest saved settings.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.removed",
+    "context_group": "code_generation.ui",
+    "default_text": "Generator updated.",
+    "semantic_meaning": "Custom code generator administration: Generator updated.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Generator updated.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.required",
+    "context_group": "code_generation.ui",
+    "default_text": "Complete all required fields using valid whole numbers.",
+    "semantic_meaning": "Custom code generator administration: Complete all required fields using valid whole numbers.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Complete all required fields using valid whole numbers.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.reset",
+    "context_group": "code_generation.ui",
+    "default_text": "Restart numbering",
+    "semantic_meaning": "Custom code generator administration: Restart numbering",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Restart numbering",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.reset_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Yearly reset needs a year placeholder. Monthly reset needs year and month placeholders. A date placeholder provides both.",
+    "semantic_meaning": "Custom code generator administration: Yearly reset needs a year placeholder. Monthly reset needs year and month placeholders. A date placeholder provides both.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Yearly reset needs a year placeholder. Monthly reset needs year and month placeholders. A date placeholder provides both.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.reset_marker",
+    "context_group": "code_generation.ui",
+    "default_text": "Restarted",
+    "semantic_meaning": "Custom code generator administration: Restarted",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Restarted",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.resource",
+    "context_group": "code_generation.ui",
+    "default_text": "Resource",
+    "semantic_meaning": "Custom code generator administration: Resource",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Resource",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.role_token",
+    "context_group": "code_generation.ui",
+    "default_text": "Create for role code",
+    "semantic_meaning": "Custom code generator administration: Create for role code",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Create for role code",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.same_scope",
+    "context_group": "code_generation.ui",
+    "default_text": "Same scope and date",
+    "semantic_meaning": "Custom code generator administration: Same scope and date",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Same scope and date",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.sample_code",
+    "context_group": "code_generation.ui",
+    "default_text": "Generated sample",
+    "semantic_meaning": "Custom code generator administration: Generated sample",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Generated sample",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.sample_date",
+    "context_group": "code_generation.ui",
+    "default_text": "Simulated date",
+    "semantic_meaning": "Custom code generator administration: Simulated date",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Simulated date",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.save",
+    "context_group": "code_generation.ui",
+    "default_text": "Save",
+    "semantic_meaning": "Custom code generator administration: Save",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Save",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.saved",
+    "context_group": "code_generation.ui",
+    "default_text": "Generator saved.",
+    "semantic_meaning": "Custom code generator administration: Generator saved.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Generator saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scenario",
+    "context_group": "code_generation.ui",
+    "default_text": "Simulation scenario",
+    "semantic_meaning": "Custom code generator administration: Simulation scenario",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Simulation scenario",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scheme_token",
+    "context_group": "code_generation.ui",
+    "default_text": "Classification scheme code",
+    "semantic_meaning": "Custom code generator administration: Classification scheme code",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Classification scheme code",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope",
+    "context_group": "code_generation.ui",
+    "default_text": "Count separately for",
+    "semantic_meaning": "Custom code generator administration: Count separately for",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Count separately for",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_a",
+    "context_group": "code_generation.ui",
+    "default_text": "Context A",
+    "semantic_meaning": "Custom code generator administration: Context A",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Context A",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_b",
+    "context_group": "code_generation.ui",
+    "default_text": "Context B",
+    "semantic_meaning": "Custom code generator administration: Context B",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Context B",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_classification",
+    "context_group": "code_generation.ui",
+    "default_text": "Each classification",
+    "semantic_meaning": "Custom code generator administration: Each classification",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Each classification",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_empty",
+    "context_group": "code_generation.ui",
+    "default_text": "No matching scopes.",
+    "semantic_meaning": "Custom code generator administration: No matching scopes.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No matching scopes.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_generator",
+    "context_group": "code_generation.ui",
+    "default_text": "The whole generator",
+    "semantic_meaning": "Custom code generator administration: The whole generator",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The whole generator",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Separate counters use stable parent, classification or owning-unit identities. For unique numbers, include the corresponding code placeholders; classification scope also needs the scheme code.",
+    "semantic_meaning": "Custom code generator administration: Separate counters use stable parent, classification or owning-unit identities. For unique numbers, include the corresponding code placeholders; classification scope also needs the scheme code.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Separate counters use stable parent, classification or owning-unit identities. For unique numbers, include the corresponding code placeholders; classification scope also needs the scheme code.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_id",
+    "context_group": "code_generation.ui",
+    "default_text": "Scope identity",
+    "semantic_meaning": "Custom code generator administration: Scope identity",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Scope identity",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_id_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Use the stable ID of the parent aggregation, classification or owning organization unit. It stays valid if its code changes.",
+    "semantic_meaning": "Custom code generator administration: Use the stable ID of the parent aggregation, classification or owning organization unit. It stays valid if its code changes.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Use the stable ID of the parent aggregation, classification or owning organization unit. It stays valid if its code changes.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_org",
+    "context_group": "code_generation.ui",
+    "default_text": "Each owning organization unit",
+    "semantic_meaning": "Custom code generator administration: Each owning organization unit",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Each owning organization unit",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.scope_parent",
+    "context_group": "code_generation.ui",
+    "default_text": "Each parent aggregation",
+    "semantic_meaning": "Custom code generator administration: Each parent aggregation",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Each parent aggregation",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.search",
+    "context_group": "code_generation.ui",
+    "default_text": "Search by name",
+    "semantic_meaning": "Custom code generator administration: Search by name",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Search by name",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.selected_type",
+    "context_group": "code_generation.ui",
+    "default_text": "One selected type",
+    "semantic_meaning": "Generator applicability: One selected type",
+    "common_locations": [
+      "Administration → Settings → Code generation",
+      "Code generator listing and audit history"
+    ],
+    "translator_guidance": "Applicability selects all typed and untyped items, only items with no assigned type, or one selected type. It does not set the counter scope. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "One selected type",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.serial_token",
+    "context_group": "code_generation.ui",
+    "default_text": "Serial number",
+    "semantic_meaning": "Custom code generator administration: Serial number",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Serial number",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.settings",
+    "context_group": "code_generation.ui",
+    "default_text": "Settings",
+    "semantic_meaning": "Custom code generator administration: Settings",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Settings",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.simulation_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Five values from fresh sample counters. This saves nothing, consumes or reserves no real numbers, and changes no system date.",
+    "semantic_meaning": "Custom code generator administration: Five values from fresh sample counters. This saves nothing, consumes or reserves no real numbers, and changes no system date.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Five values from fresh sample counters. This saves nothing, consumes or reserves no real numbers, and changes no system date.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.specific",
+    "context_group": "code_generation.ui",
+    "default_text": "Type-specific metadata",
+    "semantic_meaning": "Custom code generator administration: Type-specific metadata",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Type-specific metadata",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.start",
+    "context_group": "code_generation.ui",
+    "default_text": "Starting number *",
+    "semantic_meaning": "Custom code generator administration: Starting number *",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Starting number *",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.start_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Start 10 and increase by 10 produces 10, 20, 30, 40, 50.",
+    "semantic_meaning": "Custom code generator administration: Start 10 and increase by 10 produces 10, 20, 30, 40, 50.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Start 10 and increase by 10 produces 10, 20, 30, 40, 50.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.status",
+    "context_group": "code_generation.ui",
+    "default_text": "Status",
+    "semantic_meaning": "Custom code generator administration: Status",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Status",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.target",
+    "context_group": "code_generation.ui",
+    "default_text": "Target",
+    "semantic_meaning": "Custom code generator administration: Target",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Target",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.timezone",
+    "context_group": "code_generation.ui",
+    "default_text": "Application working timezone: {timezone}",
+    "semantic_meaning": "Custom code generator administration: Application working timezone: {timezone}",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "timezone": "text"
+    },
+    "rendered_example": "Application working timezone: {timezone}",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.type",
+    "context_group": "code_generation.ui",
+    "default_text": "Type",
+    "semantic_meaning": "Custom code generator administration: Type",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Type",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.unbind",
+    "context_group": "code_generation.ui",
+    "default_text": "Remove field binding",
+    "semantic_meaning": "Custom code generator administration: Remove field binding",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove field binding",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.unbind_help",
+    "context_group": "code_generation.ui",
+    "default_text": "Stop generation and detach the field. Keep this generator, its history and counters. A reason is required.",
+    "semantic_meaning": "Custom code generator administration: Stop generation and detach the field. Keep this generator, its history and counters. A reason is required.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Stop generation and detach the field. Keep this generator, its history and counters. A reason is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.unbound",
+    "context_group": "code_generation.ui",
+    "default_text": "No field attached",
+    "semantic_meaning": "Custom code generator administration: No field attached",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No field attached",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.untyped_only",
+    "context_group": "code_generation.ui",
+    "default_text": "Untyped items only",
+    "semantic_meaning": "Generator applicability: Untyped items only",
+    "common_locations": [
+      "Administration → Settings → Code generation",
+      "Code generator listing and audit history"
+    ],
+    "translator_guidance": "Applicability selects all typed and untyped items, only items with no assigned type, or one selected type. It does not set the counter scope. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Untyped items only",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.use_counter",
+    "context_group": "code_generation.ui",
+    "default_text": "Select this counter",
+    "semantic_meaning": "Custom code generator administration: Select this counter",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Select this counter",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.year2",
+    "context_group": "code_generation.ui",
+    "default_text": "Year, two digits",
+    "semantic_meaning": "Custom code generator administration: Year, two digits",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Year, two digits",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.year4",
+    "context_group": "code_generation.ui",
+    "default_text": "Year, four digits",
+    "semantic_meaning": "Custom code generator administration: Year, four digits",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Year, four digits",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.year_transition",
+    "context_group": "code_generation.ui",
+    "default_text": "Three values before New Year, two after",
+    "semantic_meaning": "Custom code generator administration: Three values before New Year, two after",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Three values before New Year, two after",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.yearly",
+    "context_group": "code_generation.ui",
+    "default_text": "Every year",
+    "semantic_meaning": "Custom code generator administration: Every year",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Every year",
+    "is_html": false
+  },
+  {
+    "message_key": "code_generation.ui.yy_warning",
+    "context_group": "code_generation.ui",
+    "default_text": "Two-digit years repeat every century. Use a four-digit year to distinguish them.",
+    "semantic_meaning": "Custom code generator administration: Two-digit years repeat every century. Use a four-digit year to distinguish them.",
+    "common_locations": [
+      "Administration → Settings → Code generation"
+    ],
+    "translator_guidance": "Use approved Wathiq terminology and plain language. Preserve named placeholders. Simulation uses fictional contexts and never reserves or allocates live numbers.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Two-digit years repeat every century. Use a four-digit year to distinguish them.",
+    "is_html": false
+  },
+  {
     "message_key": "common.action.cancel",
     "context_group": "common.action",
     "default_text": "Cancel",

@@ -1,6 +1,7 @@
 """Exercise the full API-only seed workflow without contacting a database."""
 import json
 from types import SimpleNamespace
+from uuid import UUID
 from tools import seed_aggregations_for_disposition_testing as seed
 
 
@@ -10,6 +11,7 @@ def test_complete_run_and_resume(tmp_path, monkeypatch):
     credentials.write_text(json.dumps({seed.OMI: 'test', seed.YYA: 'test'}))
     resources = {'aggregations': {}, 'records': {}, 'components': {}, 'links': [], 'held': [], 'drafts': {}, 'record_components': {}}
     identities = []
+    creation_keys = []
     class FakeApi:
         def __init__(self, url, email, password):
             self.email = email
@@ -23,6 +25,12 @@ def test_complete_run_and_resume(tmp_path, monkeypatch):
             return SimpleNamespace(content=resources['components'][cid], raise_for_status=lambda: None)
         def call(self, method, path, **kwargs):
             payload = kwargs.get('json', {})
+            if method == 'POST' and (path in ('/aggregations', '/records') or path.endswith('/commit')):
+                key = kwargs['headers']['Idempotency-Key']
+                assert str(UUID(key)) == key
+                pending = json.loads(next(tmp_path.glob('.runtime/property-demo/*/manifest.json')).read_text())['pending']
+                assert pending['submission_key'] == key and pending['endpoint'] == path
+                creation_keys.append(key)
             if path == '/classifications/search':
                 assert payload['where']['value'] == '1141'
                 return {'items': [{'id': 11, 'title': 'Classification 1141', 'is_terminal': True}]}
@@ -88,6 +96,7 @@ def test_complete_run_and_resume(tmp_path, monkeypatch):
     assert all(n.startswith('1141/DEMO/') for n in numbers)
     assert '/002/' in numbers[0] and '/101/' in numbers[-1]
     assert len(resources['records']) == len(resources['components']) == 200
+    assert len(creation_keys) == len(set(creation_keys)) == 300
     assert sum(a['is_vital'] for a in resources['aggregations'].values()) == 10
     assert [sum(a['security_level_id'] == i for a in resources['aggregations'].values()) for i in range(1, 5)] == [40, 40, 15, 5]
     assert len(resources['held']) == 10
@@ -101,3 +110,4 @@ def test_complete_run_and_resume(tmp_path, monkeypatch):
     monkeypatch.setattr('sys.argv', args + ['--resume', str(manifest)])
     seed.main()
     assert len(resources['aggregations']) == 100 and len(resources['links']) == 20
+    assert len(creation_keys) == 300

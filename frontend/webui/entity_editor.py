@@ -22,6 +22,8 @@ from .entity_translation_drafts import EntityTranslationDrafts, TranslationUpdat
 from .type_controls import MetadataForm, t as type_label
 from .entity_editor_controls import field_input
 from .entity_editor_controls import form_payload
+from .creation_bindings import CreationBindings, suggestion_context
+from .resource_number_controls import numbers_busy
 from .aggregation_editor import load_aggregation_creation_context
 from .classification_editor import load_direct_retention
 from .aggregation_editor import lock_aggregation_close_field
@@ -250,7 +252,9 @@ def build_entity_editor(
                             lambda _, control=controls[field.name]: clear_medium_error(control)
                         )
                     if creating and field.name in {"aggregation_number", "record_number"}:
-                        add_number_suggestion(controls[field.name], spec.key, controls)
+                        add_number_suggestion(controls[field.name], spec.key, controls,
+                            creation_context=lambda: suggestion_context(controls, typed),
+                            active=lambda: dialog.value and not dialog.is_deleted)
                     if field.name == "security_level_id" and spec.key in {"aggregations", "records"}:
                         if field.name not in effective_locked_fields:
                             bind_resource_security_select(
@@ -348,19 +352,25 @@ def build_entity_editor(
                 "entity_translation_editor.status.creation_pending"
             )).props('role="status" aria-live="polite"').classes("text-sm text-amber-800")
             creation_status.set_visibility(False)
+            retry_status = ui.label(render_message("code_generation.error.unknown_outcome")).props(
+                'role="status" aria-live="polite"').classes("text-sm text-amber-800")
+            retry_status.set_visibility(False)
             edit_status = ui.label(render_message(
                 "entity_translation_editor.status.edit_pending"
             )).props('role="status" aria-live="polite"').classes("text-sm text-amber-800")
             edit_status.set_visibility(False)
             edit_save = {"row": None, "rule_saved": False}
-            save_state = {"busy": False, "canonical_locked": False}
+            save_state = {"busy": False, "canonical_locked": False, "frozen_controls": None}
 
             async def save() -> None:
                 if save_state["busy"] or edits is not None and edits.writing:
                     return
                 save_state["busy"] = True
+                numbers_busy(controls, True)
                 enabled_controls = [element for element in dialog.descendants()
                                     if isinstance(element, DisableableElement) and element.enabled]
+                if save_state["frozen_controls"] is None:
+                    save_state["frozen_controls"] = enabled_controls
                 for control in enabled_controls:
                     control.disable()
                 try:
@@ -390,11 +400,17 @@ def build_entity_editor(
                         elif not spec.search_first and current_resource() == spec.key:
                             await load_rows(repeat_search=True)
                         return
-                    payload = form_payload(spec, controls, creating=creating)
-                    if typed:
-                        payload.update(typed.payload())
-                    if spec.key == 'aggregations':
-                        prepare_aggregation_payload(creating, controls, payload)
+                    unresolved = creating and (creation.submission.uncertain or creation.submission.completed_error is not None)
+                    if unresolved:
+                        payload = creation.submission.payload
+                    else:
+                        if creating and typed and not await bindings.refresh(for_save=True):
+                            return
+                        payload = form_payload(spec, controls, creating=creating)
+                        if typed:
+                            payload.update(typed.payload())
+                        if spec.key == 'aggregations':
+                            prepare_aggregation_payload(creating, controls, payload)
                     rule_payload = None
                     if spec.key == "classifications":
                         rule_payload = prepare_retention_payload(payload, creating=creating)
@@ -475,14 +491,36 @@ def build_entity_editor(
                     save_state["busy"] = False
                     if edits is not None:
                         edits.writing = False
-                    for control in enabled_controls:
-                        if not save_state["canonical_locked"] or control not in canonical_controls:
-                            control.enable()
+                    unresolved = creating and (creation.submission.uncertain or creation.submission.completed_error is not None)
+                    if not dialog.is_deleted:
+                        retry_status.set_visibility(unresolved)
+                    if unresolved:
+                        save_button.set_text(render_message("code_generation.action.retry_original"))
+                        save_button.enable()
+                    else:
+                        if not save_state["canonical_locked"]:
+                            numbers_busy(controls, False)
+                        for control in save_state["frozen_controls"] or []:
+                            if not control.is_deleted and (not save_state["canonical_locked"] or control not in canonical_controls):
+                                control.enable()
+                        save_state["frozen_controls"] = None
+                        if not save_button.is_deleted:
+                            save_button.set_text(render_message("webui.open_editor.button.save_46081ed6"))
 
             with ui.row().classes("w-full justify-end gap-2"):
                 ui.button(render_message("webui.open_editor.button.cancel_c07bff03"), on_click=dialog.close).props("flat")
                 save_button = ui.button(render_message("webui.open_editor.button.save_46081ed6"), on_click=save, icon="save").props("unelevated")
+        if creating and typed:
+            bindings = CreationBindings(api, spec.key[:-1], controls, typed,
+                active=lambda: dialog.value and not dialog.is_deleted,
+                show_error=show_api_error)
         dialog.open()
+        if creating and typed:
+            try:
+                await bindings.refresh()
+            except ApiError as error:
+                if dialog.value and not dialog.is_deleted:
+                    show_api_error(error)
 
 
     return open_editor

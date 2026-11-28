@@ -23,6 +23,7 @@ class ApplicationSettingsController:
         guard: Callable[[Callable[[], Awaitable[None]]], Awaitable[None]],
         bind_relationship: Callable[..., Any], direction: Callable[[], str],
         on_error: Callable[[Any], str],
+        render_history: Callable[..., Any] | None = None,
     ) -> None:
         self.api = api
         self.container = container
@@ -34,6 +35,7 @@ class ApplicationSettingsController:
         self._bind_relationship = bind_relationship
         self._direction = direction
         self._on_error = on_error
+        self._render_history = render_history
         self._category = "general"
         self._token: object | None = None
 
@@ -74,6 +76,9 @@ class ApplicationSettingsController:
             active=active, on_error=self._on_error, direction=self._direction,
             initial_category=initial_category, initial_setting_key=initial_setting_key,
             on_category=remember_category,
+            render_history=self._render_history,
+            can_audit=lambda: bool(self._principal() and
+                "audit.view" in self._principal().get("global_privileges", [])),
         )
 
     async def restore(self, saved: dict[str, Any]) -> None:
@@ -92,5 +97,8 @@ class ApplicationSettingsController:
         origin_dialog = event.get("_origin_dialog")
         if origin_dialog:
             origin_dialog.close()
+        if event.get("entity_type") == "code_generator":
+            await self._guard(lambda: self.open("code_generation"))
+            return
         setting_key = (event.get("metadata") or {}).get("setting_key")
         await self._guard(lambda: self.open(initial_setting_key=setting_key))

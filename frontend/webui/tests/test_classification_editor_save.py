@@ -1,4 +1,5 @@
 """Exercise the real editor Save boundary, including retention and translation writes."""
+from frontend.webui.resource_number_controls import numbers_busy
 import ast
 from frontend.webui.organization_editor import organization_change_reason
 import asyncio
@@ -32,7 +33,7 @@ def save_scope(*, creating=False, values=None, rule=None, translation=None, fail
     api=SimpleNamespace(create=lambda *a,**k:write('create',*a,**k),update=lambda *a,**k:write('update',*a,**k),
                         put_classification_retention_rule=lambda *a,**k:write('rule',*a,**k),
                         update_entity_translation=lambda *a,**k:write('translation',*a,**k))
-    scope=dict(edits=EntityTranslationDrafts(('title','description')) if not creating else None, edit_save={'row':None,'rule_saved':False}, edit_status=Mock(), save_state={'busy':False,'canonical_locked':False},save_button=Mock(),canonical_controls=[],creation_status=Mock(),creation=EntityCreation(('title','description')) if creating else None,
+    scope=dict(numbers_busy=numbers_busy,edits=EntityTranslationDrafts(('title','description')) if not creating else None, edit_save={'row':None,'rule_saved':False}, edit_status=Mock(), save_state={'busy':False,'canonical_locked':False,'frozen_controls':None},save_button=Mock(),retry_status=Mock(),canonical_controls=[],creation_status=Mock(),creation=EntityCreation(('title','description')) if creating else None,
                typed=None,prepare_retention_payload=prepare_retention_payload,ApiError=ApiError,spec=ENTITIES['classifications'],row=row,creating=creating,controls={},
                translation_only=False,prepare_entity_translation_update=lambda:[translation] if translation else None,
                form_payload=lambda *a,**k:deepcopy(values or {'title':'Changed','classification_scheme_id':2}),

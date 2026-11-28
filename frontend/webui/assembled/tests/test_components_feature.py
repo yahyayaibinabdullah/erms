@@ -2,6 +2,7 @@
 from io import BytesIO
 from types import SimpleNamespace
 from unittest.mock import Mock
+from uuid import uuid4
 import pytest
 from nicegui import ui
 from frontend.webui.assembled.tests.test_application import assembled,login,current_page,drawer_buttons,click_one,eventually
@@ -16,8 +17,8 @@ pytestmark=pytest.mark.asyncio
 async def test_saved_component_upload_move_preview_download_and_delete(assembled,monkeypatch):
     user=assembled;await login(user);api=user.api_clients[0]
     parent=(await api.search_request('aggregations',{'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,'offset':0}))['items'][0]
-    aggregation=await api.create('aggregations',dict(aggregation_number='COMP-AGG',title='Component fixture',classification_id=parent['classification_id'],medium='digital'))
-    record=await api.create('records',dict(aggregation_id=aggregation['id'],record_number='COMP-REC',title='Component fixture record',medium='digital'))
+    aggregation=await api.create('aggregations',dict(aggregation_number='COMP-AGG',title='Component fixture',classification_id=parent['classification_id'],medium='digital'), submission_key=str(uuid4()))
+    record=await api.create('records',dict(aggregation_id=aggregation['id'],record_number='COMP-REC',title='Component fixture record',medium='digital'), submission_key=str(uuid4()))
     click_one(user,[b for b in drawer_buttons(user) if plain(b)=='Records'])
     await eventually(lambda:current_page(user)=='records' and user.pending_requests==0)
     with user:next(i for i in user.find(ui.input).elements if plain(i)==t('webui.index.input.search_by_number_title_or_description_e21ed520')).value='COMP-REC'

@@ -119,6 +119,37 @@
 
 ## Search and filtering performance
 
+- Limit changes to search code to those required by the feature the user has
+  requested. Do not expand feature work into unrelated search performance
+  optimization. Such optimization is separate work for a separate session
+  explicitly requested by the user. Variable benchmark timings alone do not
+  authorize unrelated search changes.
+- When a search performance sample exceeds three seconds, retain the timing
+  and relevant evidence, and report it to the user for future dedicated
+  optimization work. Do not start optimizing search during unrelated feature
+  implementation in response to that result. Report failed timings honestly;
+  this reporting rule does not turn them into passes.
+- Separate representative-usage measurements from stress tests. Representative
+  cases must follow the actual UI's page sizes, request pattern and plausible
+  data distribution. For the classification browsing tree, use 50-item batches
+  and about 100 immediate child aggregations per tested parent aggregation; distribute
+  roots across classifications instead of concentrating the repository in one
+  branch. This is a test profile, not an application limit.
+- Require bounded interactive page requests to finish within three seconds,
+  including 50/100-item pages from a classification containing 50,000 roots.
+  A stress label or large total collection does not exempt a paged request.
+  Unpaged bulk listings/exports and throughput stress tests need separately
+  stated budgets; do not apply the page-response limit to returning all 50,000
+  items at once. Record/report page-limit failures without starting unrelated
+  optimization. Report
+  sample counts, median, p95, maximum and every above-target sample, with
+  dataset, concurrency and host conditions. Compare regressions only across
+  equivalent profiles and conditions. Do not infer normal UI latency from a
+  deliberately extreme branch or batch size.
+- In both profiles, correct results, permissions, ranking, deterministic order,
+  complete pagination and bounded responses are mandatory. Separate correctness
+  failures from timing observations. Keep historical samples and stress cases;
+  adding a representative profile must not erase earlier findings.
 - Before optimizing search/filter SQL, read
   [the PostgreSQL optimization lessons](docs/postgresql-search-optimization-lessons.md)
   and [the benchmark history and acceptance decision](docs/search-performance-benchmarks.md).
@@ -154,8 +185,9 @@
 - Changes to search SQL, indexes, permissions or result processing must run the
   repeatable correctness/performance gate in `tools/check_search_performance.py`.
   Its disposable fixture exceeds 50,000 aggregations and 150,000 records.
-  With a 1,000-result cap, every measured response must finish within 3 seconds;
-  averages and medians cannot conceal a failing sample.
+  Keep the 1,000-result cap where applicable. Label representative and stress
+  profiles and evaluate/report their timings according to the rules above;
+  averages and medians must not conceal individual above-target samples.
 - Extend performance coverage to each new or changed search/filter flow and its
   worst-case criteria. A passing benchmark for an unrelated endpoint is not
   evidence that the changed flow is fast.
@@ -165,7 +197,9 @@
   without LLVM can hide seconds of compilation in the production Linux build.
   Preserve the search-scoped JIT setting and its pooled-connection restoration
   tests; do not change server-wide planner settings to make a benchmark pass.
-  Fix failures before declaring search performance complete. See
+  Fix correctness failures before declaring verification complete. Report slow
+  timings for separately authorized optimization; do not claim an unmeasured
+  representative profile is fast or convert a target overrun into a pass. See
   `docs/search-performance.md` for the reproducible procedure and measurement scope.
 - Also run `tools/check_large_text_search_performance.py` for full-text scoring
   or evidence changes. Its fixed corpus is mostly single-chunk files, with

@@ -304,10 +304,12 @@ def _statement(resource, request, canonical, display_filter, hits, cap, fields=N
         for item in canonical['sort']:
             field = item['field']
             if field.startswith("type."):
-                sorts.append(engine.type_search.sort_sql(field, item["direction"]))
+                sorts.append(engine.type_search.sort_sql(field, item["direction"], natural=fields[field].natural_sort))
                 continue
             term = score if field == '_relevance' else sql.SQL('resource.{}').format(sql.Identifier(field))
-            if display_filter is not None and field != '_relevance' and engine.SEARCH_FIELDS[resource][field].type is engine.FieldType.TEXT:
+            if field != '_relevance' and fields[field].natural_sort:
+                term = sql.SQL('{} COLLATE erms_code_natural').format(term)
+            elif display_filter is not None and field != '_relevance' and engine.SEARCH_FIELDS[resource][field].type is engine.FieldType.TEXT:
                 term = sql.SQL('lower({})').format(term)
             sorts.append(sql.SQL('{} {}').format(term, sql.SQL(item['direction'].upper())))
         order = sql.SQL(', ').join(sorts)

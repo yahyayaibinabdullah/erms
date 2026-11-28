@@ -254,12 +254,16 @@ def test_permission_catalogue_records_conditional_policy():
     conditional = [operation for operation in registry["api_operations"]
                    if "conditional_global_privileges" in operation]
     assert [operation["id"] for operation in conditional] == [
-        "GET:/api/v1/permissions", "GET:/api/v1/saved-searches/{saved_search_id}"]
-    assert conditional[1]["conditional_global_privileges"] == {
+        "GET:/api/v1/code-generation/bindings", "GET:/api/v1/permissions", "GET:/api/v1/saved-searches/{saved_search_id}"]
+    assert conditional[0]["conditional_global_privileges"] == {
+        "query_parameter":"kind","match":"any","when_omitted":[],
+        "by_value":{"record":["record.create"],"aggregation":["aggregation.create_root","aggregation.create_child"]},
+    }
+    assert conditional[2]["conditional_global_privileges"] == {
         "query_parameter":"inspection", "match":"any", "when_omitted":[],
         "by_value":{"true":["search.saved_search.administer"], "false":[]},
     }
-    assert conditional[0]["conditional_global_privileges"] == {
+    assert conditional[1]["conditional_global_privileges"] == {
         "query_parameter": "resource_type",
         "match": "any",
         "when_omitted": ["authorization.administer"],

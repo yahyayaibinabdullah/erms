@@ -84,7 +84,7 @@ def test_drop_creates_ordered_digital_records_and_components(client, aggregation
 def test_drop_rolls_back_first_file_when_second_storage_fails(client, aggregation, monkeypatch, separate):
     original = main._store_uploaded_component
     def failing(connection, record_id, file, *args, **kwargs):
-        if file.filename == 'second.txt':
+        if (getattr(file,'file_name',None) or getattr(file,'filename',None)) == 'second.txt':
             raise HTTPException(422, detail='Fixture rejects second file')
         return original(connection, record_id, file, *args, **kwargs)
     monkeypatch.setattr(main, '_store_uploaded_component', failing)

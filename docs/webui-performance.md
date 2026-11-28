@@ -643,7 +643,14 @@ All search and filtering implementations must follow the normative
 reuse batch permission calculations and indexable candidate predicates.
 Changes require the disposable large-data correctness and latency gate: more
 than 50,000 aggregations and 150,000 records, a 1,000-result cap, exact expected
-counts/ranking/order, and every measured response within 3 seconds.
+counts/ranking/order, and recorded response timings. Follow the contract's
+representative-versus-stress distinction: actual UI page sizes and plausible
+branch distributions use a three-second page-response limit. Stress tests
+retain that limit for bounded pages, including 50/100-item pages from 50,000
+roots. Bulk/unpaged listings and throughput tests need separate budgets.
+Both require correct permissions/results and complete, bounded paging.
+Report median/p95/maximum and all overruns; do not optimize unrelated search
+code in response without a separate user request.
 
 ## Shared tab result lists (13 November 2026)
 

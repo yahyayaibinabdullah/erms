@@ -42,6 +42,7 @@ def referenced_keys() -> set[str]:
                             "ENTITY_METADATA_LABEL_KEYS",
                             "PERMISSION_MESSAGE_KEYS", "ACL_SOURCE_MESSAGE_KEYS", "EVENT_MESSAGE_KEYS",
                             "SETTINGS_CHOICE_MESSAGE_KEYS", "TYPE_MESSAGES",
+                            "CODE_GENERATOR_MESSAGE_KEYS",
                         }
                         for target in (
                             node.targets if isinstance(node, ast.Assign) else [node.target]
@@ -53,7 +54,7 @@ def referenced_keys() -> set[str]:
                         child.value for child in ast.walk(value)
                         if isinstance(child, ast.Constant)
                         and isinstance(child.value, str)
-                        and child.value.startswith(("resource_types.", "disposition.", "resource_picker.", "relationships.", "messaging.", "classification_transfer.", "advanced_search.", "entity_metadata.", "authorization.permission.", "authorization.acl_source.", "audit.event.", "security_operations.event.", "settings."))
+                        and child.value.startswith(("resource_types.", "disposition.", "resource_picker.", "relationships.", "messaging.", "classification_transfer.", "advanced_search.", "entity_metadata.", "authorization.permission.", "authorization.acl_source.", "audit.event.", "security_operations.event.", "settings.", "code_generation."))
                     )
                 if (
                     isinstance(node, ast.Assign)

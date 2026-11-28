@@ -1,4 +1,5 @@
 """Saved-query restoration, sharing controls, unsaved guard and administration."""
+from uuid import uuid4
 import subprocess
 import json
 from urllib.parse import parse_qs
@@ -136,7 +137,7 @@ with psycopg.connect(url) as c:
     classification_id=response.json()['items'][0]['classification_id']
     fixture_ids=[]
     for i in range(27):
-        response=page.api.post('/api/v1/aggregations',json={
+        response=page.api.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={
             'aggregation_number':f'PAGEGUARD-{i:02}','title':f'Pageguard fixture {i:02}',
             'classification_id':classification_id,'medium':'physical','date_opened':'2026-01-01T00:00:00Z',
         })

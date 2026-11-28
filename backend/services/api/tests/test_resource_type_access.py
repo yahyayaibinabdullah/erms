@@ -7,6 +7,7 @@ from psycopg.rows import dict_row
 import pytest
 
 from backend.services.api.dashboard_visibility import visibility_ctes
+from .conftest import _allow_generator_fixture_reset, _restore_generator_fixture
 from .test_phase7_mutation_authorization import (
     _grant_principal,
     _login_as_phase7,
@@ -19,7 +20,9 @@ from .test_phase7_mutation_authorization import (
 def catalogue():
     yield
     with psycopg.connect(os.environ["DATABASE_URL"]) as c:
+        _allow_generator_fixture_reset(c)
         c.execute("TRUNCATE resource_types CASCADE")
+        _restore_generator_fixture(c)
 
 
 def ok(response, status=200):
@@ -81,7 +84,7 @@ def test_admin_operations_assignment_and_versions(
     ok(client.put(url, headers=headers(), json={"name": "Inspections"}))
     assert ok(client.get(base, params={"q": "Inspections"}))[0]["id"] == t["id"]
     assert (
-        ok(client.get(base + "/options", params={"access": "use"}))[0]["id"] == t["id"]
+        ok(client.get(base + "/options", params={"access": "use", "q": "Inspections"}))[0]["id"] == t["id"]
     )
     assert (
         client.put(

@@ -173,9 +173,12 @@ def list_rows(
         query += sql.SQL(" WHERE ") + sql.SQL(" AND ").join(clauses)
 
     direction = sql.SQL(" DESC") if descending else sql.SQL(" ASC")
-    query += sql.SQL(" ORDER BY ") + sql.SQL(", ").join(
-        sql.Identifier(column) + direction for column in order_by
-    )
+    from .code_ordering import natural_fields, expression
+    natural = natural_fields(connection, table, order_by)
+    ordering = [expression(sql.Identifier(column), column in natural) + direction for column in order_by]
+    if natural and 'id' not in order_by:
+        ordering.append(sql.SQL('id ASC'))
+    query += sql.SQL(" ORDER BY ") + sql.SQL(", ").join(ordering)
     query += sql.SQL(" LIMIT %s OFFSET %s")
     parameters.extend((limit, offset))
     rows = list(connection.execute(query, parameters).fetchall())

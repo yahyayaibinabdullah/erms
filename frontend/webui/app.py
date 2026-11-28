@@ -3956,6 +3956,7 @@ def index(q: str = "") -> None:
         persist_category=persist_application_settings_category,
         guard=guarded_page_navigation, bind_relationship=bind_remote_relationship_select,
         direction=lambda: current_direction["value"], on_error=error_message,
+        render_history=lambda events, container: audit_workspace.render_event_timeline(events, container),
     )
 
     audit_workspace = build_audit_workspace(
@@ -3967,6 +3968,7 @@ def index(q: str = "") -> None:
         can_open_settings=application_settings_controller.can_open,
         open_settings=application_settings_controller.open_from_event,
         open_destination=open_audit_entity,
+        direction=lambda: current_direction["value"],
     )
     select_audit_trail = audit_workspace.select_audit_trail
     show_entity_history = audit_workspace.show_entity_history

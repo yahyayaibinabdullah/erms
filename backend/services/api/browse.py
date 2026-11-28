@@ -142,6 +142,13 @@ def _page(
     resource_kind: Literal["aggregation", "record"] | None = None,
 ) -> dict[str, Any]:
     normalized_query = query.strip()
+    natural = False
+    if resource_kind is not None:
+        from .code_ordering import natural_fields
+        natural = key_column in natural_fields(connection, resource_kind + 's', [key_column])
+        if natural:
+            scope += ':order:erms_code_natural'
+    collation = 'erms_code_natural' if natural else '"C"'
     filters: list[str] = []
     filter_parameters: list[Any] = []
     if normalized_query:
@@ -154,7 +161,7 @@ def _page(
     page_filters = list(filters)
     page_parameters = [*parameters, *filter_parameters]
     if decoded:
-        page_filters.append(f"({key_column} COLLATE \"C\", id) > (%s COLLATE \"C\", %s)")
+        page_filters.append(f"({key_column} COLLATE {collation}, id) > (%s COLLATE {collation}, %s)")
         page_parameters.extend(decoded)
 
     where_suffix = (" WHERE " + " AND ".join(filters)) if filters else ""
@@ -165,7 +172,7 @@ def _page(
     ).fetchone()["total"]
     rows = list(connection.execute(
         f"SELECT * FROM ({source_sql}) browse_source{page_where_suffix} "
-        f"ORDER BY {key_column} COLLATE \"C\", id LIMIT %s",
+        f"ORDER BY {key_column} COLLATE {collation}, id LIMIT %s",
         [*page_parameters, limit + 1],
     ).fetchall())
     has_more = len(rows) > limit

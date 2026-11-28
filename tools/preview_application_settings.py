@@ -83,16 +83,16 @@ def seed(environment):
             with psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row) as c:
                 classification=c.execute("SELECT id FROM classifications WHERE code='T0001'").fetchone()['id']
             for i in range(1,9):
-                row=client.post('/api/v1/aggregations',json={'aggregation_number':f'PH4-ROOT-{i}',
+                row=client.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'aggregation_number':f'PH4-ROOT-{i}',
                     'title':f'Phase 4 root {i}','classification_id':classification,
                     'date_of_next_review':(datetime.now(timezone.utc)+timedelta(days=i)).isoformat()})
                 assert row.status_code==201,row.text
                 if i<=4:assert client.put(f"/api/v1/favourites/aggregations/{row.json()['id']}").status_code==204
-            physical=client.post('/api/v1/aggregations',json={'aggregation_number':'PH4-RECORDS',
+            physical=client.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'aggregation_number':'PH4-RECORDS',
                 'title':'Phase 4 physical record fixtures','medium':'physical','classification_id':classification})
             assert physical.status_code==201,physical.text
             for i in range(1,6):
-                record=client.post('/api/v1/records',json={'record_number':f'PH4-RECORD-{i}',
+                record=client.post('/api/v1/records', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'record_number':f'PH4-RECORD-{i}',
                     'title':f'Phase 4 record {i}','aggregation_id':physical.json()['id'],'medium':'physical'})
                 assert record.status_code==201,record.text
             for _ in range(6):

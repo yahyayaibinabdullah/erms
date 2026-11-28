@@ -938,6 +938,19 @@ def test_messaging_translation_artifact_valid_and_curated_items_preserved(client
             continue
         candidate = current[row['message_key']]
         if candidate != row:
+            if candidate.get('provenance', {}).get('kind') == 'user_approved_correction':
+                # Preserve the exact one-line correction explicitly approved
+                # by the user, including its prior curated provenance.
+                assert row['message_key'] == 'settings.field.search_result_limit.description'
+                assert row['translated_text'] == 'الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم.'
+                assert candidate['translated_text'] == 'الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم وعوامل تصفية الملفات أو الوثائق.'
+                provenance = candidate['provenance']
+                assert provenance['previous_provenance'] == row['provenance']
+                assert provenance['previous_translated_text'] == row['translated_text']
+                assert provenance['source_origin'] == 'manual' and provenance['source_status'] == 'reviewed'
+                assert provenance['review_source'] == 'Explicit user approval in the custom-code-generator implementation chat, 27 November 2026'
+                assert provenance['date_reviewed'] and candidate['quality_flags'] == []
+                continue
             # Only explicitly invalidated, unreviewed machine drafts may be
             # corrected. Administrator export provenance remains byte-for-byte.
             assert row.get('origin') == candidate.get('origin') == 'generated'

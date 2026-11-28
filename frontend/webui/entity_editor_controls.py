@@ -7,6 +7,7 @@ from .entities import EntitySpec, FieldSpec
 from .relationship_select import relationship_select
 from .i18n_catalogue import render_message
 from .locale_services import current_locale_context, utc_instant_to_working, working_datetime_to_utc, working_zone
+from .resource_number_controls import generation_intent
 
 ENTITY_METADATA_LABEL_KEYS = {
     "Managing role": "entity_metadata.field.managing_role",
@@ -134,6 +135,7 @@ def field_input(field: FieldSpec, value: Any = None, options: dict[int, str] | N
 
 def form_payload(spec: EntitySpec, controls: dict[str, Any], *, creating: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {}
+    automatic = generation_intent(controls) if creating and spec.key in {"records", "aggregations"} else {}
     for field in spec.fields:
         if field.name not in controls:
             continue
@@ -145,12 +147,14 @@ def form_payload(spec: EntitySpec, controls: dict[str, Any], *, creating: bool) 
             value = working_datetime_to_utc(
                 datetime.fromisoformat(value), timezone_name,
             ).isoformat().replace("+00:00", "Z")
-        if isinstance(value, str):
+        if isinstance(value, str) and field.name not in automatic:
             value = value.strip()
-        if field.required and value in (None, ""):
+        if field.required and value in (None, "") and not (creating and getattr(controls[field.name], "_generator_eligible", False)):
             raise ValueError(render_message("entity_metadata.validation.required", field=entity_metadata_label(field.label)))
         if creating and value in (None, "") and not field.required:
             continue
         payload[field.name] = None if value == "" else value
+    if automatic:
+        payload["generation_intent"] = automatic
     return payload
 

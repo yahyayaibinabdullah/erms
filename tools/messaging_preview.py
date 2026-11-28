@@ -1,4 +1,5 @@
 """Disposable-only browser fixture; called by the messaging acceptance runner."""
+from uuid import uuid4
 
 import json
 import os
@@ -73,7 +74,7 @@ def seed():
         assert login.status_code == 200, login.text
         client.headers["X-CSRF-Token"] = client.cookies.get("erms_csrf")
         destination = client.post(
-            "/api/v1/aggregations",
+            "/api/v1/aggregations", headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},
             json={
                 "aggregation_number": "MESSAGE-CAPTURE-PREVIEW",
                 "title": "Message capture destination",

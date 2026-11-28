@@ -1,4 +1,5 @@
 """Aggregation browse/detail/editor parity against bounded real API fixtures."""
+from uuid import uuid4
 import re
 import time
 from selenium.webdriver.common.keys import Keys
@@ -18,21 +19,21 @@ def check_aggregations(page):
     })
     rule.raise_for_status()
     leaf_title = 'ملف المعاملات الإدارية الطويلة لاختبار العرض — ' + 'Long title ' * 12
-    leaf = page.api.post('/api/v1/aggregations', json={
+    leaf = page.api.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'}, json={
         'aggregation_number': 'LAYOUT-LEAF', 'title': leaf_title.strip(),
         'classification_id': root['classification_id'], 'medium': 'physical',
         'date_opened': '2026-01-01T00:00:00Z',
     })
     leaf.raise_for_status()
-    page.api.post('/api/v1/records', json={
+    page.api.post('/api/v1/records', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'}, json={
         'aggregation_id': leaf.json()['id'], 'record_number': 'LAYOUT-REC',
         'title': 'One record in this aggregation', 'medium': 'physical',
         'date_originated': '2026-01-01T00:00:00Z',
     }).raise_for_status()
     for i in range(1,52):
-        response=page.api.post('/api/v1/aggregations',json={'parent_aggregation_id':root['id'],'aggregation_number':f'AGG-{i:02}','title':f'Child fixture {i:02}','medium':'physical','date_opened':'2026-01-01T00:00:00Z'});response.raise_for_status()
+        response=page.api.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'parent_aggregation_id':root['id'],'aggregation_number':f'AGG-{i:02}','title':f'Child fixture {i:02}','medium':'physical','date_opened':'2026-01-01T00:00:00Z'});response.raise_for_status()
     for i in range(1,28):
-        response=page.api.post('/api/v1/records',json={'aggregation_id':root['id'],'record_number':f'REC-{i:02}','title':f'Record fixture {i:02}','medium':'physical','date_originated':'2026-01-01T00:00:00Z'});response.raise_for_status()
+        response=page.api.post('/api/v1/records', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'aggregation_id':root['id'],'record_number':f'REC-{i:02}','title':f'Record fixture {i:02}','medium':'physical','date_originated':'2026-01-01T00:00:00Z'});response.raise_for_status()
         if i == 1:
             first_record = response.json()
     def click(key,scope=None):page.click(page.t(key),scope)

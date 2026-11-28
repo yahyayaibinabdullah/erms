@@ -1,4 +1,5 @@
 """Record results, metadata and draft staging in real Chrome/Edge sessions."""
+from uuid import uuid4
 from tools.webui_browser_components import fixture_pdf
 import base64
 from pathlib import Path
@@ -7,7 +8,7 @@ from selenium.webdriver.common.keys import Keys
 
 def check_records(page):
     parent=page.api.post('/api/v1/aggregations/search',json={'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,'offset':0}).json()['items'][0]
-    response=page.api.post('/api/v1/aggregations',json={'aggregation_number':'DRAFT-DEST','title':'Draft destination','classification_id':parent['classification_id'],'medium':'digital','date_opened':'2026-01-01T00:00:00Z'});response.raise_for_status()
+    response=page.api.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'aggregation_number':'DRAFT-DEST','title':'Draft destination','classification_id':parent['classification_id'],'medium':'digital','date_opened':'2026-01-01T00:00:00Z'});response.raise_for_status()
     fixture=Path(page.args.output)/'staged.png';fixture.write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jP1cAAAAASUVORK5CYII='))
     def click(key,scope=None):page.click(page.t(key),scope)
     def dialog():return page.one('.q-dialog__inner > .q-card')

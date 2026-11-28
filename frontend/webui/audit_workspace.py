@@ -18,6 +18,7 @@ from .audit_actor_select import bind_audit_actor_select, actor_condition
 from .audit_labels import audit_entity_type_label
 from .capabilities import can_navigate
 from .disposition.messages import text as disposition_text
+from .locale_services import current_locale_context
 from .event_labels import event_label
 from .i18n_catalogue import render_message, render_message_plain
 from .remote_select import RemoteSelect
@@ -58,6 +59,11 @@ def event_entity_identity(event: dict[str, Any]) -> tuple[str, str]:
     if event.get("operation") == "EXPORT" and entity_type == "classification_scheme":
         snapshot = (event.get("metadata") or {}).get("scheme") or snapshot
     current = event.get("_current_entity") or event.get("_historical_entity") or {}
+    if entity_type == "code_generator":
+        name = snapshot.get('name') or (event.get('metadata') or {}).get('generator_name') or current.get('name') or ''
+        heading = render_message("webui.event_entity_identity.text.title_entity_id_3be1e8f8",
+            title=audit_entity_type_label(entity_type), entity_id=event['entity_id'])
+        return heading, name
 
     if entity_type == "user_role_assignment":
         parties = (event.get("metadata") or {}).get("assignment_parties") or {}
@@ -134,17 +140,18 @@ def build_audit_workspace(
     can_open_settings: Callable[[], bool],
     open_settings: Callable[[dict[str, Any]], Awaitable[None]],
     open_destination: Callable[[str, dict[str, Any]], Awaitable[None]],
+    direction: Callable[[], str] | None = None,
 ) -> AuditWorkspace:
     """Build once for each root-page client; no state is shared between clients."""
     revision = 0
 
     def can_open_event_entity(event: dict[str, Any]) -> bool:
-        if event.get("entity_type") == "application_setting":
+        if event.get("entity_type") in {"application_setting", "code_generator"}:
             return can_open_settings()
         return event.get("entity_type") in {"aggregation", "record", "digital_component", "org_unit", "user", "role"}
 
     async def navigate_to_event_entity(event: dict[str, Any]) -> None:
-        if event.get("entity_type") == "application_setting":
+        if event.get("entity_type") in {"application_setting", "code_generator"}:
             await open_settings(event)
             return
         entity = event.get("_current_entity")
@@ -232,23 +239,29 @@ def build_audit_workspace(
                 if disposition_event:
                     from .disposition.history import readable_event_fields
                     readable_event_fields(event, format_timestamp)
-                elif changed:
+                elif changed or event['entity_type']=='code_generator':
                     ui.label(render_message("webui.show_event_detail.label.field_changes_252aeebc")).classes("font-semibold")
-                    change_rows = [
+                    if event['entity_type']=='code_generator':
+                        from .code_generator_audit import change_rows as generator_change_rows
+                        change_rows = generator_change_rows(event,format_timestamp)
+                    else:
+                        change_rows = [
                         {
                             "field": field.replace("_", " ").title(),
                             "before": event_reference_value(event, "before", field, before.get(field)),
                             "after": event_reference_value(event, "after", field, after.get(field)),
                         }
                         for field in changed
-                    ]
+                        ]
+                    rtl = direction()=='rtl' if direction else current_locale_context()[0].startswith('ar')
+                    align = 'right' if rtl else 'left'
                     change_table = ui.table(
                         columns=[
-                            {"name": "field", "label": "Field", "field": "field", "align": "left"},
-                            {"name": "before", "label": "Before", "field": "before", "align": "left"},
-                            {"name": "after", "label": "After", "field": "after", "align": "left"},
+                            {"name": "field", "label": render_message_plain('resource_types.ui.field'), "field": "field", "align": align},
+                            {"name": "before", "label": render_message_plain('disposition.ui.revision_before'), "field": "before", "align": align},
+                            {"name": "after", "label": render_message_plain('disposition.ui.revision_after'), "field": "after", "align": align},
                         ], rows=change_rows, row_key="field",
-                    ).props("flat bordered wrap-cells hide-pagination").classes("w-full shrink-0")
+                    ).props("flat bordered separator=horizontal wrap-cells hide-bottom").classes("erms-page-table w-full shrink-0")
                     for key in ("before", "after"):
                         change_table.add_slot(f"body-cell-{key}", f'<q-td :props="props"><div class="audit-value">{{{{ props.row.{key} }}}}</div></q-td>')
                 if can_navigate("audit-trail", (principal() or {}).get("global_privileges", [])):
@@ -298,7 +311,12 @@ def build_audit_workspace(
                             if entity_identity:
                                 ui.label(entity_identity).classes("text-sm font-medium text-slate-700 line-clamp-1")
                             if event.get("changed_fields"):
-                                ui.label(", ".join(field.replace("_", " ") for field in event["changed_fields"])).classes("text-xs text-slate-400 line-clamp-1")
+                                if event['entity_type']=='code_generator':
+                                    from .code_generator_audit import field_label
+                                    fields = [field_label(field) for field in event['changed_fields']]
+                                else:
+                                    fields = [field.replace('_',' ') for field in event['changed_fields']]
+                                ui.label(", ".join(fields)).classes("text-xs text-slate-400 line-clamp-1")
                         with ui.column().classes("items-end gap-0"):
                             ui.label(format_timestamp(event["occurred_at"])).classes("text-xs font-medium text-slate-600")
                             ui.label(actor_name).classes("text-xs font-medium text-slate-600")

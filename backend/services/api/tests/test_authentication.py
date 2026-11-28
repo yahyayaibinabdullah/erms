@@ -12,6 +12,7 @@ from backend.services.api.manage_auth import (
     bootstrap_administrator,
 )
 from backend.services.api.session_cleanup import cleanup_sessions
+from .conftest import _allow_generator_fixture_reset, _restore_generator_fixture
 
 
 def test_authenticated_principal_includes_roles(client: TestClient):
@@ -351,6 +352,7 @@ def test_empty_database_can_bootstrap_one_interactive_administrator(client: Test
     with psycopg.connect(
         os.environ["DATABASE_URL"], row_factory=psycopg.rows.dict_row
     ) as connection:
+        _allow_generator_fixture_reset(connection)
         connection.execute(
             """
             TRUNCATE login_sessions, user_credentials, user_role_assignments,
@@ -358,6 +360,7 @@ def test_empty_database_can_bootstrap_one_interactive_administrator(client: Test
             RESTART IDENTITY CASCADE
             """
         )
+        _restore_generator_fixture(connection)
         result = bootstrap_administrator(connection)
         stored = connection.execute(
             """
@@ -417,6 +420,7 @@ def test_bootstrap_refuses_nonempty_database_without_an_administrator(client: Te
     with psycopg.connect(
         os.environ["DATABASE_URL"], row_factory=psycopg.rows.dict_row
     ) as connection:
+        _allow_generator_fixture_reset(connection)
         connection.execute(
             """
             TRUNCATE login_sessions, user_credentials, user_role_assignments,
@@ -424,6 +428,7 @@ def test_bootstrap_refuses_nonempty_database_without_an_administrator(client: Te
             RESTART IDENTITY CASCADE
             """
         )
+        _restore_generator_fixture(connection)
         connection.execute(
             "INSERT INTO users (name, email) VALUES ('Existing User', 'existing@test.invalid')"
         )

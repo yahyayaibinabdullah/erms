@@ -1,4 +1,5 @@
 """Dashboard navigation refreshes real mutations and favourite actions."""
+from uuid import uuid4
 import pytest
 from nicegui import ui
 from frontend.webui.assembled.tests.test_application import assembled,login,current_page,drawer_buttons,click_one,eventually
@@ -15,7 +16,7 @@ async def test_dashboard_return_obtains_fresh_counts_and_favourites(assembled):
         return int(next(e.text for e in card.descendants() if 'tabular-nums' in e.classes))
     await eventually(lambda:user.pending_requests==0);before=count()
     parent=(await api.search_request('aggregations',{'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,'offset':0}))['items'][0]
-    created=await api.create('records',{'record_number':'DASH-FRESH','title':'Dashboard freshness fixture','aggregation_id':parent['id'],'medium':'physical'})
+    created=await api.create('records',{'record_number':'DASH-FRESH','title':'Dashboard freshness fixture','aggregation_id':parent['id'],'medium':'physical'}, submission_key=str(uuid4()))
     await api.favourite('records',created['id'])
     click_one(user,[b for b in drawer_buttons(user) if plain(b)==t('navigation.item.application_settings')]);await eventually(lambda:current_page(user)=='application-settings' and user.pending_requests==0)
     reads=sum(r['path']=='/api/v1/dashboard/summary' for r in user.api_requests)

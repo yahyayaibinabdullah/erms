@@ -1,4 +1,5 @@
 """AFD browser acceptance against the runner-owned disposable stack."""
+from uuid import uuid4
 import re
 import base64
 from selenium.webdriver.common.keys import Keys
@@ -8,19 +9,19 @@ from tools.check_webui_browser import plain
 
 def check_aggregation_file_drop(page):
     base=page.api.post('/api/v1/aggregations/search',json={'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1}).json()['items'][0]
-    created=page.api.post('/api/v1/aggregations',json={'aggregation_number':'DROP-ROOT','title':'Drop acceptance',
+    created=page.api.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'aggregation_number':'DROP-ROOT','title':'Drop acceptance',
                            'classification_id':base['classification_id'],'medium':'mixed'})
     assert created.status_code==201,created.text
     root=created.json()
     # The second captured item has the earliest historical timestamp.
     for i in reversed(range(1,50)):
         historical_second = 1 if i == 49 else 0 if i == 48 else 49-i
-        page.api.post('/api/v1/records',json={'aggregation_id':root['id'],'record_number':f'DROP-{i:02}',
+        page.api.post('/api/v1/records', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'aggregation_id':root['id'],'record_number':f'DROP-{i:02}',
                       'title':f'Existing {i:02}','medium':'digital',
                       'date_originated':f'2001-01-01T00:00:{historical_second:02}Z'}).raise_for_status()
     for i in reversed(range(1,12)):
         historical_second = 1 if i == 11 else 0 if i == 10 else 11-i
-        page.api.post('/api/v1/aggregations',json={'parent_aggregation_id':root['id'],'aggregation_number':f'DROP-CHILD-{i:02}',
+        page.api.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'parent_aggregation_id':root['id'],'aggregation_number':f'DROP-CHILD-{i:02}',
                       'title':f'Child {i:02}','date_opened':f'2001-01-01T00:00:{historical_second:02}Z'}).raise_for_status()
 
     def enter(number='DROP-ROOT'):

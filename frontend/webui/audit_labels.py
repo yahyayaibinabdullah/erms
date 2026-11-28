@@ -4,6 +4,7 @@ from .i18n_catalogue import render_message_plain
 
 def audit_entity_type_label(value: str) -> str:
     labels = {
+        'code_generator': render_message_plain('code_generation.ui.audit_entity'),
         'application_setting': render_message_plain('audit.entity.application_setting'),
         'disposition_job': render_message_plain('audit.entity.disposition_job'),
         'disposition_task': render_message_plain('audit.entity.disposition_task'),

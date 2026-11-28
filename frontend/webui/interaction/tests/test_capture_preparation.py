@@ -24,6 +24,7 @@ async def setup(user, outcome='success', active=None):
         creation_role_options=AsyncMock(return_value=[]),
         draft_components=AsyncMock(return_value=[{'id':1,'file_name':'message.pdf'}]),
         discard_record_draft=AsyncMock(),
+        code_generation_bindings=AsyncMock(return_value={"items":[],"total":0}),
     )
     async def prepare():
         started.set()

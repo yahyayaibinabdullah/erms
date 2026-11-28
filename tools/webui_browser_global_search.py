@@ -1,4 +1,5 @@
 """Existing global search URLs, bounded result paging and destination restoration."""
+from uuid import uuid4
 import subprocess
 import json
 import time
@@ -10,9 +11,9 @@ from tools.check_webui_browser import plain
 def check_global_search(page):
     response=page.api.post('/api/v1/aggregations/search',json={'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,'offset':0});response.raise_for_status();parent=response.json()['items'][0]
     for i in range(52):
-        response=page.api.post('/api/v1/aggregations',json={'aggregation_number':f'QS-{i:02}','title':f'Quasararchive aggregation {i:02}','classification_id':parent['classification_id'],'medium':'physical','date_opened':'2026-01-01T00:00:00Z'});response.raise_for_status()
+        response=page.api.post('/api/v1/aggregations', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'aggregation_number':f'QS-{i:02}','title':f'Quasararchive aggregation {i:02}','classification_id':parent['classification_id'],'medium':'physical','date_opened':'2026-01-01T00:00:00Z'});response.raise_for_status()
     for i in range(2):
-        response=page.api.post('/api/v1/records',json={'record_number':f'QS-REC-{i:02}','title':f'Quasararchive record {i:02}','aggregation_id':parent['id'],'medium':'physical','date_originated':'2026-01-01T00:00:00Z'});response.raise_for_status()
+        response=page.api.post('/api/v1/records', headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},json={'record_number':f'QS-REC-{i:02}','title':f'Quasararchive record {i:02}','aggregation_id':parent['id'],'medium':'physical','date_originated':'2026-01-01T00:00:00Z'});response.raise_for_status()
     subprocess.run([page.args.api_python,'-c',"""
 import os,psycopg
 from psycopg.conninfo import conninfo_to_dict

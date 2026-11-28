@@ -14,8 +14,12 @@ from .search_execution import interactive_search
 logger = logging.getLogger(__name__)
 
 
-def contained_record_page_statement(*, number_order: bool):
-    order = sql.SQL("record_number,id" if number_order else "id")
+def contained_record_page_statement(*, number_order: bool, natural_number: bool=False):
+    from .code_ordering import expression
+    first = expression(sql.Identifier('record_number' if number_order else 'id'), number_order and natural_number)
+    order = first + sql.SQL(',id') if number_order else first
+    outer_first = expression(sql.SQL('page.{}').format(sql.Identifier('record_number' if number_order else 'id')),
+                             number_order and natural_number)
     return sql.SQL("""WITH RECURSIVE candidate_ids AS MATERIALIZED (
             SELECT id FROM records WHERE aggregation_id=%s
         ), {visibility}, page AS MATERIALIZED (
@@ -24,18 +28,20 @@ def contained_record_page_statement(*, number_order: bool):
         ), total AS (SELECT count(*) AS matching FROM authorized_records)
         SELECT resource.*,total.matching FROM total LEFT JOIN page ON true
         LEFT JOIN authorized_records_for_search resource ON resource.id=page.id
-        ORDER BY page.{first},page.id
+        ORDER BY {first},page.id
         """).format(
         visibility=sql.SQL(visibility_ctes(candidate_resource="records")),
-        order=order, first=sql.Identifier("record_number" if number_order else "id"),
+        order=order, first=outer_first,
     )
 
 
 @interactive_search
 def browse_contained_records(connection, aggregation_id, request, *, number_order: bool):
     """An exact parent browse is uncapped and uses one authorization set."""
+    from .code_ordering import natural_fields
+    natural = number_order and 'record_number' in natural_fields(connection, 'records', ['record_number'])
     rows = connection.execute(
-        contained_record_page_statement(number_order=number_order),
+        contained_record_page_statement(number_order=number_order, natural_number=natural),
         (aggregation_id, request.limit, request.offset),
     ).fetchall()
     total = rows[0]["matching"]

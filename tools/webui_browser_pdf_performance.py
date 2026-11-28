@@ -1,4 +1,5 @@
 """Repeatable original-PDF measurements inside the owning disposable browser runner."""
+from uuid import uuid4
 
 import hashlib
 import os
@@ -104,7 +105,7 @@ def check_pdf_performance(page):
         },
     ).json()["items"][0]
     aggregation = page.api.post(
-        "/api/v1/aggregations",
+        "/api/v1/aggregations", headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},
         json={
             "aggregation_number": "PDF-BENCH",
             "title": "Preview benchmark",
@@ -114,7 +115,7 @@ def check_pdf_performance(page):
     )
     aggregation.raise_for_status()
     saved = page.api.post(
-        "/api/v1/records",
+        "/api/v1/records", headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},
         json={
             "aggregation_id": aggregation.json()["id"],
             "record_number": "PDF-BENCH",

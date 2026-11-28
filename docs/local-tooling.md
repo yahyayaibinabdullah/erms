@@ -435,7 +435,15 @@ Run `backend/services/api/.venv/bin/python tools/check_search_performance.py`.
 It creates and drops an owned disposable database containing over 50,000
 aggregations and 150,000 records. See the
 [search performance contract](search-performance.md) for counts, criteria,
-ranking checks, per-response timing thresholds and retained evidence.
+ranking checks, representative/stress profiles, bounded-page timing limits
+and retained evidence. Timing overruns are reported separately from correctness;
+they do not authorize unrelated search optimization.
+
+For the actual classification-tree request shape, the Linux runner supports
+`--workload classification-tree`: 50-item batches, about 100 child aggregations
+per tested parent, distributed roots, and concurrent child/record first batches.
+See the [representative verification report](verification/classification-tree-representative-2026-11-27.md)
+for the exact command, data assumptions, above-limit results and cleanup evidence.
 
 ### Local LibreOffice pool
 

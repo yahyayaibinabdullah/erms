@@ -1,5 +1,9 @@
 import os
+import re
+from urllib.parse import urlsplit
+from uuid import uuid4
 
+import httpx
 import psycopg
 from psycopg.conninfo import conninfo_to_dict
 from psycopg.types.json import Jsonb
@@ -18,17 +22,37 @@ def _require_disposable_database():
         raise RuntimeError("API fixtures require a new disposable database from tools/run_disposable_acl_tests.py")
 
 
+GENERATOR_FIXTURE_TABLES = ("code_generators", "code_generator_counters", "resource_creation_requests")
+
+
+def _allow_generator_fixture_reset(connection):
+    _require_disposable_database()
+    for table in GENERATOR_FIXTURE_TABLES:
+        connection.execute(f"ALTER TABLE IF EXISTS {table} DISABLE TRIGGER USER")
+
+
+def _restore_generator_fixture(connection):
+    for table in GENERATOR_FIXTURE_TABLES:
+        connection.execute(f"ALTER TABLE IF EXISTS {table} ENABLE TRIGGER USER")
+
+
 def _allow_settings_fixture_reset(connection):
     _require_disposable_database()
     # TRUNCATE classifications CASCADE also clears its generated settings FKs.
     # This explicit fixture reset is restricted to the disposable runner database.
     for table in ("application_settings", "application_settings_migration_keys"):
         connection.execute(f"ALTER TABLE {table} DISABLE TRIGGER USER")
+    _allow_generator_fixture_reset(connection)
+    if connection.execute("SELECT to_regclass('public.code_generators')").fetchone()[0]:
+        # An All types primary binding has no catalogue-row FK that would
+        # otherwise clear it when fixture resources are truncated.
+        connection.execute("TRUNCATE code_generators RESTART IDENTITY CASCADE")
 
 
 def _restore_settings_fixture(connection):
     for table in ("application_settings", "application_settings_migration_keys"):
         connection.execute(f"ALTER TABLE {table} ENABLE TRIGGER USER")
+    _restore_generator_fixture(connection)
     source = connection.execute("SELECT current_setting('app.event_source',true)").fetchone()[0]
     connection.execute("SELECT set_config('app.event_source','seeding',true)")
     connection.cursor().executemany(
@@ -44,11 +68,35 @@ def client():
     # Reject before lifespan can synchronize any persistent database catalogue.
     _require_disposable_database()
     with TestClient(app) as test_client:
+        original_request=test_client.request
+
+        def creation_request(method,url,*args,**kwargs):
+            path=urlsplit(str(url)).path
+            final_creation=(path in {"/api/v1/records","/api/v1/aggregations"} or
+                re.fullmatch(r"/api/v1/record-drafts/[0-9]+/commit(?:-placement-correction)?",path) or
+                re.fullmatch(r"/api/v1/aggregations/[0-9]+/records/file-drop",path))
+            if method.upper()=="POST" and final_creation:
+                headers=httpx.Headers(kwargs.get("headers") or {})
+                # Each ordinary fixture call is a new intended creation. Tests
+                # for replay supply their stable key; an explicit empty header
+                # exercises the missing-key contract without this default.
+                if "Idempotency-Key" not in headers:
+                    headers["Idempotency-Key"]=str(uuid4())
+                kwargs["headers"]=headers
+            return original_request(method,url,*args,**kwargs)
+
+        test_client.request=creation_request
         yield test_client
 
 
 @pytest.fixture(autouse=True)
 def clean_database(client: TestClient):
+    # Tests can explicitly switch to bearer authentication. The session-scoped
+    # client must not carry that token into a freshly recreated fixture: it
+    # would override the next test's valid sign-in cookie with a deleted session.
+    client.cookies.clear()
+    client.headers.pop('Authorization',None)
+    client.headers.pop('X-CSRF-Token',None)
     password = "Temporary-Test-Password-123!"
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         _allow_settings_fixture_reset(connection)
@@ -154,6 +202,7 @@ def clean_database(client: TestClient):
         connection.execute("ALTER TABLE event_history ENABLE TRIGGER USER")
         _restore_settings_fixture(connection)
     client.cookies.clear()
+    client.headers.pop('Authorization',None)
     client.headers.pop("X-CSRF-Token", None)
 
 

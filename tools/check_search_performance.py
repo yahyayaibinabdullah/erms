@@ -190,7 +190,7 @@ def oracle(c, query, sources, maximum_id=None, kind=None, order_by_id=False):
     return rows
 
 
-def exercise(output, repeats, *, type_text=False, upgraded_reader_check=None):
+def exercise(output, repeats, *, type_text=False, code_generators=False, upgraded_reader_check=None):
     """The populated-upgrade rehearsal reuses the three broad cases and the reader session."""
     from fastapi.testclient import TestClient
     from backend.services.api.main import app
@@ -312,6 +312,11 @@ def exercise(output, repeats, *, type_text=False, upgraded_reader_check=None):
         if type_text:
             from tools.type_text_search_performance import exercise as exercise_type_text
             exercise_type_text(client, c, output, repeats)
+        if code_generators:
+            from tools.code_generation_ordering_performance import seed as seed_code_order, exercise as exercise_code_order
+            definitions = seed_code_order(c, output)
+            failures.extend(exercise_code_order(client, c, output, repeats, definitions))
+            (output/'results.json').write_text(json.dumps({'results':results,'failures':failures},indent=2))
         assert not failures, f'{len(failures)} responses exceeded their time limit; see {output}/results.json'
 
 
@@ -327,6 +332,9 @@ def main():
     parser.add_argument('--typed-search-only', action='store_true', help='Measure typed structured searches, saved searches and selectors')
     parser.add_argument('--type-visibility-only',action='store_true',help='Exercise broad lists, revocation, governance and writes on the typed fixture')
     parser.add_argument('--resource-types',action='store_true',help='Seed mixed typed/untyped resources with equivalent reader access')
+    parser.add_argument('--code-generators',action='store_true',help='Also measure attached-code natural sorting, typed keys and saved paging')
+    parser.add_argument('--code-generators-only',action='store_true',help='Measure only natural-code flows on the complete large document fixture')
+    parser.add_argument('--classification-tree-only',action='store_true',help='Measure actual 50-item classification-tree requests with representative branch distribution')
     parser.add_argument('--mailbox-only',action='store_true',
                         help='Measure Inbox, Outbox and Drafts against the same document corpus')
     parser.add_argument('--mailbox-page-size', type=int, default=25,
@@ -337,15 +345,23 @@ def main():
     parser.add_argument('--audit-only', action='store_true',
                         help='Measure Audit Trail paging and redaction on the large document fixture')
     args=parser.parse_args()
+    args.code_generators |= args.code_generators_only
+    if args.classification_tree_only and any((args.audit_only,args.mailbox_only,args.type_ui,
+            args.type_text,args.typed_search_only,args.type_visibility_only,args.classification_schemes_only,args.code_generators)):
+        parser.error('--classification-tree-only is a separate workload')
     if args.audit_only and any((args.mailbox_only, args.type_ui, args.type_text, args.typed_search_only,
-                               args.type_visibility_only, args.resource_types, args.classification_schemes_only)):
+                               args.type_visibility_only, args.resource_types, args.classification_schemes_only,args.code_generators)):
         parser.error('--audit-only cannot be combined with another workload')
     if args.classification_schemes_only and any((args.mailbox_only, args.type_ui, args.type_text,
                                                 args.typed_search_only, args.type_visibility_only,
-                                                args.resource_types)):
+                                                args.resource_types,args.code_generators)):
         parser.error('--classification-schemes-only cannot be combined with another workload')
     args.typed_search_only |= args.type_ui
     args.resource_types |= args.type_text
+    args.resource_types |= args.code_generators
+    args.resource_types |= args.classification_tree_only
+    if args.code_generators and any((args.mailbox_only,args.type_ui,args.typed_search_only,args.type_visibility_only)):
+        parser.error('--code-generators cannot be combined with a different isolated workload')
     if args.type_visibility_only or args.typed_search_only:
         args.resource_types=True
     if args.repeats<1:parser.error('repeats must be positive')
@@ -356,6 +372,9 @@ def main():
     source_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in (
         'tools/check_search_performance.py', 'tools/audit_search_performance.py', 'backend/services/api/search.py',
         'backend/services/api/type_search.py', 'backend/services/api/saved_searches.py',
+        'backend/services/api/code_ordering.py', 'backend/services/api/code_generation_store.py',
+        'backend/services/api/crud.py','backend/services/api/browse.py',
+        'backend/services/api/disposition/report_presentation.py',
         'tools/structured_type_search_performance.py', 'tools/type_text_search_performance.py',
         'backend/services/api/search_page.py', 'backend/services/api/search_cache.py',
         'backend/services/api/search_projections.py',
@@ -368,6 +387,9 @@ def main():
         'backend/services/api/recent_activity.py', 'tools/search_aggregation_activity_performance.py',
         'backend/services/api/creator_attribution.py', 'backend/services/api/application_settings_registry.py',
         'database/seeds/000_required_reference_data.sql',
+        *(['tools/code_generation_ordering_performance.py'] if args.code_generators else []),
+        *(['tools/classification_tree_performance.py','frontend/webui/aggregation_browser.py',
+           'frontend/webui/api_client.py'] if args.classification_tree_only else []),
         *(['backend/services/api/browse.py', 'backend/services/api/entity_localization.py',
            'tools/classification_scheme_browse_performance.py'] if args.classification_schemes_only else []),
         *(['tools/type_ui_performance.py', 'backend/services/api/resource_types.py',
@@ -397,8 +419,11 @@ def main():
                 c.execute((ROOT/'database/seeds/messaging.sql').read_text(), prepare=False)
             from tools.search_storage_experiment import configure, inspect
             configure(c, args.vector_storage)
-            seed(c, include_chunks=not args.audit_only,
+            seed(c, include_chunks=not (args.audit_only or args.classification_tree_only),
                  typed=args.resource_types, structured_types=args.typed_search_only)
+            if args.classification_tree_only:
+                from tools.classification_tree_performance import seed as seed_tree
+                seed_tree(c,args.output)
             if args.classification_schemes_only:
                 from tools.classification_scheme_browse_performance import seed as seed_scheme_browse
                 seed_scheme_browse(c)
@@ -418,10 +443,13 @@ def main():
                 'platform':platform.platform(),'aggregations':AGGREGATIONS,'records':RECORDS,
                 'audit_events':c.execute('SELECT count(*) AS n FROM event_history').fetchone()['n'],
                 'mixed_resource_types':args.resource_types,'components':RECORDS,
-                'chunks':0 if args.audit_only else RECORDS*2,'repeats':args.repeats,
-                'threshold_seconds':3,'page_size':(args.mailbox_page_size if args.mailbox_only else
+                'code_generators':args.code_generators,'code_generators_only':args.code_generators_only,
+                'chunks':0 if args.audit_only or args.classification_tree_only else RECORDS*2,'repeats':args.repeats,
+                'classification_tree':args.classification_tree_only,
+                'test_profile':'representative_classification_tree' if args.classification_tree_only else 'existing_workload',
+                'threshold_seconds':3,'page_size':(50 if args.classification_tree_only else args.mailbox_page_size if args.mailbox_only else
                                                 50 if args.classification_schemes_only or args.audit_only else 100),
-                'result_cap':None if args.mailbox_only or args.classification_schemes_only else 1000,
+                'result_cap':None if args.mailbox_only or args.classification_schemes_only or args.classification_tree_only else 1000,
                 'classification_scheme_browse':args.classification_schemes_only,
                 'audit_trail':args.audit_only,
                 'mailbox_rows_per_folder':2400 if args.mailbox_only else None,
@@ -431,7 +459,7 @@ def main():
                 'search_execution':search_settings,
                 'jit_default':c.execute('SHOW jit').fetchone()['jit'],
                 'jit_available':c.execute('SELECT pg_jit_available() AS value').fetchone()['value'],
-                'search_jit':('scheme browse preserves the pooled connection setting' if args.classification_schemes_only
+                'search_jit':('browse preserves the pooled connection setting' if args.classification_schemes_only or args.classification_tree_only
                               else 'disabled only within search execution; previous setting restored'),
                 'data_checksums':c.execute('SHOW data_checksums').fetchone()['data_checksums'],
                 'wal_log_hints':c.execute('SHOW wal_log_hints').fetchone()['wal_log_hints'],
@@ -445,7 +473,13 @@ def main():
             time.sleep(args.settle_seconds)
         buffered = BufferedOutput(args.output)
         try:
-            if args.audit_only:
+            if args.classification_tree_only:
+                from tools.classification_tree_performance import exercise_owned
+                exercise_owned(url,buffered,args.repeats)
+            elif args.code_generators_only:
+                from tools.code_generation_ordering_performance import exercise_owned
+                exercise_owned(url,buffered,args.repeats)
+            elif args.audit_only:
                 from tools.audit_search_performance import exercise_audit_only
                 exercise_audit_only(url, buffered, args.repeats)
             elif args.mailbox_only:
@@ -461,7 +495,7 @@ def main():
                 from tools.resource_type_visibility_performance import exercise as exercise_visibility
                 exercise_visibility(url,buffered,args.repeats)
             else:
-                exercise(buffered,args.repeats,type_text=args.type_text)
+                exercise(buffered,args.repeats,type_text=args.type_text,code_generators=args.code_generators)
         finally:
             buffered.flush()
     except BaseException as error:

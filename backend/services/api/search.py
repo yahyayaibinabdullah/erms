@@ -51,6 +51,7 @@ class FieldType(str, Enum):
 class SearchField:
     type: FieldType
     nullable: bool = False
+    natural_sort: bool = False
 
 
 INTEGER = SearchField(FieldType.INTEGER)
@@ -404,11 +405,19 @@ def _type_comparison(expression, fields, resource):
 
 
 def search_fields(connection, resource, request):
+    from dataclasses import replace
+    from .code_ordering import natural_fields
     definitions, versions = type_search.resolve(connection, resource, request)
     fields = SEARCH_FIELDS[resource]
     if definitions:
         fields = {**fields, **{name: SearchField(FieldType(dtype), nullable=True)
                                for name, dtype in definitions.items()}}
+    natural = natural_fields(connection, resource, (item.field for item in request.sort
+        if item.field in fields and fields[item.field].type is FieldType.TEXT))
+    if natural:
+        fields = {name: replace(field, natural_sort=True) if name in natural else field
+                  for name, field in fields.items()}
+        versions += (("erms_code_natural", tuple(sorted(natural))),)
     return fields, versions
 
 
@@ -1115,6 +1124,8 @@ def search_rows(
         if field == "_relevance":
             return relevance
         canonical = sql.SQL("resource.{}").format(sql.Identifier(field))
+        if fields[field].natural_sort:
+            return sql.SQL("{} COLLATE erms_code_natural").format(canonical)
         if display_filter is not None and fields[field].type is FieldType.TEXT:
             return sql.SQL("lower({})").format(canonical)
         if field != "name" or not language_candidates or table not in {
@@ -1132,7 +1143,7 @@ def search_rows(
         )
 
     order_clause = sql.SQL(", ").join(
-        type_search.sort_sql(field, direction) if field.startswith("type.") else
+        type_search.sort_sql(field, direction, natural=fields[field].natural_sort) if field.startswith("type.") else
         sql.SQL("{} {}").format(sort_expression(field), sql.SQL(direction.upper()))
         for field, direction in sort_fields
     )

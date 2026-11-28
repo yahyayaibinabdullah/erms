@@ -1,6 +1,7 @@
 """Connected record draft/metadata lifecycle through the real UI and API."""
 from io import BytesIO
 from types import SimpleNamespace
+from uuid import uuid4
 import pytest
 from nicegui import ui
 from frontend.webui.assembled.tests.test_application import assembled,login,current_page,drawer_buttons,click_one,eventually
@@ -16,7 +17,7 @@ pytestmark=pytest.mark.asyncio
 async def test_record_draft_validation_staging_commit_and_metadata(assembled,medium):
     user=assembled;await login(user);api=user.api_clients[0]
     parent=(await api.search_request('aggregations',{'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,'offset':0}))['items'][0]
-    if medium=='digital':parent=await api.create('aggregations',dict(aggregation_number='REC-DEST',title='Record destination',classification_id=parent['classification_id'],medium='digital'))
+    if medium=='digital':parent=await api.create('aggregations',dict(aggregation_number='REC-DEST',title='Record destination',classification_id=parent['classification_id'],medium='digital'), submission_key=str(uuid4()))
     click_one(user,[b for b in drawer_buttons(user) if plain(b)=='Aggregations'])
     await eventually(lambda:current_page(user)=='aggregations' and user.pending_requests==0)
     with user:next(i for i in user.find(ui.input).elements if plain(i)==t('webui.index.input.search_by_number_title_or_description_e21ed520')).value=parent['aggregation_number']
@@ -78,7 +79,7 @@ async def test_records_collection_drop_commits_reviewed_draft(assembled, monkeyp
         "where": {"field": "aggregation_number", "operator": "eq", "value": "TEST-AGG"}, "limit": 1,
     }))["items"][0]
     parent = await api.create("aggregations", dict(aggregation_number="INTAKE", title="Digital intake",
-                              classification_id=parent["classification_id"], medium="mixed"))
+                              classification_id=parent["classification_id"], medium="mixed"), submission_key=str(uuid4()))
 
     # The Chrome scope tests native File transport. Supply the same bytes in
     # the in-process UI client, which cannot execute browser JavaScript.

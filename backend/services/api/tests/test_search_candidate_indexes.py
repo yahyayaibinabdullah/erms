@@ -27,6 +27,19 @@ def test_search_index_upgrade_preserves_data_and_matches_canonical_schema(client
         assert c.execute('SELECT * FROM record_search_documents WHERE record_id=%s', (record['id'],)).fetchone() == document
 
 
+def test_schema_verifier_folds_equivalent_config_arrays_but_keeps_predicate_differences(client):
+    from psycopg.rows import dict_row
+    from tools.verify_canonical_schema import normalized_index_predicate
+    with psycopg.connect(os.environ['DATABASE_URL'],row_factory=dict_row) as c:
+        def normalized(predicate):
+            return normalized_index_predicate(c,'public','digital_component_search_chunks',predicate)
+        current="text_search_config NOT IN ('simple'::regconfig,'english'::regconfig,'arabic'::regconfig)"
+        dumped="text_search_config::oid <> ALL (ARRAY['simple'::regconfig::oid,'english'::regconfig::oid,'arabic'::regconfig::oid])"
+        assert normalized(current)==normalized(dumped)
+        assert normalized(current)!=normalized(current.replace("'arabic'","'french'"))
+        assert normalized(current)!=normalized(current.replace('NOT IN','IN'))
+
+
 @pytest.mark.parametrize('configuration,text,query', [
     ('pg_catalog.english', 'approvals', 'approval'),
     ('pg_catalog.arabic', 'وثيقة', 'وثيقة'),

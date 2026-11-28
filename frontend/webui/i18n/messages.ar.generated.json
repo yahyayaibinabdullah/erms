@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
-  "catalogue_sha256": "6c4324304bd70ea82cde73867870ca055b549660d6a9cba8a51b86a55105d932",
+  "catalogue_sha256": "760fd9251c0b2f2fd68c8fac9b86bd8e896e4a444868e5a870af6bf4a11de0c4",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261126113650",
   "generated_at": "2026-11-26T11:36:50.051766+04:00",
@@ -438,6 +438,9 @@
     ],
     "resource_types.ui.aggregation_catalogue": [
       "أنواع التجميعات"
+    ],
+    "code_generation.ui.named_type": [
+      "نوع محدد"
     ]
   },
   "items": [
@@ -5395,6 +5398,2866 @@
         "source_status": "published",
         "date_reviewed": "2026-09-26T18:09:38.988782+00:00",
         "date_published": "2026-09-26T18:09:38.988782+00:00"
+      }
+    },
+    {
+      "message_key": "code_generation.action.correct_details",
+      "translated_text": "تصحيح التفاصيل",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-client-retry-v1",
+        "batch_id": "code-generators-client-retry-20261126",
+        "generated_at": "2026-11-26T18:16:15.613262+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "7cfc4464210b381bd30655fc5f546a0b21209e6aad3e2215ab81dd6dc836accb",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.action.retry_original",
+      "translated_text": "إعادة محاولة الإنشاء الأصلي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-client-retry-v1",
+        "batch_id": "code-generators-client-retry-20261126",
+        "generated_at": "2026-11-26T18:12:01.597566+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "0da08275252fd63cb33e19126a593a6d6e3855528df3702acff2ace0296d113e",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.backward_adjustment",
+      "translated_text": "أدخل عددًا صحيحًا أكبر من الرقم التالي الحالي.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase2-v1",
+        "batch_id": "code-generators-phase2-20261126",
+        "generated_at": "2026-11-26T16:25:57.143480+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "ea8590ccbfe8dd3c2e7830ebe75a03a4f1fea2a02bb22f2c23c15c176a3717fd",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.in_use",
+      "translated_text": "يحتوي هذا المولّد على عدّادات محفوظة. عطّله أو أزل ارتباطه بالحقل عند إيقاف استخدامه.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase2-v1",
+        "batch_id": "code-generators-phase2-20261126",
+        "generated_at": "2026-11-26T16:25:57.143480+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "ea8590ccbfe8dd3c2e7830ebe75a03a4f1fea2a02bb22f2c23c15c176a3717fd",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.invalid",
+      "translated_text": "راجع إعدادات مولّد الرموز وحاول مرة أخرى.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase2-v1",
+        "batch_id": "code-generators-phase2-20261126",
+        "generated_at": "2026-11-26T16:25:57.143480+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "ea8590ccbfe8dd3c2e7830ebe75a03a4f1fea2a02bb22f2c23c15c176a3717fd",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.invalid_target",
+      "translated_text": "اختر حقلًا نصيًا قابلًا للتحرير ونوعًا مطابقًا من أنواع الوثائق أو الملفات.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase2-v1",
+        "batch_id": "code-generators-phase2-20261126",
+        "generated_at": "2026-11-26T16:25:57.143480+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "ea8590ccbfe8dd3c2e7830ebe75a03a4f1fea2a02bb22f2c23c15c176a3717fd",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.length_exceeded",
+      "translated_text": "يتجاوز الرمز المُنشأ الطول المسموح به. راجع النمط والحشو بالأصفار وحدّ الطول.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase2-v1",
+        "batch_id": "code-generators-phase2-20261126",
+        "generated_at": "2026-11-26T16:25:57.143480+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "ea8590ccbfe8dd3c2e7830ebe75a03a4f1fea2a02bb22f2c23c15c176a3717fd",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.missing_context",
+      "translated_text": "يحتاج النمط إلى معلومات إضافية. راجع رموز الأمثلة أو معلومات الإنشاء.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase2-v1",
+        "batch_id": "code-generators-phase2-20261126",
+        "generated_at": "2026-11-26T16:25:57.143480+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "ea8590ccbfe8dd3c2e7830ebe75a03a4f1fea2a02bb22f2c23c15c176a3717fd",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.not_found",
+      "translated_text": "لم يعد مولّد الرموز متاحًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase2-v1",
+        "batch_id": "code-generators-phase2-20261126",
+        "generated_at": "2026-11-26T16:25:57.143480+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "ea8590ccbfe8dd3c2e7830ebe75a03a4f1fea2a02bb22f2c23c15c176a3717fd",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.overlap",
+      "translated_text": "يوجد مولّد مفعّل آخر ينطبق بالفعل على هذا الحقل والنوع.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase2-v1",
+        "batch_id": "code-generators-phase2-20261126",
+        "generated_at": "2026-11-26T16:25:57.143480+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "ea8590ccbfe8dd3c2e7830ebe75a03a4f1fea2a02bb22f2c23c15c176a3717fd",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.reason_required",
+      "translated_text": "أدخل سببًا لتغيير هذا المولّد.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase2-v1",
+        "batch_id": "code-generators-phase2-20261126",
+        "generated_at": "2026-11-26T16:25:57.143480+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "ea8590ccbfe8dd3c2e7830ebe75a03a4f1fea2a02bb22f2c23c15c176a3717fd",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.recommendation_conflict",
+      "translated_text": "لم يعد بالإمكان استخدام هذا الرمز المقترح. اطلب اقتراحًا آخر أو أدخل قيمة يدوية مسموحًا بها. حدّث أي مستندات تحتوي على الرمز القديم قبل المحاولة مجددًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase3-v1",
+        "batch_id": "code-generators-phase3-20261126",
+        "generated_at": "2026-11-26T16:52:13.935173+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "d7955daaa38bae27be3c6b10bfb17ab8c678738ed95f4f26e85a6fb67da144e4",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.required_value",
+      "translated_text": "أدخل قيمة للحقل المطلوب.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase3-v1",
+        "batch_id": "code-generators-phase3-20261126",
+        "generated_at": "2026-11-26T16:52:13.935173+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "d7955daaa38bae27be3c6b10bfb17ab8c678738ed95f4f26e85a6fb67da144e4",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.submission_conflict",
+      "translated_text": "اكتمل هذا الطلب بالفعل بتفاصيل مختلفة. تحقّق من العنصر المُنشأ قبل الإرسال مجددًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase3-v1",
+        "batch_id": "code-generators-phase3-20261126",
+        "generated_at": "2026-11-26T16:52:13.935173+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "d7955daaa38bae27be3c6b10bfb17ab8c678738ed95f4f26e85a6fb67da144e4",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.submission_key_invalid",
+      "translated_text": "طلب الإنشاء غير صالح. راجعه وحاول مرة أخرى.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase3-v1",
+        "batch_id": "code-generators-phase3-20261126",
+        "generated_at": "2026-11-26T16:52:13.935173+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "d7955daaa38bae27be3c6b10bfb17ab8c678738ed95f4f26e85a6fb67da144e4",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.submission_key_required",
+      "translated_text": "طلب الإنشاء غير مكتمل. أعد فتح النموذج وحاول مرة أخرى.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase3-v1",
+        "batch_id": "code-generators-phase3-20261126",
+        "generated_at": "2026-11-26T16:52:13.935173+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "d7955daaa38bae27be3c6b10bfb17ab8c678738ed95f4f26e85a6fb67da144e4",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.submission_unavailable",
+      "translated_text": "اكتمل هذا الطلب بالفعل، لكن نتيجته لم تعد متاحة. لن يُنشأ العنصر مرة أخرى.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase3-v1",
+        "batch_id": "code-generators-phase3-20261126",
+        "generated_at": "2026-11-26T16:52:13.935173+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "d7955daaa38bae27be3c6b10bfb17ab8c678738ed95f4f26e85a6fb67da144e4",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.error.unknown_outcome",
+      "translated_text": "تحقّق من نتيجة الإنشاء الأصلي قبل تغيير تفاصيله. أعد محاولة الطلب الأصلي لمعرفة ما إذا كان قد اكتمل.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-client-retry-v1",
+        "batch_id": "code-generators-client-retry-20261126",
+        "generated_at": "2026-11-26T17:40:36.349596+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "60fe1f27803dcd6b8e273ffd673f08f66a78be4c8e04e3209a51475ecac29d8b",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.status.files_retained",
+      "translated_text": "تم الاحتفاظ بملفاتك لهذا الإنشاء.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-client-retry-v1",
+        "batch_id": "code-generators-client-retry-20261126",
+        "generated_at": "2026-11-26T18:16:15.613362+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "catalogue_sha256": "7cfc4464210b381bd30655fc5f546a0b21209e6aad3e2215ab81dd6dc836accb",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.actions",
+      "translated_text": "الإجراءات",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.adjusted",
+      "translated_text": "قُدّم الرقم التالي.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.advance",
+      "translated_text": "تقديم الرقم التالي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.all",
+      "translated_text": "الكل",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.all_items",
+      "translated_text": "جميع العناصر",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generator-applicability-v1",
+        "batch_id": "code-generator-applicability-20261127",
+        "generated_at": "2026-11-27T19:23:39.428867+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "760fd9251c0b2f2fd68c8fac9b86bd8e896e4a444868e5a870af6bf4a11de0c4"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.applies_to",
+      "translated_text": "يُطبَّق على",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generator-applicability-v1",
+        "batch_id": "code-generator-applicability-20261127",
+        "generated_at": "2026-11-27T19:23:39.427922+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "760fd9251c0b2f2fd68c8fac9b86bd8e896e4a444868e5a870af6bf4a11de0c4"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.apply",
+      "translated_text": "بحث",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.audit_advance",
+      "translated_text": "قُدّم الرقم التالي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.audit_entity",
+      "translated_text": "مولّد الرموز المخصصة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.bucket_help",
+      "translated_text": "دون إعادة بدء: 0001-01-01. سنويًا: 1 يناير من العام. شهريًا: اليوم الأول من الشهر.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.cancel",
+      "translated_text": "إلغاء",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.capacity",
+      "translated_text": "يسمح هذا الحقل بحد أقصى قدره {maximum} محرفًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.characters",
+      "translated_text": "المحارف",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.classification_token",
+      "translated_text": "رمز التصنيف",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.combined",
+      "translated_text": "نطاقات مختلفة مع إعادة البدء",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.conflict",
+      "translated_text": "تغيّر هذا المولّد. احتُفظ بإدخالاتك. أعد تحميل الإعدادات المحفوظة قبل تعديله مجددًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.context_a",
+      "translated_text": "السياق الافتراضي أ",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.context_b",
+      "translated_text": "السياق الافتراضي ب",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.counter_empty",
+      "translated_text": "لم تُستخدم عدادات بعد. يمكنك اختيار نطاق وفترة لم يُستخدما أدناه.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.counter_help",
+      "translated_text": "قدّم عدادًا واحدًا لنطاق وفترة محددين. تبقى الرموز الحالية دون تغيير. لا يمكن إرجاع العداد إلى الوراء.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.counter_stale",
+      "translated_text": "تغيّر هذا العداد. احتُفظ بإدخالاتك. حمّل رقمه التالي الحالي قبل المحاولة مجددًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.counters",
+      "translated_text": "الأرقام التالية",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.date_token",
+      "translated_text": "التاريخ: العام ثم الشهر ثم اليوم",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.day",
+      "translated_text": "اليوم برقمين",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.delete",
+      "translated_text": "حذف المولّد غير المستخدم",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.delete_help",
+      "translated_text": "احذف فقط مولّدًا دون عدادات محفوظة. يُحتفظ بمسار تتبعه. يلزم ذكر السبب.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.different_scopes",
+      "translated_text": "السياقات أ، أ، ب، أ، ب",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.disabled",
+      "translated_text": "غير مفعّل",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.edit",
+      "translated_text": "تعديل المولّد",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.empty",
+      "translated_text": "لا توجد مولّدات تطابق عوامل التصفية هذه.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.enabled",
+      "translated_text": "مفعّل",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.field",
+      "translated_text": "حقل نصي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.future_help",
+      "translated_text": "يُطبّق على العناصر التي ستُنشأ لاحقًا. تُولّد قيم الحقول النصية الفارغة وتُحفظ القيم المُدخلة يدويًا. تبقى القيم الحالية دون تغيير.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.generator_identity",
+      "translated_text": "المولّد رقم {identity}",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.history",
+      "translated_text": "سجل التغييرات",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.history_denied",
+      "translated_text": "يتطلب عرض السجل صلاحية الاطلاع على مسار التتبع الحالية.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.history_new",
+      "translated_text": "يبدأ سجل التغييرات عند حفظ هذا المولّد.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.increment",
+      "translated_text": "مقدار الزيادة *",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.independent_pattern",
+      "translated_text": "قد يبدأ مولّد مفعّل آخر بالصيغة نفسها للرقم. تحقّق من إمكانية التمييز بين السلسلتين. يبقى التحقّق من التكرار إلزاميًا عند الإنشاء النهائي.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T07:20:03.589221+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "078cb627c92ed25fddceb8389f4b10edc851c15e281fb5baaaf973c0f4806100"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.insert",
+      "translated_text": "إدراج",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.inspect",
+      "translated_text": "تحميل الرقم التالي الحالي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.invalid_field",
+      "translated_text": "تحقق من هذا الإعداد: {field}.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.loading",
+      "translated_text": "جارٍ تحميل المولّدات…",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.maximum",
+      "translated_text": "الحد الأقصى لطول الرمز الكامل *",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.maximum_help",
+      "translated_text": "يُحسب كل المحارف، بما فيها النص والعناصر النائبة بعد استبدالها. لا تُقتطع القيم مطلقًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.metadata",
+      "translated_text": "البيانات الوصفية",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.month",
+      "translated_text": "الشهر برقمين",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.month_transition",
+      "translated_text": "ثلاث قيم قبل نهاية الشهر وقيمتان بعدها",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.monthly",
+      "translated_text": "كل شهر",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.name",
+      "translated_text": "الاسم *",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.name_header",
+      "translated_text": "الاسم",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.never",
+      "translated_text": "أبدًا",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.new",
+      "translated_text": "مولّد جديد",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.next_number",
+      "translated_text": "الرقم المتسلسل التالي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.occupied_help",
+      "translated_text": "إذا كان {occupied} مستخدمًا، يتجاوزه الاقتراح التلقائي الجديد ويحاول استخدام {next}. يبقى الرقم المختار ثابتًا حتى تستبدله صراحةً بعد حدوث تعارض.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.occupied_title",
+      "translated_text": "عندما يكون الرقم الأول مستخدمًا",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.org_token",
+      "translated_text": "رمز الوحدة التنظيمية المالكة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.padding",
+      "translated_text": "عرض الإكمال بالأصفار (اختياري)",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.padding_help",
+      "translated_text": "عرض أدنى: يعرض العرض 4 الرقم 10 بالشكل 0010. اتركه فارغًا أو استخدم 0 دون إكمال بالأصفار. تستمر الأرقام الأطول في النمو.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.page",
+      "translated_text": "توليد الرموز",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.parent_token",
+      "translated_text": "رقم الملف الحاوي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.pattern",
+      "translated_text": "النمط *",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.pattern_header",
+      "translated_text": "النمط",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.pattern_help",
+      "translated_text": "استخدم العنصر النائب للرقم المتسلسل مرة واحدة فقط. يُحفظ النص الآخر كما كُتب. الأقواس المزدوجة تُنتج أقواسًا حرفية.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.period",
+      "translated_text": "بداية الفترة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.placeholder",
+      "translated_text": "إدراج عنصر نائب",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.preview",
+      "translated_text": "معاينة التسلسل",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.preview_loading",
+      "translated_text": "جارٍ حساب خمس قيم افتراضية…",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.preview_prompt",
+      "translated_text": "أكمل الإعدادات، ثم عاين خمس قيم.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.preview_stale",
+      "translated_text": "تغيّرت الإعدادات. جارٍ تحديث المحاكاة…",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.preview_tab",
+      "translated_text": "المعاينة والمحاكاة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.primary",
+      "translated_text": "البيانات الوصفية الأساسية",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.reason_create",
+      "translated_text": "السبب (اختياري)",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.reason_edit",
+      "translated_text": "سبب التغيير *",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.refresh",
+      "translated_text": "تحديث",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.reload",
+      "translated_text": "إعادة تحميل الإعدادات المحفوظة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.reload_help",
+      "translated_text": "تجاهل هذه التعديلات وحمّل أحدث الإعدادات المحفوظة.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.removed",
+      "translated_text": "حُدّث المولّد.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.required",
+      "translated_text": "أكمل كل الحقول المطلوبة باستخدام أعداد صحيحة صالحة.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.reset",
+      "translated_text": "إعادة بدء الترقيم",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.reset_help",
+      "translated_text": "تتطلب إعادة البدء السنوية عنصرًا نائبًا للعام. وتتطلب إعادة البدء الشهرية عنصرين للعام والشهر. ويوفّر العنصر النائب للتاريخ كليهما.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.reset_marker",
+      "translated_text": "أُعيد البدء",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.resource",
+      "translated_text": "العنصر",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.role_token",
+      "translated_text": "رمز الدور المحدد في «إنشاء لصالح»",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.same_scope",
+      "translated_text": "النطاق والتاريخ نفسهما",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.sample_code",
+      "translated_text": "الرمز الافتراضي المُولّد",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.sample_date",
+      "translated_text": "التاريخ المحاكى",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.save",
+      "translated_text": "حفظ",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.saved",
+      "translated_text": "حُفظ المولّد.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scenario",
+      "translated_text": "حالة المحاكاة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scheme_token",
+      "translated_text": "رمز نظام التصنيف",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope",
+      "translated_text": "عداد مستقل لكل",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_a",
+      "translated_text": "السياق أ",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_b",
+      "translated_text": "السياق ب",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_classification",
+      "translated_text": "كل تصنيف",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_empty",
+      "translated_text": "لا توجد نطاقات مطابقة.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_generator",
+      "translated_text": "المولّد بأكمله",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_help",
+      "translated_text": "تعتمد العدادات المستقلة على هوية ثابتة للحاوي أو التصنيف أو الوحدة المالكة. للأرقام الفريدة، أدرج العناصر النائبة لرموزها؛ ويتطلب نطاق التصنيف رمز نظام التصنيف أيضًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_id",
+      "translated_text": "هوية النطاق",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_id_help",
+      "translated_text": "استخدم المعرّف الثابت للملف الحاوي أو التصنيف أو الوحدة التنظيمية المالكة. يبقى صالحًا إذا تغيّر رمزها.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_org",
+      "translated_text": "كل وحدة تنظيمية مالكة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.scope_parent",
+      "translated_text": "كل ملف حاوي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.search",
+      "translated_text": "البحث بالاسم",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.selected_type",
+      "translated_text": "نوع واحد محدد",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generator-applicability-v1",
+        "batch_id": "code-generator-applicability-20261127",
+        "generated_at": "2026-11-27T19:23:39.429033+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "760fd9251c0b2f2fd68c8fac9b86bd8e896e4a444868e5a870af6bf4a11de0c4"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.serial_token",
+      "translated_text": "الرقم المتسلسل",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.settings",
+      "translated_text": "الإعدادات",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.simulation_help",
+      "translated_text": "خمس قيم من عدادات افتراضية جديدة. لا يُحفظ شيء، ولا تُستهلك أو تُحجز أرقام فعلية، ولا يتغيّر تاريخ النظام.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.specific",
+      "translated_text": "البيانات الوصفية الخاصة بالنوع",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.start",
+      "translated_text": "الرقم الأول *",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.start_help",
+      "translated_text": "البدء من 10 والزيادة بمقدار 10 يُنتج 10، 20، 30، 40، 50.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.status",
+      "translated_text": "الحالة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.target",
+      "translated_text": "الحقل المستهدف",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.timezone",
+      "translated_text": "المنطقة الزمنية المعتمدة للتطبيق: {timezone}",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.type",
+      "translated_text": "النوع",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.unbind",
+      "translated_text": "إزالة ارتباط الحقل",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.unbind_help",
+      "translated_text": "أوقف التوليد وأزل ارتباط الحقل. احتفظ بهذا المولّد وسجله وعداداته. يلزم ذكر السبب.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.unbound",
+      "translated_text": "لا يوجد حقل مرتبط",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.untyped_only",
+      "translated_text": "العناصر التي لم يُحدّد لها نوع فقط",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generator-applicability-v1",
+        "batch_id": "code-generator-applicability-20261127",
+        "generated_at": "2026-11-27T19:23:39.428957+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "760fd9251c0b2f2fd68c8fac9b86bd8e896e4a444868e5a870af6bf4a11de0c4"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.use_counter",
+      "translated_text": "اختيار هذا العداد",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.year2",
+      "translated_text": "العام برقمين",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.year4",
+      "translated_text": "العام بأربعة أرقام",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.year_transition",
+      "translated_text": "ثلاث قيم قبل العام الجديد وقيمتان بعده",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.yearly",
+      "translated_text": "كل عام",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
+      }
+    },
+    {
+      "message_key": "code_generation.ui.yy_warning",
+      "translated_text": "يتكرر العام المكوّن من رقمين كل قرن. استخدم العام المكوّن من أربعة أرقام للتمييز بينها.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "code-generators-phase5-v1",
+        "batch_id": "code-generators-phase5-20261127",
+        "generated_at": "2026-11-27T05:19:05.944261+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "8e05b9c157e8aba2cb7d477872065e7edefa6f5f85d3cb58b5ac4b716142de2c"
       }
     },
     {
@@ -27599,14 +30462,22 @@
     },
     {
       "message_key": "settings.field.search_result_limit.description",
-      "translated_text": "الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم.",
+      "translated_text": "الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم وعوامل تصفية الملفات أو الوثائق.",
       "quality_flags": [],
       "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "imported",
-        "source_status": "published",
-        "date_reviewed": "2026-11-13T16:28:10.776618+00:00",
-        "date_published": "2026-11-13T16:28:10.776618+00:00"
+        "kind": "user_approved_correction",
+        "source_origin": "manual",
+        "source_status": "reviewed",
+        "date_reviewed": "2026-11-27T04:29:41.033341+00:00",
+        "review_source": "Explicit user approval in the custom-code-generator implementation chat, 27 November 2026",
+        "previous_provenance": {
+          "kind": "admin_catalogue_export",
+          "source_origin": "imported",
+          "source_status": "published",
+          "date_reviewed": "2026-11-13T16:28:10.776618+00:00",
+          "date_published": "2026-11-13T16:28:10.776618+00:00"
+        },
+        "previous_translated_text": "الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم."
       }
     },
     {

@@ -14,9 +14,10 @@ import httpx
 
 
 class ApiError(RuntimeError):
-    def __init__(self, status_code: int, detail: Any):
+    def __init__(self, status_code: int, detail: Any, *, creation_outcome: str | None=None):
         self.status_code = status_code
         self.detail = detail
+        self.creation_outcome=creation_outcome
         super().__init__(self.message)
 
     @property
@@ -44,6 +45,7 @@ class ErmsApiClient:
         self._request_slots = asyncio.Semaphore(4)
         self._inflight_reads: dict[str, asyncio.Task[Any]] = {}
         self._reference_cache: dict[str, dict[str, Any]] = {}
+        self._data_revision = 0
         self._session_token: str | None = None
         self._session_revision = 0
         self._unauthorized_handler: Callable[[], Any] | None = None
@@ -58,6 +60,7 @@ class ErmsApiClient:
 
     def clear_reference_cache(self) -> None:
         """Discard identity-scoped reference rows after identity/data changes."""
+        self._data_revision += 1
         self._reference_cache.clear()
 
     def cancel_pending_reads(self) -> None:
@@ -87,7 +90,8 @@ class ErmsApiClient:
             headers.setdefault("Authorization", f"Bearer {self._session_token}")
         kwargs["headers"] = headers
         normalized_method = method.upper()
-        if normalized_method not in {"GET", "HEAD"} and not cancellable_read:
+        mutation = normalized_method not in {"GET", "HEAD"} and not cancellable_read
+        if mutation:
             # Explicit read-only POST previews do not invalidate reference data.
             # Reference lists are intentionally broad: any successful or failed
             # mutation may affect labels, eligibility, status, or authorization.
@@ -97,7 +101,7 @@ class ErmsApiClient:
             # page is rendering. Share the in-flight HTTP operation, but return
             # a private result because callers decorate response dictionaries.
             request_key = json.dumps(
-                [normalized_method, path, kwargs, with_metadata],
+                [self._data_revision, normalized_method, path, kwargs, with_metadata],
                 sort_keys=True, default=str,
                 separators=(",", ":"),
             )
@@ -116,10 +120,16 @@ class ErmsApiClient:
                     )
                 )
             return copy.deepcopy(await task if cancellable_read else await asyncio.shield(task))
-        return await self._perform_request(
-            normalized_method, path, kwargs, with_metadata=with_metadata,
-            session_revision=session_revision,
-        )
+        try:
+            return await self._perform_request(
+                normalized_method, path, kwargs, with_metadata=with_metadata,
+                session_revision=session_revision,
+            )
+        finally:
+            if mutation:
+                # Reads started before or during the write cannot satisfy its
+                # refresh, including when the write's outcome is uncertain.
+                self.clear_reference_cache()
 
     def _finish_inflight_read(
         self, request_key: str, task: asyncio.Task[Any],
@@ -155,7 +165,8 @@ class ErmsApiClient:
                 result = self._unauthorized_handler()
                 if inspect.isawaitable(result):
                     await result
-            raise ApiError(response.status_code, detail)
+            raise ApiError(response.status_code, detail,creation_outcome=(
+                "not-created" if response.headers.get("Creation-Outcome")=="not-created" else None))
         if response.status_code in {204, 304}:
             payload = None
         else:
@@ -173,6 +184,7 @@ class ErmsApiClient:
     async def _reference_get(
         self, cache_key: str, path: str, *, params: dict[str, Any],
     ) -> Any:
+        revision = self._data_revision
         cached = self._reference_cache.get(cache_key)
         if cached and time.monotonic() - cached["checked_at"] < 30:
             return copy.deepcopy(cached["value"])
@@ -181,13 +193,15 @@ class ErmsApiClient:
             "GET", path, params=params, headers=headers, _with_metadata=True,
         )
         if result["status_code"] == 304 and cached:
-            cached["checked_at"] = time.monotonic()
+            if revision == self._data_revision:
+                cached["checked_at"] = time.monotonic()
             return copy.deepcopy(cached["value"])
         entry = {
             "value": result["payload"], "etag": result.get("etag"),
             "checked_at": time.monotonic(),
         }
-        self._reference_cache[cache_key] = entry
+        if revision == self._data_revision:
+            self._reference_cache[cache_key] = entry
         return copy.deepcopy(entry["value"])
 
     async def login(self, email: str, password: str, *, user_agent: str | None = None) -> tuple[dict[str, Any], str]:
@@ -641,6 +655,10 @@ class ErmsApiClient:
     async def history(
         self, resource: str, entity_id: int, *, limit: int = 200, offset: int = 0,
     ) -> list[dict[str, Any]]:
+        if resource == "code-generators":
+            return await self.request("GET", "/api/v1/event-history", params={
+                "entity_type": "code_generator", "entity_id": entity_id,
+                "limit": limit, "offset": offset})
         return await self.request(
             "GET", f"/api/v1/{resource}/{entity_id}/history",
             params={"limit": limit, "offset": offset},
@@ -1199,8 +1217,24 @@ class ErmsApiClient:
         })
         return result["items"]
 
-    async def create(self, resource: str, payload: dict[str, Any]) -> dict[str, Any]:
-        return await self.request("POST", f"/api/v1/{resource}", json=payload)
+    @staticmethod
+    def _creation_headers(submission_key):
+        if not submission_key:
+            raise ApiError(428,{"code":"creation_submission_key_required",
+                "message_key":"code_generation.error.submission_key_required","parameters":{}})
+        return {"Idempotency-Key":str(submission_key)}
+
+    async def create(self, resource: str, payload: dict[str, Any], *, submission_key: str | None=None) -> dict[str, Any]:
+        headers=self._creation_headers(submission_key) if resource in {"records","aggregations"} else {}
+        return await self.request("POST", f"/api/v1/{resource}", json=payload,**({"headers":headers} if headers else {}))
+
+    async def code_generation_bindings(self,kind,*,parent_aggregation_id=None,type_id=None,security_level_id=None,field_ids=None,limit=100,offset=0):
+        parameters={"kind":kind,"limit":limit,"offset":offset,
+            **({"parent_aggregation_id":parent_aggregation_id} if parent_aggregation_id is not None else {}),
+            **({"type_id":type_id} if type_id is not None else {}),
+            **({"field_ids":field_ids} if field_ids else {}),
+            **({"security_level_id":security_level_id} if security_level_id is not None else {})}
+        return await self.request("GET","/api/v1/code-generation/bindings",params=parameters)
 
     async def update(
         self, resource: str, entity_id: int, version: int, payload: dict[str, Any],
@@ -1412,13 +1446,15 @@ class ErmsApiClient:
 
     async def commit_record_draft(
         self, draft_id: int, creator_acl_role_id: int | None = None, *, capture: bool = False, metadata: dict | None = None,
+        submission_key: str | None=None,
     ) -> dict[str, Any]:
         params = (
             {"creator_acl_role_id": creator_acl_role_id}
             if creator_acl_role_id is not None else None
         )
         return await self.request(
-            "POST", f"/api/v1/record-drafts/{draft_id}/commit", params=params, timeout=660 if capture else 30, **({"json": metadata} if metadata else {}),
+            "POST", f"/api/v1/record-drafts/{draft_id}/commit", params=params, timeout=660 if capture else 30,
+            headers=self._creation_headers(submission_key),**({"json": metadata} if metadata else {}),
         )
 
     async def discard_record_draft(self, draft_id: int) -> None:
@@ -1426,10 +1462,11 @@ class ErmsApiClient:
 
     async def create_records_from_file_drop(
         self, aggregation_id: int, files, *, separate_records: bool, creator_acl_role_id: int,
-        title: str | None = None, type_id=None, field_values=None, record_field_values=None,
+        title: str | None = None, type_id=None, field_values=None, record_field_values=None,submission_key: str | None=None,
     ) -> int:
         result = await self.request(
             "POST", f"/api/v1/aggregations/{aggregation_id}/records/file-drop",
+            headers=self._creation_headers(submission_key),
             data={"separate_records": str(separate_records).lower(), "creator_acl_role_id": str(creator_acl_role_id),
                   **({"title": title} if title is not None else {}),
                   **({"type_id": str(type_id)} if type_id is not None else {}),

@@ -1,12 +1,15 @@
 """One ordered multipart request and transaction for an aggregation file drop."""
 import asyncio
+from uuid import uuid4
 
-from nicegui import ui
+from nicegui import background_tasks, ui
 from nicegui.element import Element
 
 from .api_client import ApiError
 from .type_controls import MetadataForm, base
 from .i18n_catalogue import render_message
+from .creation_submission import CreationAttempt
+from .upload_buffers import retain_upload_file
 
 
 class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
@@ -17,9 +20,10 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
         self.direction = direction
         self.pending = None
         self.saving = False
+        self.retry_dialog = None
         self._props.update(pageId=page.id, enabled=False, physical=aggregation.get("medium") == "physical")
         with self:
-            self.uploader = ui.upload(multiple=True, on_multi_upload=self.save).classes("hidden")
+            self.uploader = ui.upload(multiple=True, on_multi_upload=self.receive).classes("hidden")
         self._props["uploadUrl"] = self.uploader._props["url"]
         with self.add_slot("physical"), ui.card().classes("items-center p-6 text-center"):
             ui.icon("block", color="negative", size="32px")
@@ -44,9 +48,31 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
         self.update()
 
     def clear(self):
-        self.pending = None
+        pending, self.pending = self.pending, None
+        if not self.saving:
+            self.release(pending)
+        if pending and pending.get("dialog") is not None and not pending["dialog"].is_deleted:
+            pending["dialog"].delete()
+        if self.retry_dialog is not None and not self.retry_dialog.is_deleted:
+            self.retry_dialog.close()
+            self.retry_dialog.delete()
+        self.retry_dialog = None
         if not self.is_deleted:
             self.run_method("clear")
+
+    @staticmethod
+    def release(pending):
+        if pending:
+            for _, content, _ in pending.pop("files", []):
+                content.close()
+
+    def _handle_delete(self):
+        pending, self.pending = self.pending, None
+        if not self.saving:
+            self.release(pending)
+        if pending and pending.get("dialog") is not None and not pending["dialog"].is_deleted:
+            pending["dialog"].delete()
+        super()._handle_delete()
 
     def upload_failed(self):
         if not self.saving:
@@ -73,7 +99,7 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
         first_filename = filenames[0] if confirm_title else None
         self.pending = {"count": count, "separate": event.args["separate"], "role": None,
                         "title": first_filename if confirm_title else None, "confirmed": False,
-                        "order": list(range(count))}
+                        "order": list(range(count)), "attempt": CreationAttempt()}
         try:
             roles, usable = await asyncio.gather(
                 self.api.creation_role_options(),
@@ -109,34 +135,87 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
         typed = MetadataForm(self.api, "record", filenames=filenames if separate else ()) if usable else None
         submitted = False
         dialog = ui.dialog()
-        selector = title_input = None
+        self.pending["dialog"] = dialog
+        selector = title_input = create = None
 
         def valid():
             return ((selector is None or selector.value in eligible)
-                    and (title_input is None or bool((title_input.value or "").strip())))
+                    and (title_input is None or generated_title or bool((title_input.value or "").strip())))
 
         def cancel():
-            if not submitted:
+            if not submitted and self.pending is not None:
                 self.clear()
 
-        def submit():
+        async def submit():
             nonlocal submitted
-            if submitted or not self.active() or not self.pending or not valid():
+            if submitted or not self.active() or not self.pending or self.pending.get("confirming") or not valid():
                 return
-            if typed:
-                try:
+            pending = self.pending
+            pending["confirming"] = True
+            create.disable()
+            try:
+                if typed:
+                    if not await refresh_hints(for_save=True) or not dialog.value:
+                        return
                     self.pending["metadata"] = typed.payload()
-                except ValueError as error:
-                    ui.notify(str(error), color="warning")
+                elif title_input is not None:
+                    if not await refresh_hints() or not dialog.value:
+                        return
+                if not valid() or pending is not self.pending:
                     return
-            submitted = True
-            if selector is not None:
-                self.pending["role"] = selector.value
-            if title_input is not None:
-                self.pending["title"] = title_input.value.strip()
-            self.pending["confirmed"] = True
-            dialog.close()
-            self.run_method("upload")
+                submitted = True
+                if selector is not None:
+                    pending["role"] = selector.value
+                if title_input is not None:
+                    pending["title"] = title_input.value.strip()
+                pending["confirmed"] = True
+                dialog.close()
+                if "files" in pending:
+                    await self.send_pending()
+                else:
+                    self.run_method("upload")
+            except (ValueError, ApiError) as error:
+                if self.active():
+                    ui.notify(str(error), color="warning")
+            finally:
+                pending["confirming"] = False
+                if not submitted and not create.is_deleted:
+                    create.set_enabled(valid())
+
+        def edit_details():
+            nonlocal submitted
+            submitted = False
+            self.pending["confirmed"] = False
+            dialog.open()
+
+        self.pending["edit_details"] = edit_details
+        generated_title = False
+
+        async def refresh_hints(*, for_save=False):
+            nonlocal generated_title
+            pending = self.pending
+            selected = typed.selected if typed else None
+            revisions = (typed.assignment_revision, typed.revision) if typed else None
+            ids = list(typed.definitions if for_save else typed.page_field_ids) if typed else []
+            chunks = [ids[i:i + 90] for i in range(0, len(ids), 90)] or [[]]
+            pages = await asyncio.gather(*(self.api.code_generation_bindings("record",
+                parent_aggregation_id=self.aggregation["id"], type_id=selected,
+                field_ids=[int(fid) for fid in chunk], limit=100) for chunk in chunks))
+            if (pending is not self.pending or not self.active() or typed and
+                    (selected != typed.selected or revisions != (typed.assignment_revision, typed.revision))):
+                return False
+            rows = [item for page in pages for item in page["items"]]
+            generated_title = any(item["primary_field"] == "title" for item in rows)
+            if typed:
+                typed.generated_fields.difference_update(ids)
+                typed.generated_fields.update(str(item["field_id"]) for item in rows if item["field_id"])
+            if create is not None and not create.is_deleted:
+                create.set_enabled(valid())
+            return True
+
+        if typed:
+            # MetadataForm requests only the visible page's field hints.
+            typed.creation_bindings = SimpleDropBindings(refresh_hints, typed)
 
         with dialog, ui.card().classes("w-[600px] max-w-full"):
             if typed:
@@ -219,35 +298,131 @@ class AggregationFileDrop(Element, component="aggregation_file_drop.js"):
                     if field is not None:
                         field.on_value_change(lambda _: create.set_enabled(valid()))
         dialog.on_value_change(lambda event: cancel() if not event.value else None)
-        dialog.on("hide", dialog.delete)
         dialog.open()
+        try:
+            await refresh_hints()
+        except ApiError as error:
+            if self.active():
+                ui.notify(self.error_message(error), color="negative", close_button=True)
+
+    def receive(self, event):
+        # NiceGUI dispatches async handlers after its upload route returns.
+        # Retain its temporary files synchronously while that route owns them.
+        if self.receive_files(event):
+            async def create():
+                if self.is_deleted or not self.active():
+                    self.clear()
+                    return
+                with self.parent_slot:
+                    await self.send_pending()
+            background_tasks.create(create())
 
     async def save(self, event):
+        """Awaitable entry point for callers already holding an upload event."""
+        if self.receive_files(event):
+            await self.send_pending()
+
+    def receive_files(self, event):
         pending = self.pending
         if not self.active() or self.saving or not pending or pending["role"] is None or not pending["confirmed"]:
             for content in event.contents:
                 content.close()
             return
-        self.saving = True
         try:
             if (len(event.names) != pending["count"]
                     or ("filenames" in pending and list(event.names) != pending["filenames"])):
                 ui.notify(render_message("aggregation_file_drop.upload_failed"), color="negative", close_button=True)
+                self.clear()
                 return
-            files = list(zip(event.names, event.contents, event.types, strict=True))
-            count = await self.api.create_records_from_file_drop(
-                self.aggregation["id"], [files[index] for index in pending["order"]],
-                separate_records=pending["separate"], creator_acl_role_id=pending["role"],
-                title=pending["title"], **pending.get("metadata", {}),
-            )
+            if "files" in pending:
+                return  # A duplicate upload callback cannot replace retry bytes.
+            pending["files"], pending["file_identities"] = [], []
+            # Own the files before the first await. Duplicating a disk file's
+            # descriptor avoids copying/hashing a large upload on the UI loop.
+            for name, source, mime in zip(event.names, event.contents, event.types, strict=True):
+                content, size = retain_upload_file(source)
+                pending["files"].append((name, content, mime))
+                # These owned bytes cannot be edited by the form. Their stable
+                # local identity distinguishes uploads with duplicate names.
+                # The API fingerprints the actual ordered file checksums.
+                pending["file_identities"].append({"name": name, "mime_type": mime, "size": size,
+                                                    "upload_identity": str(uuid4())})
+        except (OSError, ValueError):
+            self.clear()
             if self.active():
-                ui.notify(render_message("aggregation_file_drop.created", count=count), color="positive")
-                await self.on_committed()
-        except ApiError as error:
-            if self.active():
-                ui.notify(self.error_message(error), color="negative", close_button=True)
+                ui.notify(render_message("aggregation_file_drop.upload_failed"), color="negative", close_button=True)
+            return
         finally:
             for content in event.contents:
                 content.close()
+        return True
+
+    async def send_pending(self):
+        pending = self.pending
+        if self.saving or not pending or "files" not in pending or not self.active():
+            return
+        self.saving = True
+        attempt = pending["attempt"]
+        snapshot = (attempt.payload if attempt.uncertain or attempt.completed_error is not None else
+                    {"order": pending["order"], "separate": pending["separate"], "role": pending["role"],
+                     "title": pending["title"], "metadata": pending.get("metadata", {}),
+                     "files": pending["file_identities"]})
+
+        async def send(key, body):
+            files = [pending["files"][index] for index in body["order"]]
+            for _, content, _ in files:
+                content.seek(0)
+            return await self.api.create_records_from_file_drop(self.aggregation["id"], files,
+                separate_records=body["separate"], creator_acl_role_id=body["role"], title=body["title"],
+                **body["metadata"], submission_key=key)
+
+        succeeded = False
+        try:
+            count = await attempt.submit(f"aggregation.{self.aggregation['id']}.file-drop", snapshot, send)
+            succeeded = True
+            if self.active() and not self.is_deleted and self.pending is pending:
+                ui.notify(render_message("aggregation_file_drop.created", count=count), color="positive")
+                await self.on_committed()
+        except ApiError as error:
+            if self.active() and not self.is_deleted and self.pending is pending:
+                self.show_retry(error)
+        finally:
             self.saving = False
-            self.clear()
+            if succeeded or not self.active() or self.is_deleted or self.pending is not pending:
+                self.release(pending)
+                self.clear()
+
+    def show_retry(self, error):
+        if self.retry_dialog is not None and not self.retry_dialog.is_deleted:
+            self.retry_dialog.delete()
+        pending = self.pending
+        attempt = pending["attempt"]
+        unresolved = attempt.uncertain or attempt.completed_error is not None
+        with ui.dialog().props("persistent") as dialog, ui.card().classes("w-[540px] max-w-full"):
+            ui.label(self.error_message(error)).props("role=alert").classes("text-negative")
+            ui.label(render_message("code_generation.status.files_retained"))
+            if unresolved:
+                ui.label(render_message("code_generation.error.unknown_outcome")).classes("text-sm")
+            with ui.row().classes("w-full justify-end gap-2"):
+                if not unresolved:
+                    ui.button(render_message("common.action.cancel"), on_click=self.clear).props("flat no-caps")
+                    if pending.get("edit_details"):
+                        def edit():
+                            dialog.close()
+                            pending["edit_details"]()
+                        ui.button(render_message("code_generation.action.correct_details"), on_click=edit).props("flat no-caps")
+                async def retry():
+                    dialog.close()
+                    await self.send_pending()
+                ui.button(render_message("code_generation.action.retry_original"), on_click=retry).props("no-caps")
+        self.retry_dialog = dialog
+        dialog.open()
+
+
+class SimpleDropBindings:
+    """Adapter for the existing per-page metadata callback; no saved cache."""
+    def __init__(self, refresh, typed):
+        self.refresh, self.typed = refresh, typed
+
+    def invalidate(self, *, schedule=True):
+        self.typed.generated_fields.clear()

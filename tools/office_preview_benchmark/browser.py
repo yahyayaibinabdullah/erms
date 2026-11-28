@@ -1,4 +1,5 @@
 """Compare fresh and resident full-PDF conversions through real Preview clicks."""
+from uuid import uuid4
 
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack
@@ -29,7 +30,7 @@ def upload(page):
     )
     base.raise_for_status()
     agg = page.api.post(
-        "/api/v1/aggregations",
+        "/api/v1/aggregations", headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},
         json={
             "aggregation_number": "OFFICE-BENCH",
             "title": "Office benchmark",
@@ -39,7 +40,7 @@ def upload(page):
     )
     agg.raise_for_status()
     rec = page.api.post(
-        "/api/v1/records",
+        "/api/v1/records", headers={'Idempotency-Key': str(uuid4()), 'X-Event-Source': 'seeding'},
         json={
             "aggregation_id": agg.json()["id"],
             "record_number": "OFFICE-BENCH",

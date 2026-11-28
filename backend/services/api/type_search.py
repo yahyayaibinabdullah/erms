@@ -207,10 +207,12 @@ def resolve(connection, resource, request):
     return fields, versions
 
 
-def sort_sql(name, direction):
+def sort_sql(name, direction, *, natural=False):
+    from .code_ordering import expression
     _, fid = field_path(name)
-    return sql.SQL("{}.sort_value {} NULLS LAST").format(
-        sql.Identifier(f"type_sort_{fid}"), sql.SQL(direction.upper())
+    term = expression(sql.SQL("{}.sort_value").format(sql.Identifier(f"type_sort_{fid}")), natural)
+    return sql.SQL("{} {} NULLS LAST").format(
+        term, sql.SQL(direction.upper())
     )
 
 

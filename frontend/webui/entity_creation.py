@@ -4,6 +4,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any
+from .creation_submission import CreationAttempt
 
 
 CREATION_TRANSLATION_REASON = "Initial translations supplied during creation"
@@ -15,6 +16,7 @@ class EntityCreation:
     translations: dict[str, dict[str, str]] = field(default_factory=dict)
     applied: dict[str, dict[str, str]] = field(default_factory=dict)
     row: dict[str, Any] | None = None
+    submission: CreationAttempt = field(default_factory=CreationAttempt)
 
     def pending(self) -> dict[str, dict[str, str | None]]:
         """Include explicit removals when a partially saved draft is revised."""
@@ -26,7 +28,11 @@ class EntityCreation:
 
     async def save(self, api, resource: str, payload: dict) -> dict:
         if self.row is None:
-            self.row = await api.create(resource, payload)
+            if resource in {"records","aggregations"}:
+                self.row=await self.submission.submit(resource+".create",payload,
+                    lambda key,body:api.create(resource,body,submission_key=key))
+            else:
+                self.row = await api.create(resource, payload)
         for language, values in self.pending().items():
             saved = await api.update_entity_translation(
                 resource, self.row["id"], language, values, self.row["version"], CREATION_TRANSLATION_REASON,

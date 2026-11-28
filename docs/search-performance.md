@@ -23,6 +23,51 @@ explain the causes, successful changes, failed approaches and diagnostic method.
 Read them before changing search/filter SQL; retain this contract's correctness
 and measurement requirements when applying a lesson to another endpoint.
 
+## Representative usage, stress tests and shared requirements
+
+The user's 27 November 2026 direction distinguishes these measurement profiles:
+
+- **Representative usage:** reproduce the actual UI request, page size,
+  plausible branch sizes and distribution at a stated overall repository size.
+  Require bounded pages within three seconds. Classification-tree requests
+  use 50-item batches; the representative fixture has about 100 immediate child
+  aggregations per tested parent aggregation and roots spread across classifications.
+- **Stress tests:** deliberately test concentrated/large branches, unusual
+  workloads or heavier concurrency to understand limits. Bounded interactive
+  page requests retain the three-second limit even for 50/100-item pages drawn
+  from 50,000 roots. Stress classification does not exempt those responses.
+  Unpaged bulk retrieval of all 50,000 items, exports and throughput tests need
+  separately stated budgets instead of the interactive page-response limit.
+- **Both:** correct results, permissions, matching/scores, deterministic ordering,
+  complete pagination and bounded responses are mandatory. Preserve every
+  sample and report correctness separately from timing. A time limit never
+  justifies dropping candidates, weakening access or returning incomplete pages.
+
+Report sample count, median, p95, maximum and every above-limit page request,
+stratified by case/caller and first versus subsequent pages where relevant.
+State data distribution, UI/API scope, concurrent requests, JIT/settings,
+hardware/host activity and sample counts. Compare regressions only under
+equivalent profiles and measurement conditions. A 50-item response can involve
+more database work for counting/authorization/sorting; measure it rather than
+assuming it touches only 50 rows. Conversely, a 100-item stress measurement is
+not a measurement of the actual 50-item UI.
+
+Any search timing over three seconds is recorded and reported for future
+dedicated optimization. Do not start unrelated search tuning during feature
+implementation. Optimization requires a separate explicit user request.
+The exception to the former universal wording concerns bulk/unpaged and
+throughput tests; bounded interactive pages retain their three-second limit.
+Historical numerical failures, raw evidence and accepted baseline decisions
+remain preserved. Existing runners may still exit nonzero for their historical
+timing check; that must not be confused with failed correctness assertions.
+
+The [27 November representative classification-tree measurement](verification/classification-tree-representative-2026-11-27.md)
+uses this actual 50-item request shape at repository scale, including concurrent
+child/record expansion. It returned correct results for 114 API requests;
+84 exceeded the page limit. These are recorded failures, with no optimization
+changes. Reproduce that profile with the Linux wrapper's
+`--workload classification-tree` option and an existing local PostgreSQL image.
+
 Matching, authorization, relevance scoring, ordering, counting and page
 selection belong in PostgreSQL. API code validates the request and serializes
 the authorized page. Never fetch a candidate collection to authorize, filter
@@ -219,8 +264,10 @@ score join can change the plan. The gate uses real loopback
 HTTP with a 1,000-result cap and 100-row pages. It verifies every page, the full
 saved ranking, exact uncapped text membership, counts, ordering, scores, denied
 access and cache reuse. PostgreSQL calculates the independent score oracle.
-Every measured reader/denied search must take at most three seconds, including
-the first request and all subsequent pages; warm-up samples are not discarded.
+Every reader/denied response, including first and subsequent pages, is measured
+against the three-second page limit under the profile rules above. Warm-up samples
+are not discarded. Bounded page overruns remain failures of the page-response
+limit, including stress fixtures, and are reported without automatic tuning.
 EXPLAIN runs after timing against the captured complete API ranking statement,
 including its outer page projection, and asserts the scored-chunk batch executes
 at most once. Source hashes, storage/compression details and read waits accompany
@@ -282,14 +329,15 @@ guard against fixture/oracle drift. Every cached ID/score and every returned
 page must equal the oracle, ordered by score descending, type ascending, ID
 ascending. Counts, truncation, page boundaries and denied access are checked.
 
-Every measured API response must finish within **3 seconds**, with three
-submissions per criterion by default and all pages checked. One violation
-fails the gate; averages or medians cannot hide it. Timings cover the real
+Every bounded interactive API response must meet the **3-second limit**, with three
+submissions per criterion by default and all pages checked. Report each overrun;
+averages or medians must not hide it. Apply representative/stress interpretation
+separately from mandatory correctness. Timings cover the real
 FastAPI request pipeline, authentication, SQL, cache writes, attribution and
 JSON serialization through TestClient. They exclude browser rendering and
 network transit. Record the environment; this local regression gate is not a
-guarantee for arbitrary hardware or concurrent production load. Do not weaken
-the threshold to pass.
+guarantee for arbitrary hardware or concurrent production load. Do not relabel
+above-limit samples as having met the limit.
 
 The broadest combined query runs first, before any search or oracle calculation
 warms the corpus. Every first submission is timed before its oracle is computed.
@@ -315,8 +363,10 @@ oracle/plan checks. Use the same protocol in both storage arms. Avoid unrelated
 checks or other benchmark processes while collecting response times.
 
 Search SQL, authorization, index and result-processing changes require this
-gate plus focused authorization regressions. Fix failures before reporting
-search performance complete.
+gate plus focused authorization regressions. Correctness failures must be fixed;
+timing observations follow the profile/reporting rules above and do not authorize
+unrelated optimization. Do not claim representative performance without a
+representative measurement.
 When another search/filter flow changes, add representative and worst-case
 requests for its actual endpoint. Passing Global Search timings alone do not
 establish the performance of Advanced Search, a list filter or another endpoint.
@@ -356,7 +406,8 @@ SQL/reference fixture expectations, for allowed and resource-denied callers.
 Cases cover broad combined/file/metadata text, rare and empty text, ordinary
 structured criteria, descending collection filters, inherited holds, null inherited
 locations, and inherited aggregation retention. Each case repeats three times by
-default with every response held to the same three-second ceiling. Execution plans
+default with each bounded page response held to the same three-second limit,
+including stress datasets. Bulk/unpaged workloads use their stated budgets. Execution plans
 and separate `*-tab-cache-results.json` files accompany the Global Search evidence.
 Every valid Next request must retain the same list ID; the gate fails if it
 unexpectedly rebuilds the search. Record and aggregation filters have identical

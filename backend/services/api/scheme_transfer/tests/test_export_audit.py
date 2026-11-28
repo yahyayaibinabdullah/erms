@@ -6,6 +6,7 @@ from backend.services.api.scheme_transfer.codec import decode, TransferError
 
 
 from tools.historical_schema import historical_schema
+from tools.canonical_schema import statements
 
 
 @pytest.mark.parametrize('format,language', [('json',None),('csv',None),('docx','en'),('docx','ar'),('docx','fr')])
@@ -97,16 +98,39 @@ def test_actor_redaction_upgrade_matches_canonical(connection):
     from pathlib import Path
     root = Path(__file__).resolve().parents[5]
     canonical = connection.execute("SELECT pg_get_viewdef('authorized_event_history'::regclass) AS definition").fetchone()['definition']
+    markers = connection.execute('SELECT * FROM schema_migrations ORDER BY version').fetchall()
     schema = historical_schema()
     view = schema.split('CREATE VIEW authorized_event_history AS',1)[1].split('CREATE VIEW authorized_aggregations_for_search',1)[0]
-    old = view.replace('CASE WHEN visible.allowed THEN event.actor_user_id END AS actor_user_id','event.actor_user_id').replace('CASE WHEN visible.allowed THEN event.actor_name END AS actor_name','event.actor_name').replace('CASE WHEN visible.allowed THEN event.actor_email END AS actor_email','event.actor_email')
-    connection.execute('CREATE OR REPLACE VIEW authorized_event_history AS'+old)
-    connection.commit()
-    try:
-        connection.execute((root/'database/migrations/046_audit_actor_redaction.sql').read_text())
-        assert connection.execute("SELECT pg_get_viewdef('authorized_event_history'::regclass) AS definition").fetchone()['definition'] == canonical
+    actor_fields = ('actor_user_id', 'actor_name', 'actor_email')
+    old = view
+    for field in actor_fields:
+        expression = f'CASE WHEN visible.allowed THEN event.{field} END AS {field}'
+        assert expression in old
+        old = old.replace(expression, f'event.{field}')
+    # Migration 046 predates the type-aware audit view introduced by 120.
+    # Verify its own historical contract, then roll back the entire fixture
+    # so the latest view, migration markers and audit rows remain intact.
+    with connection.transaction(force_rollback=True):
+        connection.execute('CREATE OR REPLACE VIEW authorized_event_history AS'+view)
+        expected = connection.execute("SELECT pg_get_viewdef('authorized_event_history'::regclass) AS definition").fetchone()['definition']
+        connection.execute('CREATE OR REPLACE VIEW authorized_event_history AS'+old)
+        connection.execute("DELETE FROM schema_migrations WHERE version='046_audit_actor_redaction'")
+        actor = connection.execute("SELECT id FROM users WHERE email='transfer@test.invalid'").fetchone()['id']
+        event = connection.execute("""INSERT INTO event_history(entity_type,entity_id,operation,actor_user_id)
+            VALUES('aggregation',987654321,'EXPORT',%s) RETURNING id,actor_user_id,actor_name,actor_email""", (actor,)).fetchone()
+        assert not connection.execute('SELECT 1 FROM aggregations WHERE id=987654321').fetchone()
+        before = connection.execute('SELECT * FROM authorized_event_history WHERE id=%s',(event['id'],)).fetchone()
+        assert before['metadata']['redacted']
+        assert all(event[field] is not None and before[field] == event[field] for field in actor_fields)
+        migration = statements((root/'database/migrations/046_audit_actor_redaction.sql').read_text())
+        assert migration[0] == 'BEGIN' and migration[-1] == 'COMMIT'
+        for statement in migration[1:-1]:
+            connection.execute(statement, prepare=False)
+        assert connection.execute("SELECT pg_get_viewdef('authorized_event_history'::regclass) AS definition").fetchone()['definition'] == expected
         assert connection.execute("SELECT count(*) AS n FROM schema_migrations WHERE version='046_audit_actor_redaction'").fetchone()['n'] == 1
-    finally:
-        connection.rollback()
-        connection.execute('CREATE OR REPLACE VIEW authorized_event_history AS '+canonical)
-        connection.commit()
+        after = connection.execute('SELECT * FROM authorized_event_history WHERE id=%s',(event['id'],)).fetchone()
+        assert after['metadata']['redacted']
+        assert all(after[field] is None for field in actor_fields)
+    assert connection.execute("SELECT pg_get_viewdef('authorized_event_history'::regclass) AS definition").fetchone()['definition'] == canonical
+    assert connection.execute('SELECT * FROM schema_migrations ORDER BY version').fetchall() == markers
+    assert not connection.execute('SELECT 1 FROM event_history WHERE id=%s',(event['id'],)).fetchone()
