@@ -86,6 +86,7 @@ INSERT INTO schema_migrations(version) VALUES
  ('124_type_privilege_categories'),
  ('125_type_administration_privilege_codes'),
  ('126_custom_code_generators'),
- ('127_code_generator_applicability');
+ ('127_code_generator_applicability'),
+ ('128_resource_field_codes');
 DROP TABLE pg_temp.erms_fresh_install;
 COMMIT;

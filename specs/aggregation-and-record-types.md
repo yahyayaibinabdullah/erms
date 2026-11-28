@@ -15,6 +15,8 @@ approved. See the [pre-feature baseline](../docs/verification/aggregation-record
 
 **Project:** ERMS / Wathiq
 
+**28 November 2026 amendment (approved).** Section 2 adds administrator-defined field codes.
+
 ## 1. Purpose and scope
 
 Aggregations and records shall support optional administrator-defined types,
@@ -44,6 +46,32 @@ a required/optional setting, a display order, and an optional static default.
 Text fields additionally have a maximum character length. Single-choice fields
 additionally have an ordered list of choices. Field names must be unique within
 their type in the application's default language.
+
+### Field codes
+
+Every type-specific field, of any data type, has one editable, untranslated
+code. The Fields list and editor show it alongside the field name. A code must
+be unique within its own type. For example, the Contract and Employee File
+types can both define `REFERENCE_NUMBER`.
+
+On creation, an administrator can supply a code or leave it blank to use the
+default-language field name. Convert letters to uppercase, replace each run
+of spaces, underscores or punctuation with one underscore, and remove leading
+and trailing underscores. Keep letters in all supported scripts and digits.
+For example, “Date - End of Service” becomes `DATE_END_OF_SERVICE`. Reject an
+explicit code containing no letters or digits. If the name alone yields no
+code, use `FIELD_<field ID>`. Check uniqueness after conversion. On a
+conflict, ask the administrator to enter another code.
+
+Renaming or translating a field preserves its code. An administrator may
+explicitly edit the code under the existing type-administration permission,
+version check and audit trail. The field ID continues to identify stored
+values, choices, generator targets and saved searches.
+
+Backfill existing definitions in place using the same name conversion. Within
+each type the lowest field ID keeps a shared normalized code. Reserve all
+distinct name-derived codes first, then add the first available numeric
+suffix starting at `_2` for each collision in field ID order.
 
 | Data type | Stored value |
 | --- | --- |

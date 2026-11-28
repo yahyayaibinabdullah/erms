@@ -37,6 +37,7 @@ class ChoiceDefinition(Definition):
 
 
 class FieldDefinition(Definition):
+    code: NonBlankString | None = None
     display_order: int | None = None
     data_type: Literal[
         "text", "integer", "decimal", "boolean", "date", "datetime", "single_choice"
@@ -142,7 +143,7 @@ def translated(row, language):
 
 def field_row(c, kind, type_id, field_id):
     row = c.execute(
-        """SELECT id,name,translations,display_order,required,max_length,data_type,
+        """SELECT id,name,code,translations,display_order,required,max_length,data_type,
                               resource_field_json(default_value) AS "default"
                        FROM resource_type_fields WHERE kind=%s AND type_id=%s AND id=%s""",
         (kind, type_id, field_id),
@@ -271,7 +272,7 @@ def catalogue(kind):
             visible_type(c, type_id, access), preferred_language(c, request)
         )
 
-    field_source = """SELECT id,name,translations,display_order,required,max_length,data_type,
+    field_source = """SELECT id,name,code,translations,display_order,required,max_length,data_type,
                        resource_field_json(default_value) AS "default" FROM resource_type_fields WHERE kind=%s AND type_id=%s"""
     choice_source = """SELECT id,name,translations,display_order FROM resource_field_choices WHERE field_id=%s"""
 
@@ -374,7 +375,7 @@ def catalogue(kind):
         offset: Offset = 0,
         paged: bool = False,
         descending: bool = False,
-        sort: Literal["name", "display_order"] = "display_order",
+        sort: Literal["name", "code", "display_order"] = "display_order",
     ):
         read_type(type_id, c)
         return definition_page(
@@ -473,12 +474,13 @@ def catalogue(kind):
     ):
         type_locked(c, kind, type_id, version)
         field_id = c.execute(
-            """INSERT INTO resource_type_fields(kind,type_id,name,translations,display_order,required,
-            max_length,data_type,default_value) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,resource_field_decode(%s,(%s::jsonb)->'default')) RETURNING id""",
+            """INSERT INTO resource_type_fields(kind,type_id,name,code,translations,display_order,required,
+            max_length,data_type,default_value) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,resource_field_decode(%s,(%s::jsonb)->'default')) RETURNING id""",
             (
                 kind,
                 type_id,
                 body.name,
+                body.code,
                 Jsonb(body.translations) if body.translations else None,
                 field_position(c, kind, type_id, body.display_order),
                 body.required,
@@ -505,10 +507,11 @@ def catalogue(kind):
         type_locked(c, kind, type_id, version)
         existing = field_row(c, kind, type_id, field_id)
         c.execute(
-            """UPDATE resource_type_fields SET name=%s,translations=%s,display_order=%s,required=%s,
+            """UPDATE resource_type_fields SET name=%s,code=coalesce(%s,code),translations=%s,display_order=%s,required=%s,
                      max_length=%s,data_type=%s,default_value=resource_field_decode(%s,(%s::jsonb)->'default') WHERE id=%s""",
             (
                 body.name,
+                body.code,
                 Jsonb(body.translations) if body.translations else None,
                 field_position(c, kind, type_id, body.display_order, existing["display_order"]),
                 body.required,

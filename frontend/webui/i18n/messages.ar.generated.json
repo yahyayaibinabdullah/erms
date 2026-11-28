@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
-  "catalogue_sha256": "760fd9251c0b2f2fd68c8fac9b86bd8e896e4a444868e5a870af6bf4a11de0c4",
+  "catalogue_sha256": "40c61cd45ceefeabd5d4e4755fcc6b0c736032a435959d0c8040940bf292e681",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261126113650",
   "generated_at": "2026-11-26T11:36:50.051766+04:00",
@@ -28010,6 +28010,66 @@
         "source_status": "published",
         "date_reviewed": "2026-11-26T06:36:57.831341+00:00",
         "date_published": "2026-11-26T06:36:57.831341+00:00"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.code_help",
+      "translated_text": "اترك الرمز فارغًا لاستخدام اسم الحقل. تُستبدل المسافات وعلامات الترقيم بشرطات سفلية.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "resource-field-codes-v1",
+        "batch_id": "resource-field-codes-20261128",
+        "generated_at": "2026-11-28T12:09:43.771971+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "40c61cd45ceefeabd5d4e4755fcc6b0c736032a435959d0c8040940bf292e681"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.code_invalid",
+      "translated_text": "أدخل رمزًا للحقل يحتوي على حرف أو رقم واحد على الأقل.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "resource-field-codes-v1",
+        "batch_id": "resource-field-codes-20261128",
+        "generated_at": "2026-11-28T12:09:43.771971+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "40c61cd45ceefeabd5d4e4755fcc6b0c736032a435959d0c8040940bf292e681"
+      }
+    },
+    {
+      "message_key": "resource_types.ui.code_taken",
+      "translated_text": "يستخدم حقل آخر في هذا النوع الرمز نفسه. أدخل رمزًا مختلفًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "resource-field-codes-v1",
+        "batch_id": "resource-field-codes-20261128",
+        "generated_at": "2026-11-28T12:09:43.771971+00:00",
+        "specification_sha256": "72f08a1ca60c8e0e1bff84609b5b3d9295e7d2c5e5c1049044dcb417386487b6",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "catalogue_sha256": "40c61cd45ceefeabd5d4e4755fcc6b0c736032a435959d0c8040940bf292e681"
       }
     },
     {

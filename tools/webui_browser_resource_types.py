@@ -401,6 +401,8 @@ def check_types(page):
         page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 2)
         field_name = "Keyboard limit " + lang
         page.fill(t("name"), field_name)
+        code_label = page.t("entity_metadata.field.code")
+        page.fill(code_label, "browser / code")
         order = page.field(t("order"))
         assert [order.get_attribute(key) for key in ("type", "min", "max", "value")] == ["number", "1", "3", "3"]
         page.activate(order)
@@ -478,6 +480,12 @@ def check_types(page):
             page.wait.until(lambda _: row(field_name, fields).find_elements("css selector", "td")[1].text == str(position))
 
         wait_position(3)
+        assert "BROWSER_CODE" in row(field_name, fields).text
+        assert page.driver.execute_script("""
+            const table = arguments[0].querySelector('.q-table__middle');
+            return table.scrollWidth <= table.clientWidth + 1;
+        """, fields), "Field codes and actions should fit together at desktop width"
+        page.capture("type-field-codes-" + lang)
         row_action("earlier", field_name, fields)
         wait_position(2)
         row_action("later", field_name, fields)
@@ -494,6 +502,11 @@ def check_types(page):
         page.driver.execute_script("document.execCommand('insertText', false, '4')")
         assert order.get_property("value") == "3"
         assert page.field(t("maximum")).get_attribute("value") == "1024"
+        assert page.field(code_label).get_property("value") == "BROWSER_CODE"
+        page.fill(code_label, "grade")
+        action("save", dialog())
+        page.see(t("code_taken"))
+        page.fill(code_label, "edited - code")
         assert page.field(t("default")).get_attribute("value") == "abc"
         page.fill(t("order"), "1")
         page.fill(t("maximum"), "255")
@@ -502,6 +515,7 @@ def check_types(page):
         action("save", dialog())
         page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 1)
         wait_position(1)
+        assert "EDITED_CODE" in row(field_name, fields).text
         row_action("delete", field_name, fields)
         page.see(t("delete_confirm"))
         action("delete", dialog())
@@ -1011,7 +1025,9 @@ def check_types(page):
                 page.wait.until(lambda _: len(page.visible(".q-dialog__inner > .q-card")) == 3)
                 picker = dialog()
                 page.activate(page.one("[role=checkbox]", scope=row("Replacement", picker)))
-                page.click(t("select"), scope=picker)
+                select_button = page.button(t("select"), scope=picker)
+                page.wait.until(lambda _: select_button.is_enabled())
+                page.activate(select_button)
                 page.see(t("discard"))
                 page.click(page.t("disposition.ui.continue") if confirm else t("cancel"), scope=dialog())
                 page.wait.until(lambda _: (("Replacement" if confirm else owner_label) in section.text

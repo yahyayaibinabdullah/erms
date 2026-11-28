@@ -152,12 +152,15 @@ class Acceptance:
             return True
         self.wait.until(select)
         self.wait.until(lambda _: plain(self.one('[role=tab][aria-selected=true]').text)==self.t('settings.category.'+category))
+    def wait_for_settings_tabs(self):
+        self.one('.application-settings-page [role=tab][aria-selected=true]')
+
     def settings(self):
         previous_id=self.driver.execute_script("return document.querySelector('.application-settings-page')?.id")
         self.drawer('application_settings')
         if previous_id:
             self.wait.until(lambda _:not self.driver.find_elements(By.ID,previous_id))
-        self.wait.until(lambda _:len(self.driver.find_elements(By.CSS_SELECTOR,'[role=tab]'))==7)
+        self.wait_for_settings_tabs()
     def reload(self):
         self.errors()
         self.driver.refresh()
@@ -248,7 +251,7 @@ class Acceptance:
         self.button(self.t('preferences.action.save'), scope=dialog).send_keys(Keys.ENTER)
         self.wait.until(lambda _:self.driver.execute_script('return document.documentElement.lang')==language)
         self.language=language
-        self.wait.until(lambda _:len(self.driver.find_elements(By.CSS_SELECTOR,'[role=tab]'))==7)
+        self.wait_for_settings_tabs()
 
     def general(self):
         window=self.t('settings.field.review_warning_window_days.label')
@@ -344,7 +347,7 @@ class Acceptance:
             self.wait.until(lambda _:len(self.visible('button[aria-label]'))>0)
             def links():return [e for e in self.visible('button[aria-label]') if plain(e.get_attribute('aria-label'))==label]
             self.wait.until(lambda _:links());links()[0].click()
-            self.wait.until(lambda _:len(self.driver.find_elements(By.CSS_SELECTOR,'[role=tab]'))==7)
+            self.wait_for_settings_tabs()
             assert plain(self.one('[role=tab][aria-selected=true]').text)==self.t('settings.category.general')
 
     def setting_box(self,key): return self.one('[data-setting-key="'+key+'"]')
@@ -487,12 +490,12 @@ class Acceptance:
             self.report['history_request_index']=len(self.events())
             self.driver.get(self.args.api+'/health')
             self.driver.get(self.args.url+'/')
-            self.wait.until(lambda _:len(self.driver.find_elements(By.CSS_SELECTOR,'[role=tab]'))==7)
+            self.wait_for_settings_tabs()
             count=self.driver.execute_script('return history.length')
             self.drawer('dashboard');self.settings()
             assert self.driver.execute_script('return history.length')==count
             self.driver.back();self.wait.until(lambda _:self.driver.current_url==self.args.api+'/health')
-            self.driver.forward();self.wait.until(lambda _:len(self.driver.find_elements(By.CSS_SELECTOR,'[role=tab]'))==7)
+            self.driver.forward();self.wait_for_settings_tabs()
         with self.check('ordinary sign-out clears a private Settings draft'):
             self.fill(self.t('settings.field.reason'),'Private identity draft')
             self.sign_out()

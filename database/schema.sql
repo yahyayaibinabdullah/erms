@@ -13502,6 +13502,11 @@ RETURN CASE WHEN literal IS NOT DISTINCT FROM NULL THEN NOT required ELSE
         WHEN 'single_choice' THEN literal.choice_id IS NOT NULL
     END, false) END;
 
+CREATE FUNCTION public.resource_field_code(value text) RETURNS text
+LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
+RETURN trim(both '_' from regexp_replace(upper(normalize(value) COLLATE pg_catalog."und-x-icu"),
+                                         '[^[:alnum:]]+', '_', 'g'));
+
 CREATE TABLE public.resource_type_fields (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     kind text NOT NULL,
@@ -13518,6 +13523,9 @@ CREATE TABLE public.resource_type_fields (
     default_value public.resource_field_literal,
     default_choice_id bigint GENERATED ALWAYS AS ((default_value).choice_id) STORED,
     text_capacity integer GENERATED ALWAYS AS (coalesce(max_length, 0)) STORED,
+    code text NOT NULL,
+    CONSTRAINT resource_field_code_format CHECK (code <> '' AND code = public.resource_field_code(code)),
+    CONSTRAINT resource_field_code_unique UNIQUE (kind,type_id,code),
     CHECK ((data_type = 'text' AND max_length IS NOT NULL AND max_length > 0) OR
            (data_type <> 'text' AND max_length IS NULL)),
     CHECK (default_value IS NOT DISTINCT FROM NULL OR
@@ -13528,6 +13536,19 @@ CREATE TABLE public.resource_type_fields (
     UNIQUE (id, text_capacity),
     UNIQUE (id, data_type)
 );
+
+CREATE FUNCTION public.assign_resource_field_code() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+    IF TG_OP = 'INSERT' AND NEW.code IS NULL THEN
+        NEW.code := coalesce(nullif(public.resource_field_code(NEW.name), ''), 'FIELD_' || NEW.id);
+    ELSE
+        NEW.code := public.resource_field_code(NEW.code);
+    END IF;
+    RETURN NEW;
+END $$;
+CREATE TRIGGER resource_fields_assign_code BEFORE INSERT OR UPDATE OF code ON public.resource_type_fields
+    FOR EACH ROW EXECUTE FUNCTION public.assign_resource_field_code();
 
 CREATE TABLE public.resource_field_choices (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

@@ -4,6 +4,21 @@
 
 **Prepared:** 18 November 2026
 
+**28 November 2026 extension — field codes.** Deliver the approved section 2
+amendment in the following order.
+
+1. Add the code and a database uniqueness constraint scoped to the owning type.
+   Apply the same normalization to new writes and to the populated upgrade.
+   Keep field IDs and references, audit the backfill as a migration, and record
+   the upgrade in the fresh-install baseline.
+2. Expose codes on field-definition reads and writes and in both type editors
+   and field lists. Existing clients can omit the code on creation or editing.
+3. Verify fresh and upgraded databases, collisions, renames, existing values
+   and generator references. Exercise both administration screens and access
+   rules. Verify the authorized demo backfill against its original field IDs.
+
+Completed locally on 28 November 2026. [Implementation and verification evidence](../docs/aggregation-and-record-types-implementation-traceability.md#field-codes-28-november-2026-amendment-to-art-01)
+
 **Authority:** The user approved the updated
 [type specification](aggregation-and-record-types.md), including the
 [query approach](resource-type-authorization-design.md), on 18 November 2026.

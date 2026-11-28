@@ -44,6 +44,14 @@ client meta-commands such as `\\i`, `\\ir`, `\\set`, and `\\copy` are prohibited
 
 ## Existing database
 
+Apply [migration 128](migrations/128_resource_field_codes.sql) after migrations
+126 and 127 and before deploying the type field editor. Take a backup first.
+The migration locks the type and field definitions, assigns codes in place,
+records the changes in history and advances the version of each affected type.
+Refresh any open field editors. To review the backfill, list `id, kind, type_id,
+name, code` from `resource_type_fields` in field ID order. See the
+[field code rules](../specs/aggregation-and-record-types.md#field-codes).
+
 Apply [migration 125](migrations/125_type_administration_privilege_codes.sql)
 with the updated API and WebUI in the same maintenance window. It renames
 `aggregations.administer` to `aggregation_types.administer` and

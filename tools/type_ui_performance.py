@@ -74,6 +74,10 @@ def exercise(db, client, output, repeats):
             "SELECT id FROM resource_type_fields WHERE kind=%s AND type_id=%s ORDER BY display_order,id",
             (kind, reference["type_id"]),
         )
+        fields_by_code = ids(
+            "SELECT id FROM resource_type_fields WHERE kind=%s AND type_id=%s ORDER BY code,id",
+            (kind, reference["type_id"]),
+        )
         choices = ids(
             "SELECT id FROM resource_field_choices WHERE field_id=%s ORDER BY display_order,id",
             (choice["id"],),
@@ -82,6 +86,7 @@ def exercise(db, client, output, repeats):
             (root, "", types, "name"),
             (root + "/options", "", allowed, "name"),
             (root + f"/{reference['type_id']}/fields", "", field_ids, "display_order"),
+            (root + f"/{reference['type_id']}/fields", "", fields_by_code, "code"),
             (
                 root + f"/{choice['type_id']}/fields/{choice['id']}/choices",
                 "",

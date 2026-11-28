@@ -558,6 +558,10 @@ async def database_error_handler(_, exception: psycopg.Error):
             "code": "duplicate_resource_number",
             "resource": "aggregations" if constraint_name.startswith("aggregations_") else "records",
         }})
+    if constraint_name == "resource_field_code_unique":
+        return JSONResponse(status_code=409, content={"detail": {"code": "resource_field_code_taken"}})
+    if constraint_name == "resource_field_code_format":
+        return JSONResponse(status_code=422, content={"detail": {"code": "resource_field_code_invalid"}})
     friendly_constraint = constraint_messages.get(constraint_name or "")
     if isinstance(exception, PoolTimeout):
         status_code = status.HTTP_503_SERVICE_UNAVAILABLE

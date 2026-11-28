@@ -242,13 +242,14 @@ async def type_administration(*, api, kind, container, languages, active, on_err
         if level in {"field", "choice"}:
             columns.append(col("display_order", "order", True))
         if level == "field":
+            columns.append(col("code", "code", True))
             columns.append(col("display_type", "data_type"))
         if level == "access":
             columns.extend([col("see", "see"), col("use", "use")])
         columns.append(dict(col("actions", "edit"), label=""))
         page = PageTable(
             columns=columns,
-            wrap_cells=level == "access",
+            wrap_cells=level in {"access", "field"},
             fetch=fetch,
             active=current,
             on_error=on_error,
@@ -357,8 +358,11 @@ async def type_administration(*, api, kind, container, languages, active, on_err
                 suffix = "role-options" if action == "access" else action
                 with (
                     ui.dialog() as child,
-                    ui.card().classes("messaging-workspace w-full max-w-4xl"),
+                    ui.card().classes("messaging-workspace w-full max-w-4xl") as child_card,
                 ):
+                    if action == "fields":
+                        # The dialog's 560px card limit overrides max-w-4xl and clips row actions.
+                        child_card.style("max-width: min(56rem, 100%)")
                     ui.label(f"{label(row)} · {t(action)}").classes(
                         "text-lg font-semibold"
                     )
@@ -421,6 +425,10 @@ async def type_administration(*, api, kind, container, languages, active, on_err
                             .props("outlined autogrow")
                             .classes("w-full")
                         )
+                    if level == "field":
+                        code = ui.input(t("code"), value=row.get("code", "")).props("outlined").classes("w-full")
+                        if not row:
+                            ui.label(t("code_help")).classes("text-caption")
                     translations = deepcopy(row.get("translations") or {})
                     stage = await entity_translation_editor(
                         api,
@@ -531,6 +539,9 @@ async def type_administration(*, api, kind, container, languages, active, on_err
                 async def save():
                     if not current() or not editor.value:
                         return
+                    if level == "field" and row and not (code.value or "").strip():
+                        feedback.text = t("code_invalid")
+                        return
                     button.disable()
                     try:
                         creating = not row
@@ -554,6 +565,9 @@ async def type_administration(*, api, kind, container, languages, active, on_err
                                     raise ValueError(t("invalid"))
                                 body["display_order"] = position
                             elif level == "field":
+                                entered_code = (code.value or "").strip()
+                                if entered_code:
+                                    body["code"] = entered_code
                                 position = _positive_integer(order.value, last_position)
                                 if position is None:
                                     raise ValueError(t("invalid"))
@@ -590,11 +604,14 @@ async def type_administration(*, api, kind, container, languages, active, on_err
                             ]
                     except (ValueError, TypeError, ApiError) as error:
                         if editor.value and current():
-                            feedback.text = (
-                                (t("conflict") if error.status_code == 412 else on_error(error))
-                                if isinstance(error, ApiError)
-                                else t("invalid")
-                            )
+                            if isinstance(error, ApiError):
+                                reason = error.detail.get("code") if isinstance(error.detail, dict) else None
+                                if reason in {"resource_field_code_taken", "resource_field_code_invalid"}:
+                                    feedback.text = t("code_taken" if reason == "resource_field_code_taken" else "code_invalid")
+                                else:
+                                    feedback.text = t("conflict") if error.status_code == 412 else on_error(error)
+                            else:
+                                feedback.text = t("invalid")
                             button.enable()
                         return
                     editor.close()

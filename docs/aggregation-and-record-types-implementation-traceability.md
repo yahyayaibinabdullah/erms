@@ -8,6 +8,52 @@ Authority: [approved specification](../specs/aggregation-and-record-types.md)
 and [phased implementation plan](../specs/aggregation-and-record-types-implementation-plan.md).
 Phase numbers below refer to that plan. The evidence column describes the complete requirement across its owning phases. Each phase records the portion exercised before the next phase begins.
 
+### Field codes (28 November 2026 amendment to ART-01)
+
+The [field code rules](../specs/aggregation-and-record-types.md#field-codes)
+apply to both catalogues. [Migration 128](../database/migrations/128_resource_field_codes.sql)
+and the canonical schema enforce the same normalization and per-type uniqueness.
+The [definition API](../backend/services/api/resource_types.py) and
+[Fields editor](../frontend/webui/type_administration.py) expose the code.
+[API and upgrade tests](../backend/services/api/tests/test_resource_field_codes.py)
+cover collisions, code changes, name changes, permission checks, stale edits,
+audit history, paging and preservation of generator bindings and existing values.
+The [browser scenarios](../tools/webui_browser_resource_types.py) exercise
+creating, displaying and editing codes and recovering from a duplicate in both
+catalogues in English and Arabic.
+
+In the Arabic Fields dialog the standard card applied a 560 px maximum
+despite its width class. The table needed 633 px inside a 486 px scroll area.
+The Fields card now sets its maximum width through NiceGUI and uses the
+existing table's cell-wrapping option. The browser check verifies that codes
+and row actions fit together at desktop width.
+
+The populated upgrade rehearsal starts at commit
+`997a49a2051d8f7d3301b558167f4288d98d1241`. Run
+`tools/run_disposable_acl_tests.py` with that `--baseline-ref`, the three
+`--migration` paths for 126, 127 and 128 in order, `--seed-required-reference-data`,
+`--defer-migrations-to-test`, and the test selector
+`backend/services/api/tests/test_resource_field_codes.py::test_populated_field_code_upgrade`.
+The rehearsal passed and a separate schema-dump comparison matched the
+fresh schema to the upgraded schema. The local demo backfill preserved
+all nine field IDs and four stored values and recorded nine field updates.
+
+The `--type-ui` benchmark used 51,003 aggregations and 153,009 records. For
+each kind it requested 25 fields at offsets 0, 25 and 125 from a type with
+145 fields, three times, and checked each ID in code order. Across those 18
+requests the median was 7.1 ms, the 95th percentile was 8.6 ms and the maximum
+was 8.6 ms. The 258 type-administration samples and 237 structured-search
+samples all finished within three seconds. Local per-request results and host
+measurements are under `.runtime/resource-field-codes/type-ui-benchmark/`.
+
+191 distinct affected tests passed across the API, upgrade, schema, WebUI and
+translation checks. The English and Arabic field editor scenarios passed for
+both kinds. Two runs of the wider browser suite stopped at different steps,
+one selecting a replacement aggregation type and one cancelling a record
+draft. Both workflows passed on a fresh disposable database in a focused
+rerun. The full-run reports and the focused `workflow-recheck` report are
+retained under `.runtime/resource-field-codes/`.
+
 | Requirement | Owning phases | Required evidence | Status |
 | --- | --- | --- | --- |
 | ART-01 — catalogues, optional compatible type, stable IDs, uniqueness | 1, 2 | Schema/upgrade constraints, API membership/uniqueness tests, preserved untyped data | Schema, populated upgrade and scoped administration/assignment APIs verified. |

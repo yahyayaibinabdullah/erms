@@ -32220,6 +32220,48 @@
     "is_html": false
   },
   {
+    "message_key": "resource_types.ui.code_help",
+    "context_group": "resource_types.ui",
+    "default_text": "Leave blank to use the field name. Spaces and punctuation become underscores.",
+    "semantic_meaning": "Explains the default when creating a field.",
+    "common_locations": [
+      "Aggregation and record type field editor"
+    ],
+    "translator_guidance": "Code identifies a field definition within its type.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Leave blank to use the field name. Spaces and punctuation become underscores.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.code_invalid",
+    "context_group": "resource_types.ui",
+    "default_text": "Enter a field code containing at least one letter or digit.",
+    "semantic_meaning": "Explains why a field code cannot be saved.",
+    "common_locations": [
+      "Aggregation and record type field editor"
+    ],
+    "translator_guidance": "Code identifies a field definition within its type.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Enter a field code containing at least one letter or digit.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_types.ui.code_taken",
+    "context_group": "resource_types.ui",
+    "default_text": "Another field in this type already uses this code. Enter a different code.",
+    "semantic_meaning": "Reports a code already assigned in this type.",
+    "common_locations": [
+      "Aggregation and record type field editor"
+    ],
+    "translator_guidance": "Code identifies a field definition within its type.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Another field in this type already uses this code. Enter a different code.",
+    "is_html": false
+  },
+  {
     "message_key": "resource_types.ui.condition",
     "context_group": "resource_types.ui",
     "default_text": "Type-specific field",
